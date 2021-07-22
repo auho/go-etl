@@ -8,15 +8,18 @@ import (
 )
 
 type TaskConfig struct {
-	Name string
+	Name     string
+	Action   ActionConfig
+	DbSource DbSourceConfig
+	DbTarget DbTargetConfig
 }
 
-type Action struct {
+type ActionConfig struct {
 	Name          string
 	MaxConcurrent int
 }
 
-type SourceDB struct {
+type DbSourceConfig struct {
 	MaxConcurrent int
 	Size          int
 	Page          int
@@ -24,9 +27,11 @@ type SourceDB struct {
 	Dsn           string
 	Scheme        string
 	Table         string
+	PKeyName      string
+	Fields        []string
 }
 
-type TargetDB struct {
+type DbTargetConfig struct {
 	MaxConcurrent int
 	Size          int
 	Driver        string
