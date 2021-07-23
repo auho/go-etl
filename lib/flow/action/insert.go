@@ -20,8 +20,7 @@ func NewInsertAction() *InsertAction {
 	return ia
 }
 
-func (ia *InsertAction) receiveItem() []map[string]interface{} {
-	return nil
+func (ia *InsertAction) receive() {
 }
 
 func (ia *InsertAction) DoItem(item map[string]interface{}) {
