@@ -82,8 +82,10 @@ func (ds *DbSource) Start() {
 	ds.sw.Wait()
 }
 
-func (ds *DbSource) Receive() []map[string]interface{} {
-	return <-ds.itemsChan
+func (ds *DbSource) Receive() ([]map[string]interface{}, bool) {
+	items, ok := <-ds.itemsChan
+
+	return items, ok
 }
 
 func (ds *DbSource) rows(query string) {

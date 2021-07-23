@@ -21,6 +21,16 @@ func NewInsertAction() *InsertAction {
 }
 
 func (ia *InsertAction) receive() {
+	for {
+		items, ok := ia.source.Receive()
+		if ok == false {
+			break
+		}
+
+		for _, item := range items {
+			ia.DoItem(item)
+		}
+	}
 }
 
 func (ia *InsertAction) DoItem(item map[string]interface{}) {
