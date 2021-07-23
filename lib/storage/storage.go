@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"etl/lib/conf"
+
 	"github.com/auho/go-simple-db/simple"
 )
 
@@ -29,7 +30,7 @@ type DbSource struct {
 	sw       sync.WaitGroup
 	pageChan chan int
 
-	db simple.DB
+	db simple.Driver
 }
 
 func NewDbSource(dsConfig conf.DbSourceConfig) *DbSource {
@@ -88,7 +89,7 @@ func (ds *DbSource) rows() {
 
 func (ds *DbSource) maxRows() int64 {
 	query := ds.generateMaxSql()
-	value, err := ds.db.QueryField(ds.pKeyName, query)
+	value, err := ds.db.QueryFieldInterface(ds.pKeyName, query)
 	if err != nil {
 		log.Fatalln(err)
 	}

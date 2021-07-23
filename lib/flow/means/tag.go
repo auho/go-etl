@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strings"
 
+	"etl/lib/flow"
+
 	"github.com/auho/go-simple-db/simple"
 )
 
@@ -50,15 +52,39 @@ func NewTagResult() *TagResult {
 
 type TagMatcherOption func(*TagMatcher)
 
-func WithTagMatcherData(d string) TagMatcherOption {
+func WithTagMatcherDataName(d string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.dataName = d
 	}
 }
 
-func WittTagMatcherAlias(alias map[string]string) TagMatcherOption {
+func WithTagMatcherAlias(alias map[string]string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.alias = alias
+	}
+}
+
+func WithTagMatcherShortTableName(s string) TagMatcherOption {
+	return func(t *TagMatcher) {
+		t.shortTableName = s
+	}
+}
+
+func WithTagMatcherFixedTags(m map[string]string) TagMatcherOption {
+	return func(t *TagMatcher) {
+		t.fixedTags = m
+	}
+}
+
+func WithTagMatcherExcludeFields(s []string) TagMatcherOption {
+	return func(t *TagMatcher) {
+		t.excludeFields = s
+	}
+}
+
+func WithTagMatcherMatcher(options []MatcherOption) TagMatcherOption {
+	return func(t *TagMatcher) {
+		t.Matcher = NewMatcher(options...)
 	}
 }
 
@@ -66,51 +92,112 @@ func WittTagMatcherAlias(alias map[string]string) TagMatcherOption {
 // tag matcher
 //
 type TagMatcher struct {
-	Matcher          *Matcher
-	db               simple.Driver
-	tagsName         []string
-	key              string
-	keyFieldName     string
-	keyNumFieldName  string
-	keyTableName     string
-	dataName         string
-	alias            map[string]string
-	excludeRuleField []string
+	Matcher           *Matcher
+	db                simple.Driver
+	tagsName          []string
+	key               string
+	keyFieldName      string
+	keyNumFieldName   string
+	tableName         string
+	tableTagFields    []string
+	excludeTableField []string
+
+	dataName       string
+	shortTableName string
+
+	alias         map[string]string
+	excludeFields []string
+
+	fixedTags   map[string]string
+	fixedKeys   []string
+	fixedValues []interface{}
 }
 
 func NewTagMatcher(key string, db simple.Driver, Options ...TagMatcherOption) *TagMatcher {
 	t := &TagMatcher{}
 	t.key = key
 	t.db = db
-	t.excludeRuleField = []string{"id", "keyword_len"}
+	t.excludeTableField = []string{"id", "keyword_len"}
 
 	for _, option := range Options {
 		option(t)
 	}
 
+	if t.Matcher == nil {
+		t.Matcher = NewMatcher()
+	}
+
+	t.init()
+	t.Matcher.init(t.keyFieldName, t.getRules())
+
 	return t
 }
 
-func (t *TagMatcher) getRules() []map[string]string {
-	row, err := t.db.GetTableColumns(t.keyTableName)
+func (t *TagMatcher) init() {
+	if t.shortTableName != "" {
+		t.tableName = flow.RuleTableNamePrefix + "_" + t.shortTableName
+	} else if t.dataName != "" {
+		t.tableName = flow.RuleTableNamePrefix + "_" + t.dataName + "_" + t.key
+	} else {
+		t.tableName = flow.RuleTableNamePrefix + "_" + t.key
+	}
+
+	t.keyFieldName = t.key + "_keyword"
+	t.keyNumFieldName = t.keyFieldName + "_num"
+
+	row, err := t.db.GetTableColumns(t.tableName)
 	if err != nil {
 		panic(err)
 	}
 
-	columns := make([]string, 0, len(row))
+	t.tableTagFields = make([]string, 0, len(row))
 	for k := range row {
 		column := row[k].(string)
-		for _, ec := range t.excludeRuleField {
+		for _, ec := range t.excludeTableField {
 			if ec == column {
 				goto LOOP
 			}
+
+			t.tableTagFields = append(t.tableTagFields, column)
+
 		}
 
-		columns = append(columns)
 	LOOP:
 	}
 
-	query := fmt.Sprintf("SELECT `%s` FROM `%s` ORDER BY `keyword_len` DESC, `id` ASC", strings.Join(columns, "`, `"), t.keyTableName)
+	copy(t.tagsName, t.tableTagFields)
+
+	for k, v := range t.tagsName {
+		if s, ok := t.alias[v]; ok {
+			t.tagsName[k] = s
+		}
+	}
+
+	t.fixedKeys = make([]string, 0)
+	t.fixedValues = make([]interface{}, 0)
+	if len(t.fixedTags) > 0 {
+		for k := range t.fixedTags {
+			if s, ok := t.alias[k]; ok {
+				k = s
+			}
+
+			t.fixedKeys = append(t.fixedKeys, k)
+			t.fixedValues = append(t.fixedValues, t.fixedTags[k])
+		}
+	}
+}
+
+func (t *TagMatcher) getRules() []map[string]string {
+	columns := make([]string, 0)
+	for _, f := range t.tableTagFields {
+		if s, ok := t.alias[f]; ok {
+			f = s
+		}
+
+		columns = append(columns, f)
+	}
+
+	query := fmt.Sprintf("SELECT `%s` FROM `%s` ORDER BY `keyword_len` DESC, `id` ASC", strings.Join(columns, "`, `"), t.tableName)
 	rules, err := t.db.QueryString(query)
 	if err != nil {
 		panic(err)
@@ -124,7 +211,7 @@ func (t *TagMatcher) getRules() []map[string]string {
 }
 
 func (t *TagMatcher) GetResultInsertKeys() []string {
-	return append([]string{t.keyFieldName, t.keyNumFieldName}, t.tagsName...)
+	return append([]string{t.keyFieldName, t.keyNumFieldName}, append(t.tagsName, t.fixedKeys...)...)
 }
 
 func (t *TagMatcher) MatchUniqueText(contents []string) [][]interface{} {
@@ -163,6 +250,12 @@ func (t *TagMatcher) ResultToMap(result *Result) map[string]interface{} {
 		item[tagName] = result.Tags[tagName]
 	}
 
+	if len(t.fixedTags) > 0 {
+		for k := range t.fixedTags {
+			item[k] = t.fixedTags[k]
+		}
+	}
+
 	return item
 }
 
@@ -173,6 +266,10 @@ func (t *TagMatcher) ResultToSlice(result *Result) []interface{} {
 
 	for _, tagName := range t.tagsName {
 		item = append(item, result.Tags[tagName])
+	}
+
+	if len(t.fixedValues) > 0 {
+		item = append(item, t.fixedValues...)
 	}
 
 	return item
@@ -217,22 +314,21 @@ type Matcher struct {
 	tagsName         []string
 }
 
-func NewMatcher(keyName string, items []map[string]string, Options ...MatcherOption) *Matcher {
+func NewMatcher(Options ...MatcherOption) *Matcher {
 	m := &Matcher{}
 	m.normalRegexpName = "_rEgEx_"
-	m.regexpItems = make(map[string]map[string]string, len(items))
 	m.badKeyMap = make(map[string]string)
 
 	for _, option := range Options {
 		option(m)
 	}
 
-	m.init(keyName, items)
-
 	return m
 }
 
 func (m *Matcher) init(keyName string, items []map[string]string) {
+	m.regexpItems = make(map[string]map[string]string, len(items))
+
 	for k := range items[0] {
 		if k != keyName {
 			m.tagsName = append(m.tagsName, k)
