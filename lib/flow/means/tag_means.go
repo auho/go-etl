@@ -1,7 +1,14 @@
 package means
 
+// TagMeans
+// tag means
+//
 type TagMeans struct {
 	TagMatcher
+}
+
+func (tm *TagMeans) GetKeys() []string {
+	return tm.GetResultInsertKeys()
 }
 
 func (tm *TagMeans) insertResult(f func() *Result) [][]interface{} {
@@ -31,12 +38,23 @@ func (tm *TagMeans) updateResult(f func() *Result) map[string]interface{} {
 	return tm.ResultToMap(result)
 }
 
-type TagMostTextMeans struct {
+// TagTextMeans
+// Text
+type TagTextMeans struct {
 	TagMeans
 }
 
-func (t *TagMostTextMeans) GetKeys() []string {
-	return t.GetResultInsertKeys()
+func (t *TagTextMeans) Insert(contents []string) [][]interface{} {
+	return t.insertResults(func() []*Result {
+		return t.Matcher.MatchText(contents)
+	})
+}
+
+// TagMostTextMeans
+// Most Text
+//
+type TagMostTextMeans struct {
+	TagMeans
 }
 
 func (t *TagMostTextMeans) Insert(contents []string) [][]interface{} {
@@ -51,12 +69,11 @@ func (t *TagMostTextMeans) Update(contents []string) map[string]interface{} {
 	})
 }
 
+// TagMostKeyMeans
+// Most Key
+//
 type TagMostKeyMeans struct {
 	TagMeans
-}
-
-func (t *TagMostKeyMeans) GetKeys() []string {
-	return t.GetResultInsertKeys()
 }
 
 func (t *TagMostKeyMeans) Insert(contents []string) [][]interface{} {

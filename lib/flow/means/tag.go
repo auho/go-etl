@@ -6,15 +6,121 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/auho/go-simple-db/simple"
 )
 
+// Result
+// result
+//
+type Result struct {
+	Key           string
+	Num           int64
+	Texts         map[string]int64
+	Tags          map[string]string
+	IsTextComplex bool
+}
+
+func NewResult() *Result {
+	m := &Result{}
+	m.Tags = make(map[string]string)
+	m.Texts = make(map[string]int64)
+
+	return m
+}
+
+// TagResult
+// tag result
+//
+type TagResult struct {
+	Identity string
+	Tags     map[string]string
+	Match    map[string]map[string]int
+	KeyNum   int64
+	TextNum  int64
+}
+
+func NewTagResult() *TagResult {
+	m := &TagResult{}
+	m.Tags = make(map[string]string)
+	m.Match = make(map[string]map[string]int)
+
+	return m
+}
+
+type TagMatcherOption func(*TagMatcher)
+
+func WithTagMatcherData(d string) TagMatcherOption {
+	return func(t *TagMatcher) {
+		t.dataName = d
+	}
+}
+
+func WittTagMatcherAlias(alias map[string]string) TagMatcherOption {
+	return func(t *TagMatcher) {
+		t.alias = alias
+	}
+}
+
+// TagMatcher
+// tag matcher
+//
 type TagMatcher struct {
-	key             string
-	keyFieldName    string
-	keyNumFieldName string
-	dataName        string
-	tagsName        []string
-	Matcher         *Matcher
+	Matcher          *Matcher
+	db               simple.Driver
+	tagsName         []string
+	key              string
+	keyFieldName     string
+	keyNumFieldName  string
+	keyTableName     string
+	dataName         string
+	alias            map[string]string
+	excludeRuleField []string
+}
+
+func NewTagMatcher(key string, db simple.Driver, Options ...TagMatcherOption) *TagMatcher {
+	t := &TagMatcher{}
+	t.key = key
+	t.db = db
+	t.excludeRuleField = []string{"id", "keyword_len"}
+
+	for _, option := range Options {
+		option(t)
+	}
+
+	return t
+}
+
+func (t *TagMatcher) getRules() []map[string]string {
+	row, err := t.db.GetTableColumns(t.keyTableName)
+	if err != nil {
+		panic(err)
+	}
+
+	columns := make([]string, 0, len(row))
+	for k := range row {
+		column := row[k].(string)
+		for _, ec := range t.excludeRuleField {
+			if ec == column {
+				goto LOOP
+			}
+		}
+
+		columns = append(columns)
+	LOOP:
+	}
+
+	query := fmt.Sprintf("SELECT `%s` FROM `%s` ORDER BY `keyword_len` DESC, `id` ASC", strings.Join(columns, "`, `"), t.keyTableName)
+	rules, err := t.db.QueryString(query)
+	if err != nil {
+		panic(err)
+	}
+
+	if len(rules) <= 0 {
+		panic("rules is null")
+	}
+
+	return rules
 }
 
 func (t *TagMatcher) GetResultInsertKeys() []string {
@@ -87,49 +193,23 @@ func (t *TagMatcher) ResultsToSliceSlice(results []*Result) [][]interface{} {
 	return items
 }
 
-type Result struct {
-	Key           string
-	Num           int64
-	Texts         map[string]int64
-	Tags          map[string]string
-	IsTextComplex bool
-}
+// MatcherOption
+// tag match option
+//
+type MatcherOption func(mt *Matcher)
 
-func NewResult() *Result {
-	m := &Result{}
-	m.Tags = make(map[string]string)
-	m.Texts = make(map[string]int64)
-
-	return m
-}
-
-type TagResult struct {
-	Identity string
-	Tags     map[string]string
-	Match    map[string]map[string]int
-	KeyNum   int64
-	TextNum  int64
-}
-
-func NewTagResult() *TagResult {
-	m := &TagResult{}
-	m.Tags = make(map[string]string)
-	m.Match = make(map[string]map[string]int)
-
-	return m
-}
-
-type TagMatcherOption func(mt *Matcher)
-
-func WithTagMatcherKeyFun(f func(string) string) TagMatcherOption {
+func WithTagMatcherKeyFun(f func(string) string) MatcherOption {
 	return func(tm *Matcher) {
 		tm.addKeyFormatFun(f)
 	}
 }
 
+// Matcher
+// matcher
+//
 type Matcher struct {
 	keyFormatFunList []func(string) string
-	items            map[string]map[string]string
+	regexpItems      map[string]map[string]string
 	regexp           *regexp.Regexp
 	regexpString     string
 	normalRegexpName string
@@ -137,23 +217,25 @@ type Matcher struct {
 	tagsName         []string
 }
 
-func NewMatcher(keyName string, items []map[string]string, Options ...TagMatcherOption) *Matcher {
-	tm := &Matcher{}
-	tm.normalRegexpName = "_rEgEx_"
-	tm.items = make(map[string]map[string]string, len(items))
-	tm.badKeyMap = make(map[string]string)
+func NewMatcher(keyName string, items []map[string]string, Options ...MatcherOption) *Matcher {
+	m := &Matcher{}
+	m.normalRegexpName = "_rEgEx_"
+	m.regexpItems = make(map[string]map[string]string, len(items))
+	m.badKeyMap = make(map[string]string)
 
 	for _, option := range Options {
-		option(tm)
+		option(m)
 	}
 
-	if len(items) <= 0 {
-		panic("items is null")
-	}
+	m.init(keyName, items)
 
+	return m
+}
+
+func (m *Matcher) init(keyName string, items []map[string]string) {
 	for k := range items[0] {
 		if k != keyName {
-			tm.tagsName = append(tm.tagsName, k)
+			m.tagsName = append(m.tagsName, k)
 		}
 	}
 
@@ -163,43 +245,41 @@ func NewMatcher(keyName string, items []map[string]string, Options ...TagMatcher
 	for itemK := range items {
 		keyValue := items[itemK][keyName]
 		delete(items[itemK], keyName)
-		tm.items[keyValue] = items[itemK]
+		m.regexpItems[keyValue] = items[itemK]
 
 		newKeyValue := regexp.QuoteMeta(keyValue)
-		for _, keyFormatFun := range tm.keyFormatFunList {
+		for _, keyFormatFun := range m.keyFormatFunList {
 			newKeyValue = keyFormatFun(newKeyValue)
 		}
 
 		if newKeyValue == keyValue {
 			regexpNormalItems = append(regexpNormalItems, newKeyValue)
 		} else {
-			keyGroupName := tm.correctBadKeyOfGroupName(keyValue, itemK)
+			keyGroupName := m.correctBadKeyOfGroupName(keyValue, itemK)
 			regexpGroupItems = append(regexpGroupItems, fmt.Sprintf(`(?P<%s>%s)`, keyGroupName, newKeyValue))
 		}
 	}
 
 	if len(regexpNormalItems) > 0 {
-		regexpGroupItems = append([]string{fmt.Sprintf("(?P<%s>%s)", tm.normalRegexpName, strings.Join(regexpNormalItems, "|"))}, regexpGroupItems...)
+		regexpGroupItems = append([]string{fmt.Sprintf("(?P<%s>%s)", m.normalRegexpName, strings.Join(regexpNormalItems, "|"))}, regexpGroupItems...)
 	}
 
-	tm.regexpString = strings.Join(regexpGroupItems, "|")
-	tm.regexp = regexp.MustCompile(tm.regexpString)
-	tm.regexp.Longest()
-
-	return tm
+	m.regexpString = strings.Join(regexpGroupItems, "|")
+	m.regexp = regexp.MustCompile(m.regexpString)
+	m.regexp.Longest()
 }
 
-func (tm *Matcher) Match(contents []string) []*Result {
-	matches := tm.findAllMatch(contents)
+func (m *Matcher) Match(contents []string) []*Result {
+	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
 
-	return tm.matchesToResults(matches)
+	return m.matchesToResults(matches)
 }
 
-func (tm *Matcher) MatchText(contents []string) []*Result {
-	matches := tm.findAllMatch(contents)
+func (m *Matcher) MatchText(contents []string) []*Result {
+	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
@@ -215,7 +295,7 @@ func (tm *Matcher) MatchText(contents []string) []*Result {
 			results[index].Texts[text] = 1
 			results[index].Num += 1
 		} else {
-			results = append(results, tm.matchToResult(match, false))
+			results = append(results, m.matchToResult(match, false))
 			resultIndex[key] = len(results) - 1
 		}
 	}
@@ -223,8 +303,8 @@ func (tm *Matcher) MatchText(contents []string) []*Result {
 	return results
 }
 
-func (tm *Matcher) MatchKey(contents []string) []*Result {
-	matches := tm.findAllMatch(contents)
+func (m *Matcher) MatchKey(contents []string) []*Result {
+	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
@@ -245,7 +325,7 @@ func (tm *Matcher) MatchKey(contents []string) []*Result {
 
 			results[index].Num += 1
 		} else {
-			results = append(results, tm.matchToResult(match, true))
+			results = append(results, m.matchToResult(match, true))
 			resultIndex[key] = len(results) - 1
 		}
 	}
@@ -253,26 +333,26 @@ func (tm *Matcher) MatchKey(contents []string) []*Result {
 	return results
 }
 
-func (tm *Matcher) MatchFirstText(contents []string) *Result {
-	matches := tm.findAllMatch(contents)
+func (m *Matcher) MatchFirstText(contents []string) *Result {
+	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
 
-	return tm.matchToResult(matches[0], false)
+	return m.matchToResult(matches[0], false)
 }
 
-func (tm *Matcher) MatchLastText(contents []string) *Result {
-	matches := tm.findAllMatch(contents)
+func (m *Matcher) MatchLastText(contents []string) *Result {
+	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
 
-	return tm.matchToResult(matches[len(matches)-1], false)
+	return m.matchToResult(matches[len(matches)-1], false)
 }
 
-func (tm *Matcher) MatchMostKey(contents []string) *Result {
-	results := tm.MatchKey(contents)
+func (m *Matcher) MatchMostKey(contents []string) *Result {
+	results := m.MatchKey(contents)
 	if results == nil {
 		return nil
 	}
@@ -282,8 +362,8 @@ func (tm *Matcher) MatchMostKey(contents []string) *Result {
 	return results[0]
 }
 
-func (tm *Matcher) MatchMostText(contents []string) *Result {
-	results := tm.MatchText(contents)
+func (m *Matcher) MatchMostText(contents []string) *Result {
+	results := m.MatchText(contents)
 	if results == nil {
 		return nil
 	}
@@ -293,8 +373,8 @@ func (tm *Matcher) MatchMostText(contents []string) *Result {
 	return results[0]
 }
 
-func (tm *Matcher) MatchTag(contents []string) []*TagResult {
-	matches := tm.findAllMatch(contents)
+func (m *Matcher) MatchTag(contents []string) []*TagResult {
+	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
@@ -306,10 +386,10 @@ func (tm *Matcher) MatchTag(contents []string) []*TagResult {
 		key := match[0]
 		text := match[1]
 
-		tags := tm.items[key]
+		tags := m.regexpItems[key]
 
 		tagsContent := ""
-		for _, tag := range tm.tagsName {
+		for _, tag := range m.tagsName {
 			tagsContent = tagsContent + "-" + tags[tag]
 		}
 
@@ -344,8 +424,8 @@ func (tm *Matcher) MatchTag(contents []string) []*TagResult {
 	return results
 }
 
-func (tm *Matcher) MatchTagMostText(contents []string) *TagResult {
-	results := tm.MatchTag(contents)
+func (m *Matcher) MatchTagMostText(contents []string) *TagResult {
+	results := m.MatchTag(contents)
 	if results == nil {
 		return nil
 	}
@@ -355,42 +435,42 @@ func (tm *Matcher) MatchTagMostText(contents []string) *TagResult {
 	return results[0]
 }
 
-func (tm *Matcher) addKeyFormatFun(f func(string) string) {
-	tm.keyFormatFunList = append(tm.keyFormatFunList, f)
+func (m *Matcher) addKeyFormatFun(f func(string) string) {
+	m.keyFormatFunList = append(m.keyFormatFunList, f)
 }
 
-func (tm *Matcher) correctBadKeyOfGroupName(key string, keyIndex int) string {
-	newKey := fmt.Sprintf("%s%d", tm.normalRegexpName, keyIndex)
-	tm.badKeyMap[newKey] = key
+func (m *Matcher) correctBadKeyOfGroupName(key string, keyIndex int) string {
+	newKey := fmt.Sprintf("%s%d", m.normalRegexpName, keyIndex)
+	m.badKeyMap[newKey] = key
 
 	return newKey
 }
 
-func (tm *Matcher) matchesToResults(matches [][]string) []*Result {
+func (m *Matcher) matchesToResults(matches [][]string) []*Result {
 	results := make([]*Result, 0, len(matches))
 	for k := range matches {
-		results = append(results, tm.matchToResult(matches[k], false))
+		results = append(results, m.matchToResult(matches[k], false))
 	}
 
 	return results
 }
 
-func (tm *Matcher) matchToResult(match []string, isTextComplex bool) *Result {
+func (m *Matcher) matchToResult(match []string, isTextComplex bool) *Result {
 	mRes := NewResult()
 	mRes.Key = match[0]
 	mRes.Texts[match[1]] = 1
 	mRes.Num = 1
-	mRes.Tags = tm.items[mRes.Key]
+	mRes.Tags = m.regexpItems[mRes.Key]
 	mRes.IsTextComplex = isTextComplex
 
 	return mRes
 }
 
-func (tm *Matcher) findAllMatch(contents []string) [][]string {
+func (m *Matcher) findAllMatch(contents []string) [][]string {
 	results := make([][]string, 0)
 
 	for _, content := range contents {
-		res := tm.findAllSubMatch(content)
+		res := m.findAllSubMatch(content)
 		if res != nil {
 			results = append(results, res...)
 		}
@@ -399,9 +479,9 @@ func (tm *Matcher) findAllMatch(contents []string) [][]string {
 	return results
 }
 
-func (tm *Matcher) findAllSubMatch(content string) [][]string {
-	allSubGroup := tm.regexp.SubexpNames()
-	allSubMatch := tm.regexp.FindAllStringSubmatch(content, -1)
+func (m *Matcher) findAllSubMatch(content string) [][]string {
+	allSubGroup := m.regexp.SubexpNames()
+	allSubMatch := m.regexp.FindAllStringSubmatch(content, -1)
 
 	matches := make([][]string, 0, len(allSubMatch))
 	for _, subMatch := range allSubMatch {
@@ -412,10 +492,10 @@ func (tm *Matcher) findAllSubMatch(content string) [][]string {
 
 			group := allSubGroup[k]
 
-			if group == tm.normalRegexpName {
+			if group == m.normalRegexpName {
 				group = text
 			} else {
-				if key, ok := tm.badKeyMap[group]; ok {
+				if key, ok := m.badKeyMap[group]; ok {
 					group = key
 				}
 			}
@@ -433,6 +513,7 @@ func (tm *Matcher) findAllSubMatch(content string) [][]string {
 	return matches
 }
 
+//
 type sortResults []*Result
 
 func (sr sortResults) Len() int {
@@ -447,6 +528,7 @@ func (sr sortResults) Swap(i, j int) {
 	sr[i], sr[j] = sr[j], sr[i]
 }
 
+//
 type sortTagResults []*TagResult
 
 func (str sortTagResults) Len() int {
