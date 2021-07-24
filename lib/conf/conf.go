@@ -4,40 +4,20 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"etl/lib/storage"
 	"github.com/pelletier/go-toml"
 )
 
 type TaskConfig struct {
 	Name     string
 	Action   ActionConfig
-	DbSource DbSourceConfig
-	DbTarget DbTargetConfig
+	DbSource storage.DbSourceConfig
+	DbTarget storage.DbTargetConfig
 }
 
 type ActionConfig struct {
 	Name          string
 	MaxConcurrent int
-}
-
-type DbSourceConfig struct {
-	MaxConcurrent int
-	Size          int
-	Page          int
-	Driver        string
-	Dsn           string
-	Scheme        string
-	Table         string
-	PKeyName      string
-	Fields        []string
-}
-
-type DbTargetConfig struct {
-	MaxConcurrent int
-	Size          int
-	Driver        string
-	Dsn           string
-	Scheme        string
-	Table         string
 }
 
 func LoadConfig(name string) TaskConfig {
