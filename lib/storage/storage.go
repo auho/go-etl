@@ -67,19 +67,19 @@ func (ds *DbSource) Start() {
 		go ds.rows(rowsQuery)
 	}
 
-	minPk := ds.getMinPk()
-	ds.pageChan <- minPk
+	go func() {
+		minPk := ds.getMinPk()
+		ds.pageChan <- minPk
 
-	prePk := minPk
-	for page := 1; page < maxPage; page++ {
-		nextPk := ds.getNextPk(prePk, nextPkQuery)
-		ds.pageChan <- nextPk
-		prePk = nextPk
-	}
+		prePk := minPk
+		for page := 1; page < maxPage; page++ {
+			nextPk := ds.getNextPk(prePk, nextPkQuery)
+			ds.pageChan <- nextPk
+			prePk = nextPk
+		}
 
-	close(ds.pageChan)
-
-	ds.sw.Wait()
+		close(ds.pageChan)
+	}()
 }
 
 func (ds *DbSource) Receive() ([]map[string]interface{}, bool) {
@@ -89,7 +89,12 @@ func (ds *DbSource) Receive() ([]map[string]interface{}, bool) {
 }
 
 func (ds *DbSource) rows(query string) {
-	for pk := range ds.pageChan {
+	for {
+		pk, ok := <-ds.pageChan
+		if ok == false {
+			break
+		}
+
 		rows, err := ds.db.QueryInterface(query, pk)
 		if err != nil {
 			ds.retryPage(pk)
@@ -105,8 +110,10 @@ func (ds *DbSource) rows(query string) {
 	ds.sw.Done()
 }
 
-func (ds *DbSource) close() {
+func (ds *DbSource) Close() {
+	ds.sw.Wait()
 
+	close(ds.itemsChan)
 }
 
 func (ds *DbSource) retryPage(pk interface{}) {
@@ -170,4 +177,13 @@ type DbTarget struct {
 	table          string
 	sqlTemplate    string
 	maxSqlTemplate string
+}
+
+func NewDbTarget(dtConfig conf.DbTargetConfig) *DbTarget {
+	dt := &DbTarget{}
+	dt.maxConcurrent = dtConfig.MaxConcurrent
+	dt.size = dtConfig.Size
+	dt.driver =
+
+	return dt
 }
