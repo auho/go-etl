@@ -105,6 +105,7 @@ func Test_DbTargetInsertInterface(t *testing.T) {
 
 	d.Done()
 	d.Close()
+	d.State()
 
 	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` = ?", tableName, "name")
 	res, err := db.QueryFieldInterface("_count", query, nameValue)
@@ -136,6 +137,7 @@ func Test_DbTargetInsertMap(t *testing.T) {
 
 	d.Done()
 	d.Close()
+	d.State()
 
 	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` = ?", tableName, "name")
 	res, err := db.QueryFieldInterface("_count", query, nameValue)

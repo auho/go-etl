@@ -6,6 +6,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
+	"unsafe"
 
 	"github.com/auho/go-simple-db/simple"
 )
@@ -75,6 +78,33 @@ func (tc *DbTargetConfig) check() {
 	if tc.Table == "" {
 		panic(fmt.Sprintf("db target config Table is error %s", tc.Table))
 	}
+}
+
+type DbSourceState struct {
+	duration      time.Duration
+	maxConcurrent int
+	page          int
+	size          int
+	itemAmount    int64
+}
+
+func newDbSourceState() *DbSourceState {
+	s := &DbSourceState{}
+
+	return s
+}
+
+type DbTargetState struct {
+	duration      time.Duration
+	maxConcurrent int
+	size          int
+	itemAmount    int64
+}
+
+func newDbTargetState() *DbTargetState {
+	s := &DbTargetState{}
+
+	return s
 }
 
 type DbSource struct {
@@ -281,6 +311,7 @@ type DbTarget struct {
 	isDone bool
 	wg     sync.WaitGroup
 	db     simple.Driver
+	state  *DbTargetState
 
 	target func()
 	down   func()
@@ -300,6 +331,10 @@ func (dt *DbTarget) Done() {
 	dt.down()
 }
 
+func (dt *DbTarget) State() {
+	fmt.Println(fmt.Sprintf("Max Concurrent: %d \nSize: %d\nAmount: %d", dt.state.maxConcurrent, dt.state.size, dt.state.itemAmount))
+}
+
 func (dt *DbTarget) Close() {
 	dt.wg.Wait()
 
@@ -313,6 +348,10 @@ func (dt *DbTarget) doStart(config *DbTargetConfig) {
 	dt.table = config.Table
 
 	config.check()
+
+	dt.state = newDbTargetState()
+	dt.state.size = dt.size
+	dt.state.maxConcurrent = dt.maxConcurrent
 
 	var err error
 	dt.db, err = simple.NewDriver(config.Driver, config.Dsn)
@@ -365,12 +404,26 @@ func (d *DbTargetInsertInterface) doDown() {
 }
 
 func (d *DbTargetInsertInterface) doTarget() {
+	var startTime time.Time
+	var endTime time.Time
+
 	for {
 		if items, ok := <-d.itemsChan; ok {
+			startTime = time.Now()
+
+			if len(items) > d.size {
+				d.Send(items[:d.size])
+				d.Send(items[d.size:])
+
+				continue
+			}
+
 			res, err := d.db.BulkInsertFromSliceSlice(d.table, d.fields, items)
 			if err != nil {
 				panic(err)
 			}
+
+			endTime = time.Now()
 
 			num, err := res.RowsAffected()
 			if err != nil {
@@ -380,6 +433,11 @@ func (d *DbTargetInsertInterface) doTarget() {
 			if num != int64(len(items)) {
 				panic(fmt.Sprintf("target affected is error [%d != %d]", num, len(items)))
 			}
+
+			stateDuration := uintptr(unsafe.Pointer(&d.state.duration))
+
+			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
+			atomic.AddInt64(&d.state.itemAmount, num)
 		} else {
 			break
 		}
@@ -410,12 +468,25 @@ func (d *DbTargetInsertMap) doDown() {
 }
 
 func (d *DbTargetInsertMap) doTarget() {
+	var startTime time.Time
+	var endTime time.Time
+
 	for {
 		if items, ok := <-d.itemsChan; ok {
+			startTime = time.Now()
+			if len(items) > d.size {
+				d.Send(items[:d.size])
+				d.Send(items[d.size:])
+
+				continue
+			}
+
 			res, err := d.db.BulkInsertFromSliceMap(d.table, items)
 			if err != nil {
 				panic(err)
 			}
+
+			endTime = time.Now()
 
 			num, err := res.RowsAffected()
 			if err != nil {
@@ -425,6 +496,12 @@ func (d *DbTargetInsertMap) doTarget() {
 			if num != int64(len(items)) {
 				panic(fmt.Sprintf("target affected is error [%d != %d]", num, len(items)))
 			}
+
+			stateDuration := uintptr(unsafe.Pointer(&d.state.duration))
+
+			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
+			atomic.AddInt64(&d.state.itemAmount, num)
+
 		} else {
 			break
 		}

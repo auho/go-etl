@@ -7,7 +7,7 @@ import (
 
 type InsertAction struct {
 	source      *storage.DbSource
-	target      *storage.DbTarget
+	target      *storage.DbTargetInsertInterface
 	mode        mode.InsertMode
 	dataName    string
 	idName      string
