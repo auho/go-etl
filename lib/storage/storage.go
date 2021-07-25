@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -27,6 +28,32 @@ type DbSourceConfig struct {
 	Fields        []string
 }
 
+func (sc *DbSourceConfig) check() {
+	if sc.MaxConcurrent <= 0 {
+		panic(fmt.Sprintf("db source config Max Concurrent is error %d", sc.MaxConcurrent))
+	}
+
+	if sc.Page <= 0 {
+		panic(fmt.Sprintf("db source config Page is error %d", sc.Page))
+	}
+
+	if sc.Size <= 0 {
+		panic(fmt.Sprintf("db source config Size is error %d", sc.Size))
+	}
+
+	if sc.PKeyName == "" {
+		panic(fmt.Sprintf("db source config PKeyName is error %s", sc.PKeyName))
+	}
+
+	if sc.Scheme == "" {
+		panic(fmt.Sprintf("db source config Scheme is error %s", sc.Scheme))
+	}
+
+	if sc.Table == "" {
+		panic(fmt.Sprintf("db source config Table is error %s", sc.Table))
+	}
+}
+
 type DbTargetConfig struct {
 	MaxConcurrent int
 	Size          int
@@ -34,6 +61,20 @@ type DbTargetConfig struct {
 	Dsn           string
 	Scheme        string
 	Table         string
+}
+
+func (tc *DbTargetConfig) check() {
+	if tc.MaxConcurrent <= 0 {
+		panic(fmt.Sprintf("db target config Max Concurrent is error %d", tc.MaxConcurrent))
+	}
+
+	if tc.Size <= 0 {
+		panic(fmt.Sprintf("db target config Size is error %d", tc.Size))
+	}
+
+	if tc.Table == "" {
+		panic(fmt.Sprintf("db target config Table is error %s", tc.Table))
+	}
 }
 
 type DbSource struct {
@@ -53,58 +94,16 @@ type DbSource struct {
 	db simple.Driver
 }
 
-func NewDbSource(dsConfig DbSourceConfig) *DbSource {
+func NewDbSource() *DbSource {
 	ds := &DbSource{}
-	ds.maxConcurrent = dsConfig.MaxConcurrent
-	ds.size = dsConfig.Size
-	ds.page = dsConfig.Page
-	ds.scheme = dsConfig.Scheme
-	ds.pKeyName = dsConfig.PKeyName
-	ds.fields = dsConfig.Fields
-
-	var err error
-	ds.db, err = simple.NewDriver(dsConfig.Driver, dsConfig.Dsn)
-	if err != nil {
-		panic(err)
-	}
-
-	ds.pageChan = make(chan interface{}, ds.maxConcurrent)
-	ds.itemsChan = make(chan []map[string]interface{}, ds.maxConcurrent)
 
 	return ds
 }
 
-func (ds *DbSource) Start() {
-	maxPage := 0
-	amount := ds.getTableAmount()
-	if ds.page > 0 {
-		maxPage = ds.page
-	} else {
-		maxPage = int(math.Ceil(float64(amount) / float64(ds.size)))
-	}
+func (ds *DbSource) Start(config *DbSourceConfig) {
+	ds.doStart(config)
 
-	rowsQuery := ds.generateRowsQuery(ds.size)
-	nextPkQuery := ds.generateNextPkQuery(ds.size)
-
-	for i := 0; i < ds.maxConcurrent; i++ {
-		ds.wg.Add(1)
-
-		go ds.rows(rowsQuery)
-	}
-
-	go func() {
-		minPk := ds.getMinPk()
-		ds.pageChan <- minPk
-
-		prePk := minPk
-		for page := 1; page < maxPage; page++ {
-			nextPk := ds.getNextPk(prePk, nextPkQuery)
-			ds.pageChan <- nextPk
-			prePk = nextPk
-		}
-
-		close(ds.pageChan)
-	}()
+	go ds.Close()
 }
 
 func (ds *DbSource) Receive() ([]map[string]interface{}, bool) {
@@ -117,9 +116,76 @@ func (ds *DbSource) Close() {
 	ds.wg.Wait()
 
 	close(ds.itemsChan)
+	ds.db.Close()
 }
 
-func (ds *DbSource) rows(query string) {
+func (ds *DbSource) doStart(config *DbSourceConfig) {
+	ds.maxConcurrent = config.MaxConcurrent
+	ds.size = config.Size
+	ds.page = config.Page
+	ds.scheme = config.Scheme
+	ds.table = config.Table
+	ds.pKeyName = config.PKeyName
+	ds.fields = config.Fields
+
+	config.check()
+
+	var err error
+	ds.db, err = simple.NewDriver(config.Driver, config.Dsn)
+	if err != nil {
+		panic(err)
+	}
+
+	err = ds.db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	ds.pageChan = make(chan interface{}, ds.maxConcurrent)
+	ds.itemsChan = make(chan []map[string]interface{}, ds.maxConcurrent)
+
+	rowsQuery := ds.generateRowsQuery(ds.size)
+	for i := 0; i < ds.maxConcurrent; i++ {
+		ds.wg.Add(1)
+
+		go ds.source(rowsQuery)
+	}
+
+	go ds.sourcePage()
+}
+
+func (ds *DbSource) sourcePage() {
+	amount := ds.getTableAmount()
+	if amount <= 0 {
+		panic("db source table amount is  error 0")
+	}
+
+	maxPage := int(math.Ceil(float64(amount) / float64(ds.size)))
+	if ds.page <= maxPage {
+		maxPage = ds.page
+	}
+
+	nextPkQuery := ds.generateNextPkQuery(ds.size)
+	go func() {
+		minPk := ds.getMinPk()
+		ds.pageChan <- minPk
+
+		prePk := minPk
+		for page := 1; page < maxPage; page++ {
+			nextPk := ds.getNextPk(prePk, nextPkQuery)
+			if nextPk == nil {
+				break
+			}
+
+			ds.pageChan <- nextPk
+			prePk = nextPk
+		}
+
+		close(ds.pageChan)
+	}()
+}
+
+func (ds *DbSource) source(query string) {
 	for {
 		pk, ok := <-ds.pageChan
 		if ok == false {
@@ -136,6 +202,8 @@ func (ds *DbSource) rows(query string) {
 		if rows == nil {
 			continue
 		}
+
+		ds.itemsChan <- rows
 	}
 
 	ds.wg.Done()
@@ -155,8 +223,8 @@ func (ds *DbSource) retryPage(pk interface{}) {
 }
 
 func (ds *DbSource) getMinPk() interface{} {
-	query := fmt.Sprintf("SELECT `%s` FROM `%s`.`%s` ORDER BY `%s` ASC LIMIT 0, 1", ds.pKeyName, ds.scheme, ds.table, ds.pKeyName)
-	minPk, err := ds.db.QueryFieldInterface(ds.pKeyName, query)
+	query := fmt.Sprintf("SELECT `%s` FROM `%s`.`%s` ORDER BY `%s` ASC LIMIT 0, ?", ds.pKeyName, ds.scheme, ds.table, ds.pKeyName)
+	minPk, err := ds.db.QueryFieldInterface(ds.pKeyName, query, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -166,12 +234,17 @@ func (ds *DbSource) getMinPk() interface{} {
 
 func (ds *DbSource) getTableAmount() int64 {
 	query := fmt.Sprintf("SELECT COUNT(*) AS 'amount' FROM `%s`.`%s`", ds.scheme, ds.table)
-	amount, err := ds.db.QueryFieldInterface("amount", query)
+	res, err := ds.db.QueryFieldInterface("amount", query)
 	if err != nil {
 		panic(err)
 	}
 
-	return amount.(int64)
+	amount, err := strconv.ParseInt(string(res.([]uint8)), 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return amount
 }
 
 func (ds *DbSource) getNextPk(pk interface{}, query string) interface{} {
@@ -184,13 +257,19 @@ func (ds *DbSource) getNextPk(pk interface{}, query string) interface{} {
 }
 
 func (ds *DbSource) generateNextPkQuery(size int) string {
-	return fmt.Sprintf("SELECT %s FROM `%s`.`%s` WHERE `%s` > ? ORDER BY `%s` ASC LIMIT %d, %d", ds.pKeyName, ds.scheme, ds.table, ds.pKeyName, ds.pKeyName, size, 1)
+	return fmt.Sprintf("SELECT `%s` FROM `%s`.`%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", ds.pKeyName, ds.scheme, ds.table, ds.pKeyName, ds.pKeyName, size, 1)
 
 }
 
 func (ds *DbSource) generateRowsQuery(size int) string {
-	fields := strings.Join(ds.fields, "`, `")
-	return fmt.Sprintf("SELECT `%s` FROM `%s`.`%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", fields, ds.scheme, ds.table, ds.pKeyName, ds.pKeyName, 0, size)
+	fields := ""
+	if len(ds.fields) <= 0 {
+		fields = "*"
+	} else {
+		fields = "`" + strings.Join(ds.fields, "`, `") + "`"
+	}
+
+	return fmt.Sprintf("SELECT %s FROM `%s`.`%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", fields, ds.scheme, ds.table, ds.pKeyName, ds.pKeyName, 0, size)
 }
 
 type DbTarget struct {
@@ -208,13 +287,40 @@ type DbTarget struct {
 }
 
 func (dt *DbTarget) Start(config *DbTargetConfig) {
+	dt.doStart(config)
+}
+
+func (dt *DbTarget) Done() {
+	if dt.isDone {
+		return
+	}
+
+	dt.isDone = true
+
+	dt.down()
+}
+
+func (dt *DbTarget) Close() {
+	dt.wg.Wait()
+
+	dt.db.Close()
+}
+
+func (dt *DbTarget) doStart(config *DbTargetConfig) {
 	dt.maxConcurrent = config.MaxConcurrent
 	dt.size = config.Size
 	dt.scheme = config.Scheme
 	dt.table = config.Table
 
+	config.check()
+
 	var err error
 	dt.db, err = simple.NewDriver(config.Driver, config.Dsn)
+	if err != nil {
+		panic(err)
+	}
+
+	err = dt.db.Ping()
 	if err != nil {
 		panic(err)
 	}
@@ -228,19 +334,6 @@ func (dt *DbTarget) Start(config *DbTargetConfig) {
 			dt.wg.Done()
 		}()
 	}
-}
-
-func (dt *DbTarget) Done() {
-	if dt.isDone {
-		return
-	}
-
-	dt.isDone = true
-	dt.down()
-}
-
-func (dt *DbTarget) Close() {
-	dt.wg.Wait()
 }
 
 type DbTargetInsertInterface struct {
