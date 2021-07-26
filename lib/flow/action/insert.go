@@ -1,6 +1,8 @@
 package action
 
 import (
+	"sync"
+
 	"etl/lib/flow/mode"
 	"etl/lib/storage"
 )
@@ -9,9 +11,10 @@ type InsertAction struct {
 	source      *storage.DbSource
 	target      *storage.DbTargetInsertInterface
 	mode        mode.InsertMode
-	dataName    string
 	idName      string
+	dataName    string
 	affixFields []string
+	wg          sync.WaitGroup
 }
 
 func NewInsertAction() *InsertAction {
@@ -20,23 +23,37 @@ func NewInsertAction() *InsertAction {
 	return ia
 }
 
-func (ia *InsertAction) receive() {
-	for {
-		items, ok := ia.source.Receive()
-		if ok == false {
-			break
-		}
-
-		for _, item := range items {
-			ia.DoItem(item)
-		}
+func (ia *InsertAction) Start(dataName string, idName string, affixFields []string, tagTableName string) {
+	for i := 0; i < 4; i++ {
+		ia.wg.Add(1)
+		go ia.doSource()
 	}
+
+	sourceConfig := storage.NewDbSourceConfig()
+	sourceConfig.MaxConcurrent = 4
+	sourceConfig.Size = 2000
+	sourceConfig.Table = dataName
+
+	targetConfig := storage.NewDbTargetConfig()
+	ia.source.Start(sourceConfig)
+	ia.target.Start(targetConfig)
 }
 
-func (ia *InsertAction) DoItem(item map[string]interface{}) {
+func (ia *InsertAction) Close() {
+	ia.wg.Wait()
+
+	ia.target.Done()
+	ia.target.Close()
+}
+
+func (ia *InsertAction) GetKeys() []string {
+	return append(ia.mode.GetKeys(), ia.affixFields...)
+}
+
+func (ia *InsertAction) doItem(item map[string]interface{}) [][]interface{} {
 	items := ia.mode.Do(item)
 	if items == nil {
-		return
+		return nil
 	}
 
 	if len(ia.affixFields) > 0 {
@@ -46,4 +63,30 @@ func (ia *InsertAction) DoItem(item map[string]interface{}) {
 			}
 		}
 	}
+
+	return items
+}
+
+func (ia *InsertAction) doSource() {
+	for {
+		sourceItems, ok := ia.source.Receive()
+		if ok == false {
+			break
+		}
+
+		targetItems := make([][]interface{}, 0)
+
+		for _, sourceItem := range sourceItems {
+			items := ia.doItem(sourceItem)
+			if items == nil {
+				continue
+			}
+
+			targetItems = append(targetItems, items...)
+		}
+
+		ia.target.Send(targetItems)
+	}
+
+	ia.wg.Done()
 }

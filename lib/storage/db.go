@@ -13,12 +13,6 @@ import (
 	"github.com/auho/go-simple-db/simple"
 )
 
-type Source interface {
-}
-
-type Target interface {
-}
-
 type DbSourceConfig struct {
 	MaxConcurrent int
 	Size          int
@@ -29,6 +23,12 @@ type DbSourceConfig struct {
 	Table         string
 	PKeyName      string
 	Fields        []string
+}
+
+func NewDbSourceConfig() *DbSourceConfig {
+	c := &DbSourceConfig{}
+
+	return c
 }
 
 func (sc *DbSourceConfig) check() {
@@ -64,6 +64,12 @@ type DbTargetConfig struct {
 	Dsn           string
 	Scheme        string
 	Table         string
+}
+
+func NewDbTargetConfig() *DbTargetConfig {
+	c := &DbTargetConfig{}
+
+	return c
 }
 
 func (tc *DbTargetConfig) check() {
@@ -409,7 +415,9 @@ func (d *DbTargetInsertInterface) doTarget() {
 
 	for {
 		if items, ok := <-d.itemsChan; ok {
-			startTime = time.Now()
+			if len(items) <= 0 {
+				continue
+			}
 
 			if len(items) > d.size {
 				d.Send(items[:d.size])
@@ -418,6 +426,7 @@ func (d *DbTargetInsertInterface) doTarget() {
 				continue
 			}
 
+			startTime = time.Now()
 			res, err := d.db.BulkInsertFromSliceSlice(d.table, d.fields, items)
 			if err != nil {
 				panic(err)
@@ -473,7 +482,10 @@ func (d *DbTargetInsertMap) doTarget() {
 
 	for {
 		if items, ok := <-d.itemsChan; ok {
-			startTime = time.Now()
+			if len(items) <= 0 {
+				continue
+			}
+
 			if len(items) > d.size {
 				d.Send(items[:d.size])
 				d.Send(items[d.size:])
@@ -481,6 +493,7 @@ func (d *DbTargetInsertMap) doTarget() {
 				continue
 			}
 
+			startTime = time.Now()
 			res, err := d.db.BulkInsertFromSliceMap(d.table, items)
 			if err != nil {
 				panic(err)

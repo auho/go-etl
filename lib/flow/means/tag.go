@@ -210,6 +210,10 @@ func (t *TagMatcher) getRules() []map[string]string {
 	return rules
 }
 
+func (t *TagMatcher) GetName() string {
+	return t.key
+}
+
 func (t *TagMatcher) GetResultInsertKeys() []string {
 	return append([]string{t.keyFieldName, t.keyNumFieldName}, append(t.tagsName, t.fixedKeys...)...)
 }

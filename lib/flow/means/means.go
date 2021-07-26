@@ -1,6 +1,7 @@
 package means
 
 type InsertMeans interface {
+	GetName() string
 	GetKeys() []string
 	Insert([]string) [][]interface{}
 }

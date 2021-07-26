@@ -1,4 +1,4 @@
-package conf
+package lib
 
 import (
 	"fmt"
@@ -8,30 +8,30 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
-type TaskConfig struct {
-	Name     string
-	Action   ActionConfig
+type Config struct {
 	DbSource storage.DbSourceConfig
 	DbTarget storage.DbTargetConfig
 }
 
-type ActionConfig struct {
-	Name          string
-	MaxConcurrent int
+type DbConfig struct {
+	Driver string
+	Dsn    string
+	Scheme string
+	Table  string
 }
 
-func LoadConfig(name string) TaskConfig {
+func LoadConfig(name string) *Config {
 	filePath := fmt.Sprintf("conf/%s.toml", name)
 	fileContent, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		panic(err)
 	}
 
-	var tc TaskConfig
+	var tc Config
 	err = toml.Unmarshal(fileContent, &tc)
 	if err != nil {
 		panic(err)
 	}
 
-	return tc
+	return &tc
 }

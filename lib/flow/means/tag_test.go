@@ -22,19 +22,20 @@ func TestMatcher(t *testing.T) {
 		`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
 123一一`,
 	}
-	tm := NewMatcher("a", items,
-		WithTagMatcherKeyFun(func(s string) string {
-			res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
-			if err != nil {
-				return s
-			}
+	tm := NewMatcher(WithTagMatcherKeyFun(func(s string) string {
+		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
+		if err != nil {
+			return s
+		}
 
-			if res {
-				return fmt.Sprintf(`\b%s\b`, s)
-			} else {
-				return strings.ReplaceAll(s, "_", `.{1,3}`)
-			}
-		}))
+		if res {
+			return fmt.Sprintf(`\b%s\b`, s)
+		} else {
+			return strings.ReplaceAll(s, "_", `.{1,3}`)
+		}
+	}))
+
+	tm.init("a", items)
 
 	var results []*Result
 	var result *Result
