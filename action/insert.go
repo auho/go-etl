@@ -3,8 +3,8 @@ package action
 import (
 	"sync"
 
-	"github.com/auho/go-etl/lib/flow/mode"
-	"github.com/auho/go-etl/lib/storage"
+	"github.com/auho/go-etl/flow/mode"
+	"github.com/auho/go-etl/storage"
 )
 
 type InsertAction struct {

@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/auho/go-etl/lib/flow"
+	"github.com/auho/go-etl/flow"
 
 	"github.com/auho/go-simple-db/simple"
 )

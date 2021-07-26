@@ -1,10 +1,10 @@
-package lib
+package go_etl
 
 import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/auho/go-etl/lib/storage"
+	"github.com/auho/go-etl/storage"
 	"github.com/pelletier/go-toml"
 )
 
