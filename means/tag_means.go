@@ -1,5 +1,7 @@
 package means
 
+import "github.com/auho/go-simple-db/simple"
+
 // TagMeans
 // tag means
 //
@@ -48,6 +50,13 @@ type TagTextMeans struct {
 	TagMeans
 }
 
+func NewTagTextMeans(key string, db simple.Driver, Options ...TagMatcherOption) *TagTextMeans {
+	t := &TagTextMeans{}
+	t.prepare(key, db, Options...)
+
+	return t
+}
+
 func (t *TagTextMeans) Insert(contents []string) [][]interface{} {
 	return t.insertResults(func() []*Result {
 		return t.Matcher.MatchText(contents)
@@ -59,6 +68,13 @@ func (t *TagTextMeans) Insert(contents []string) [][]interface{} {
 //
 type TagMostTextMeans struct {
 	TagMeans
+}
+
+func NewTagMostTextMeans(key string, db simple.Driver, Options ...TagMatcherOption) *TagMostTextMeans {
+	t := &TagMostTextMeans{}
+	t.prepare(key, db, Options...)
+
+	return t
 }
 
 func (t *TagMostTextMeans) Insert(contents []string) [][]interface{} {
@@ -78,6 +94,13 @@ func (t *TagMostTextMeans) Update(contents []string) map[string]interface{} {
 //
 type TagMostKeyMeans struct {
 	TagMeans
+}
+
+func NewTagMostKeyMeans(key string, db simple.Driver, Options ...TagMatcherOption) *TagMostKeyMeans {
+	t := &TagMostKeyMeans{}
+	t.prepare(key, db, Options...)
+
+	return t
 }
 
 func (t *TagMostKeyMeans) Insert(contents []string) [][]interface{} {

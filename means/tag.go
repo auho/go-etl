@@ -7,8 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/auho/go-etl/flow"
-
+	goEtl "github.com/auho/go-etl"
 	"github.com/auho/go-simple-db/simple"
 )
 
@@ -115,6 +114,12 @@ type TagMatcher struct {
 
 func NewTagMatcher(key string, db simple.Driver, Options ...TagMatcherOption) *TagMatcher {
 	t := &TagMatcher{}
+	t.prepare(key, db, Options...)
+
+	return t
+}
+
+func (t *TagMatcher) prepare(key string, db simple.Driver, Options ...TagMatcherOption) {
 	t.key = key
 	t.db = db
 	t.excludeTableField = []string{"id", "keyword_len"}
@@ -124,22 +129,31 @@ func NewTagMatcher(key string, db simple.Driver, Options ...TagMatcherOption) *T
 	}
 
 	if t.Matcher == nil {
-		t.Matcher = NewMatcher()
+		t.Matcher = NewMatcher(WithTagMatcherKeyFun(func(s string) string {
+			res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
+			if err != nil {
+				return s
+			}
+
+			if res {
+				return fmt.Sprintf(`\b%s\b`, s)
+			} else {
+				return strings.ReplaceAll(s, "_", `.{1,3}`)
+			}
+		}))
 	}
 
 	t.init()
 	t.Matcher.init(t.keyFieldName, t.getRules())
-
-	return t
 }
 
 func (t *TagMatcher) init() {
 	if t.shortTableName != "" {
-		t.tableName = flow.RuleTableNamePrefix + "_" + t.shortTableName
+		t.tableName = goEtl.RuleTableNamePrefix + "_" + t.shortTableName
 	} else if t.dataName != "" {
-		t.tableName = flow.RuleTableNamePrefix + "_" + t.dataName + "_" + t.key
+		t.tableName = goEtl.RuleTableNamePrefix + "_" + t.dataName + "_" + t.key
 	} else {
-		t.tableName = flow.RuleTableNamePrefix + "_" + t.key
+		t.tableName = goEtl.RuleTableNamePrefix + "_" + t.key
 	}
 
 	t.keyFieldName = t.key + "_keyword"

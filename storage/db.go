@@ -410,6 +410,10 @@ func (d *DbTargetInsertInterface) doDown() {
 }
 
 func (d *DbTargetInsertInterface) doTarget() {
+	if len(d.fields) <= 0 {
+		panic("fields is error")
+	}
+
 	var startTime time.Time
 	var endTime time.Time
 

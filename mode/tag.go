@@ -1,7 +1,7 @@
 package mode
 
 import (
-	"github.com/auho/go-etl/flow/means"
+	"github.com/auho/go-etl/means"
 )
 
 type TagInsert struct {
@@ -9,7 +9,7 @@ type TagInsert struct {
 	insert means.InsertMeans
 }
 
-func NewInsert(keys []string, insert means.InsertMeans) *TagInsert {
+func NewTagInsert(keys []string, insert means.InsertMeans) *TagInsert {
 	t := &TagInsert{}
 	t.keys = keys
 	t.insert = insert
@@ -43,7 +43,7 @@ type TagUpdate struct {
 	update means.UpdateMeans
 }
 
-func NewUpdate(keys []string, update means.UpdateMeans) *TagUpdate {
+func NewTagUpdate(keys []string, update means.UpdateMeans) *TagUpdate {
 	t := &TagUpdate{}
 	t.keys = keys
 	t.update = update
