@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"etl/lib/storage"
+	"github.com/auho/go-etl/lib/storage"
 	"github.com/pelletier/go-toml"
 )
 

@@ -1,7 +1,7 @@
 package mode
 
 import (
-	"etl/lib/flow/means"
+	"github.com/auho/go-etl/lib/flow/means"
 )
 
 type TagInsert struct {

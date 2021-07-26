@@ -1,4 +1,4 @@
-module etl
+module github.com/auho/go-etl
 
 go 1.16
 
