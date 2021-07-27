@@ -32,7 +32,7 @@ func (ti *TagInsert) Do(item map[string]interface{}) [][]interface{} {
 
 	contents := make([]string, 0)
 	for _, key := range ti.keys {
-		contents = append(contents, key)
+		contents = append(contents, item[key].(string))
 	}
 
 	return ti.insert.Insert(contents)

@@ -1,21 +1,23 @@
-package mode
+package tager
 
 import (
-	"fmt"
 	"math/rand"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/auho/go-etl/means"
 	"github.com/auho/go-simple-db/mysql"
 )
 
 var dsn = "test:test@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
-var keyName = "name"
 var db *mysql.Mysql
+var contents = []string{
+	`b一ab一bc一abc一123b一b123一123一0123一1234一01234一`,
+	`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
+123一一`,
+}
 
 func TestMain(m *testing.M) {
 	setUp()
@@ -66,33 +68,4 @@ func setUp() {
 
 func tearDown() {
 	_ = db.Drop(ruleTableName)
-}
-
-func Test_Tag(t *testing.T) {
-	item := make(map[string]interface{})
-	item[keyName] = "b一ab一bc一abc一ab一123b一b123一中文一123一中文一一0123一1234一01234-a-ab-123-中文一b一中文一a"
-
-	ttm := means.NewTagKeyMeans(ruleName, db)
-	ti1 := NewTagInsert([]string{keyName}, ttm)
-	results := ti1.Do(item)
-	if len(results) <= 0 {
-		t.Error("error")
-	}
-	fmt.Println(results)
-
-	tmtm := means.NewTagMostTextMeans(ruleName, db)
-	ti2 := NewTagInsert([]string{keyName}, tmtm)
-	results = ti2.Do(item)
-	if len(results) <= 0 {
-		t.Error("error")
-	}
-	fmt.Println(results)
-
-	tmkm := means.NewTagMostKeyMeans(ruleName, db)
-	ti3 := NewTagInsert([]string{keyName}, tmkm)
-	results = ti3.Do(item)
-	if len(results) <= 0 {
-		t.Error("error")
-	}
-	fmt.Println(results)
 }

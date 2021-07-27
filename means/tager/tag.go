@@ -1,4 +1,4 @@
-package means
+package tager
 
 import (
 	"crypto/md5"
@@ -112,7 +112,7 @@ type TagMatcher struct {
 	fixedValues []interface{}
 }
 
-func NewTagMatcher(key string, db simple.Driver, Options ...TagMatcherOption) *TagMatcher {
+func newTagMatcher(key string, db simple.Driver, Options ...TagMatcherOption) *TagMatcher {
 	t := &TagMatcher{}
 	t.prepare(key, db, Options...)
 
@@ -164,22 +164,24 @@ func (t *TagMatcher) init() {
 		panic(err)
 	}
 
-	t.tableTagFields = make([]string, 0, len(row))
+	t.tableTagFields = make([]string, 0)
+	t.tagsName = make([]string, 0)
 	for k := range row {
-		column := row[k].(string)
+		column := row[k]
 		for _, ec := range t.excludeTableField {
 			if ec == column {
 				goto LOOP
 			}
+		}
 
-			t.tableTagFields = append(t.tableTagFields, column)
+		t.tableTagFields = append(t.tableTagFields, column)
 
+		if column != t.keyFieldName {
+			t.tagsName = append(t.tagsName, column)
 		}
 
 	LOOP:
 	}
-
-	copy(t.tagsName, t.tableTagFields)
 
 	for k, v := range t.tagsName {
 		if s, ok := t.alias[v]; ok {
@@ -230,24 +232,6 @@ func (t *TagMatcher) GetName() string {
 
 func (t *TagMatcher) GetResultInsertKeys() []string {
 	return append([]string{t.keyFieldName, t.keyNumFieldName}, append(t.tagsName, t.fixedKeys...)...)
-}
-
-func (t *TagMatcher) MatchUniqueText(contents []string) [][]interface{} {
-	results := t.Matcher.MatchText(contents)
-	if results == nil {
-		return nil
-	}
-
-	return t.ResultsToSliceSlice(results)
-}
-
-func (t *TagMatcher) MatchUniqueKey(contents []string) [][]interface{} {
-	results := t.Matcher.MatchKey(contents)
-	if results == nil {
-		return nil
-	}
-
-	return t.ResultsToSliceSlice(results)
 }
 
 func (t *TagMatcher) ResultsToSliceMap(results []*Result) []map[string]interface{} {

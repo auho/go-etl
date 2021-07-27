@@ -1,4 +1,4 @@
-package means
+package tager
 
 import "github.com/auho/go-simple-db/simple"
 
@@ -44,22 +44,22 @@ func (tm *TagMeans) updateResult(f func() *Result) map[string]interface{} {
 	return tm.ResultToMap(result)
 }
 
-// TagTextMeans
+// TagKeyMeans
 // Text
-type TagTextMeans struct {
+type TagKeyMeans struct {
 	TagMeans
 }
 
-func NewTagTextMeans(key string, db simple.Driver, Options ...TagMatcherOption) *TagTextMeans {
-	t := &TagTextMeans{}
+func NewTagKeyMeans(key string, db simple.Driver, Options ...TagMatcherOption) *TagKeyMeans {
+	t := &TagKeyMeans{}
 	t.prepare(key, db, Options...)
 
 	return t
 }
 
-func (t *TagTextMeans) Insert(contents []string) [][]interface{} {
+func (t *TagKeyMeans) Insert(contents []string) [][]interface{} {
 	return t.insertResults(func() []*Result {
-		return t.Matcher.MatchText(contents)
+		return t.Matcher.MatchKey(contents)
 	})
 }
 

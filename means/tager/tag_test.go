@@ -1,4 +1,4 @@
-package means
+package tager
 
 import (
 	"fmt"
@@ -6,6 +6,21 @@ import (
 	"strings"
 	"testing"
 )
+
+func TestTagMatcher_GetResultInsertKeys(t *testing.T) {
+	tm := newTagMatcher(ruleName, db)
+	keys := tm.GetResultInsertKeys()
+	if len(keys) < 4 {
+		t.Error("error")
+	}
+}
+
+func TestTagMatcher_GetName(t *testing.T) {
+	tm := newTagMatcher(ruleName, db)
+	if tm.GetName() != ruleName {
+		t.Error("error")
+	}
+}
 
 func TestMatcher(t *testing.T) {
 	items := make([]map[string]string, 0)
@@ -17,12 +32,7 @@ func TestMatcher(t *testing.T) {
 	items = append(items, map[string]string{"a": "，。【】", "b": "b5", "c": "c5"})
 	items = append(items, map[string]string{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"})
 
-	contents := []string{
-		`b一ab一bc一abc一123b一b123一123一0123一1234一01234一`,
-		`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
-123一一`,
-	}
-	tm := NewMatcher(WithTagMatcherKeyFun(func(s string) string {
+	m := NewMatcher(WithTagMatcherKeyFun(func(s string) string {
 		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 		if err != nil {
 			return s
@@ -35,7 +45,7 @@ func TestMatcher(t *testing.T) {
 		}
 	}))
 
-	tm.init("a", items)
+	m.init("a", items)
 
 	var results []*Result
 	var result *Result
@@ -43,47 +53,47 @@ func TestMatcher(t *testing.T) {
 	var tagResult *TagResult
 
 	fmt.Println("\n Match")
-	results = tm.Match(contents)
+	results = m.Match(contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchText")
-	results = tm.MatchText(contents)
+	results = m.MatchText(contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchKey")
-	results = tm.MatchKey(contents)
+	results = m.MatchKey(contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchFirstText")
-	result = tm.MatchFirstText(contents)
+	result = m.MatchFirstText(contents)
 	fmt.Println(result)
 
 	fmt.Println("\n MatchLastText")
-	result = tm.MatchLastText(contents)
+	result = m.MatchLastText(contents)
 	fmt.Println(result)
 
 	fmt.Println("\n MatchMostKey")
-	result = tm.MatchMostKey(contents)
+	result = m.MatchMostKey(contents)
 	fmt.Println(result)
 
 	fmt.Println("\n MatchMostText")
-	result = tm.MatchMostText(contents)
+	result = m.MatchMostText(contents)
 	fmt.Println(result)
 
 	fmt.Println("\n MatchTag")
-	tagResults = tm.MatchTag(contents)
+	tagResults = m.MatchTag(contents)
 	for _, tagResult := range tagResults {
 		fmt.Println(tagResult)
 	}
 
 	fmt.Println("\n MatchTagMostText")
-	tagResult = tm.MatchTagMostText(contents)
+	tagResult = m.MatchTagMostText(contents)
 	fmt.Println(tagResult)
 
 }
