@@ -421,34 +421,39 @@ func (d *DbTargetInsertInterface) doTarget() {
 				continue
 			}
 
-			if len(items) > d.size {
-				d.Send(items[:d.size])
-				d.Send(items[d.size:])
-
-				continue
-			}
-
 			startTime = time.Now()
-			res, err := d.db.BulkInsertFromSliceSlice(d.table, d.fields, items)
-			if err != nil {
-				panic(err)
+
+			var insertItems [][]interface{}
+			itemsAmount := len(items)
+
+			for start := 0; start < itemsAmount; start += d.size {
+				end := start + d.size
+				if end >= itemsAmount {
+					insertItems = items[start:]
+				} else {
+					insertItems = items[start:end]
+				}
+
+				res, err := d.db.BulkInsertFromSliceSlice(d.table, d.fields, insertItems)
+				if err != nil {
+					panic(err)
+				}
+
+				num, err := res.RowsAffected()
+				if err != nil {
+					panic(err)
+				}
+
+				if num != int64(len(insertItems)) {
+					panic(fmt.Sprintf("target affected is error [%d != %d]", num, len(insertItems)))
+				}
 			}
 
 			endTime = time.Now()
-
-			num, err := res.RowsAffected()
-			if err != nil {
-				panic(err)
-			}
-
-			if num != int64(len(items)) {
-				panic(fmt.Sprintf("target affected is error [%d != %d]", num, len(items)))
-			}
-
 			stateDuration := uintptr(unsafe.Pointer(&d.state.duration))
 
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
-			atomic.AddInt64(&d.state.itemAmount, num)
+			atomic.AddInt64(&d.state.itemAmount, int64(itemsAmount))
 		} else {
 			break
 		}
@@ -490,34 +495,39 @@ func (d *DbTargetInsertMap) doTarget() {
 				continue
 			}
 
-			if len(items) > d.size {
-				d.Send(items[:d.size])
-				d.Send(items[d.size:])
-
-				continue
-			}
-
 			startTime = time.Now()
-			res, err := d.db.BulkInsertFromSliceMap(d.table, items)
-			if err != nil {
-				panic(err)
+
+			var insertItems []map[string]interface{}
+			itemsAmount := len(items)
+
+			for start := 0; start < itemsAmount; start += d.size {
+				end := start + d.size
+				if end >= itemsAmount {
+					insertItems = items[start:]
+				} else {
+					insertItems = items[start:end]
+				}
+
+				res, err := d.db.BulkInsertFromSliceMap(d.table, insertItems)
+				if err != nil {
+					panic(err)
+				}
+
+				num, err := res.RowsAffected()
+				if err != nil {
+					panic(err)
+				}
+
+				if num != int64(len(insertItems)) {
+					panic(fmt.Sprintf("target affected is error [%d != %d]", num, len(insertItems)))
+				}
 			}
 
 			endTime = time.Now()
-
-			num, err := res.RowsAffected()
-			if err != nil {
-				panic(err)
-			}
-
-			if num != int64(len(items)) {
-				panic(fmt.Sprintf("target affected is error [%d != %d]", num, len(items)))
-			}
-
 			stateDuration := uintptr(unsafe.Pointer(&d.state.duration))
 
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
-			atomic.AddInt64(&d.state.itemAmount, num)
+			atomic.AddInt64(&d.state.itemAmount, int64(itemsAmount))
 
 		} else {
 			break

@@ -1,12 +1,13 @@
 package flow
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"testing"
 	"time"
 
-	go_etl "github.com/auho/go-etl"
+	goEtl "github.com/auho/go-etl"
 	"github.com/auho/go-simple-db/mysql"
 )
 
@@ -19,7 +20,7 @@ var pkName = "did"
 var keyName = "name"
 var db *mysql.Mysql
 
-var dbConfig go_etl.DbConfig
+var dbConfig goEtl.DbConfig
 
 func TestMain(m *testing.M) {
 	setUp()
@@ -53,6 +54,36 @@ func setUp() {
 	_, err = db.Exec(query)
 	if err != nil {
 		panic(err)
+	}
+
+	items := []interface{}{
+		"b一ab一bc一abc一123b一b123一123一0123一1234一01234",
+		`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
+123一一`,
+		`文中ba321b--#$%^&*()_`,
+	}
+
+	maxA := (rand.Intn(100) + 10) * 3
+	maxB := rand.Intn(100) + 10
+	rows := make([][]interface{}, 0)
+	for i := 0; i < maxA; i++ {
+		rows = append(rows, []interface{}{items[i%3]})
+	}
+
+	for i := 0; i < maxB; i++ {
+		res, err := db.BulkInsertFromSliceSlice(dataTableName, []string{"name"}, rows)
+		if err != nil {
+			panic(err)
+		}
+
+		count, err := res.RowsAffected()
+		if err != nil {
+			panic(err)
+		}
+
+		if count != int64(maxA) {
+			panic(fmt.Sprintf("%d != %d", count, maxA))
+		}
 	}
 
 	err = db.Drop(ruleTableName)
@@ -105,28 +136,10 @@ func setUp() {
 		panic(err)
 	}
 
-	items := []interface{}{
-		"b一ab一bc一abc一123b一b123一123一0123一1234一01234",
-		`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
-123一一`,
-		`文中ba321b--#$%^&*()_`,
-	}
-
-	rows := make([][]interface{}, 0)
-	for i := 0; i < rand.Intn(100)+100; i++ {
-		rows = append(rows, []interface{}{items[i%3]})
-	}
-
-	for i := 0; i < rand.Intn(100)+100; i++ {
-		_, err = db.BulkInsertFromSliceSlice(dataTableName, []string{"name"}, rows)
-		if err != nil {
-			panic(err)
-		}
-	}
 }
 
 func tearDown() {
-	//_ = db.Drop(ruleTableName)
-	//_ = db.Drop(dataTableName)
-	//_ = db.Drop(tagTableName)
+	_ = db.Drop(ruleTableName)
+	_ = db.Drop(dataTableName)
+	_ = db.Drop(tagTableName)
 }
