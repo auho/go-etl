@@ -4,20 +4,16 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/auho/go-etl/storage"
 	"github.com/pelletier/go-toml"
 )
 
 type Config struct {
-	DbSource storage.DbSourceConfig
-	DbTarget storage.DbTargetConfig
+	dbConfig *DbConfig
 }
 
 type DbConfig struct {
 	Driver string
 	Dsn    string
-	Scheme string
-	Table  string
 }
 
 func LoadConfig(name string) *Config {
@@ -27,11 +23,11 @@ func LoadConfig(name string) *Config {
 		panic(err)
 	}
 
-	var tc Config
-	err = toml.Unmarshal(fileContent, &tc)
+	var c Config
+	err = toml.Unmarshal(fileContent, &c)
 	if err != nil {
 		panic(err)
 	}
 
-	return &tc
+	return &c
 }

@@ -14,7 +14,6 @@ import (
 )
 
 var dsn = "test:test@tcp(127.0.0.1:3306)/test"
-var scheme = "test"
 var tableName = "test_mysql"
 var pkName = "id"
 var db *mysql.Mysql
@@ -35,7 +34,6 @@ func setup() {
 	sourceConfig.Page = rand.Intn(1000) + 1
 	sourceConfig.Driver = "mysql"
 	sourceConfig.Dsn = dsn
-	sourceConfig.Scheme = scheme
 	sourceConfig.Table = tableName
 	sourceConfig.PKeyName = pkName
 
@@ -43,7 +41,6 @@ func setup() {
 	targetConfig.Size = rand.Intn(500) + 1
 	targetConfig.Driver = "mysql"
 	targetConfig.Dsn = dsn
-	targetConfig.Scheme = scheme
 	targetConfig.Table = tableName
 
 	db = mysql.NewMysql(dsn)
@@ -85,8 +82,8 @@ func tearDown() {
 }
 
 func Test_DbTargetInsertInterface(t *testing.T) {
-	d := NewDbTargetInsertInterface()
-	d.Start(targetConfig)
+	d := NewDbTargetInsertInterface(targetConfig)
+	d.Start()
 
 	d.SetFields([]string{"name", "value"})
 
@@ -105,7 +102,7 @@ func Test_DbTargetInsertInterface(t *testing.T) {
 
 	d.Done()
 	d.Close()
-	d.State()
+	//d.State()
 
 	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` = ?", tableName, "name")
 	res, err := db.QueryFieldInterface("_count", query, nameValue)
@@ -119,8 +116,8 @@ func Test_DbTargetInsertInterface(t *testing.T) {
 	}
 }
 func Test_DbTargetInsertMap(t *testing.T) {
-	d := NewDbTargetInsertMap()
-	d.Start(targetConfig)
+	d := NewDbTargetInsertMap(targetConfig)
+	d.Start()
 
 	maxI := rand.Intn(100) + 1
 	maxJ := rand.Intn(100) + 1
@@ -137,7 +134,7 @@ func Test_DbTargetInsertMap(t *testing.T) {
 
 	d.Done()
 	d.Close()
-	d.State()
+	//d.State()
 
 	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` = ?", tableName, "name")
 	res, err := db.QueryFieldInterface("_count", query, nameValue)
@@ -152,8 +149,8 @@ func Test_DbTargetInsertMap(t *testing.T) {
 }
 
 func Test_DbSource(t *testing.T) {
-	d := NewDbSource()
-	d.Start(sourceConfig)
+	d := NewDbSource(sourceConfig)
+	d.Start()
 
 	amount := getAmount()
 

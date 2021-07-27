@@ -8,6 +8,7 @@ type VoidMode interface {
 }
 
 type InsertMode interface {
+	GetName() string
 	GetKeys() []string
 	GetFields() []string
 	Do(map[string]interface{}) [][]interface{}

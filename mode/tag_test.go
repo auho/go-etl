@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/auho/go-etl/means"
+	"github.com/auho/go-etl/means/tager"
 	"github.com/auho/go-simple-db/mysql"
 )
 
@@ -72,7 +72,7 @@ func Test_Tag(t *testing.T) {
 	item := make(map[string]interface{})
 	item[keyName] = "b一ab一bc一abc一ab一123b一b123一中文一123一中文一一0123一1234一01234-a-ab-123-中文一b一中文一a"
 
-	ttm := means.NewTagKeyMeans(ruleName, db)
+	ttm := tager.NewTagKeyMeans(ruleName, db)
 	ti1 := NewTagInsert([]string{keyName}, ttm)
 	results := ti1.Do(item)
 	if len(results) <= 0 {
@@ -80,7 +80,7 @@ func Test_Tag(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	tmtm := means.NewTagMostTextMeans(ruleName, db)
+	tmtm := tager.NewTagMostTextMeans(ruleName, db)
 	ti2 := NewTagInsert([]string{keyName}, tmtm)
 	results = ti2.Do(item)
 	if len(results) <= 0 {
@@ -88,7 +88,7 @@ func Test_Tag(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	tmkm := means.NewTagMostKeyMeans(ruleName, db)
+	tmkm := tager.NewTagMostKeyMeans(ruleName, db)
 	ti3 := NewTagInsert([]string{keyName}, tmkm)
 	results = ti3.Do(item)
 	if len(results) <= 0 {

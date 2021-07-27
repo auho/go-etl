@@ -1,6 +1,9 @@
 package mode
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/auho/go-etl/means"
 )
 
@@ -15,6 +18,10 @@ func NewTagInsert(keys []string, insert means.InsertMeans) *TagInsert {
 	t.insert = insert
 
 	return t
+}
+
+func (ti *TagInsert) GetName() string {
+	return ti.insert.GetName()
 }
 
 func (ti *TagInsert) GetFields() []string {
@@ -32,7 +39,20 @@ func (ti *TagInsert) Do(item map[string]interface{}) [][]interface{} {
 
 	contents := make([]string, 0)
 	for _, key := range ti.keys {
-		contents = append(contents, item[key].(string))
+		keyValue := ""
+
+		switch item[key].(type) {
+		case string:
+			keyValue = item[key].(string)
+		case []uint8:
+			keyValue = string(item[key].([]uint8))
+		case int64:
+			keyValue = strconv.FormatInt(item[key].(int64), 10)
+		default:
+			panic(fmt.Sprintf("type is not string %T", item[key]))
+		}
+
+		contents = append(contents, keyValue)
 	}
 
 	return ti.insert.Insert(contents)

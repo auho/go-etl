@@ -7,19 +7,24 @@ import (
 )
 
 type App struct {
-	config *Config
-	db     simple.Driver
+	DbConfig *DbConfig
+	Db       simple.Driver
 }
 
 func NewApp() *App {
 	a := &App{}
 
-	return a
-}
-
-func (a *App) Run() {
 	name := flag.String("name", "office", "")
 	flag.Parse()
 
-	a.config = LoadConfig(*name)
+	config := LoadConfig(*name)
+	a.DbConfig = config.dbConfig
+
+	var err error
+	a.Db, err = simple.NewDriver(a.DbConfig.Driver, a.DbConfig.Dsn)
+	if err != nil {
+		panic(err)
+	}
+
+	return a
 }

@@ -19,7 +19,6 @@ type DbSourceConfig struct {
 	Page          int
 	Driver        string
 	Dsn           string
-	Scheme        string
 	Table         string
 	PKeyName      string
 	Fields        []string
@@ -36,20 +35,12 @@ func (sc *DbSourceConfig) check() {
 		panic(fmt.Sprintf("db source config Max Concurrent is error %d", sc.MaxConcurrent))
 	}
 
-	if sc.Page <= 0 {
-		panic(fmt.Sprintf("db source config Page is error %d", sc.Page))
-	}
-
 	if sc.Size <= 0 {
 		panic(fmt.Sprintf("db source config Size is error %d", sc.Size))
 	}
 
 	if sc.PKeyName == "" {
 		panic(fmt.Sprintf("db source config PKeyName is error %s", sc.PKeyName))
-	}
-
-	if sc.Scheme == "" {
-		panic(fmt.Sprintf("db source config Scheme is error %s", sc.Scheme))
 	}
 
 	if sc.Table == "" {
@@ -62,7 +53,6 @@ type DbTargetConfig struct {
 	Size          int
 	Driver        string
 	Dsn           string
-	Scheme        string
 	Table         string
 }
 
@@ -117,7 +107,6 @@ type DbSource struct {
 	maxConcurrent int
 	size          int
 	page          int
-	scheme        string
 	table         string
 	pKeyName      string
 	fields        []string
@@ -126,23 +115,35 @@ type DbSource struct {
 	wg           sync.WaitGroup
 	pageChan     chan interface{}
 	itemsChan    chan []map[string]interface{}
+	state        *DbSourceState
 
 	db simple.Driver
 }
 
-func NewDbSource() *DbSource {
+func NewDbSource(config *DbSourceConfig) *DbSource {
 	ds := &DbSource{}
+	ds.doConfig(config)
 
 	return ds
 }
 
-func (ds *DbSource) Start(config *DbSourceConfig) {
-	ds.doStart(config)
+func (ds *DbSource) Start() {
+	ds.pageChan = make(chan interface{}, ds.maxConcurrent)
+	ds.itemsChan = make(chan []map[string]interface{}, ds.maxConcurrent)
+
+	rowsQuery := ds.generateRowsQuery(ds.size)
+	for i := 0; i < ds.maxConcurrent; i++ {
+		ds.wg.Add(1)
+
+		go ds.source(rowsQuery)
+	}
+
+	go ds.sourcePage()
 
 	go ds.Close()
 }
 
-func (ds *DbSource) Receive() ([]map[string]interface{}, bool) {
+func (ds *DbSource) Consume() ([]map[string]interface{}, bool) {
 	items, ok := <-ds.itemsChan
 
 	return items, ok
@@ -155,16 +156,19 @@ func (ds *DbSource) Close() {
 	ds.db.Close()
 }
 
-func (ds *DbSource) doStart(config *DbSourceConfig) {
+func (ds *DbSource) doConfig(config *DbSourceConfig) {
 	ds.maxConcurrent = config.MaxConcurrent
 	ds.size = config.Size
 	ds.page = config.Page
-	ds.scheme = config.Scheme
 	ds.table = config.Table
 	ds.pKeyName = config.PKeyName
 	ds.fields = config.Fields
 
 	config.check()
+
+	ds.state = newDbSourceState()
+	ds.state.size = ds.size
+	ds.state.maxConcurrent = ds.maxConcurrent
 
 	var err error
 	ds.db, err = simple.NewDriver(config.Driver, config.Dsn)
@@ -176,18 +180,6 @@ func (ds *DbSource) doStart(config *DbSourceConfig) {
 	if err != nil {
 		panic(err)
 	}
-
-	ds.pageChan = make(chan interface{}, ds.maxConcurrent)
-	ds.itemsChan = make(chan []map[string]interface{}, ds.maxConcurrent)
-
-	rowsQuery := ds.generateRowsQuery(ds.size)
-	for i := 0; i < ds.maxConcurrent; i++ {
-		ds.wg.Add(1)
-
-		go ds.source(rowsQuery)
-	}
-
-	go ds.sourcePage()
 }
 
 func (ds *DbSource) sourcePage() {
@@ -197,9 +189,15 @@ func (ds *DbSource) sourcePage() {
 	}
 
 	maxPage := int(math.Ceil(float64(amount) / float64(ds.size)))
-	if ds.page <= maxPage {
+	if ds.page > 0 && ds.page <= maxPage {
 		maxPage = ds.page
 	}
+
+	if maxPage <= 0 {
+		panic(fmt.Sprintf("max Page is error %d", maxPage))
+	}
+
+	ds.state.page = maxPage
 
 	nextPkQuery := ds.generateNextPkQuery(ds.size)
 	go func() {
@@ -240,6 +238,8 @@ func (ds *DbSource) source(query string) {
 		}
 
 		ds.itemsChan <- rows
+
+		atomic.AddInt64(&ds.state.itemAmount, int64(len(rows)))
 	}
 
 	ds.wg.Done()
@@ -259,7 +259,7 @@ func (ds *DbSource) retryPage(pk interface{}) {
 }
 
 func (ds *DbSource) getMinPk() interface{} {
-	query := fmt.Sprintf("SELECT `%s` FROM `%s`.`%s` ORDER BY `%s` ASC LIMIT 0, ?", ds.pKeyName, ds.scheme, ds.table, ds.pKeyName)
+	query := fmt.Sprintf("SELECT `%s` FROM `%s` ORDER BY `%s` ASC LIMIT 0, ?", ds.pKeyName, ds.table, ds.pKeyName)
 	minPk, err := ds.db.QueryFieldInterface(ds.pKeyName, query, 1)
 	if err != nil {
 		panic(err)
@@ -269,7 +269,7 @@ func (ds *DbSource) getMinPk() interface{} {
 }
 
 func (ds *DbSource) getTableAmount() int64 {
-	query := fmt.Sprintf("SELECT COUNT(*) AS 'amount' FROM `%s`.`%s`", ds.scheme, ds.table)
+	query := fmt.Sprintf("SELECT COUNT(*) AS 'amount' FROM `%s`", ds.table)
 	res, err := ds.db.QueryFieldInterface("amount", query)
 	if err != nil {
 		panic(err)
@@ -293,7 +293,7 @@ func (ds *DbSource) getNextPk(pk interface{}, query string) interface{} {
 }
 
 func (ds *DbSource) generateNextPkQuery(size int) string {
-	return fmt.Sprintf("SELECT `%s` FROM `%s`.`%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", ds.pKeyName, ds.scheme, ds.table, ds.pKeyName, ds.pKeyName, size, 1)
+	return fmt.Sprintf("SELECT `%s` FROM `%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", ds.pKeyName, ds.table, ds.pKeyName, ds.pKeyName, size, 1)
 
 }
 
@@ -305,13 +305,12 @@ func (ds *DbSource) generateRowsQuery(size int) string {
 		fields = "`" + strings.Join(ds.fields, "`, `") + "`"
 	}
 
-	return fmt.Sprintf("SELECT %s FROM `%s`.`%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", fields, ds.scheme, ds.table, ds.pKeyName, ds.pKeyName, 0, size)
+	return fmt.Sprintf("SELECT %s FROM `%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", fields, ds.table, ds.pKeyName, ds.pKeyName, 0, size)
 }
 
 type DbTarget struct {
 	maxConcurrent int
 	size          int
-	scheme        string
 	table         string
 
 	isDone bool
@@ -323,8 +322,16 @@ type DbTarget struct {
 	down   func()
 }
 
-func (dt *DbTarget) Start(config *DbTargetConfig) {
-	dt.doStart(config)
+func (dt *DbTarget) Start() {
+	for i := 0; i < dt.maxConcurrent; i++ {
+		dt.wg.Add(1)
+
+		go func() {
+			dt.target()
+
+			dt.wg.Done()
+		}()
+	}
 }
 
 func (dt *DbTarget) Done() {
@@ -337,20 +344,19 @@ func (dt *DbTarget) Done() {
 	dt.down()
 }
 
-func (dt *DbTarget) State() {
-	fmt.Println(fmt.Sprintf("Max Concurrent: %d \nSize: %d\nAmount: %d", dt.state.maxConcurrent, dt.state.size, dt.state.itemAmount))
-}
-
 func (dt *DbTarget) Close() {
 	dt.wg.Wait()
 
 	dt.db.Close()
 }
 
-func (dt *DbTarget) doStart(config *DbTargetConfig) {
+func (dt *DbTarget) State() {
+	fmt.Println(fmt.Sprintf("Max Concurrent: %d \nSize: %d\nAmount: %d", dt.state.maxConcurrent, dt.state.size, dt.state.itemAmount))
+}
+
+func (dt *DbTarget) doConfig(config *DbTargetConfig) {
 	dt.maxConcurrent = config.MaxConcurrent
 	dt.size = config.Size
-	dt.scheme = config.Scheme
 	dt.table = config.Table
 
 	config.check()
@@ -369,16 +375,6 @@ func (dt *DbTarget) doStart(config *DbTargetConfig) {
 	if err != nil {
 		panic(err)
 	}
-
-	for i := 0; i < dt.maxConcurrent; i++ {
-		dt.wg.Add(1)
-
-		go func() {
-			dt.target()
-
-			dt.wg.Done()
-		}()
-	}
 }
 
 type DbTargetInsertInterface struct {
@@ -387,12 +383,14 @@ type DbTargetInsertInterface struct {
 	itemsChan chan [][]interface{}
 }
 
-func NewDbTargetInsertInterface() *DbTargetInsertInterface {
+func NewDbTargetInsertInterface(config *DbTargetConfig) *DbTargetInsertInterface {
 	d := &DbTargetInsertInterface{}
 	d.itemsChan = make(chan [][]interface{}, d.maxConcurrent)
 
 	d.target = d.doTarget
 	d.down = d.doDown
+
+	d.doConfig(config)
 
 	return d
 }
@@ -462,12 +460,14 @@ type DbTargetInsertMap struct {
 	itemsChan chan []map[string]interface{}
 }
 
-func NewDbTargetInsertMap() *DbTargetInsertMap {
+func NewDbTargetInsertMap(config *DbTargetConfig) *DbTargetInsertMap {
 	d := &DbTargetInsertMap{}
 	d.itemsChan = make(chan []map[string]interface{}, d.maxConcurrent)
 
 	d.target = d.doTarget
 	d.down = d.doDown
+
+	d.doConfig(config)
 
 	return d
 }

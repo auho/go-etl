@@ -9,42 +9,45 @@ import (
 )
 
 type InsertAction struct {
-	concurrent  int
-	target      *storage.DbTargetInsertInterface
-	mode        mode.InsertMode
-	idName      string
-	dataName    string
-	affixFields []string
-	isSourceEnd bool
-	wg          sync.WaitGroup
-	itemsChan   chan []map[string]interface{}
+	concurrent   int
+	target       *storage.DbTargetInsertInterface
+	mode         mode.InsertMode
+	idName       string
+	dataName     string
+	tagTableName string
+	affixFields  []string
+	isSourceEnd  bool
+	wg           sync.WaitGroup
+	itemsChan    chan []map[string]interface{}
 }
 
-func NewInsertAction() *InsertAction {
+func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.InsertMode, affixFields []string) *InsertAction {
 	ia := &InsertAction{}
+	ia.mode = moder
+	ia.affixFields = affixFields
+	ia.concurrent = 4
+	ia.itemsChan = make(chan []map[string]interface{}, ia.concurrent)
+	ia.tagTableName = tagTableName
+
+	targetConfig := storage.NewDbTargetConfig()
+	targetConfig.MaxConcurrent = 4
+	targetConfig.Size = 2000
+	targetConfig.Driver = config.Driver
+	targetConfig.Dsn = config.Dsn
+	targetConfig.Table = ia.tagTableName
+
+	ia.target = storage.NewDbTargetInsertInterface(targetConfig)
+	ia.target.SetFields(ia.GetKeys())
+	ia.target.Start()
 
 	return ia
 }
 
-func (ia *InsertAction) Start(config goEtl.DbConfig, dataName string, affixFields []string, tagTableName string) {
-	ia.concurrent = 4
-	ia.itemsChan = make(chan []map[string]interface{}, ia.concurrent)
-
+func (ia *InsertAction) Start() {
 	for i := 0; i < ia.concurrent; i++ {
 		ia.wg.Add(1)
 		go ia.doSource()
 	}
-
-	targetConfig := storage.NewDbTargetConfig()
-	targetConfig.Size = 2000
-	targetConfig.Driver = config.Driver
-	targetConfig.Dsn = config.Dsn
-	targetConfig.Scheme = config.Scheme
-	targetConfig.Table = config.Table
-
-	ia.target = storage.NewDbTargetInsertInterface()
-	ia.target.SetFields(ia.GetKeys())
-	ia.target.Start(targetConfig)
 }
 
 func (ia *InsertAction) Close() {
@@ -52,6 +55,16 @@ func (ia *InsertAction) Close() {
 
 	ia.target.Done()
 	ia.target.Close()
+}
+
+func (ia *InsertAction) SourceDone() {
+	if ia.isSourceEnd {
+		return
+	}
+
+	ia.isSourceEnd = true
+
+	close(ia.itemsChan)
 }
 
 func (ia *InsertAction) GetFields() []string {
@@ -64,16 +77,6 @@ func (ia *InsertAction) GetKeys() []string {
 
 func (ia *InsertAction) Receive(items []map[string]interface{}) {
 	ia.itemsChan <- items
-}
-
-func (ia *InsertAction) SourceDone() {
-	if ia.isSourceEnd {
-		return
-	}
-
-	ia.isSourceEnd = true
-
-	close(ia.itemsChan)
 }
 
 func (ia *InsertAction) doItem(item map[string]interface{}) [][]interface{} {

@@ -50,9 +50,9 @@ type TagKeyMeans struct {
 	TagMeans
 }
 
-func NewTagKeyMeans(key string, db simple.Driver, Options ...TagMatcherOption) *TagKeyMeans {
+func NewTagKeyMeans(ruleName string, db simple.Driver, Options ...TagMatcherOption) *TagKeyMeans {
 	t := &TagKeyMeans{}
-	t.prepare(key, db, Options...)
+	t.prepare(ruleName, db, Options...)
 
 	return t
 }
@@ -70,9 +70,9 @@ type TagMostTextMeans struct {
 	TagMeans
 }
 
-func NewTagMostTextMeans(key string, db simple.Driver, Options ...TagMatcherOption) *TagMostTextMeans {
+func NewTagMostTextMeans(ruleName string, db simple.Driver, Options ...TagMatcherOption) *TagMostTextMeans {
 	t := &TagMostTextMeans{}
-	t.prepare(key, db, Options...)
+	t.prepare(ruleName, db, Options...)
 
 	return t
 }
@@ -96,9 +96,9 @@ type TagMostKeyMeans struct {
 	TagMeans
 }
 
-func NewTagMostKeyMeans(key string, db simple.Driver, Options ...TagMatcherOption) *TagMostKeyMeans {
+func NewTagMostKeyMeans(ruleName string, db simple.Driver, Options ...TagMatcherOption) *TagMostKeyMeans {
 	t := &TagMostKeyMeans{}
-	t.prepare(key, db, Options...)
+	t.prepare(ruleName, db, Options...)
 
 	return t
 }
