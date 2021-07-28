@@ -9,10 +9,6 @@ type TagMeans struct {
 	TagMatcher
 }
 
-func (tm *TagMeans) GetName() string {
-	return tm.TagMatcher.GetName()
-}
-
 func (tm *TagMeans) GetKeys() []string {
 	return tm.GetResultInsertKeys()
 }

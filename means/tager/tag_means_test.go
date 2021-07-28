@@ -8,11 +8,6 @@ func TestTagMeans(t *testing.T) {
 	tm := &TagMeans{}
 	tm.prepare(ruleName, db)
 
-	name := tm.GetName()
-	if name != ruleName {
-		t.Error("error")
-	}
-
 	keys := tm.GetKeys()
 	if len(keys) < 4 {
 		t.Error("error")

@@ -14,12 +14,12 @@ type UpdateAction struct {
 	idName     string
 	isDone     bool
 	itemsChan  chan []map[string]interface{}
-	mode       mode.UpdateMode
+	mode       mode.UpdateModer
 	target     *database.DbTargetMap
 	wg         sync.WaitGroup
 }
 
-func NewUpdateAction(config goEtl.DbConfig, dataName string, idName string, moder mode.UpdateMode) *UpdateAction {
+func NewUpdateAction(config goEtl.DbConfig, dataName string, idName string, moder mode.UpdateModer) *UpdateAction {
 	ua := &UpdateAction{}
 	ua.concurrent = 4
 	ua.dataName = dataName

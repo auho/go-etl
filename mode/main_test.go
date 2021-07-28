@@ -1,13 +1,11 @@
 package mode
 
 import (
-	"fmt"
 	"math/rand"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/auho/go-etl/means/tager"
 	"github.com/auho/go-simple-db/mysql"
 )
 
@@ -16,6 +14,7 @@ var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
 var keyName = "name"
 var db *mysql.Mysql
+var content = "b一ab一bc一abc一ab一123b一b123一中文一123一中文一一0123一1234一01234-a-ab-123-中文一b一中文一a"
 
 func TestMain(m *testing.M) {
 	setUp()
@@ -66,33 +65,4 @@ func setUp() {
 
 func tearDown() {
 	_ = db.Drop(ruleTableName)
-}
-
-func Test_Tag(t *testing.T) {
-	item := make(map[string]interface{})
-	item[keyName] = "b一ab一bc一abc一ab一123b一b123一中文一123一中文一一0123一1234一01234-a-ab-123-中文一b一中文一a"
-
-	ttm := tager.NewTagKeyMeans(ruleName, db)
-	ti1 := NewTagInsert([]string{keyName}, ttm)
-	results := ti1.Do(item)
-	if len(results) <= 0 {
-		t.Error("error")
-	}
-	fmt.Println(results)
-
-	tmtm := tager.NewTagMostTextMeans(ruleName, db)
-	ti2 := NewTagInsert([]string{keyName}, tmtm)
-	results = ti2.Do(item)
-	if len(results) <= 0 {
-		t.Error("error")
-	}
-	fmt.Println(results)
-
-	tmkm := tager.NewTagMostKeyMeans(ruleName, db)
-	ti3 := NewTagInsert([]string{keyName}, tmkm)
-	results = ti3.Do(item)
-	if len(results) <= 0 {
-		t.Error("error")
-	}
-	fmt.Println(results)
 }

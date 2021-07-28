@@ -15,13 +15,6 @@ func TestTagMatcher_GetResultInsertKeys(t *testing.T) {
 	}
 }
 
-func TestTagMatcher_GetName(t *testing.T) {
-	tm := newTagMatcher(ruleName, db)
-	if tm.GetName() != ruleName {
-		t.Error("error")
-	}
-}
-
 func TestMatcher(t *testing.T) {
 	items := make([]map[string]string, 0)
 	items = append(items, map[string]string{"a": "b", "b": "b", "c": "c"})

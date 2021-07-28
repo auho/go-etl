@@ -38,7 +38,7 @@ func Test_FlowUpdate(t *testing.T) {
 }
 
 func Test_FlowInsert(t *testing.T) {
-	m := mode.NewTagInsert([]string{keyName}, tager.NewTagKeyMeans(ruleName, db))
+	m := mode.NewInsertMode([]string{keyName}, tager.NewTagKeyMeans(ruleName, db))
 	ia := action.NewInsertAction(dbConfig,
 		tagTableName,
 		m,

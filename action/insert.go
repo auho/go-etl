@@ -14,12 +14,12 @@ type InsertAction struct {
 	affixFields  []string
 	isDone       bool
 	itemsChan    chan []map[string]interface{}
-	mode         mode.InsertMode
+	mode         mode.InsertModer
 	target       *database.DbTargetSlice
 	wg           sync.WaitGroup
 }
 
-func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.InsertMode, affixFields []string) *InsertAction {
+func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.InsertModer, affixFields []string) *InsertAction {
 	ia := &InsertAction{}
 	ia.concurrent = 4
 	ia.tagTableName = tagTableName
