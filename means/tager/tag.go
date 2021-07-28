@@ -574,6 +574,10 @@ func (m *Matcher) findAllMatch(contents []string) [][]string {
 		}
 	}
 
+	if len(results) <= 0 {
+		return nil
+	}
+
 	return results
 }
 

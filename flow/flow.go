@@ -5,10 +5,10 @@ import (
 
 	goEtl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/action"
-	"github.com/auho/go-etl/storage"
+	"github.com/auho/go-etl/storage/database"
 )
 
-func RunInsertFlow(config goEtl.DbConfig, dataName string, idName string, actions []*action.InsertAction) {
+func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []action.Action) {
 	var wg sync.WaitGroup
 
 	fields := []string{idName}
@@ -17,7 +17,7 @@ func RunInsertFlow(config goEtl.DbConfig, dataName string, idName string, action
 	}
 	fields = goEtl.RemoveReplicaSliceString(fields)
 
-	sourceConfig := storage.NewDbSourceConfig()
+	sourceConfig := database.NewDbSourceConfig()
 	sourceConfig.MaxConcurrent = 4
 	sourceConfig.Size = 2000
 	sourceConfig.Table = dataName
@@ -26,7 +26,7 @@ func RunInsertFlow(config goEtl.DbConfig, dataName string, idName string, action
 	sourceConfig.PKeyName = idName
 	sourceConfig.Fields = fields
 
-	source := storage.NewDbSource(sourceConfig)
+	source := database.NewDbSource(sourceConfig)
 	source.Start()
 
 	for _, a := range actions {
@@ -53,7 +53,7 @@ func RunInsertFlow(config goEtl.DbConfig, dataName string, idName string, action
 	wg.Wait()
 
 	for _, a := range actions {
-		a.SourceDone()
+		a.Done()
 		a.Close()
 	}
 }

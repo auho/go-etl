@@ -49,6 +49,10 @@ func setUp() {
 	query = "CREATE TABLE `" + dataTableName + "` (" +
 		"`did` int(11) unsigned NOT NULL AUTO_INCREMENT," +
 		"`name` text," +
+		"`a` varchar(30) NOT NULL DEFAULT ''," +
+		"`ab` varchar(30) NOT NULL DEFAULT ''," +
+		"`a_keyword` varchar(30) NOT NULL DEFAULT ''," +
+		"`a_keyword_num` int(11) NOT NULL DEFAULT '0'," +
 		"PRIMARY KEY (`did`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 	_, err = db.Exec(query)
@@ -94,7 +98,7 @@ func setUp() {
 	query = "CREATE TABLE `" + ruleTableName + "` (" +
 		"`id` int(11) unsigned NOT NULL AUTO_INCREMENT," +
 		"`a` varchar(30) NOT NULL DEFAULT ''," +
-		"`ab` varchar(30) NOT NULL," +
+		"`ab` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword` varchar(30) NOT NULL DEFAULT ''," +
 		"`keyword_len` int(11) NOT NULL DEFAULT '0'," +
 		"PRIMARY KEY (`id`)" +
@@ -139,7 +143,7 @@ func setUp() {
 }
 
 func tearDown() {
-	_ = db.Drop(ruleTableName)
-	_ = db.Drop(dataTableName)
-	_ = db.Drop(tagTableName)
+	//_ = db.Drop(ruleTableName)
+	//_ = db.Drop(dataTableName)
+	//_ = db.Drop(tagTableName)
 }

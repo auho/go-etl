@@ -7,8 +7,40 @@ import (
 	"github.com/auho/go-etl/means"
 )
 
+type TagMode struct {
+	keys []string
+}
+
+func (t *TagMode) GetKeysContent(keys []string, item map[string]interface{}) []string {
+	contents := make([]string, 0)
+	for _, key := range keys {
+		keyValue := t.ToStringKeyValue(key, item)
+
+		contents = append(contents, keyValue)
+	}
+
+	return contents
+}
+
+func (t *TagMode) ToStringKeyValue(key string, item map[string]interface{}) string {
+	keyValue := ""
+
+	switch item[key].(type) {
+	case string:
+		keyValue = item[key].(string)
+	case []uint8:
+		keyValue = string(item[key].([]uint8))
+	case int64:
+		keyValue = strconv.FormatInt(item[key].(int64), 10)
+	default:
+		panic(fmt.Sprintf("type is not string %T", item[key]))
+	}
+
+	return keyValue
+}
+
 type TagInsert struct {
-	keys   []string
+	TagMode
 	insert means.InsertMeans
 }
 
@@ -37,29 +69,13 @@ func (ti *TagInsert) Do(item map[string]interface{}) [][]interface{} {
 		return nil
 	}
 
-	contents := make([]string, 0)
-	for _, key := range ti.keys {
-		keyValue := ""
-
-		switch item[key].(type) {
-		case string:
-			keyValue = item[key].(string)
-		case []uint8:
-			keyValue = string(item[key].([]uint8))
-		case int64:
-			keyValue = strconv.FormatInt(item[key].(int64), 10)
-		default:
-			panic(fmt.Sprintf("type is not string %T", item[key]))
-		}
-
-		contents = append(contents, keyValue)
-	}
+	contents := ti.GetKeysContent(ti.keys, item)
 
 	return ti.insert.Insert(contents)
 }
 
 type TagUpdate struct {
-	keys   []string
+	TagMode
 	update means.UpdateMeans
 }
 
@@ -80,10 +96,7 @@ func (tu *TagUpdate) Do(item map[string]interface{}) map[string]interface{} {
 		return nil
 	}
 
-	contents := make([]string, 0)
-	for _, key := range tu.keys {
-		contents = append(contents, key)
-	}
+	contents := tu.GetKeysContent(tu.keys, item)
 
 	return tu.update.Update(contents)
 }

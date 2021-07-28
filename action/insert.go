@@ -5,49 +5,57 @@ import (
 
 	goEtl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
-	"github.com/auho/go-etl/storage"
+	"github.com/auho/go-etl/storage/database"
 )
 
 type InsertAction struct {
 	concurrent   int
-	target       *storage.DbTargetInsertInterface
-	mode         mode.InsertMode
-	idName       string
-	dataName     string
 	tagTableName string
 	affixFields  []string
-	isSourceEnd  bool
-	wg           sync.WaitGroup
+	isDone       bool
 	itemsChan    chan []map[string]interface{}
+	mode         mode.InsertMode
+	target       *database.DbTargetSlice
+	wg           sync.WaitGroup
 }
 
 func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.InsertMode, affixFields []string) *InsertAction {
 	ia := &InsertAction{}
-	ia.mode = moder
-	ia.affixFields = affixFields
 	ia.concurrent = 4
-	ia.itemsChan = make(chan []map[string]interface{}, ia.concurrent)
 	ia.tagTableName = tagTableName
+	ia.affixFields = affixFields
+	ia.mode = moder
+	ia.itemsChan = make(chan []map[string]interface{}, ia.concurrent)
 
-	targetConfig := storage.NewDbTargetConfig()
+	targetConfig := database.NewDbTargetConfig()
 	targetConfig.MaxConcurrent = 4
 	targetConfig.Size = 2000
 	targetConfig.Driver = config.Driver
 	targetConfig.Dsn = config.Dsn
 	targetConfig.Table = ia.tagTableName
 
-	ia.target = storage.NewDbTargetInsertInterface(targetConfig)
-	ia.target.SetFields(ia.GetKeys())
-	ia.target.Start()
+	ia.target = database.NewDbTargetInsertSliceSlice(targetConfig, ia.getKeys())
 
 	return ia
 }
 
 func (ia *InsertAction) Start() {
+	ia.target.Start()
+
 	for i := 0; i < ia.concurrent; i++ {
 		ia.wg.Add(1)
 		go ia.doSource()
 	}
+}
+
+func (ia *InsertAction) Done() {
+	if ia.isDone {
+		return
+	}
+
+	ia.isDone = true
+
+	close(ia.itemsChan)
 }
 
 func (ia *InsertAction) Close() {
@@ -57,43 +65,16 @@ func (ia *InsertAction) Close() {
 	ia.target.Close()
 }
 
-func (ia *InsertAction) SourceDone() {
-	if ia.isSourceEnd {
-		return
-	}
-
-	ia.isSourceEnd = true
-
-	close(ia.itemsChan)
-}
-
 func (ia *InsertAction) GetFields() []string {
 	return append(ia.mode.GetFields(), ia.affixFields...)
-}
-
-func (ia *InsertAction) GetKeys() []string {
-	return append(ia.mode.GetKeys(), ia.affixFields...)
 }
 
 func (ia *InsertAction) Receive(items []map[string]interface{}) {
 	ia.itemsChan <- items
 }
 
-func (ia *InsertAction) doItem(item map[string]interface{}) [][]interface{} {
-	items := ia.mode.Do(item)
-	if items == nil {
-		return nil
-	}
-
-	if len(ia.affixFields) > 0 {
-		for index := range items {
-			for _, field := range ia.affixFields {
-				items[index] = append(items[index], item[field])
-			}
-		}
-	}
-
-	return items
+func (ia *InsertAction) getKeys() []string {
+	return append(ia.mode.GetKeys(), ia.affixFields...)
 }
 
 func (ia *InsertAction) doSource() {
@@ -118,4 +99,21 @@ func (ia *InsertAction) doSource() {
 	}
 
 	ia.wg.Done()
+}
+
+func (ia *InsertAction) doItem(item map[string]interface{}) [][]interface{} {
+	items := ia.mode.Do(item)
+	if items == nil {
+		return nil
+	}
+
+	if len(ia.affixFields) > 0 {
+		for index := range items {
+			for _, field := range ia.affixFields {
+				items[index] = append(items[index], item[field])
+			}
+		}
+	}
+
+	return items
 }
