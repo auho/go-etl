@@ -14,7 +14,7 @@ type App struct {
 func NewApp() *App {
 	a := &App{}
 
-	name := flag.String("name", "office", "")
+	name := flag.String("config", "office", "")
 	flag.Parse()
 
 	config := LoadConfig(*name)
