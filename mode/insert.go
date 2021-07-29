@@ -34,3 +34,7 @@ func (m *InsertMode) Do(item map[string]interface{}) [][]interface{} {
 
 	return m.insert.Insert(contents)
 }
+
+func (m *InsertMode) Close() {
+	m.insert.Close()
+}

@@ -13,6 +13,10 @@ func (tm *TagMeans) GetKeys() []string {
 	return tm.GetResultInsertKeys()
 }
 
+func (tm *TagMeans) Close() {
+
+}
+
 func (tm *TagMeans) insertResult(f func() *Result) [][]interface{} {
 	result := f()
 	if result == nil {

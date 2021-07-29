@@ -30,3 +30,7 @@ func (m *UpdateMode) Do(item map[string]interface{}) map[string]interface{} {
 
 	return m.update.Update(contents)
 }
+
+func (m *UpdateMode) Close() {
+	m.update.Close()
+}

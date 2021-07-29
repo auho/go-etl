@@ -7,17 +7,20 @@ import (
 
 type VoidModer interface {
 	Do(map[string]interface{})
+	Close()
 }
 
 type InsertModer interface {
 	GetKeys() []string
 	GetFields() []string
 	Do(map[string]interface{}) [][]interface{}
+	Close()
 }
 
 type UpdateModer interface {
 	GetFields() []string
 	Do(map[string]interface{}) map[string]interface{}
+	Close()
 }
 
 type Mode struct {

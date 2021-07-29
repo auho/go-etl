@@ -61,6 +61,8 @@ func (ua *UpdateAction) Done() {
 func (ua *UpdateAction) Close() {
 	ua.wg.Wait()
 
+	ua.mode.Close()
+
 	ua.target.Done()
 	ua.target.Close()
 }

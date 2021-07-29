@@ -61,6 +61,8 @@ func (ia *InsertAction) Done() {
 func (ia *InsertAction) Close() {
 	ia.wg.Wait()
 
+	ia.mode.Close()
+
 	ia.target.Done()
 	ia.target.Close()
 }
