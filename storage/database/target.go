@@ -50,6 +50,8 @@ func (dt *dbTarget) Close() {
 	dt.wg.Wait()
 
 	dt.db.Close()
+
+	fmt.Println("target done!")
 }
 
 func (dt *dbTarget) State() {

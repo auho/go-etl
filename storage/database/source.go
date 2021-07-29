@@ -62,6 +62,8 @@ func (ds *DbSource) Close() {
 
 	close(ds.itemsChan)
 	ds.db.Close()
+
+	fmt.Println("source done!")
 }
 
 func (ds *DbSource) doConfig(config *DbSourceConfig) {
