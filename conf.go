@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	dbConfig *DbConfig
+	Db *DbConfig
 }
 
 type DbConfig struct {
@@ -16,18 +16,18 @@ type DbConfig struct {
 	Dsn    string
 }
 
-func LoadConfig(name string) *Config {
+func LoadConfig(name string) (*Config, error) {
 	filePath := fmt.Sprintf("conf/%s.toml", name)
 	fileContent, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var c Config
 	err = toml.Unmarshal(fileContent, &c)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &c
+	return &c, nil
 }

@@ -143,7 +143,7 @@ func setUp() {
 }
 
 func tearDown() {
-	//_ = db.Drop(ruleTableName)
-	//_ = db.Drop(dataTableName)
-	//_ = db.Drop(tagTableName)
+	_ = db.Drop(ruleTableName)
+	_ = db.Drop(dataTableName)
+	_ = db.Drop(tagTableName)
 }
