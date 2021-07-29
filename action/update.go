@@ -14,17 +14,17 @@ type UpdateAction struct {
 	idName     string
 	isDone     bool
 	itemsChan  chan []map[string]interface{}
-	mode       mode.UpdateModer
+	modes      []mode.UpdateModer
 	target     *database.DbTargetMap
 	wg         sync.WaitGroup
 }
 
-func NewUpdateAction(config goEtl.DbConfig, dataName string, idName string, moder mode.UpdateModer) *UpdateAction {
+func NewUpdateAction(config goEtl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) *UpdateAction {
 	ua := &UpdateAction{}
 	ua.concurrent = 4
 	ua.dataName = dataName
 	ua.idName = idName
-	ua.mode = moder
+	ua.modes = modes
 	ua.itemsChan = make(chan []map[string]interface{}, ua.concurrent)
 
 	targetConfig := database.NewDbTargetConfig()
@@ -61,14 +61,23 @@ func (ua *UpdateAction) Done() {
 func (ua *UpdateAction) Close() {
 	ua.wg.Wait()
 
-	ua.mode.Close()
+	for _, m := range ua.modes {
+		m.Close()
+	}
 
 	ua.target.Done()
 	ua.target.Close()
 }
 
 func (ua *UpdateAction) GetFields() []string {
-	return append(ua.mode.GetFields(), ua.idName)
+	fields := make([]string, 0)
+	for _, m := range ua.modes {
+		fields = append(fields, m.GetFields()...)
+	}
+
+	fields = goEtl.RemoveReplicaSliceString(fields)
+
+	return append(fields, ua.idName)
 }
 
 func (ua *UpdateAction) Receive(items []map[string]interface{}) {
@@ -85,8 +94,15 @@ func (ua *UpdateAction) doSource() {
 		targetItems := make([]map[string]interface{}, 0)
 
 		for _, sourceItem := range sourceItems {
-			item := ua.mode.Do(sourceItem)
-			if item == nil {
+			item := make(map[string]interface{})
+			for _, m := range ua.modes {
+				res := m.Do(sourceItem)
+				for k, v := range res {
+					item[k] = v
+				}
+			}
+
+			if len(item) <= 0 {
 				continue
 			}
 

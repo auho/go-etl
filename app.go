@@ -14,7 +14,7 @@ import (
 )
 
 type App struct {
-	DbConfig *DbConfig
+	DbConfig DbConfig
 	Db       simple.Driver
 	Demand   *AppDemand
 	WorkDir  string
@@ -45,7 +45,7 @@ func NewApp() *App {
 		panic(err)
 	}
 
-	a.DbConfig = config.Db
+	a.DbConfig = *config.Db
 
 	a.Db, err = simple.NewDriver(a.DbConfig.Driver, a.DbConfig.Dsn)
 	if err != nil {

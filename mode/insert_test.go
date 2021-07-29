@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/auho/go-etl/means"
 	"github.com/auho/go-etl/means/segworder"
 	"github.com/auho/go-etl/means/tager"
 )
@@ -39,6 +40,13 @@ func Test_InsertMode(t *testing.T) {
 	sw := segworder.NewSegWordsMeans()
 	ti4 := NewInsertMode([]string{keyName}, sw)
 	results = ti4.Do(item)
+	if len(results) <= 0 {
+		t.Error("error")
+	}
+	fmt.Println(results)
+
+	ti5 := NewMultiInsertMode([]string{keyName}, sw.GetKeys(), []means.InsertMeans{sw, sw})
+	results = ti5.Do(item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}

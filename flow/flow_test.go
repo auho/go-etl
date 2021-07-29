@@ -15,10 +15,11 @@ func Test_FlowUpdate(t *testing.T) {
 	ua := action.NewUpdateAction(dbConfig,
 		dataTableName,
 		pkName,
-		m,
+		[]mode.UpdateModer{m},
 	)
 
 	RunFlow(dbConfig, dataTableName, pkName, []action.Action{ua})
+	UpdateFlow(dbConfig, dataTableName, pkName, []mode.UpdateModer{m})
 
 	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` != ?", dataTableName, "a")
 	res, err := db.QueryFieldInterface("_count", query, "")
@@ -62,11 +63,14 @@ func Test_FlowInsert(t *testing.T) {
 	ia2 := action.NewInsertAction(dbConfig, tagTableName+"2", m, []string{pkName})
 
 	RunFlow(dbConfig, dataTableName, pkName, []action.Action{ia, ia1, ia2})
+	InsertFlow(dbConfig, dataTableName, pkName, tagTableName, m, []string{pkName})
+	InsertFlow(dbConfig, dataTableName, pkName, tagTableName+"1", m, []string{pkName})
+	InsertFlow(dbConfig, dataTableName, pkName, tagTableName+"2", m, []string{pkName})
 
 	dataCount := getAmount(dataTableName, t)
 	tagCount := getAmount(tagTableName, t)
 
-	if dataCount*2 != tagCount {
+	if dataCount*4 != tagCount {
 		t.Error("data *2 != tag")
 	}
 
