@@ -38,11 +38,11 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 	fmt.Println("start...")
 	go func() {
 		fmt.Println("source")
-		fmt.Println("")
+		fmt.Println(" ")
 
 		for k := range actions {
 			fmt.Println(fmt.Sprintf("target %d", k))
-			fmt.Println("")
+			fmt.Println(" ")
 		}
 
 		lines := 2 + len(actions)*2
