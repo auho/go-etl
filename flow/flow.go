@@ -49,7 +49,7 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		t := time.NewTicker(time.Millisecond * 500)
 
 		for range t.C {
-			fmt.Printf("\r%c[%dA%c[K", 0x1B, lines, 0x1B)
+			fmt.Printf("%c[%dA\r%c[K%c[1;40;32m %s %c[0m", 0x1B, lines-1, 0x1B, 0x1B, source.State.GetRealTimeStatus(), 0x1B)
 			for _, a := range actions {
 				fmt.Printf("%c[2B\r%c[K%c[1;40;32m %s %c[0m", 0x1B, 0x1B, 0x1B, a.GetStatus(), 0x1B)
 			}
@@ -61,6 +61,7 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		go func() {
 			for {
 				if items, ok := source.Consume(); ok {
+					time.Sleep(time.Second * 3)
 					for _, a := range actions {
 						a.Receive(items)
 					}
