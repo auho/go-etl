@@ -70,7 +70,7 @@ func Test_FlowInsert(t *testing.T) {
 	dataCount := getAmount(dataTableName, t)
 	tagCount := getAmount(tagTableName, t)
 
-	if dataCount*4 != tagCount {
+	if dataCount*2 != tagCount {
 		t.Error("data *2 != tag")
 	}
 

@@ -36,7 +36,7 @@ func getAmount() int {
 }
 
 func Test_DbTargetInsertSliceSlice(t *testing.T) {
-	d := NewDbTargetInsertSliceSlice(targetConfig, []string{"name", "value"})
+	d := NewDbTargetInsertSliceSlice(targetConfig, []string{"name", "value"}, WithDbTargetSliceTruncate())
 	d.Start()
 
 	maxI := rand.Intn(100) + 5
@@ -67,7 +67,7 @@ func Test_DbTargetInsertSliceSlice(t *testing.T) {
 }
 
 func Test_DbTargetInsertSliceMap(t *testing.T) {
-	d := NewDbTargetInsertSliceMap(targetConfig)
+	d := NewDbTargetInsertSliceMap(targetConfig, WithDbTargetMapTruncate())
 	d.Start()
 
 	maxI := rand.Intn(100) + 5

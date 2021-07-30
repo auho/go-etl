@@ -61,7 +61,7 @@ func (dt *dbTarget) State() {
 	fmt.Println(fmt.Sprintf("Max Concurrent: %d \nSize: %d\nAmount: %d", dt.state.maxConcurrent, dt.state.size, dt.state.itemAmount))
 }
 
-func (dt *dbTarget) doConfig(config *DbTargetConfig) {
+func (dt *dbTarget) initDb(config *DbTargetConfig) {
 	dt.maxConcurrent = config.MaxConcurrent
 	dt.size = config.Size
 	dt.table = config.Table
@@ -84,6 +84,14 @@ func (dt *dbTarget) doConfig(config *DbTargetConfig) {
 	}
 }
 
+func WithDbTargetSliceTruncate() func(*DbTargetSlice) error {
+	return func(d *DbTargetSlice) error {
+		return d.db.Truncate(d.table)
+	}
+}
+
+type DbTargetSlicePrepareFunc func(d *DbTargetSlice) error
+
 type DbTargetSlice struct {
 	dbTarget
 	fields    []string
@@ -91,32 +99,39 @@ type DbTargetSlice struct {
 	sliceFunc func(t *DbTargetSlice, items [][]interface{}) error
 }
 
-func newDbTargetSlice(config *DbTargetConfig) *DbTargetSlice {
+func newDbTargetSlice(config *DbTargetConfig, prepareFuncs ...DbTargetSlicePrepareFunc) *DbTargetSlice {
 	t := &DbTargetSlice{}
 	t.itemsChan = make(chan [][]interface{}, t.maxConcurrent)
 
 	t.target = t.doTarget
 	t.down = t.doDown
 
-	t.doConfig(config)
+	t.initDb(config)
+
+	for _, pf := range prepareFuncs {
+		err := pf(t)
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	return t
 }
 
-func (d *DbTargetSlice) Send(items [][]interface{}) {
-	d.itemsChan <- items
+func (t *DbTargetSlice) Send(items [][]interface{}) {
+	t.itemsChan <- items
 }
 
-func (d *DbTargetSlice) doDown() {
-	close(d.itemsChan)
+func (t *DbTargetSlice) doDown() {
+	close(t.itemsChan)
 }
 
-func (d *DbTargetSlice) doTarget() {
+func (t *DbTargetSlice) doTarget() {
 	var startTime time.Time
 	var endTime time.Time
 
 	for {
-		if items, ok := <-d.itemsChan; ok {
+		if items, ok := <-t.itemsChan; ok {
 			if len(items) <= 0 {
 				continue
 			}
@@ -126,27 +141,27 @@ func (d *DbTargetSlice) doTarget() {
 			var insertItems [][]interface{}
 			itemsAmount := len(items)
 
-			for start := 0; start < itemsAmount; start += d.size {
-				end := start + d.size
+			for start := 0; start < itemsAmount; start += t.size {
+				end := start + t.size
 				if end >= itemsAmount {
 					insertItems = items[start:]
 				} else {
 					insertItems = items[start:end]
 				}
 
-				err := d.sliceFunc(d, insertItems)
+				err := t.sliceFunc(t, insertItems)
 				if err != nil {
 					panic(err)
 				}
 			}
 
 			endTime = time.Now()
-			stateDuration := uintptr(unsafe.Pointer(&d.state.duration))
+			stateDuration := uintptr(unsafe.Pointer(&t.state.duration))
 
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
-			atomic.AddInt64(&d.state.itemAmount, int64(itemsAmount))
+			atomic.AddInt64(&t.state.itemAmount, int64(itemsAmount))
 
-			go_etl.PrintColor(fmt.Sprintf("target item amount:: %d", d.state.itemAmount))
+			go_etl.PrintColor(fmt.Sprintf("target item amount:: %d", t.state.itemAmount))
 
 		} else {
 			break
@@ -154,38 +169,53 @@ func (d *DbTargetSlice) doTarget() {
 	}
 }
 
+func WithDbTargetMapTruncate() func(*DbTargetMap) error {
+	return func(d *DbTargetMap) error {
+		return d.db.Truncate(d.table)
+	}
+}
+
+type DbTargetMapPrepareFunc func(d *DbTargetMap) error
+
 type DbTargetMap struct {
 	dbTarget
 	itemsChan chan []map[string]interface{}
 	mapFunc   func(t *DbTargetMap, items []map[string]interface{}) error
 }
 
-func newDbTargetMap(config *DbTargetConfig) *DbTargetMap {
-	d := &DbTargetMap{}
-	d.itemsChan = make(chan []map[string]interface{}, d.maxConcurrent)
+func newDbTargetMap(config *DbTargetConfig, prepareFuncs ...DbTargetMapPrepareFunc) *DbTargetMap {
+	t := &DbTargetMap{}
+	t.itemsChan = make(chan []map[string]interface{}, t.maxConcurrent)
 
-	d.target = d.doTarget
-	d.down = d.doDown
+	t.target = t.doTarget
+	t.down = t.doDown
 
-	d.doConfig(config)
+	t.initDb(config)
 
-	return d
+	for _, pf := range prepareFuncs {
+		err := pf(t)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return t
 }
 
-func (d *DbTargetMap) Send(items []map[string]interface{}) {
-	d.itemsChan <- items
+func (t *DbTargetMap) Send(items []map[string]interface{}) {
+	t.itemsChan <- items
 }
 
-func (d *DbTargetMap) doDown() {
-	close(d.itemsChan)
+func (t *DbTargetMap) doDown() {
+	close(t.itemsChan)
 }
 
-func (d *DbTargetMap) doTarget() {
+func (t *DbTargetMap) doTarget() {
 	var startTime time.Time
 	var endTime time.Time
 
 	for {
-		if items, ok := <-d.itemsChan; ok {
+		if items, ok := <-t.itemsChan; ok {
 			if len(items) <= 0 {
 				continue
 			}
@@ -195,27 +225,27 @@ func (d *DbTargetMap) doTarget() {
 			var insertItems []map[string]interface{}
 			itemsAmount := len(items)
 
-			for start := 0; start < itemsAmount; start += d.size {
-				end := start + d.size
+			for start := 0; start < itemsAmount; start += t.size {
+				end := start + t.size
 				if end >= itemsAmount {
 					insertItems = items[start:]
 				} else {
 					insertItems = items[start:end]
 				}
 
-				err := d.mapFunc(d, insertItems)
+				err := t.mapFunc(t, insertItems)
 				if err != nil {
 					panic(err)
 				}
 			}
 
 			endTime = time.Now()
-			stateDuration := uintptr(unsafe.Pointer(&d.state.duration))
+			stateDuration := uintptr(unsafe.Pointer(&t.state.duration))
 
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
-			atomic.AddInt64(&d.state.itemAmount, int64(itemsAmount))
+			atomic.AddInt64(&t.state.itemAmount, int64(itemsAmount))
 
-			go_etl.PrintColor(fmt.Sprintf("target item amount:: %d", d.state.itemAmount))
+			go_etl.PrintColor(fmt.Sprintf("target item amount:: %d", t.state.itemAmount))
 
 		} else {
 			break

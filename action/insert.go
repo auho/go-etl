@@ -34,7 +34,7 @@ func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.Inse
 	targetConfig.Dsn = config.Dsn
 	targetConfig.Table = ia.tagTableName
 
-	ia.target = database.NewDbTargetInsertSliceSlice(targetConfig, ia.getKeys())
+	ia.target = database.NewDbTargetInsertSliceSlice(targetConfig, ia.getKeys(), database.WithDbTargetSliceTruncate())
 
 	return ia
 }
