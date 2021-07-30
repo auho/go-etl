@@ -154,7 +154,7 @@ func (ds *DbSource) source(query string) {
 
 		atomic.AddInt64(&ds.state.itemAmount, int64(len(rows)))
 
-		go_etl.PrintColor(fmt.Sprintf("source pk:: %v; item amount:: %d", pk, ds.state.itemAmount))
+		go_etl.PrintColor(fmt.Sprintf("source pk:: %v; item amount:: %d", rows[len(rows)-1][ds.pKeyName], ds.state.itemAmount))
 	}
 
 	ds.wg.Done()
