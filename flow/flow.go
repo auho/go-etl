@@ -46,7 +46,7 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		}
 
 		lines := 2 + len(actions)*2
-		t := time.NewTicker(time.Millisecond * 500)
+		t := time.NewTicker(time.Second)
 
 		for range t.C {
 			fmt.Printf("%c[%dA\r%c[K%c[1;40;32m %s %c[0m", 0x1B, lines-1, 0x1B, 0x1B, source.State.GetRealTimeStatus(), 0x1B)

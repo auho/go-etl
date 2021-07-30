@@ -24,6 +24,7 @@ type DbSource struct {
 	pageChan     chan interface{}
 	itemsChan    chan []map[string]interface{}
 	State        *DbSourceState
+	lastPagePk   interface{}
 
 	db simple.Driver
 }
@@ -125,6 +126,7 @@ func (ds *DbSource) sourcePage() {
 
 			ds.pageChan <- nextPk
 			prePk = nextPk
+			ds.lastPagePk = nextPk
 		}
 
 		close(ds.pageChan)
@@ -153,7 +155,7 @@ func (ds *DbSource) source(query string) {
 
 		atomic.AddInt64(&ds.State.itemAmount, int64(len(rows)))
 
-		ds.State.realtimeStatus = fmt.Sprintf("source pk:: %v; item amount:: %d", rows[len(rows)-1][ds.pKeyName], ds.State.itemAmount)
+		ds.State.realtimeStatus = fmt.Sprintf("source last page pk:: %v; item amount:: %d", ds.lastPagePk, ds.State.itemAmount)
 	}
 
 	ds.wg.Done()
