@@ -6,4 +6,5 @@ type Action interface {
 	Close()
 	GetFields() []string
 	Receive([]map[string]interface{})
+	GetStatus() string
 }

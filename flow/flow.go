@@ -1,7 +1,9 @@
 package flow
 
 import (
+	"fmt"
 	"sync"
+	"time"
 
 	goEtl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/action"
@@ -33,6 +35,27 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		a.Start()
 	}
 
+	fmt.Println("start...")
+	go func() {
+		fmt.Println("source")
+		fmt.Println("")
+
+		for k := range actions {
+			fmt.Println(fmt.Sprintf("target %d", k))
+			fmt.Println("")
+		}
+
+		lines := 2 + len(actions)*2
+		t := time.NewTicker(time.Millisecond * 500)
+
+		for range t.C {
+			fmt.Printf("\r%c[%dA%c[K", 0x1B, lines, 0x1B)
+			for _, a := range actions {
+				fmt.Printf("%c[2B\r%c[K%c[1;40;32m %s %c[0m", 0x1B, 0x1B, 0x1B, a.GetStatus(), 0x1B)
+			}
+		}
+	}()
+
 	for i := 0; i < 4; i++ {
 		wg.Add(1)
 		go func() {
@@ -56,4 +79,6 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		a.Done()
 		a.Close()
 	}
+
+	fmt.Println("\ndone")
 }

@@ -75,6 +75,10 @@ func (ia *InsertAction) Receive(items []map[string]interface{}) {
 	ia.itemsChan <- items
 }
 
+func (ia *InsertAction) GetStatus() string {
+	return ia.target.State.GetRealTimeStatus()
+}
+
 func (ia *InsertAction) getKeys() []string {
 	return append(ia.mode.GetKeys(), ia.affixFields...)
 }

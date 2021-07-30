@@ -7,7 +7,6 @@ import (
 	"time"
 	"unsafe"
 
-	go_etl "github.com/auho/go-etl"
 	"github.com/auho/go-simple-db/simple"
 )
 
@@ -19,14 +18,14 @@ type dbTarget struct {
 	isDone bool
 	wg     sync.WaitGroup
 	db     simple.Driver
-	state  *DbTargetState
+	State  *DbTargetState
 
 	target func()
 	down   func()
 }
 
 func (dt *dbTarget) Start() {
-	fmt.Println("target start")
+	dt.State.realtimeStatus = "target start"
 
 	for i := 0; i < dt.maxConcurrent; i++ {
 		dt.wg.Add(1)
@@ -54,11 +53,7 @@ func (dt *dbTarget) Close() {
 
 	dt.db.Close()
 
-	fmt.Println("\ntarget done!")
-}
-
-func (dt *dbTarget) State() {
-	fmt.Println(fmt.Sprintf("Max Concurrent: %d \nSize: %d\nAmount: %d", dt.state.maxConcurrent, dt.state.size, dt.state.itemAmount))
+	dt.State.realtimeStatus = dt.State.DoneStatus()
 }
 
 func (dt *dbTarget) initDb(config *DbTargetConfig) {
@@ -68,9 +63,9 @@ func (dt *dbTarget) initDb(config *DbTargetConfig) {
 
 	config.check()
 
-	dt.state = newDbTargetState()
-	dt.state.size = dt.size
-	dt.state.maxConcurrent = dt.maxConcurrent
+	dt.State = newDbTargetState()
+	dt.State.size = dt.size
+	dt.State.maxConcurrent = dt.maxConcurrent
 
 	var err error
 	dt.db, err = simple.NewDriver(config.Driver, config.Dsn)
@@ -156,12 +151,12 @@ func (t *DbTargetSlice) doTarget() {
 			}
 
 			endTime = time.Now()
-			stateDuration := uintptr(unsafe.Pointer(&t.state.duration))
+			stateDuration := uintptr(unsafe.Pointer(&t.State.duration))
 
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
-			atomic.AddInt64(&t.state.itemAmount, int64(itemsAmount))
+			atomic.AddInt64(&t.State.itemAmount, int64(itemsAmount))
 
-			go_etl.PrintColor(fmt.Sprintf("target item amount:: %d", t.state.itemAmount))
+			t.State.realtimeStatus = fmt.Sprintf("target item amount:: %d", t.State.itemAmount)
 
 		} else {
 			break
@@ -240,12 +235,12 @@ func (t *DbTargetMap) doTarget() {
 			}
 
 			endTime = time.Now()
-			stateDuration := uintptr(unsafe.Pointer(&t.state.duration))
+			stateDuration := uintptr(unsafe.Pointer(&t.State.duration))
 
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
-			atomic.AddInt64(&t.state.itemAmount, int64(itemsAmount))
+			atomic.AddInt64(&t.State.itemAmount, int64(itemsAmount))
 
-			go_etl.PrintColor(fmt.Sprintf("target item amount:: %d", t.state.itemAmount))
+			t.State.realtimeStatus = fmt.Sprintf("target item amount:: %d", t.State.itemAmount)
 
 		} else {
 			break

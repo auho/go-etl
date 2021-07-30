@@ -61,8 +61,8 @@ func Test_DbTargetInsertSliceSlice(t *testing.T) {
 		t.Error(fmt.Sprintf("count is error. %d != %d", maxI*maxJ, count))
 	}
 
-	if d.state.itemAmount != count {
-		t.Error(fmt.Sprintf("count is error. %d != %d", d.state.itemAmount, count))
+	if d.State.itemAmount != count {
+		t.Error(fmt.Sprintf("count is error. %d != %d", d.State.itemAmount, count))
 	}
 }
 
@@ -85,15 +85,14 @@ func Test_DbTargetInsertSliceMap(t *testing.T) {
 
 	d.Done()
 	d.Close()
-	//d.State()
 
 	count := getFieldAmount("name", nameValue, t)
 	if int64(maxI*maxJ) != count {
 		t.Error(fmt.Sprintf("count is error. %d != %d", maxI*maxJ, count))
 	}
 
-	if d.state.itemAmount != count {
-		t.Error(fmt.Sprintf("count is error. %d != %d", d.state.itemAmount, count))
+	if d.State.itemAmount != count {
+		t.Error(fmt.Sprintf("count is error. %d != %d", d.State.itemAmount, count))
 	}
 }
 
@@ -118,15 +117,14 @@ func Test_DbTargetUpdateSliceMap(t *testing.T) {
 
 	d.Done()
 	d.Close()
-	//d.State()
 
 	count := getFieldAmount("value", value, t)
 	if int64(maxI*maxJ) != count {
 		t.Error(fmt.Sprintf("count is error. %d != %d", maxI*maxJ, count))
 	}
 
-	if d.state.itemAmount != count {
-		t.Error(fmt.Sprintf("count is error. %d != %d", d.state.itemAmount, count))
+	if d.State.itemAmount != count {
+		t.Error(fmt.Sprintf("count is error. %d != %d", d.State.itemAmount, count))
 	}
 }
 

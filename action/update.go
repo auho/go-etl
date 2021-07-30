@@ -84,6 +84,10 @@ func (ua *UpdateAction) Receive(items []map[string]interface{}) {
 	ua.itemsChan <- items
 }
 
+func (ua *UpdateAction) GetStatus() string {
+	return ua.target.State.GetRealTimeStatus()
+}
+
 func (ua *UpdateAction) doSource() {
 	for {
 		sourceItems, ok := <-ua.itemsChan

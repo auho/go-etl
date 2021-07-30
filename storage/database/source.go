@@ -8,7 +8,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	go_etl "github.com/auho/go-etl"
 	"github.com/auho/go-simple-db/simple"
 )
 
@@ -24,7 +23,7 @@ type DbSource struct {
 	wg           sync.WaitGroup
 	pageChan     chan interface{}
 	itemsChan    chan []map[string]interface{}
-	state        *DbSourceState
+	State        *DbSourceState
 
 	db simple.Driver
 }
@@ -37,7 +36,7 @@ func NewDbSource(config *DbSourceConfig) *DbSource {
 }
 
 func (ds *DbSource) Start() {
-	fmt.Println("source start")
+	ds.State.realtimeStatus = "source start"
 
 	ds.pageChan = make(chan interface{}, ds.maxConcurrent)
 	ds.itemsChan = make(chan []map[string]interface{}, ds.maxConcurrent)
@@ -66,7 +65,7 @@ func (ds *DbSource) Close() {
 	close(ds.itemsChan)
 	ds.db.Close()
 
-	fmt.Println("\nsource done!")
+	ds.State.realtimeStatus = ds.State.DoneStatus()
 }
 
 func (ds *DbSource) doConfig(config *DbSourceConfig) {
@@ -79,9 +78,9 @@ func (ds *DbSource) doConfig(config *DbSourceConfig) {
 
 	config.check()
 
-	ds.state = newDbSourceState()
-	ds.state.size = ds.size
-	ds.state.maxConcurrent = ds.maxConcurrent
+	ds.State = newDbSourceState()
+	ds.State.size = ds.size
+	ds.State.maxConcurrent = ds.maxConcurrent
 
 	var err error
 	ds.db, err = simple.NewDriver(config.Driver, config.Dsn)
@@ -110,7 +109,7 @@ func (ds *DbSource) sourcePage() {
 		panic(fmt.Sprintf("max Page is error %d", maxPage))
 	}
 
-	ds.state.page = maxPage
+	ds.State.page = maxPage
 
 	nextPkQuery := ds.generateNextPkQuery(ds.size)
 	go func() {
@@ -152,9 +151,9 @@ func (ds *DbSource) source(query string) {
 
 		ds.itemsChan <- rows
 
-		atomic.AddInt64(&ds.state.itemAmount, int64(len(rows)))
+		atomic.AddInt64(&ds.State.itemAmount, int64(len(rows)))
 
-		go_etl.PrintColor(fmt.Sprintf("source pk:: %v; item amount:: %d", rows[len(rows)-1][ds.pKeyName], ds.state.itemAmount))
+		ds.State.realtimeStatus = fmt.Sprintf("source pk:: %v; item amount:: %d", rows[len(rows)-1][ds.pKeyName], ds.State.itemAmount)
 	}
 
 	ds.wg.Done()
