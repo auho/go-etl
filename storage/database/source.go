@@ -8,6 +8,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	go_etl "github.com/auho/go-etl"
 	"github.com/auho/go-simple-db/simple"
 )
 
@@ -36,6 +37,8 @@ func NewDbSource(config *DbSourceConfig) *DbSource {
 }
 
 func (ds *DbSource) Start() {
+	fmt.Println("source start")
+
 	ds.pageChan = make(chan interface{}, ds.maxConcurrent)
 	ds.itemsChan = make(chan []map[string]interface{}, ds.maxConcurrent)
 
@@ -63,7 +66,7 @@ func (ds *DbSource) Close() {
 	close(ds.itemsChan)
 	ds.db.Close()
 
-	fmt.Println("source done!")
+	fmt.Println("\nsource done!")
 }
 
 func (ds *DbSource) doConfig(config *DbSourceConfig) {
@@ -150,6 +153,8 @@ func (ds *DbSource) source(query string) {
 		ds.itemsChan <- rows
 
 		atomic.AddInt64(&ds.state.itemAmount, int64(len(rows)))
+
+		go_etl.PrintColor(fmt.Sprintf("source pk:: %v; item amount:: %d", pk, ds.state.itemAmount))
 	}
 
 	ds.wg.Done()
@@ -204,7 +209,6 @@ func (ds *DbSource) getNextPk(pk interface{}, query string) interface{} {
 
 func (ds *DbSource) generateNextPkQuery(size int) string {
 	return fmt.Sprintf("SELECT `%s` FROM `%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", ds.pKeyName, ds.table, ds.pKeyName, ds.pKeyName, size, 1)
-
 }
 
 func (ds *DbSource) generateRowsQuery(size int) string {

@@ -7,6 +7,7 @@ import (
 	"time"
 	"unsafe"
 
+	go_etl "github.com/auho/go-etl"
 	"github.com/auho/go-simple-db/simple"
 )
 
@@ -25,6 +26,8 @@ type dbTarget struct {
 }
 
 func (dt *dbTarget) Start() {
+	fmt.Println("target start")
+
 	for i := 0; i < dt.maxConcurrent; i++ {
 		dt.wg.Add(1)
 
@@ -51,7 +54,7 @@ func (dt *dbTarget) Close() {
 
 	dt.db.Close()
 
-	fmt.Println("target done!")
+	fmt.Println("\ntarget done!")
 }
 
 func (dt *dbTarget) State() {
@@ -142,6 +145,9 @@ func (d *DbTargetSlice) doTarget() {
 
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
 			atomic.AddInt64(&d.state.itemAmount, int64(itemsAmount))
+
+			go_etl.PrintColor(fmt.Sprintf("target item amount:: %d", d.state.itemAmount))
+
 		} else {
 			break
 		}
@@ -208,6 +214,8 @@ func (d *DbTargetMap) doTarget() {
 
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
 			atomic.AddInt64(&d.state.itemAmount, int64(itemsAmount))
+
+			go_etl.PrintColor(fmt.Sprintf("target item amount:: %d", d.state.itemAmount))
 
 		} else {
 			break
