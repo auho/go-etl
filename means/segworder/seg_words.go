@@ -16,7 +16,9 @@ func (sw *SegWords) prepare() {
 	sw.jieBa = gojieba.NewJieba()
 }
 
-func (sw *SegWords) Tag(contents []string) [][]string {
+// tag
+// return [[ word, flag ]]
+func (sw *SegWords) tag(contents []string) [][]string {
 	results := make([][]string, 0)
 	for _, content := range contents {
 		items := sw.jieBa.Tag(content)

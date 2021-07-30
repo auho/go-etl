@@ -1,5 +1,9 @@
 package segworder
 
+import (
+	"unicode/utf8"
+)
+
 type SegWordsMeans struct {
 	SegWords
 }
@@ -16,14 +20,18 @@ func (sw *SegWordsMeans) GetKeys() []string {
 }
 
 func (sw *SegWordsMeans) Insert(contents []string) [][]interface{} {
-	results := sw.Tag(contents)
+	results := sw.tag(contents)
 	if results == nil {
 		return nil
 	}
 
-	items := make([][]interface{}, len(results), len(results))
-	for k, result := range results {
-		items[k] = []interface{}{result[0], result[1]}
+	items := make([][]interface{}, 0, len(results))
+	for _, result := range results {
+		if utf8.RuneCountInString(result[0]) < 2 || result[1] == "eng" || result[1] == "m" {
+			continue
+		}
+
+		items = append(items, []interface{}{result[0], result[1]})
 	}
 
 	return items
