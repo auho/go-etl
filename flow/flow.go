@@ -53,6 +53,8 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 			for _, a := range actions {
 				fmt.Printf("%c[2B\r%c[K%c[1;40;32m %s %c[0m", 0x1B, 0x1B, 0x1B, a.GetStatus(), 0x1B)
 			}
+
+			fmt.Printf("%c[1B", 0x1B)
 		}
 	}()
 
