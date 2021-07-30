@@ -51,15 +51,21 @@ func NewTagResult() *TagResult {
 
 type TagMatcherOption func(*TagMatcher)
 
-func WithTagMatcherDataName(d string) TagMatcherOption {
+func WithTagMatcherTags(s []string) TagMatcherOption {
 	return func(t *TagMatcher) {
-		t.dataName = d
+		t.tagsName = s
 	}
 }
 
 func WithTagMatcherAlias(alias map[string]string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.alias = alias
+	}
+}
+
+func WithTagMatcherDataName(d string) TagMatcherOption {
+	return func(t *TagMatcher) {
+		t.dataName = d
 	}
 }
 
@@ -72,12 +78,6 @@ func WithTagMatcherShortTableName(s string) TagMatcherOption {
 func WithTagMatcherFixedTags(m map[string]string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.fixedTags = m
-	}
-}
-
-func WithTagMatcherExcludeFields(s []string) TagMatcherOption {
-	return func(t *TagMatcher) {
-		t.excludeFields = s
 	}
 }
 
@@ -103,13 +103,10 @@ type TagMatcher struct {
 
 	dataName       string
 	shortTableName string
-
-	alias         map[string]string
-	excludeFields []string
-
-	fixedTags   map[string]string
-	fixedKeys   []string
-	fixedValues []interface{}
+	alias          map[string]string
+	fixedTags      map[string]string
+	fixedKeys      []string
+	fixedValues    []interface{}
 }
 
 func newTagMatcher(key string, db simple.Driver, Options ...TagMatcherOption) *TagMatcher {
@@ -165,7 +162,14 @@ func (t *TagMatcher) init() {
 	}
 
 	t.tableTagFields = make([]string, 0)
-	t.tagsName = make([]string, 0)
+
+	isTagsName := false
+	if len(t.tagsName) > 0 {
+		isTagsName = true
+	} else {
+		t.tagsName = make([]string, 0)
+	}
+
 	for k := range row {
 		column := row[k]
 		for _, ec := range t.excludeTableField {
@@ -176,10 +180,11 @@ func (t *TagMatcher) init() {
 
 		t.tableTagFields = append(t.tableTagFields, column)
 
-		if column != t.keyFieldName {
-			t.tagsName = append(t.tagsName, column)
+		if isTagsName == false {
+			if column != t.keyFieldName {
+				t.tagsName = append(t.tagsName, column)
+			}
 		}
-
 	LOOP:
 	}
 
@@ -187,6 +192,14 @@ func (t *TagMatcher) init() {
 		if s, ok := t.alias[v]; ok {
 			t.tagsName[k] = s
 		}
+	}
+
+	if s, ok := t.alias[t.keyFieldName]; ok {
+		t.keyFieldName = s
+	}
+
+	if s, ok := t.alias[t.keyNumFieldName]; ok {
+		t.keyNumFieldName = s
 	}
 
 	t.fixedKeys = make([]string, 0)
@@ -207,13 +220,15 @@ func (t *TagMatcher) getRules() []map[string]string {
 	columns := make([]string, 0)
 	for _, f := range t.tableTagFields {
 		if s, ok := t.alias[f]; ok {
-			f = s
+			f = fmt.Sprintf("`%s` AS '%s'", f, s)
+		} else {
+			f = fmt.Sprintf("`%s`", f)
 		}
 
 		columns = append(columns, f)
 	}
 
-	query := fmt.Sprintf("SELECT `%s` FROM `%s` ORDER BY `keyword_len` DESC, `id` ASC", strings.Join(columns, "`, `"), t.tableName)
+	query := fmt.Sprintf("SELECT %s FROM `%s` ORDER BY `keyword_len` DESC, `id` ASC", strings.Join(columns, ", "), t.tableName)
 	rules, err := t.db.QueryString(query)
 	if err != nil {
 		panic(err)
@@ -226,20 +241,20 @@ func (t *TagMatcher) getRules() []map[string]string {
 	return rules
 }
 
-func (t *TagMatcher) GetResultInsertKeys() []string {
+func (t *TagMatcher) getResultInsertKeys() []string {
 	return append([]string{t.keyFieldName, t.keyNumFieldName}, append(t.tagsName, t.fixedKeys...)...)
 }
 
-func (t *TagMatcher) ResultsToSliceMap(results []*Result) []map[string]interface{} {
+func (t *TagMatcher) resultsToSliceMap(results []*Result) []map[string]interface{} {
 	items := make([]map[string]interface{}, 0, len(results))
 	for _, result := range results {
-		items = append(items, t.ResultToMap(result))
+		items = append(items, t.resultToMap(result))
 	}
 
 	return items
 }
 
-func (t *TagMatcher) ResultToMap(result *Result) map[string]interface{} {
+func (t *TagMatcher) resultToMap(result *Result) map[string]interface{} {
 	item := make(map[string]interface{})
 	item[t.keyFieldName] = result.Key
 	item[t.keyNumFieldName] = result.Num
@@ -257,7 +272,7 @@ func (t *TagMatcher) ResultToMap(result *Result) map[string]interface{} {
 	return item
 }
 
-func (t *TagMatcher) ResultToSlice(result *Result) []interface{} {
+func (t *TagMatcher) resultToSlice(result *Result) []interface{} {
 	item := make([]interface{}, 0, len(t.tagsName)+2)
 	item = append(item, result.Key)
 	item = append(item, result.Num)
@@ -273,16 +288,16 @@ func (t *TagMatcher) ResultToSlice(result *Result) []interface{} {
 	return item
 }
 
-func (t *TagMatcher) ResultToSliceSlice(result *Result) [][]interface{} {
-	item := t.ResultToSlice(result)
+func (t *TagMatcher) resultToSliceSlice(result *Result) [][]interface{} {
+	item := t.resultToSlice(result)
 
 	return [][]interface{}{item}
 }
 
-func (t *TagMatcher) ResultsToSliceSlice(results []*Result) [][]interface{} {
+func (t *TagMatcher) resultsToSliceSlice(results []*Result) [][]interface{} {
 	items := make([][]interface{}, 0, len(results))
 	for _, result := range results {
-		items = append(items, t.ResultToSlice(result))
+		items = append(items, t.resultToSlice(result))
 	}
 
 	return items

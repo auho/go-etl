@@ -10,7 +10,7 @@ type TagMeans struct {
 }
 
 func (tm *TagMeans) GetKeys() []string {
-	return tm.GetResultInsertKeys()
+	return tm.getResultInsertKeys()
 }
 
 func (tm *TagMeans) Close() {
@@ -23,7 +23,7 @@ func (tm *TagMeans) insertResult(f func() *Result) [][]interface{} {
 		return nil
 	}
 
-	return tm.ResultToSliceSlice(result)
+	return tm.resultToSliceSlice(result)
 }
 
 func (tm *TagMeans) insertResults(f func() []*Result) [][]interface{} {
@@ -32,7 +32,7 @@ func (tm *TagMeans) insertResults(f func() []*Result) [][]interface{} {
 		return nil
 	}
 
-	return tm.ResultsToSliceSlice(results)
+	return tm.resultsToSliceSlice(results)
 }
 
 func (tm *TagMeans) updateResult(f func() *Result) map[string]interface{} {
@@ -41,7 +41,7 @@ func (tm *TagMeans) updateResult(f func() *Result) map[string]interface{} {
 		return nil
 	}
 
-	return tm.ResultToMap(result)
+	return tm.resultToMap(result)
 }
 
 // TagKeyMeans

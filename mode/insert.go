@@ -39,14 +39,14 @@ func (m *InsertMode) Close() {
 	m.insert.Close()
 }
 
-type MultiInsertMode struct {
+type InsertMultiMode struct {
 	Mode
 	inserts      []means.InsertMeans
 	insertFields []string
 }
 
-func NewMultiInsertMode(keys []string, insertFields []string, inserts []means.InsertMeans) *MultiInsertMode {
-	m := &MultiInsertMode{}
+func NewInsertMultiMode(keys []string, insertFields []string, inserts []means.InsertMeans) *InsertMultiMode {
+	m := &InsertMultiMode{}
 	m.keys = keys
 	m.inserts = inserts
 	m.insertFields = insertFields
@@ -54,15 +54,15 @@ func NewMultiInsertMode(keys []string, insertFields []string, inserts []means.In
 	return m
 }
 
-func (m *MultiInsertMode) GetFields() []string {
+func (m *InsertMultiMode) GetFields() []string {
 	return m.keys
 }
 
-func (m *MultiInsertMode) GetKey() []string {
+func (m *InsertMultiMode) GetKey() []string {
 	return m.insertFields
 }
 
-func (m *MultiInsertMode) Do(item map[string]interface{}) [][]interface{} {
+func (m *InsertMultiMode) Do(item map[string]interface{}) [][]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -82,7 +82,7 @@ func (m *MultiInsertMode) Do(item map[string]interface{}) [][]interface{} {
 	return items
 }
 
-func (m *MultiInsertMode) Close() {
+func (m *InsertMultiMode) Close() {
 	for _, i := range m.inserts {
 		i.Close()
 	}

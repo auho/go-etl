@@ -9,7 +9,7 @@ import (
 
 func TestTagMatcher_GetResultInsertKeys(t *testing.T) {
 	tm := newTagMatcher(ruleName, db)
-	keys := tm.GetResultInsertKeys()
+	keys := tm.getResultInsertKeys()
 	if len(keys) < 4 {
 		t.Error("error")
 	}

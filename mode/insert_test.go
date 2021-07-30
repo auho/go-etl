@@ -45,10 +45,13 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	ti5 := NewMultiInsertMode([]string{keyName}, sw.GetKeys(), []means.InsertMeans{sw, sw})
-	results = ti5.Do(item)
-	if len(results) <= 0 {
+	ti5 := NewInsertMultiMode([]string{keyName}, sw.GetKeys(), []means.InsertMeans{sw, sw})
+	results2 := ti5.Do(item)
+	if len(results2) <= 0 {
 		t.Error("error")
 	}
-	fmt.Println(results)
+
+	if len(results)*2 != len(results2) {
+		t.Error("multi insert mode is error")
+	}
 }

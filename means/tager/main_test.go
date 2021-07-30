@@ -1,6 +1,7 @@
 package tager
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"testing"
@@ -12,6 +13,7 @@ import (
 var dsn = "test:test@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
+var dataRuleTableName = "rule_data_" + ruleName
 var db *mysql.Mysql
 var contents = []string{
 	`b一ab一bc一abc一123b一b123一123一0123一1234一01234一`,
@@ -40,7 +42,7 @@ func setUp() {
 		panic(err)
 	}
 
-	query = "CREATE TABLE `" + ruleTableName + "` (" +
+	query = "CREATE TABLE IF NOT EXISTS`" + ruleTableName + "` (" +
 		"`id` int(11) unsigned NOT NULL AUTO_INCREMENT," +
 		"`a` varchar(30) NOT NULL DEFAULT ''," +
 		"`ab` varchar(30) NOT NULL DEFAULT ''," +
@@ -64,8 +66,20 @@ func setUp() {
 	if err != nil {
 		panic(err)
 	}
+
+	err = db.Copy(ruleTableName, dataRuleTableName)
+	if err != nil {
+		panic(err)
+	}
+
+	query = fmt.Sprintf("INSERT INTO `%s` SELECT * FROM `%s`", dataRuleTableName, ruleTableName)
+	_, err = db.Exec(query)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func tearDown() {
 	_ = db.Drop(ruleTableName)
+	_ = db.Drop(dataRuleTableName)
 }
