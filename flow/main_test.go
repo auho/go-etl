@@ -15,6 +15,7 @@ var dsn = "test:test@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
 var dataTableName = "data"
+var tDataTableName = "data_t"
 var tagTableName = "tag_data_a"
 var pkName = "did"
 var keyName = "name"
@@ -30,6 +31,7 @@ func TestMain(m *testing.M) {
 }
 
 func setUp() {
+	query := ""
 	dbConfig.Driver = "mysql"
 	dbConfig.Dsn = dsn
 
@@ -40,7 +42,26 @@ func setUp() {
 		panic(err)
 	}
 
-	query := ""
+	err = db.Drop(tDataTableName)
+	if err != nil {
+		panic(err)
+	}
+
+	query = "CREATE TABLE `" + tDataTableName + "` (" +
+		"`did` int(11) unsigned NOT NULL AUTO_INCREMENT," +
+		"`name` text," +
+		"`a1` varchar(30) NOT NULL DEFAULT ''," +
+		"`ab1` varchar(30) NOT NULL DEFAULT ''," +
+		"`a_keyword` varchar(30) NOT NULL DEFAULT ''," +
+		"`a_keyword_num` int(11) NOT NULL DEFAULT '0'," +
+		"`xyz` varchar(30) NOT NULL DEFAULT ''," +
+		"PRIMARY KEY (`did`)" +
+		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+	_, err = db.Exec(query)
+	if err != nil {
+		panic(err)
+	}
+
 	err = db.Drop(dataTableName)
 	if err != nil {
 		panic(err)
@@ -145,5 +166,6 @@ func setUp() {
 func tearDown() {
 	_ = db.Drop(ruleTableName)
 	_ = db.Drop(dataTableName)
+	_ = db.Drop(tDataTableName)
 	_ = db.Drop(tagTableName)
 }

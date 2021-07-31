@@ -27,7 +27,7 @@ func NewUpdateAction(config goEtl.DbConfig, dataName string, idName string, mode
 	ua.dataName = dataName
 	ua.idName = idName
 	ua.modes = modes
-	ua.itemsChan = make(chan []map[string]interface{}, ua.concurrent)
+	ua.itemsChan = make(chan []map[string]interface{})
 
 	targetConfig := database.NewDbTargetConfig()
 	targetConfig.MaxConcurrent = 4

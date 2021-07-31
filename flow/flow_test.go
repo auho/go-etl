@@ -87,6 +87,31 @@ func Test_FlowInsert(t *testing.T) {
 
 	_ = db.Drop(tagTableName + "1")
 	_ = db.Drop(tagTableName + "2")
+
+}
+
+func Test_Transfer(t *testing.T) {
+	tm := mode.NewTransferMode(db, map[string]string{
+		"did":           "did",
+		"name":          "name",
+		"a":             "a1",
+		"ab":            "ab1",
+		"a_keyword":     "a_keyword",
+		"a_keyword_num": "a_keyword_num",
+	}, "", map[string]interface{}{"xyz": "xyz1"})
+
+	InsertFlow(dbConfig, dataTableName, pkName, tDataTableName, tm, nil)
+
+	dataCount := getAmount(dataTableName, t)
+	tDataCount := getAmount(tDataTableName, t)
+	if tDataCount != dataCount {
+		t.Error("tData != data")
+	}
+
+	xDataCount := getFieldAmount(tDataTableName, "xyz", "xyz1", t)
+	if xDataCount != dataCount {
+		t.Error("tData != data")
+	}
 }
 
 func getAmount(tableName string, t *testing.T) int64 {
@@ -102,4 +127,14 @@ func getAmount(tableName string, t *testing.T) int64 {
 	}
 
 	return int64(count)
+}
+
+func getFieldAmount(tableName string, field string, value interface{}, t *testing.T) int64 {
+	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` = ?", tableName, field)
+	res, err := db.QueryFieldInterface("_count", query, value)
+	if err != nil {
+		t.Error(err)
+	}
+
+	return res.(int64)
 }

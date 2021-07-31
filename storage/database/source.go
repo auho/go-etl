@@ -30,10 +30,10 @@ type DbSource struct {
 }
 
 func NewDbSource(config *DbSourceConfig) *DbSource {
-	ds := &DbSource{}
-	ds.initDb(config)
+	s := &DbSource{}
+	s.initDb(config)
 
-	return ds
+	return s
 }
 
 func (s *DbSource) Start() {
@@ -141,13 +141,7 @@ func (s *DbSource) source(query string) {
 			break
 		}
 
-		rows, err := s.db.QueryInterface(query, pk)
-		if err != nil {
-			s.retryPage(pk)
-		}
-
-		s.retryPageMap.Delete(pk)
-
+		rows := s.retryPage(query, pk)
 		if rows == nil {
 			continue
 		}
@@ -162,17 +156,24 @@ func (s *DbSource) source(query string) {
 	s.wg.Done()
 }
 
-func (s *DbSource) retryPage(pk interface{}) {
-	if n, ok := s.retryPageMap.Load(pk); ok {
-		num := n.(int64)
-		if num >= 2 {
+func (s *DbSource) retryPage(query string, pk interface{}) []map[string]interface{} {
+	var rows []map[string]interface{}
+	var err error
 
+	for i := 0; i < 3; i++ {
+		rows, err = s.db.QueryInterface(query, pk)
+		if err != nil {
+			continue
 		} else {
-			s.retryPageMap.Store(pk, num+1)
+			break
 		}
-	} else {
-		s.retryPageMap.Store(pk, 1)
 	}
+
+	if err != nil {
+		panic(fmt.Sprintf("source pk[%v] error.  \n%v\n%s", pk, err, query))
+	}
+
+	return rows
 }
 
 func (s *DbSource) getMinPk() interface{} {

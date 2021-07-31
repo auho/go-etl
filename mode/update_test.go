@@ -8,9 +8,6 @@ import (
 )
 
 func Test_UpdateMode(t *testing.T) {
-	item := make(map[string]interface{})
-	item[keyName] = content
-
 	tmtm := tager.NewTagMostTextMeans(ruleName, db)
 	ti2 := NewTagUpdate([]string{keyName}, tmtm)
 	results := ti2.Do(item)

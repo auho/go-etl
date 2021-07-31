@@ -26,7 +26,7 @@ func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.Inse
 	ia.tagTableName = tagTableName
 	ia.affixFields = affixFields
 	ia.mode = moder
-	ia.itemsChan = make(chan []map[string]interface{}, ia.concurrent)
+	ia.itemsChan = make(chan []map[string]interface{})
 
 	targetConfig := database.NewDbTargetConfig()
 	targetConfig.MaxConcurrent = 4

@@ -46,7 +46,7 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		}
 
 		lines := 2 + len(actions)*2
-		t := time.NewTicker(time.Second)
+		t := time.NewTicker(time.Millisecond * 500)
 
 		for range t.C {
 			fmt.Printf("%c[%dA\r%c[K%c[1;40;32m %s %c[0m", 0x1B, lines-1, 0x1B, 0x1B, source.State.GetStatus(), 0x1B)
@@ -58,23 +58,21 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		}
 	}()
 
-	for i := 0; i < 4; i++ {
-		wg.Add(1)
-		go func() {
-			for {
-				if items, ok := source.Consume(); ok {
-					time.Sleep(time.Second * 3)
-					for _, a := range actions {
-						a.Receive(items)
-					}
-				} else {
-					break
+	wg.Add(1)
+	go func() {
+		for {
+			if items, ok := source.Consume(); ok {
+				time.Sleep(time.Second * 3)
+				for _, a := range actions {
+					a.Receive(items)
 				}
+			} else {
+				break
 			}
+		}
 
-			wg.Done()
-		}()
-	}
+		wg.Done()
+	}()
 
 	wg.Wait()
 
@@ -83,5 +81,6 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		a.Close()
 	}
 
+	time.Sleep(time.Second)
 	fmt.Println("done")
 }

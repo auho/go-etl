@@ -10,9 +10,6 @@ import (
 )
 
 func Test_InsertMode(t *testing.T) {
-	item := make(map[string]interface{})
-	item[keyName] = content
-
 	ttm := tager.NewTagKeyMeans(ruleName, db)
 	ti1 := NewInsertMode([]string{keyName}, ttm)
 	results := ti1.Do(item)
