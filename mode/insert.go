@@ -1,6 +1,9 @@
 package mode
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/auho/go-etl/means"
 )
 
@@ -15,6 +18,10 @@ func NewInsertMode(keys []string, insert means.InsertMeans) *InsertMode {
 	m.insert = insert
 
 	return m
+}
+
+func (m *InsertMode) GetTitle() string {
+	return m.getModeTitle() + " " + m.insert.GetTitle()
 }
 
 func (m *InsertMode) GetFields() []string {
@@ -54,11 +61,20 @@ func NewInsertMultiMode(keys []string, insertFields []string, inserts []means.In
 	return m
 }
 
+func (m *InsertMultiMode) GetTitle() string {
+	is := make([]string, 0)
+	for _, i := range m.inserts {
+		is = append(is, i.GetTitle())
+	}
+
+	return fmt.Sprintf("%s{%s}", m.getModeTitle(), strings.Join(is, ","))
+}
+
 func (m *InsertMultiMode) GetFields() []string {
 	return m.keys
 }
 
-func (m *InsertMultiMode) GetKey() []string {
+func (m *InsertMultiMode) GetKeys() []string {
 	return m.insertFields
 }
 

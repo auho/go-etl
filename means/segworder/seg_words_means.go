@@ -15,6 +15,10 @@ func NewSegWordsMeans() *SegWordsMeans {
 	return sw
 }
 
+func (sw *SegWordsMeans) GetTitle() string {
+	return "SegWords"
+}
+
 func (sw *SegWordsMeans) GetKeys() []string {
 	return []string{"word", "flag"}
 }

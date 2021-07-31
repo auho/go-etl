@@ -3,14 +3,17 @@ package mode
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type VoidModer interface {
+	GetTitle() string
 	Do(map[string]interface{})
 	Close()
 }
 
 type InsertModer interface {
+	GetTitle() string
 	GetKeys() []string
 	GetFields() []string
 	Do(map[string]interface{}) [][]interface{}
@@ -18,6 +21,7 @@ type InsertModer interface {
 }
 
 type UpdateModer interface {
+	GetTitle() string
 	GetFields() []string
 	Do(map[string]interface{}) map[string]interface{}
 	Close()
@@ -27,10 +31,14 @@ type Mode struct {
 	keys []string
 }
 
+func (t *Mode) getModeTitle() string {
+	return "keys[" + strings.Join(t.keys, ", ") + "]"
+}
+
 func (t *Mode) GetKeysContent(keys []string, item map[string]interface{}) []string {
 	contents := make([]string, 0)
 	for _, key := range keys {
-		keyValue := t.ToStringKeyValue(key, item)
+		keyValue := t.KeyValueToString(key, item)
 
 		contents = append(contents, keyValue)
 	}
@@ -38,7 +46,7 @@ func (t *Mode) GetKeysContent(keys []string, item map[string]interface{}) []stri
 	return contents
 }
 
-func (t *Mode) ToStringKeyValue(key string, item map[string]interface{}) string {
+func (t *Mode) KeyValueToString(key string, item map[string]interface{}) string {
 	keyValue := ""
 
 	switch item[key].(type) {

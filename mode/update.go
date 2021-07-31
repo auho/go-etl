@@ -17,6 +17,10 @@ func NewTagUpdate(keys []string, update means.UpdateMeans) *UpdateMode {
 	return m
 }
 
+func (m *UpdateMode) GetTitle() string {
+	return m.getModeTitle() + " " + m.update.GetTitle()
+}
+
 func (m *UpdateMode) GetFields() []string {
 	return m.keys
 }

@@ -7,4 +7,5 @@ type Action interface {
 	GetFields() []string
 	Receive([]map[string]interface{})
 	GetStatus() string
+	GetTitle() string
 }

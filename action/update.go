@@ -1,6 +1,8 @@
 package action
 
 import (
+	"fmt"
+	"strings"
 	"sync"
 
 	goEtl "github.com/auho/go-etl"
@@ -85,7 +87,16 @@ func (ua *UpdateAction) Receive(items []map[string]interface{}) {
 }
 
 func (ua *UpdateAction) GetStatus() string {
-	return ua.target.State.GetRealTimeStatus()
+	return ua.target.State.GetStatus()
+}
+
+func (ua *UpdateAction) GetTitle() string {
+	s := make([]string, 0)
+	for _, m := range ua.modes {
+		s = append(s, m.GetTitle())
+	}
+
+	return fmt.Sprintf("Update[%s] {%s}", ua.dataName, strings.Join(s, ", "))
 }
 
 func (ua *UpdateAction) doSource() {

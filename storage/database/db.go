@@ -68,23 +68,33 @@ func (tc *DbTargetConfig) check() {
 	}
 }
 
+type DbState struct {
+	duration      time.Duration
+	maxConcurrent int
+	size          int
+	itemAmount    int64
+	status        string
+	title         string
+}
+
+func (s *DbState) GetTitle() string {
+	return s.title
+}
+
+func (s *DbState) GetStatus() string {
+	return s.status
+}
+
 type DbSourceState struct {
-	duration       time.Duration
-	maxConcurrent  int
-	page           int
-	size           int
-	itemAmount     int64
-	realtimeStatus string
+	DbState
+	page int
 }
 
 func newDbSourceState() *DbSourceState {
 	s := &DbSourceState{}
+	s.title = "source"
 
 	return s
-}
-
-func (s *DbSourceState) GetRealTimeStatus() string {
-	return s.realtimeStatus
 }
 
 func (s *DbSourceState) DoneStatus() string {
@@ -92,21 +102,14 @@ func (s *DbSourceState) DoneStatus() string {
 }
 
 type DbTargetState struct {
-	duration       time.Duration
-	maxConcurrent  int
-	size           int
-	itemAmount     int64
-	realtimeStatus string
+	DbState
 }
 
 func newDbTargetState() *DbTargetState {
 	s := &DbTargetState{}
+	s.title = "target"
 
 	return s
-}
-
-func (s *DbTargetState) GetRealTimeStatus() string {
-	return s.realtimeStatus
 }
 
 func (s *DbTargetState) DoneStatus() string {

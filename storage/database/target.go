@@ -24,56 +24,57 @@ type dbTarget struct {
 	down   func()
 }
 
-func (dt *dbTarget) Start() {
-	dt.State.realtimeStatus = "target start"
+func (t *dbTarget) Start() {
+	t.State.status = "target start"
 
-	for i := 0; i < dt.maxConcurrent; i++ {
-		dt.wg.Add(1)
+	for i := 0; i < t.maxConcurrent; i++ {
+		t.wg.Add(1)
 
 		go func() {
-			dt.target()
+			t.target()
 
-			dt.wg.Done()
+			t.wg.Done()
 		}()
 	}
 }
 
-func (dt *dbTarget) Done() {
-	if dt.isDone {
+func (t *dbTarget) Done() {
+	if t.isDone {
 		return
 	}
 
-	dt.isDone = true
+	t.isDone = true
 
-	dt.down()
+	t.down()
 }
 
-func (dt *dbTarget) Close() {
-	dt.wg.Wait()
+func (t *dbTarget) Close() {
+	t.wg.Wait()
 
-	dt.db.Close()
+	t.db.Close()
 
-	dt.State.realtimeStatus = dt.State.DoneStatus()
+	t.State.status = t.State.DoneStatus()
 }
 
-func (dt *dbTarget) initDb(config *DbTargetConfig) {
-	dt.maxConcurrent = config.MaxConcurrent
-	dt.size = config.Size
-	dt.table = config.Table
+func (t *dbTarget) initDb(config *DbTargetConfig) {
+	t.maxConcurrent = config.MaxConcurrent
+	t.size = config.Size
+	t.table = config.Table
 
 	config.check()
 
-	dt.State = newDbTargetState()
-	dt.State.size = dt.size
-	dt.State.maxConcurrent = dt.maxConcurrent
+	t.State = newDbTargetState()
+	t.State.size = t.size
+	t.State.maxConcurrent = t.maxConcurrent
+	t.State.title = fmt.Sprintf("target[%s]", t.table)
 
 	var err error
-	dt.db, err = simple.NewDriver(config.Driver, config.Dsn)
+	t.db, err = simple.NewDriver(config.Driver, config.Dsn)
 	if err != nil {
 		panic(err)
 	}
 
-	err = dt.db.Ping()
+	err = t.db.Ping()
 	if err != nil {
 		panic(err)
 	}
@@ -156,7 +157,7 @@ func (t *DbTargetSlice) doTarget() {
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
 			atomic.AddInt64(&t.State.itemAmount, int64(itemsAmount))
 
-			t.State.realtimeStatus = fmt.Sprintf("target item amount:: %d", t.State.itemAmount)
+			t.State.status = fmt.Sprintf("target item amount[%d]", t.State.itemAmount)
 
 		} else {
 			break
@@ -240,7 +241,7 @@ func (t *DbTargetMap) doTarget() {
 			atomic.AddUintptr(&stateDuration, uintptr(endTime.Sub(startTime)))
 			atomic.AddInt64(&t.State.itemAmount, int64(itemsAmount))
 
-			t.State.realtimeStatus = fmt.Sprintf("target item amount:: %d", t.State.itemAmount)
+			t.State.status = fmt.Sprintf("target item amount[%d]", t.State.itemAmount)
 
 		} else {
 			break

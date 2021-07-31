@@ -15,6 +15,10 @@ func NewSplitWordsMeans(sep string) *SplitWordsMeans {
 	return s
 }
 
+func (s *SplitWordsMeans) GetTitle() string {
+	return "SplitWords"
+}
+
 func (s *SplitWordsMeans) GetKeys() []string {
 	return []string{"word"}
 }

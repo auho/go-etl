@@ -51,6 +51,20 @@ func Test_InsertMode(t *testing.T) {
 		t.Error("error")
 	}
 
+	for _, v := range ti5.GetKeys() {
+		has := false
+		for _, v1 := range sw.GetKeys() {
+			if v == v1 {
+				has = true
+				break
+			}
+		}
+
+		if has == false {
+			t.Error(fmt.Sprintf("key[%s] is error", v))
+		}
+	}
+
 	if len(results)*2 != len(results2) {
 		t.Error("multi insert mode is error")
 	}

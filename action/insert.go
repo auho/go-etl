@@ -1,6 +1,7 @@
 package action
 
 import (
+	"fmt"
 	"sync"
 
 	goEtl "github.com/auho/go-etl"
@@ -76,7 +77,11 @@ func (ia *InsertAction) Receive(items []map[string]interface{}) {
 }
 
 func (ia *InsertAction) GetStatus() string {
-	return ia.target.State.GetRealTimeStatus()
+	return ia.target.State.GetStatus()
+}
+
+func (ia *InsertAction) GetTitle() string {
+	return fmt.Sprintf("Insert[%s] {%s}", ia.tagTableName, ia.mode.GetTitle())
 }
 
 func (ia *InsertAction) getKeys() []string {

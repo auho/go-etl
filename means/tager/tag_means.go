@@ -1,12 +1,21 @@
 package tager
 
-import "github.com/auho/go-simple-db/simple"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/auho/go-simple-db/simple"
+)
 
 // TagMeans
 // tag means
 //
 type TagMeans struct {
 	TagMatcher
+}
+
+func (tm *TagMeans) GetTitle() string {
+	return fmt.Sprintf("Tag:%s{%s}", tm.key, strings.Join(tm.tagsName, ", "))
 }
 
 func (tm *TagMeans) GetKeys() []string {

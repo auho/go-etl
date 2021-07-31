@@ -31,152 +31,153 @@ type DbSource struct {
 
 func NewDbSource(config *DbSourceConfig) *DbSource {
 	ds := &DbSource{}
-	ds.doConfig(config)
+	ds.initDb(config)
 
 	return ds
 }
 
-func (ds *DbSource) Start() {
-	ds.State.realtimeStatus = "source start"
+func (s *DbSource) Start() {
+	s.State.status = "source start"
 
-	ds.pageChan = make(chan interface{}, ds.maxConcurrent)
-	ds.itemsChan = make(chan []map[string]interface{}, ds.maxConcurrent)
+	s.pageChan = make(chan interface{}, s.maxConcurrent)
+	s.itemsChan = make(chan []map[string]interface{}, s.maxConcurrent)
 
-	rowsQuery := ds.generateRowsQuery(ds.size)
-	for i := 0; i < ds.maxConcurrent; i++ {
-		ds.wg.Add(1)
+	rowsQuery := s.generateRowsQuery(s.size)
+	for i := 0; i < s.maxConcurrent; i++ {
+		s.wg.Add(1)
 
-		go ds.source(rowsQuery)
+		go s.source(rowsQuery)
 	}
 
-	go ds.sourcePage()
+	go s.sourcePage()
 
-	go ds.Close()
+	go s.Close()
 }
 
-func (ds *DbSource) Consume() ([]map[string]interface{}, bool) {
-	items, ok := <-ds.itemsChan
+func (s *DbSource) Consume() ([]map[string]interface{}, bool) {
+	items, ok := <-s.itemsChan
 
 	return items, ok
 }
 
-func (ds *DbSource) Close() {
-	ds.wg.Wait()
+func (s *DbSource) Close() {
+	s.wg.Wait()
 
-	close(ds.itemsChan)
-	ds.db.Close()
+	close(s.itemsChan)
+	s.db.Close()
 
-	ds.State.realtimeStatus = ds.State.DoneStatus()
+	s.State.status = s.State.DoneStatus()
 }
 
-func (ds *DbSource) doConfig(config *DbSourceConfig) {
-	ds.maxConcurrent = config.MaxConcurrent
-	ds.size = config.Size
-	ds.page = config.Page
-	ds.table = config.Table
-	ds.pKeyName = config.PKeyName
-	ds.fields = config.Fields
+func (s *DbSource) initDb(config *DbSourceConfig) {
+	s.maxConcurrent = config.MaxConcurrent
+	s.size = config.Size
+	s.page = config.Page
+	s.table = config.Table
+	s.pKeyName = config.PKeyName
+	s.fields = config.Fields
 
 	config.check()
 
-	ds.State = newDbSourceState()
-	ds.State.size = ds.size
-	ds.State.maxConcurrent = ds.maxConcurrent
+	s.State = newDbSourceState()
+	s.State.size = s.size
+	s.State.maxConcurrent = s.maxConcurrent
+	s.State.title = fmt.Sprintf("source[%s]", s.table)
 
 	var err error
-	ds.db, err = simple.NewDriver(config.Driver, config.Dsn)
+	s.db, err = simple.NewDriver(config.Driver, config.Dsn)
 	if err != nil {
 		panic(err)
 	}
 
-	err = ds.db.Ping()
+	err = s.db.Ping()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (ds *DbSource) sourcePage() {
-	amount := ds.getTableAmount()
+func (s *DbSource) sourcePage() {
+	amount := s.getTableAmount()
 	if amount <= 0 {
 		panic("db source table amount is  error 0")
 	}
 
-	maxPage := int(math.Ceil(float64(amount) / float64(ds.size)))
-	if ds.page > 0 && ds.page <= maxPage {
-		maxPage = ds.page
+	maxPage := int(math.Ceil(float64(amount) / float64(s.size)))
+	if s.page > 0 && s.page <= maxPage {
+		maxPage = s.page
 	}
 
 	if maxPage <= 0 {
 		panic(fmt.Sprintf("max Page is error %d", maxPage))
 	}
 
-	ds.State.page = maxPage
+	s.State.page = maxPage
 
-	nextPkQuery := ds.generateNextPkQuery(ds.size)
+	nextPkQuery := s.generateNextPkQuery(s.size)
 	go func() {
-		minPk := ds.getMinPk()
-		ds.pageChan <- minPk
+		minPk := s.getMinPk()
+		s.pageChan <- minPk
 
 		prePk := minPk
 		for page := 1; page < maxPage; page++ {
-			nextPk := ds.getNextPk(prePk, nextPkQuery)
+			nextPk := s.getNextPk(prePk, nextPkQuery)
 			if nextPk == nil {
 				break
 			}
 
-			ds.pageChan <- nextPk
+			s.pageChan <- nextPk
 			prePk = nextPk
-			ds.lastPagePk = nextPk
+			s.lastPagePk = nextPk
 		}
 
-		close(ds.pageChan)
+		close(s.pageChan)
 	}()
 }
 
-func (ds *DbSource) source(query string) {
+func (s *DbSource) source(query string) {
 	for {
-		pk, ok := <-ds.pageChan
+		pk, ok := <-s.pageChan
 		if ok == false {
 			break
 		}
 
-		rows, err := ds.db.QueryInterface(query, pk)
+		rows, err := s.db.QueryInterface(query, pk)
 		if err != nil {
-			ds.retryPage(pk)
+			s.retryPage(pk)
 		}
 
-		ds.retryPageMap.Delete(pk)
+		s.retryPageMap.Delete(pk)
 
 		if rows == nil {
 			continue
 		}
 
-		ds.itemsChan <- rows
+		s.itemsChan <- rows
 
-		atomic.AddInt64(&ds.State.itemAmount, int64(len(rows)))
+		atomic.AddInt64(&s.State.itemAmount, int64(len(rows)))
 
-		ds.State.realtimeStatus = fmt.Sprintf("source last page pk:: %v; item amount:: %d", ds.lastPagePk, ds.State.itemAmount)
+		s.State.status = fmt.Sprintf("source last page pk[%v]; item amount[%d]", s.lastPagePk, s.State.itemAmount)
 	}
 
-	ds.wg.Done()
+	s.wg.Done()
 }
 
-func (ds *DbSource) retryPage(pk interface{}) {
-	if n, ok := ds.retryPageMap.Load(pk); ok {
+func (s *DbSource) retryPage(pk interface{}) {
+	if n, ok := s.retryPageMap.Load(pk); ok {
 		num := n.(int64)
 		if num >= 2 {
 
 		} else {
-			ds.retryPageMap.Store(pk, num+1)
+			s.retryPageMap.Store(pk, num+1)
 		}
 	} else {
-		ds.retryPageMap.Store(pk, 1)
+		s.retryPageMap.Store(pk, 1)
 	}
 }
 
-func (ds *DbSource) getMinPk() interface{} {
-	query := fmt.Sprintf("SELECT `%s` FROM `%s` ORDER BY `%s` ASC LIMIT 0, ?", ds.pKeyName, ds.table, ds.pKeyName)
-	minPk, err := ds.db.QueryFieldInterface(ds.pKeyName, query, 1)
+func (s *DbSource) getMinPk() interface{} {
+	query := fmt.Sprintf("SELECT `%s` FROM `%s` ORDER BY `%s` ASC LIMIT 0, ?", s.pKeyName, s.table, s.pKeyName)
+	minPk, err := s.db.QueryFieldInterface(s.pKeyName, query, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -184,9 +185,9 @@ func (ds *DbSource) getMinPk() interface{} {
 	return minPk
 }
 
-func (ds *DbSource) getTableAmount() int64 {
-	query := fmt.Sprintf("SELECT COUNT(*) AS 'amount' FROM `%s`", ds.table)
-	res, err := ds.db.QueryFieldInterface("amount", query)
+func (s *DbSource) getTableAmount() int64 {
+	query := fmt.Sprintf("SELECT COUNT(*) AS 'amount' FROM `%s`", s.table)
+	res, err := s.db.QueryFieldInterface("amount", query)
 	if err != nil {
 		panic(err)
 	}
@@ -199,8 +200,8 @@ func (ds *DbSource) getTableAmount() int64 {
 	return amount
 }
 
-func (ds *DbSource) getNextPk(pk interface{}, query string) interface{} {
-	nextPk, err := ds.db.QueryFieldInterface(ds.pKeyName, query, pk)
+func (s *DbSource) getNextPk(pk interface{}, query string) interface{} {
+	nextPk, err := s.db.QueryFieldInterface(s.pKeyName, query, pk)
 	if err != nil {
 		panic(err)
 	} else {
@@ -208,17 +209,17 @@ func (ds *DbSource) getNextPk(pk interface{}, query string) interface{} {
 	}
 }
 
-func (ds *DbSource) generateNextPkQuery(size int) string {
-	return fmt.Sprintf("SELECT `%s` FROM `%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", ds.pKeyName, ds.table, ds.pKeyName, ds.pKeyName, size, 1)
+func (s *DbSource) generateNextPkQuery(size int) string {
+	return fmt.Sprintf("SELECT `%s` FROM `%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", s.pKeyName, s.table, s.pKeyName, s.pKeyName, size, 1)
 }
 
-func (ds *DbSource) generateRowsQuery(size int) string {
+func (s *DbSource) generateRowsQuery(size int) string {
 	fields := ""
-	if len(ds.fields) <= 0 {
+	if len(s.fields) <= 0 {
 		fields = "*"
 	} else {
-		fields = "`" + strings.Join(ds.fields, "`, `") + "`"
+		fields = "`" + strings.Join(s.fields, "`, `") + "`"
 	}
 
-	return fmt.Sprintf("SELECT %s FROM `%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", fields, ds.table, ds.pKeyName, ds.pKeyName, 0, size)
+	return fmt.Sprintf("SELECT %s FROM `%s` WHERE `%s` >= ? ORDER BY `%s` ASC LIMIT %d, %d", fields, s.table, s.pKeyName, s.pKeyName, 0, size)
 }
