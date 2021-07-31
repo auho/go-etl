@@ -83,5 +83,5 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		a.Close()
 	}
 
-	fmt.Println("\ndone")
+	fmt.Println("done")
 }
