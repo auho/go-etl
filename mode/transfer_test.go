@@ -6,17 +6,13 @@ import (
 
 func TestTransferMode(t *testing.T) {
 	newKeyName := "abc"
-	m := NewTransferMode(ruleTableName, db, map[string]string{keyName: newKeyName})
-	for _, key := range m.GetKeys() {
-		if key != newKeyName {
-			t.Error("keys error")
-		}
+	m := NewTransferMode(db, ruleTableName, map[string]string{keyName: newKeyName}, map[string]interface{}{"abc": 1})
+	if len(m.GetFields()) != 1 {
+		t.Error("fields error")
 	}
 
-	for _, field := range m.GetFields() {
-		if field != keyName {
-			t.Error("keys error")
-		}
+	if len(m.GetKeys()) != 2 {
+		t.Error("keys error")
 	}
 
 	results := m.Do(item)

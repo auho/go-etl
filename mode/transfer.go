@@ -12,7 +12,7 @@ type TransferMode struct {
 	fixedValues []interface{}
 }
 
-func NewTransferMode(db simple.Driver, alias map[string]string, tableName string, fixedData map[string]interface{}) *TransferMode {
+func NewTransferMode(db simple.Driver, tableName string, alias map[string]string, fixedData map[string]interface{}) *TransferMode {
 	m := &TransferMode{}
 	m.Db = db
 	m.keys = make([]string, 0)

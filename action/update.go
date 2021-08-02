@@ -3,7 +3,6 @@ package action
 import (
 	"fmt"
 	"strings"
-	"sync"
 
 	goEtl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
@@ -11,31 +10,22 @@ import (
 )
 
 type UpdateAction struct {
-	concurrent int
-	dataName   string
-	idName     string
-	isDone     bool
-	itemsChan  chan []map[string]interface{}
-	modes      []mode.UpdateModer
-	target     *database.DbTargetMap
-	wg         sync.WaitGroup
+	action
+	target   *database.DbTargetMap
+	modes    []mode.UpdateModer
+	idName   string
+	dataName string
 }
 
 func NewUpdateAction(config goEtl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) *UpdateAction {
 	ua := &UpdateAction{}
-	ua.concurrent = 4
 	ua.dataName = dataName
 	ua.idName = idName
 	ua.modes = modes
-	ua.itemsChan = make(chan []map[string]interface{})
 
-	targetConfig := database.NewDbTargetConfig()
-	targetConfig.MaxConcurrent = 4
-	targetConfig.Size = 2000
-	targetConfig.Driver = config.Driver
-	targetConfig.Dsn = config.Dsn
-	targetConfig.Table = ua.dataName
+	ua.init()
 
+	targetConfig := ua.targetConfig(config, ua.dataName)
 	ua.target = database.NewDbTargetUpdateSliceMap(targetConfig, idName)
 
 	return ua

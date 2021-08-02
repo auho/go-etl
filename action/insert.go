@@ -2,7 +2,6 @@ package action
 
 import (
 	"fmt"
-	"sync"
 
 	goEtl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
@@ -10,31 +9,22 @@ import (
 )
 
 type InsertAction struct {
-	concurrent   int
+	action
+	target       *database.DbTargetSlice
+	mode         mode.InsertModer
 	tagTableName string
 	affixFields  []string
-	isDone       bool
-	itemsChan    chan []map[string]interface{}
-	mode         mode.InsertModer
-	target       *database.DbTargetSlice
-	wg           sync.WaitGroup
 }
 
 func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.InsertModer, affixFields []string) *InsertAction {
 	ia := &InsertAction{}
-	ia.concurrent = 4
 	ia.tagTableName = tagTableName
 	ia.affixFields = affixFields
 	ia.mode = moder
-	ia.itemsChan = make(chan []map[string]interface{})
 
-	targetConfig := database.NewDbTargetConfig()
-	targetConfig.MaxConcurrent = 4
-	targetConfig.Size = 2000
-	targetConfig.Driver = config.Driver
-	targetConfig.Dsn = config.Dsn
-	targetConfig.Table = ia.tagTableName
+	ia.init()
 
+	targetConfig := ia.targetConfig(config, ia.tagTableName)
 	ia.target = database.NewDbTargetInsertSliceSlice(targetConfig, ia.getKeys(), database.WithDbTargetSliceTruncate())
 
 	return ia

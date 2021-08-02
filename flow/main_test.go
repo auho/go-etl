@@ -16,6 +16,7 @@ var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
 var dataTableName = "data"
 var tDataTableName = "data_t"
+var cDataTableName = "data_c"
 var tagTableName = "tag_data_a"
 var pkName = "did"
 var keyName = "name"
@@ -74,6 +75,7 @@ func setUp() {
 		"`ab` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword_num` int(11) NOT NULL DEFAULT '0'," +
+		"`xyz` varchar(30) NOT NULL DEFAULT ''," +
 		"PRIMARY KEY (`did`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 	_, err = db.Exec(query)
@@ -109,6 +111,16 @@ func setUp() {
 		if count != int64(maxA) {
 			panic(fmt.Sprintf("%d != %d", count, maxA))
 		}
+	}
+
+	err = db.Drop(cDataTableName)
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.Copy(dataTableName, cDataTableName)
+	if err != nil {
+		panic(err)
 	}
 
 	err = db.Drop(ruleTableName)
@@ -167,5 +179,6 @@ func tearDown() {
 	_ = db.Drop(ruleTableName)
 	_ = db.Drop(dataTableName)
 	_ = db.Drop(tDataTableName)
+	_ = db.Drop(cDataTableName)
 	_ = db.Drop(tagTableName)
 }

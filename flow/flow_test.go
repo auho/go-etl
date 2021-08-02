@@ -10,7 +10,7 @@ import (
 	"github.com/auho/go-etl/mode"
 )
 
-func Test_FlowUpdate(t *testing.T) {
+func Test_Update(t *testing.T) {
 	m := mode.NewTagUpdate([]string{keyName}, tager.NewTagMostKeyMeans(ruleName, db))
 	ua := action.NewUpdateAction(dbConfig,
 		dataTableName,
@@ -18,7 +18,7 @@ func Test_FlowUpdate(t *testing.T) {
 		[]mode.UpdateModer{m},
 	)
 
-	RunFlow(dbConfig, dataTableName, pkName, []action.Action{ua})
+	RunFlow(dbConfig, dataTableName, pkName, []action.Actionor{ua})
 	UpdateFlow(dbConfig, dataTableName, pkName, []mode.UpdateModer{m})
 
 	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` != ?", dataTableName, "a")
@@ -38,7 +38,7 @@ func Test_FlowUpdate(t *testing.T) {
 	}
 }
 
-func Test_FlowInsert(t *testing.T) {
+func Test_Insert(t *testing.T) {
 	m := mode.NewInsertMode([]string{keyName}, tager.NewTagKeyMeans(ruleName, db))
 	ia := action.NewInsertAction(dbConfig,
 		tagTableName,
@@ -62,7 +62,7 @@ func Test_FlowInsert(t *testing.T) {
 	ia1 := action.NewInsertAction(dbConfig, tagTableName+"1", m, []string{pkName})
 	ia2 := action.NewInsertAction(dbConfig, tagTableName+"2", m, []string{pkName})
 
-	RunFlow(dbConfig, dataTableName, pkName, []action.Action{ia, ia1, ia2})
+	RunFlow(dbConfig, dataTableName, pkName, []action.Actionor{ia, ia1, ia2})
 	InsertFlow(dbConfig, dataTableName, pkName, tagTableName, m, []string{pkName})
 	InsertFlow(dbConfig, dataTableName, pkName, tagTableName+"1", m, []string{pkName})
 	InsertFlow(dbConfig, dataTableName, pkName, tagTableName+"2", m, []string{pkName})
@@ -91,26 +91,32 @@ func Test_FlowInsert(t *testing.T) {
 }
 
 func Test_Transfer(t *testing.T) {
-	tm := mode.NewTransferMode(db, map[string]string{
+	alias := map[string]string{
 		"did":           "did",
 		"name":          "name",
 		"a":             "a1",
 		"ab":            "ab1",
 		"a_keyword":     "a_keyword",
 		"a_keyword_num": "a_keyword_num",
-	}, "", map[string]interface{}{"xyz": "xyz1"})
-
-	InsertFlow(dbConfig, dataTableName, pkName, tDataTableName, tm, nil)
-
-	dataCount := getAmount(dataTableName, t)
-	tDataCount := getAmount(tDataTableName, t)
-	if tDataCount != dataCount {
-		t.Error("tData != data")
 	}
 
+	TransferFlow(db, dbConfig, dataTableName, pkName, tDataTableName, alias, map[string]interface{}{"xyz": "xyz1"})
+	dataCount := getAmount(dataTableName, t)
+	tDataCount := getAmount(tDataTableName, t)
 	xDataCount := getFieldAmount(tDataTableName, "xyz", "xyz1", t)
-	if xDataCount != dataCount {
+	if tDataCount != dataCount || xDataCount != dataCount {
 		t.Error("tData != data")
+	}
+}
+
+func Test_Clean(t *testing.T) {
+	m := mode.NewTagUpdate([]string{keyName}, tager.NewTagMostKeyMeans(ruleName, db))
+
+	CleanFlow(db, dbConfig, dataTableName, pkName, cDataTableName, []mode.UpdateModer{m})
+	dataCount := getAmount(dataTableName, t)
+	cDataCount := getAmount(cDataTableName, t)
+	if cDataCount == dataCount || dataCount/cDataCount < 3 {
+		t.Error("cData != data")
 	}
 }
 

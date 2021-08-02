@@ -10,13 +10,14 @@ import (
 	"github.com/auho/go-etl/storage/database"
 )
 
-func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []action.Action) {
+func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []action.Actionor) {
 	var wg sync.WaitGroup
 
 	fields := []string{idName}
 	for _, a := range actions {
 		fields = append(fields, a.GetFields()...)
 	}
+
 	fields = goEtl.RemoveReplicaSliceString(fields)
 
 	sourceConfig := database.NewDbSourceConfig()
