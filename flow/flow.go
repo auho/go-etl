@@ -63,7 +63,6 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 	go func() {
 		for {
 			if items, ok := source.Consume(); ok {
-				time.Sleep(time.Second * 3)
 				for _, a := range actions {
 					a.Receive(items)
 				}
