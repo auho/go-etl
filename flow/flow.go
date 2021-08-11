@@ -91,5 +91,5 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 
 	duration := endTime.Sub(startTime)
 	fmt.Println("done", endTime.Format("2006-01-02 15:04:05"), "耗时:",
-		fmt.Sprintf("%f%s %d%s", math.Floor(duration.Seconds()/60), "/分", int(math.Ceil(duration.Seconds()))%60, "/秒"), "\n ")
+		fmt.Sprintf("%d%s %d%s", int(math.Floor(duration.Seconds()/60)), "/分", int(math.Ceil(duration.Seconds()))%60, "/秒"), "\n ")
 }
