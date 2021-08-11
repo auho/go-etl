@@ -1,6 +1,7 @@
 package action
 
 import (
+	"runtime"
 	"sync"
 
 	go_etl "github.com/auho/go-etl"
@@ -25,13 +26,13 @@ type action struct {
 }
 
 func (a *action) init() {
-	a.concurrent = 4
+	a.concurrent = runtime.NumCPU()
 	a.itemsChan = make(chan []map[string]interface{})
 }
 
 func (a *action) targetConfig(config go_etl.DbConfig, targetTableName string) *database.DbTargetConfig {
 	targetConfig := database.NewDbTargetConfig()
-	targetConfig.MaxConcurrent = a.concurrent
+	targetConfig.MaxConcurrent = a.concurrent * 2
 	targetConfig.Size = 2000
 	targetConfig.Driver = config.Driver
 	targetConfig.Dsn = config.Dsn

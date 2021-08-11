@@ -2,6 +2,8 @@ package flow
 
 import (
 	"fmt"
+	"math"
+	"runtime"
 	"sync"
 	"time"
 
@@ -21,7 +23,7 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 	fields = goEtl.RemoveReplicaSliceString(fields)
 
 	sourceConfig := database.NewDbSourceConfig()
-	sourceConfig.MaxConcurrent = 4
+	sourceConfig.MaxConcurrent = runtime.NumCPU() * 2
 	sourceConfig.Size = 2000
 	sourceConfig.Table = dataName
 	sourceConfig.Driver = config.Driver
@@ -36,7 +38,10 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		a.Start()
 	}
 
-	fmt.Println("start...")
+	startTime := time.Now()
+	fmt.Println("start...", startTime.Format("2006-01-02 15:04:05"))
+	anchorTicker := time.NewTicker(time.Millisecond * 500)
+
 	go func() {
 		fmt.Println(source.State.GetTitle())
 		fmt.Println(" ")
@@ -47,15 +52,14 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		}
 
 		lines := 2 + len(actions)*2
-		t := time.NewTicker(time.Millisecond * 500)
 
-		for range t.C {
+		for range anchorTicker.C {
 			fmt.Printf("%c[%dA\r%c[K%c[1;40;32m %s %c[0m", 0x1B, lines-1, 0x1B, 0x1B, source.State.GetStatus(), 0x1B)
 			for _, a := range actions {
 				fmt.Printf("%c[2B\r%c[K%c[1;40;32m %s %c[0m", 0x1B, 0x1B, 0x1B, a.GetStatus(), 0x1B)
 			}
 
-			fmt.Printf("%c[1B", 0x1B)
+			fmt.Printf("%c[1B\r", 0x1B)
 		}
 	}()
 
@@ -81,6 +85,10 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		a.Close()
 	}
 
+	endTime := time.Now()
 	time.Sleep(time.Second)
-	fmt.Println("done")
+	anchorTicker.Stop()
+
+	duration := endTime.Sub(startTime)
+	fmt.Println("done", endTime.Format("2006-01-02 15:04:05"), fmt.Sprintf("%f%s %f%s", math.Floor(duration.Minutes()), "/分", math.Ceil(duration.Seconds()), "/秒"), "\n ")
 }

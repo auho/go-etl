@@ -17,18 +17,18 @@ func NewRule(name string) *Rule {
 	return r
 }
 
-func (r *Rule) getName() string {
+func (r *Rule) GetName() string {
 	return r.name
 }
 
-func (r *Rule) tableName() string {
+func (r *Rule) TableName() string {
 	return fmt.Sprintf("%s_%s", go_etl.RuleTableNamePrefix, r.name)
 }
 
-func (r *Rule) keyword() string {
+func (r *Rule) Keyword() string {
 	return fmt.Sprintf("%s_keyword", r.name)
 }
 
-func (r *Rule) keywordNum() string {
+func (r *Rule) KeywordNum() string {
 	return fmt.Sprintf("%s_keyword_num", r.name)
 }
