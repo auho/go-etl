@@ -4,28 +4,28 @@ import (
 	"github.com/auho/go-etl/means"
 )
 
-type UpdateMode struct {
+type Update struct {
 	Mode
 	update means.UpdateMeans
 }
 
-func NewTagUpdate(keys []string, update means.UpdateMeans) *UpdateMode {
-	m := &UpdateMode{}
+func NewUpdate(keys []string, update means.UpdateMeans) *Update {
+	m := &Update{}
 	m.keys = keys
 	m.update = update
 
 	return m
 }
 
-func (m *UpdateMode) GetTitle() string {
+func (m *Update) GetTitle() string {
 	return m.getModeTitle() + " " + m.update.GetTitle()
 }
 
-func (m *UpdateMode) GetFields() []string {
+func (m *Update) GetFields() []string {
 	return m.keys
 }
 
-func (m *UpdateMode) Do(item map[string]interface{}) map[string]interface{} {
+func (m *Update) Do(item map[string]interface{}) map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -35,6 +35,6 @@ func (m *UpdateMode) Do(item map[string]interface{}) map[string]interface{} {
 	return m.update.Update(contents)
 }
 
-func (m *UpdateMode) Close() {
+func (m *Update) Close() {
 	m.update.Close()
 }

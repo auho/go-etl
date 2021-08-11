@@ -10,7 +10,7 @@ import (
 	"github.com/auho/go-simple-db/simple"
 )
 
-type CleanAction struct {
+type Clean struct {
 	action
 	target         *database.DbTargetSlice
 	modes          []mode.UpdateModer
@@ -18,8 +18,8 @@ type CleanAction struct {
 	fields         []string
 }
 
-func NewCleanAction(db simple.Driver, config goEtl.DbConfig, targetDataName string, modes []mode.UpdateModer) *CleanAction {
-	ca := &CleanAction{}
+func NewClean(db simple.Driver, config goEtl.DbConfig, targetDataName string, modes []mode.UpdateModer) *Clean {
+	ca := &Clean{}
 	ca.modes = modes
 	ca.targetDataName = targetDataName
 
@@ -37,7 +37,7 @@ func NewCleanAction(db simple.Driver, config goEtl.DbConfig, targetDataName stri
 	return ca
 }
 
-func (ca *CleanAction) Start() {
+func (ca *Clean) Start() {
 	ca.target.Start()
 
 	for i := 0; i < ca.concurrent; i++ {
@@ -46,7 +46,7 @@ func (ca *CleanAction) Start() {
 	}
 }
 
-func (ca *CleanAction) Done() {
+func (ca *Clean) Done() {
 	if ca.isDone {
 		return
 	}
@@ -56,7 +56,7 @@ func (ca *CleanAction) Done() {
 	close(ca.itemsChan)
 }
 
-func (ca *CleanAction) Close() {
+func (ca *Clean) Close() {
 	ca.wg.Wait()
 
 	for _, m := range ca.modes {
@@ -67,19 +67,19 @@ func (ca *CleanAction) Close() {
 	ca.target.Close()
 }
 
-func (ca *CleanAction) GetFields() []string {
+func (ca *Clean) GetFields() []string {
 	return ca.fields
 }
 
-func (ca *CleanAction) Receive(items []map[string]interface{}) {
+func (ca *Clean) Receive(items []map[string]interface{}) {
 	ca.itemsChan <- items
 }
 
-func (ca *CleanAction) GetStatus() string {
+func (ca *Clean) GetStatus() string {
 	return ca.target.State.GetStatus()
 }
 
-func (ca *CleanAction) GetTitle() string {
+func (ca *Clean) GetTitle() string {
 	s := make([]string, 0)
 	for _, m := range ca.modes {
 		s = append(s, m.GetTitle())
@@ -88,7 +88,7 @@ func (ca *CleanAction) GetTitle() string {
 	return fmt.Sprintf("Clean[%s] {%s}", ca.targetDataName, strings.Join(s, ", "))
 }
 
-func (ca *CleanAction) doSource() {
+func (ca *Clean) doSource() {
 	for {
 		sourceItems, ok := <-ca.itemsChan
 		if ok == false {

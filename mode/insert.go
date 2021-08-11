@@ -7,32 +7,32 @@ import (
 	"github.com/auho/go-etl/means"
 )
 
-type InsertMode struct {
+type Insert struct {
 	Mode
 	insert means.InsertMeans
 }
 
-func NewInsertMode(keys []string, insert means.InsertMeans) *InsertMode {
-	m := &InsertMode{}
+func NewInsert(keys []string, insert means.InsertMeans) *Insert {
+	m := &Insert{}
 	m.keys = keys
 	m.insert = insert
 
 	return m
 }
 
-func (m *InsertMode) GetTitle() string {
+func (m *Insert) GetTitle() string {
 	return m.getModeTitle() + " " + m.insert.GetTitle()
 }
 
-func (m *InsertMode) GetFields() []string {
+func (m *Insert) GetFields() []string {
 	return m.keys
 }
 
-func (m *InsertMode) GetKeys() []string {
+func (m *Insert) GetKeys() []string {
 	return m.insert.GetKeys()
 }
 
-func (m *InsertMode) Do(item map[string]interface{}) [][]interface{} {
+func (m *Insert) Do(item map[string]interface{}) [][]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -42,18 +42,18 @@ func (m *InsertMode) Do(item map[string]interface{}) [][]interface{} {
 	return m.insert.Insert(contents)
 }
 
-func (m *InsertMode) Close() {
+func (m *Insert) Close() {
 	m.insert.Close()
 }
 
-type InsertMultiMode struct {
+type InsertMulti struct {
 	Mode
 	inserts      []means.InsertMeans
 	insertFields []string
 }
 
-func NewInsertMultiMode(keys []string, insertFields []string, inserts []means.InsertMeans) *InsertMultiMode {
-	m := &InsertMultiMode{}
+func NewInsertMulti(keys []string, insertFields []string, inserts []means.InsertMeans) *InsertMulti {
+	m := &InsertMulti{}
 	m.keys = keys
 	m.inserts = inserts
 	m.insertFields = insertFields
@@ -61,7 +61,7 @@ func NewInsertMultiMode(keys []string, insertFields []string, inserts []means.In
 	return m
 }
 
-func (m *InsertMultiMode) GetTitle() string {
+func (m *InsertMulti) GetTitle() string {
 	is := make([]string, 0)
 	for _, i := range m.inserts {
 		is = append(is, i.GetTitle())
@@ -70,15 +70,15 @@ func (m *InsertMultiMode) GetTitle() string {
 	return fmt.Sprintf("%s{%s}", m.getModeTitle(), strings.Join(is, ","))
 }
 
-func (m *InsertMultiMode) GetFields() []string {
+func (m *InsertMulti) GetFields() []string {
 	return m.keys
 }
 
-func (m *InsertMultiMode) GetKeys() []string {
+func (m *InsertMulti) GetKeys() []string {
 	return m.insertFields
 }
 
-func (m *InsertMultiMode) Do(item map[string]interface{}) [][]interface{} {
+func (m *InsertMulti) Do(item map[string]interface{}) [][]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -98,7 +98,7 @@ func (m *InsertMultiMode) Do(item map[string]interface{}) [][]interface{} {
 	return items
 }
 
-func (m *InsertMultiMode) Close() {
+func (m *InsertMulti) Close() {
 	for _, i := range m.inserts {
 		i.Close()
 	}

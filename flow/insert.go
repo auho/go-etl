@@ -7,6 +7,6 @@ import (
 )
 
 func InsertFlow(config goEtl.DbConfig, dataName string, idName string, tagTableName string, moder mode.InsertModer, affixFields []string) {
-	a := action.NewInsertAction(config, tagTableName, moder, affixFields)
+	a := action.NewInsert(config, tagTableName, moder, affixFields)
 	RunFlow(config, dataName, idName, []action.Actionor{a})
 }

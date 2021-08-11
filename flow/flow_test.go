@@ -6,13 +6,13 @@ import (
 	"testing"
 
 	"github.com/auho/go-etl/action"
-	"github.com/auho/go-etl/means/tager"
+	"github.com/auho/go-etl/means/tagor"
 	"github.com/auho/go-etl/mode"
 )
 
 func Test_Update(t *testing.T) {
-	m := mode.NewTagUpdate([]string{keyName}, tager.NewTagMostKeyMeans(ruleName, db))
-	ua := action.NewUpdateAction(dbConfig,
+	m := mode.NewUpdate([]string{keyName}, tagor.NewMostKey(ruleName, db))
+	ua := action.NewUpdate(dbConfig,
 		dataTableName,
 		pkName,
 		[]mode.UpdateModer{m},
@@ -39,8 +39,8 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_Insert(t *testing.T) {
-	m := mode.NewInsertMode([]string{keyName}, tager.NewTagKeyMeans(ruleName, db))
-	ia := action.NewInsertAction(dbConfig,
+	m := mode.NewInsert([]string{keyName}, tagor.NewKey(ruleName, db))
+	ia := action.NewInsert(dbConfig,
 		tagTableName,
 		m,
 		[]string{pkName},
@@ -59,8 +59,8 @@ func Test_Insert(t *testing.T) {
 		t.Error(err)
 	}
 
-	ia1 := action.NewInsertAction(dbConfig, tagTableName+"1", m, []string{pkName})
-	ia2 := action.NewInsertAction(dbConfig, tagTableName+"2", m, []string{pkName})
+	ia1 := action.NewInsert(dbConfig, tagTableName+"1", m, []string{pkName})
+	ia2 := action.NewInsert(dbConfig, tagTableName+"2", m, []string{pkName})
 
 	RunFlow(dbConfig, dataTableName, pkName, []action.Actionor{ia, ia1, ia2})
 	InsertFlow(dbConfig, dataTableName, pkName, tagTableName, m, []string{pkName})
@@ -110,7 +110,7 @@ func Test_Transfer(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	m := mode.NewTagUpdate([]string{keyName}, tager.NewTagMostKeyMeans(ruleName, db))
+	m := mode.NewUpdate([]string{keyName}, tagor.NewMostKey(ruleName, db))
 
 	CleanFlow(db, dbConfig, dataTableName, pkName, cDataTableName, []mode.UpdateModer{m})
 	dataCount := getAmount(dataTableName, t)

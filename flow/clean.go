@@ -8,6 +8,6 @@ import (
 )
 
 func CleanFlow(db simple.Driver, config goEtl.DbConfig, dataName string, idName string, targetTableName string, modes []mode.UpdateModer) {
-	cleanAction := action.NewCleanAction(db, config, targetTableName, modes)
+	cleanAction := action.NewClean(db, config, targetTableName, modes)
 	RunFlow(config, dataName, idName, []action.Actionor{cleanAction})
 }

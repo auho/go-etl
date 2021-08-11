@@ -1,4 +1,4 @@
-package tager
+package tagor
 
 import (
 	"fmt"
@@ -53,72 +53,72 @@ func (tm *TagMeans) updateResult(f func() *Result) map[string]interface{} {
 	return tm.resultToMap(result)
 }
 
-// TagKeyMeans
+// Key
 // Text
-type TagKeyMeans struct {
+type Key struct {
 	TagMeans
 }
 
-func NewTagKeyMeans(ruleName string, db simple.Driver, Options ...TagMatcherOption) *TagKeyMeans {
-	t := &TagKeyMeans{}
+func NewKey(ruleName string, db simple.Driver, Options ...TagMatcherOption) *Key {
+	t := &Key{}
 	t.prepare(ruleName, db, Options...)
 
 	return t
 }
 
-func (t *TagKeyMeans) Insert(contents []string) [][]interface{} {
+func (t *Key) Insert(contents []string) [][]interface{} {
 	return t.insertResults(func() []*Result {
 		return t.Matcher.MatchKey(contents)
 	})
 }
 
-// TagMostTextMeans
+// MostText
 // Most Text
 //
-type TagMostTextMeans struct {
+type MostText struct {
 	TagMeans
 }
 
-func NewTagMostTextMeans(ruleName string, db simple.Driver, Options ...TagMatcherOption) *TagMostTextMeans {
-	t := &TagMostTextMeans{}
+func NewMostText(ruleName string, db simple.Driver, Options ...TagMatcherOption) *MostText {
+	t := &MostText{}
 	t.prepare(ruleName, db, Options...)
 
 	return t
 }
 
-func (t *TagMostTextMeans) Insert(contents []string) [][]interface{} {
+func (t *MostText) Insert(contents []string) [][]interface{} {
 	return t.insertResult(func() *Result {
 		return t.Matcher.MatchMostText(contents)
 	})
 }
 
-func (t *TagMostTextMeans) Update(contents []string) map[string]interface{} {
+func (t *MostText) Update(contents []string) map[string]interface{} {
 	return t.updateResult(func() *Result {
 		return t.Matcher.MatchMostText(contents)
 	})
 }
 
-// TagMostKeyMeans
+// MostKey
 // Most Key
 //
-type TagMostKeyMeans struct {
+type MostKey struct {
 	TagMeans
 }
 
-func NewTagMostKeyMeans(ruleName string, db simple.Driver, Options ...TagMatcherOption) *TagMostKeyMeans {
-	t := &TagMostKeyMeans{}
+func NewMostKey(ruleName string, db simple.Driver, Options ...TagMatcherOption) *MostKey {
+	t := &MostKey{}
 	t.prepare(ruleName, db, Options...)
 
 	return t
 }
 
-func (t *TagMostKeyMeans) Insert(contents []string) [][]interface{} {
+func (t *MostKey) Insert(contents []string) [][]interface{} {
 	return t.insertResult(func() *Result {
 		return t.Matcher.MatchMostKey(contents)
 	})
 }
 
-func (t *TagMostKeyMeans) Update(contents []string) map[string]interface{} {
+func (t *MostKey) Update(contents []string) map[string]interface{} {
 	return t.updateResult(func() *Result {
 		return t.Matcher.MatchMostKey(contents)
 	})

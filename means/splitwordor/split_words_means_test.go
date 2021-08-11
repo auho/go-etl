@@ -1,4 +1,4 @@
-package splitworder
+package splitwordor
 
 import (
 	"testing"

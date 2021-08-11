@@ -1,4 +1,4 @@
-package segworder
+package segwordor
 
 import (
 	"strings"

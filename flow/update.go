@@ -7,6 +7,6 @@ import (
 )
 
 func UpdateFlow(config goEtl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) {
-	a := action.NewUpdateAction(config, dataName, idName, modes)
+	a := action.NewUpdate(config, dataName, idName, modes)
 	RunFlow(config, dataName, idName, []action.Actionor{a})
 }

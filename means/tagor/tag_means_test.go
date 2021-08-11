@@ -1,4 +1,4 @@
-package tager
+package tagor
 
 import (
 	"testing"
@@ -19,7 +19,7 @@ func TestTagMeans(t *testing.T) {
 }
 
 func TestTagKeyMeans(t *testing.T) {
-	tm := NewTagKeyMeans(ruleName, db)
+	tm := NewKey(ruleName, db)
 	resSlice := tm.Insert(contents)
 	if len(resSlice) <= 0 {
 		t.Error("error")
@@ -27,7 +27,7 @@ func TestTagKeyMeans(t *testing.T) {
 }
 
 func TestTagMostKeyMeans(t *testing.T) {
-	tm := NewTagMostKeyMeans(ruleName, db)
+	tm := NewMostKey(ruleName, db)
 	resSlice := tm.Insert(contents)
 	if len(resSlice) <= 0 {
 		t.Error("error")
@@ -53,7 +53,7 @@ func TestTagMostKeyMeans(t *testing.T) {
 }
 
 func TestTagMostTextMeans(t *testing.T) {
-	tm := NewTagMostTextMeans(ruleName, db,
+	tm := NewMostText(ruleName, db,
 		WithTagMatcherTags([]string{"a"}),
 		WithTagMatcherDataName("data"),
 		WithTagMatcherAlias(map[string]string{

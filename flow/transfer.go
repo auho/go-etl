@@ -7,6 +7,6 @@ import (
 )
 
 func TransferFlow(db simple.Driver, config goEtl.DbConfig, dataName string, idName string, targetTableName string, alias map[string]string, fixedData map[string]interface{}) {
-	transferAction := action.NewTransferAction(db, config, targetTableName, alias, fixedData)
+	transferAction := action.NewTransfer(db, config, targetTableName, alias, fixedData)
 	RunFlow(config, dataName, idName, []action.Actionor{transferAction})
 }

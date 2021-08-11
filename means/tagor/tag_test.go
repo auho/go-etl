@@ -1,4 +1,4 @@
-package tager
+package tagor
 
 import (
 	"fmt"
@@ -42,8 +42,8 @@ func TestMatcher(t *testing.T) {
 
 	var results []*Result
 	var result *Result
-	var tagResults []*TagResult
-	var tagResult *TagResult
+	var tagResults []*LabelResult
+	var tagResult *LabelResult
 
 	fmt.Println("\n Match")
 	results = m.Match(contents)
@@ -79,14 +79,14 @@ func TestMatcher(t *testing.T) {
 	result = m.MatchMostText(contents)
 	fmt.Println(result)
 
-	fmt.Println("\n MatchTag")
-	tagResults = m.MatchTag(contents)
+	fmt.Println("\n MatchLabel")
+	tagResults = m.MatchLabel(contents)
 	for _, tagResult := range tagResults {
 		fmt.Println(tagResult)
 	}
 
-	fmt.Println("\n MatchTagMostText")
-	tagResult = m.MatchTagMostText(contents)
+	fmt.Println("\n MatchLabelMostText")
+	tagResult = m.MatchLabelMostText(contents)
 	fmt.Println(tagResult)
 
 }

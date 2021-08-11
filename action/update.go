@@ -9,7 +9,7 @@ import (
 	"github.com/auho/go-etl/storage/database"
 )
 
-type UpdateAction struct {
+type Update struct {
 	action
 	target   *database.DbTargetMap
 	modes    []mode.UpdateModer
@@ -17,8 +17,8 @@ type UpdateAction struct {
 	dataName string
 }
 
-func NewUpdateAction(config goEtl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) *UpdateAction {
-	ua := &UpdateAction{}
+func NewUpdate(config goEtl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) *Update {
+	ua := &Update{}
 	ua.dataName = dataName
 	ua.idName = idName
 	ua.modes = modes
@@ -31,7 +31,7 @@ func NewUpdateAction(config goEtl.DbConfig, dataName string, idName string, mode
 	return ua
 }
 
-func (ua *UpdateAction) Start() {
+func (ua *Update) Start() {
 	ua.target.Start()
 
 	for i := 0; i < ua.concurrent; i++ {
@@ -40,7 +40,7 @@ func (ua *UpdateAction) Start() {
 	}
 }
 
-func (ua *UpdateAction) Done() {
+func (ua *Update) Done() {
 	if ua.isDone {
 		return
 	}
@@ -50,7 +50,7 @@ func (ua *UpdateAction) Done() {
 	close(ua.itemsChan)
 }
 
-func (ua *UpdateAction) Close() {
+func (ua *Update) Close() {
 	ua.wg.Wait()
 
 	for _, m := range ua.modes {
@@ -61,7 +61,7 @@ func (ua *UpdateAction) Close() {
 	ua.target.Close()
 }
 
-func (ua *UpdateAction) GetFields() []string {
+func (ua *Update) GetFields() []string {
 	fields := make([]string, 0)
 	for _, m := range ua.modes {
 		fields = append(fields, m.GetFields()...)
@@ -72,15 +72,15 @@ func (ua *UpdateAction) GetFields() []string {
 	return append(fields, ua.idName)
 }
 
-func (ua *UpdateAction) Receive(items []map[string]interface{}) {
+func (ua *Update) Receive(items []map[string]interface{}) {
 	ua.itemsChan <- items
 }
 
-func (ua *UpdateAction) GetStatus() string {
+func (ua *Update) GetStatus() string {
 	return ua.target.State.GetStatus()
 }
 
-func (ua *UpdateAction) GetTitle() string {
+func (ua *Update) GetTitle() string {
 	s := make([]string, 0)
 	for _, m := range ua.modes {
 		s = append(s, m.GetTitle())
@@ -89,7 +89,7 @@ func (ua *UpdateAction) GetTitle() string {
 	return fmt.Sprintf("Update[%s] {%s}", ua.dataName, strings.Join(s, ", "))
 }
 
-func (ua *UpdateAction) doSource() {
+func (ua *Update) doSource() {
 	for {
 		sourceItems, ok := <-ua.itemsChan
 		if ok == false {

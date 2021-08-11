@@ -1,4 +1,4 @@
-package tager
+package tagor
 
 import (
 	"fmt"

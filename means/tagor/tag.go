@@ -1,4 +1,4 @@
-package tager
+package tagor
 
 import (
 	"crypto/md5"
@@ -30,23 +30,23 @@ func NewResult() *Result {
 	return m
 }
 
-// TagResult
-// tag result
+// LabelResult
+// label result
 //
-type TagResult struct {
+type LabelResult struct {
 	Identity string
-	Tags     map[string]string
+	Labels   map[string]string
 	Match    map[string]map[string]int
 	KeyNum   int64
 	TextNum  int64
 }
 
-func NewTagResult() *TagResult {
-	m := &TagResult{}
-	m.Tags = make(map[string]string)
-	m.Match = make(map[string]map[string]int)
+func NewLabelResult() *LabelResult {
+	l := &LabelResult{}
+	l.Labels = make(map[string]string)
+	l.Match = make(map[string]map[string]int)
 
-	return m
+	return l
 }
 
 type TagMatcherOption func(*TagMatcher)
@@ -482,13 +482,13 @@ func (m *Matcher) MatchMostText(contents []string) *Result {
 	return results[0]
 }
 
-func (m *Matcher) MatchTag(contents []string) []*TagResult {
+func (m *Matcher) MatchLabel(contents []string) []*LabelResult {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
 
-	results := make([]*TagResult, 0)
+	results := make([]*LabelResult, 0)
 	resultIndex := make(map[string]int)
 
 	for _, match := range matches {
@@ -519,8 +519,8 @@ func (m *Matcher) MatchTag(contents []string) []*TagResult {
 
 			result.TextNum += 1
 		} else {
-			result := NewTagResult()
-			result.Tags = tags
+			result := NewLabelResult()
+			result.Labels = tags
 			result.Match[key] = map[string]int{text: 1}
 			result.KeyNum += 1
 			result.TextNum += 1
@@ -533,13 +533,13 @@ func (m *Matcher) MatchTag(contents []string) []*TagResult {
 	return results
 }
 
-func (m *Matcher) MatchTagMostText(contents []string) *TagResult {
-	results := m.MatchTag(contents)
+func (m *Matcher) MatchLabelMostText(contents []string) *LabelResult {
+	results := m.MatchLabel(contents)
 	if results == nil {
 		return nil
 	}
 
-	sort.Sort(sortTagResults(results))
+	sort.Sort(sortLabelResults(results))
 
 	return results[0]
 }
@@ -642,16 +642,16 @@ func (sr sortResults) Swap(i, j int) {
 }
 
 //
-type sortTagResults []*TagResult
+type sortLabelResults []*LabelResult
 
-func (str sortTagResults) Len() int {
+func (str sortLabelResults) Len() int {
 	return len(str)
 }
 
-func (str sortTagResults) Less(i, j int) bool {
+func (str sortLabelResults) Less(i, j int) bool {
 	return str[i].TextNum > str[j].TextNum
 }
 
-func (str sortTagResults) Swap(i, j int) {
+func (str sortLabelResults) Swap(i, j int) {
 	str[i], str[j] = str[j], str[i]
 }

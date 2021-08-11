@@ -8,7 +8,7 @@ import (
 	"github.com/auho/go-etl/storage/database"
 )
 
-type InsertAction struct {
+type Insert struct {
 	action
 	target       *database.DbTargetSlice
 	mode         mode.InsertModer
@@ -16,8 +16,8 @@ type InsertAction struct {
 	affixFields  []string
 }
 
-func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.InsertModer, affixFields []string) *InsertAction {
-	ia := &InsertAction{}
+func NewInsert(config goEtl.DbConfig, tagTableName string, moder mode.InsertModer, affixFields []string) *Insert {
+	ia := &Insert{}
 	ia.tagTableName = tagTableName
 	ia.affixFields = affixFields
 	ia.mode = moder
@@ -30,7 +30,7 @@ func NewInsertAction(config goEtl.DbConfig, tagTableName string, moder mode.Inse
 	return ia
 }
 
-func (ia *InsertAction) Start() {
+func (ia *Insert) Start() {
 	ia.target.Start()
 
 	for i := 0; i < ia.concurrent; i++ {
@@ -39,7 +39,7 @@ func (ia *InsertAction) Start() {
 	}
 }
 
-func (ia *InsertAction) Done() {
+func (ia *Insert) Done() {
 	if ia.isDone {
 		return
 	}
@@ -49,7 +49,7 @@ func (ia *InsertAction) Done() {
 	close(ia.itemsChan)
 }
 
-func (ia *InsertAction) Close() {
+func (ia *Insert) Close() {
 	ia.wg.Wait()
 
 	ia.mode.Close()
@@ -58,27 +58,27 @@ func (ia *InsertAction) Close() {
 	ia.target.Close()
 }
 
-func (ia *InsertAction) GetFields() []string {
+func (ia *Insert) GetFields() []string {
 	return append(ia.mode.GetFields(), ia.affixFields...)
 }
 
-func (ia *InsertAction) Receive(items []map[string]interface{}) {
+func (ia *Insert) Receive(items []map[string]interface{}) {
 	ia.itemsChan <- items
 }
 
-func (ia *InsertAction) GetStatus() string {
+func (ia *Insert) GetStatus() string {
 	return ia.target.State.GetStatus()
 }
 
-func (ia *InsertAction) GetTitle() string {
+func (ia *Insert) GetTitle() string {
 	return fmt.Sprintf("Insert[%s] {%s}", ia.tagTableName, ia.mode.GetTitle())
 }
 
-func (ia *InsertAction) getKeys() []string {
+func (ia *Insert) getKeys() []string {
 	return append(ia.mode.GetKeys(), ia.affixFields...)
 }
 
-func (ia *InsertAction) doSource() {
+func (ia *Insert) doSource() {
 	for {
 		sourceItems, ok := <-ia.itemsChan
 		if ok == false {
@@ -102,7 +102,7 @@ func (ia *InsertAction) doSource() {
 	ia.wg.Done()
 }
 
-func (ia *InsertAction) doItem(item map[string]interface{}) [][]interface{} {
+func (ia *Insert) doItem(item map[string]interface{}) [][]interface{} {
 	items := ia.mode.Do(item)
 	if items == nil {
 		return nil

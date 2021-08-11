@@ -8,7 +8,7 @@ import (
 	"github.com/auho/go-simple-db/simple"
 )
 
-type TransferAction struct {
+type Transfer struct {
 	action
 	target         *database.DbTargetSlice
 	targetDataName string
@@ -17,8 +17,8 @@ type TransferAction struct {
 	fixedValues    []interface{}
 }
 
-func NewTransferAction(db simple.Driver, config goEtl.DbConfig, targetDataName string, alias map[string]string, fixedData map[string]interface{}) *TransferAction {
-	ta := &TransferAction{}
+func NewTransfer(db simple.Driver, config goEtl.DbConfig, targetDataName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
+	ta := &Transfer{}
 	ta.targetDataName = targetDataName
 
 	ta.init()
@@ -53,7 +53,7 @@ func NewTransferAction(db simple.Driver, config goEtl.DbConfig, targetDataName s
 	return ta
 }
 
-func (ta *TransferAction) Start() {
+func (ta *Transfer) Start() {
 	ta.target.Start()
 
 	for i := 0; i < ta.concurrent; i++ {
@@ -62,7 +62,7 @@ func (ta *TransferAction) Start() {
 	}
 }
 
-func (ta *TransferAction) Done() {
+func (ta *Transfer) Done() {
 	if ta.isDone {
 		return
 	}
@@ -72,30 +72,30 @@ func (ta *TransferAction) Done() {
 	close(ta.itemsChan)
 }
 
-func (ta *TransferAction) Close() {
+func (ta *Transfer) Close() {
 	ta.wg.Wait()
 
 	ta.target.Done()
 	ta.target.Close()
 }
 
-func (ta *TransferAction) GetFields() []string {
+func (ta *Transfer) GetFields() []string {
 	return ta.fields
 }
 
-func (ta *TransferAction) Receive(items []map[string]interface{}) {
+func (ta *Transfer) Receive(items []map[string]interface{}) {
 	ta.itemsChan <- items
 }
 
-func (ta *TransferAction) GetStatus() string {
+func (ta *Transfer) GetStatus() string {
 	return ta.target.State.GetStatus()
 }
 
-func (ta *TransferAction) GetTitle() string {
+func (ta *Transfer) GetTitle() string {
 	return fmt.Sprintf("Transfer[%s]", ta.targetDataName)
 }
 
-func (ta *TransferAction) doSource() {
+func (ta *Transfer) doSource() {
 	for {
 		sourceItems, ok := <-ta.itemsChan
 		if ok == false {

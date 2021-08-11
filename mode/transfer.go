@@ -4,7 +4,7 @@ import (
 	"github.com/auho/go-simple-db/simple"
 )
 
-type TransferMode struct {
+type Transfer struct {
 	Mode
 	Db          simple.Driver
 	fields      []string
@@ -12,8 +12,8 @@ type TransferMode struct {
 	fixedValues []interface{}
 }
 
-func NewTransferMode(db simple.Driver, tableName string, alias map[string]string, fixedData map[string]interface{}) *TransferMode {
-	m := &TransferMode{}
+func NewTransfer(db simple.Driver, tableName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
+	m := &Transfer{}
 	m.Db = db
 	m.keys = make([]string, 0)
 	m.fields = make([]string, 0)
@@ -47,19 +47,19 @@ func NewTransferMode(db simple.Driver, tableName string, alias map[string]string
 	return m
 }
 
-func (m *TransferMode) GetTitle() string {
+func (m *Transfer) GetTitle() string {
 	return "Transfer"
 }
 
-func (m *TransferMode) GetKeys() []string {
+func (m *Transfer) GetKeys() []string {
 	return m.keys
 }
 
-func (m *TransferMode) GetFields() []string {
+func (m *Transfer) GetFields() []string {
 	return m.fields
 }
 
-func (m *TransferMode) Do(item map[string]interface{}) [][]interface{} {
+func (m *Transfer) Do(item map[string]interface{}) [][]interface{} {
 	result := make([]interface{}, len(m.fields), len(m.fields))
 	for k, field := range m.fields {
 		result[k] = item[field]
@@ -72,6 +72,6 @@ func (m *TransferMode) Do(item map[string]interface{}) [][]interface{} {
 	return [][]interface{}{result}
 }
 
-func (m *TransferMode) Close() {
+func (m *Transfer) Close() {
 
 }
