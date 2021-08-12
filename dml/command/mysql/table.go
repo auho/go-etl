@@ -1,4 +1,4 @@
-package command
+package mysql
 
 import (
 	"fmt"
@@ -14,12 +14,15 @@ type TableCommand struct {
 	nameBackQuote string
 }
 
-func NewCommand(name string) *TableCommand {
+func NewTableCommand() *TableCommand {
 	c := &TableCommand{}
-	c.name = name
-	c.nameBackQuote = fmt.Sprintf("`%s`", name)
 
 	return c
+}
+
+func (c *TableCommand) SetName(n string) {
+	c.name = n
+	c.nameBackQuote = fmt.Sprintf("`%s`", c.name)
 }
 
 func (c *TableCommand) Select(fieldMap map[string]string) string {
@@ -56,7 +59,7 @@ func (c *TableCommand) From(j *command.Join) string {
 
 func (c *TableCommand) BuildFrom(j *command.Join) []string {
 	f := ""
-	if j.IsFrom() {
+	if j == nil || j.IsFrom() {
 		f = fmt.Sprintf("FROM %s ", c.nameBackQuote)
 	} else if j.IsLeft() {
 		f = fmt.Sprintf("LEFT JOIN %s ON ", c.nameBackQuote)
@@ -64,9 +67,9 @@ func (c *TableCommand) BuildFrom(j *command.Join) []string {
 		ons := make([]string, 0)
 		for k := range j.LKeys {
 			ons = append(ons, fmt.Sprintf("%s.%s = %s.%s ",
-				c.backQuote(j.LTable.GetName()),
+				c.backQuote(j.LTable),
 				c.backQuote(j.LKeys[k]),
-				c.backQuote(j.RTable.GetName()),
+				c.backQuote(j.RTable),
 				c.backQuote(j.RKeys[k]),
 			))
 		}

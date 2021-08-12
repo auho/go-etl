@@ -1,23 +1,32 @@
-package command
+package dml
 
 import (
 	"fmt"
+
+	"github.com/auho/go-etl/dml/command"
 )
 
 type Table struct {
 	commander tableCommander
 	name      string
-	fields    map[string]string
+	fields    *command.SortMap
 	where     string
-	groupBy   map[string]string
-	orderBy   map[string]string
+	groupBy   []string
+	orderBy   *command.SortMap
 	limit     []int
-	join      *Join
+	join      *command.Join
 }
 
 func NewTable(name string) *Table {
 	t := &Table{}
 	t.name = name
+	t.fields = command.NewSortMap()
+	t.groupBy = make([]string, 0)
+	t.orderBy = command.NewSortMap()
+	t.limit = make([]int, 0)
+
+	t.commander = newTableCommand()
+	t.commander.SetName(t.name)
 
 	return t
 }
@@ -28,7 +37,7 @@ func (t *Table) GetName() string {
 
 func (t *Table) Select(fields []string) *Table {
 	for _, field := range fields {
-		t.fields[field] = field
+		t.fields.Store(field, field)
 	}
 
 	return t
@@ -36,7 +45,7 @@ func (t *Table) Select(fields []string) *Table {
 
 func (t *Table) SelectAlias(alias map[string]string) *Table {
 	for k, v := range alias {
-		t.fields[k] = v
+		t.fields.Store(k, v)
 	}
 
 	return t
@@ -50,8 +59,8 @@ func (t *Table) Where(s string) *Table {
 
 func (t *Table) GroupBy(g []string) *Table {
 	for _, v := range g {
-		t.groupBy[v] = v
-		t.fields[v] = v
+		t.groupBy = append(t.groupBy, v)
+		t.fields.Store(v, v)
 	}
 
 	return t
@@ -59,8 +68,8 @@ func (t *Table) GroupBy(g []string) *Table {
 
 func (t *Table) GroupByAlias(g map[string]string) *Table {
 	for k, v := range g {
-		t.groupBy[k] = k
-		t.fields[k] = v
+		t.groupBy = append(t.groupBy, k)
+		t.fields.Store(k, v)
 	}
 
 	return t
@@ -68,7 +77,7 @@ func (t *Table) GroupByAlias(g map[string]string) *Table {
 
 func (t *Table) OrderBy(o map[string]string) *Table {
 	for k, v := range o {
-		t.orderBy[k] = v
+		t.orderBy.Store(k, v)
 	}
 
 	return t
@@ -82,14 +91,14 @@ func (t *Table) Limit(start int, offset int) *Table {
 
 func (t *Table) Aggregation(a map[string]string) *Table {
 	for k, v := range a {
-		t.fields[k] = v
+		t.fields.Store(k, v)
 	}
 
 	return t
 }
 
 func (t *Table) LeftJoin(keys []string, joinTable *Table, joinKeys []string) *Table {
-	t.join = newLeftJoin(t, keys, joinTable, joinKeys)
+	t.join = command.NewLeftJoin(t.GetName(), keys, joinTable.GetName(), joinKeys)
 
 	return t
 }

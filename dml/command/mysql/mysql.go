@@ -1,4 +1,4 @@
-package command
+package mysql
 
 import (
 	"fmt"
@@ -6,6 +6,10 @@ import (
 )
 
 type mysql struct {
+}
+
+func NewMysqlCommand() *mysql {
+	return &mysql{}
 }
 
 func (m *mysql) SelectToString(s []string) string {

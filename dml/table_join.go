@@ -1,8 +1,21 @@
-package command
+package dml
+
+import "fmt"
 
 type TableJoin struct {
-	commander TableJoinCommander
+	commander driverCommander
 	tables    []*Table
+	limit     []int
+}
+
+func NewTableJoin() *TableJoin {
+	tj := &TableJoin{}
+	tj.tables = make([]*Table, 0)
+	tj.limit = make([]int, 0)
+
+	tj.commander = newDriverCommand()
+
+	return tj
 }
 
 func (tj *TableJoin) Table(t *Table) *TableJoin {
@@ -26,11 +39,13 @@ func (tj *TableJoin) LeftJoin(t *Table, keys []string, joinTable *Table, joinTab
 	return tj
 }
 
-func (t *TableJoin) Limit(start int, offset int) string {
-	return t.commander.LimitToString([]int{start, offset})
+func (tj *TableJoin) Limit(start int, offset int) *TableJoin {
+	tj.limit = []int{start, offset}
+
+	return tj
 }
 
-func (tj *TableJoin) Sql() {
+func (tj *TableJoin) Sql() string {
 
 	s := tj.commander.SelectToString(tj.mergeTable(tj.tables, func(t *Table) []string {
 		return t.commander.BuildSelect(t.fields)
@@ -51,6 +66,10 @@ func (tj *TableJoin) Sql() {
 	o := tj.commander.OrderByToString(tj.mergeTable(tj.tables, func(t *Table) []string {
 		return t.commander.BuildOrderBy(t.orderBy)
 	}))
+
+	l := tj.commander.LimitToString(tj.limit)
+
+	return fmt.Sprintf("%s%s%s%s%s%s", s, f, w, g, o, l)
 }
 
 func (tj *TableJoin) addTable(t *Table) {

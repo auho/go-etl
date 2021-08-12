@@ -10,13 +10,13 @@ const symbolLeft = "LEFT"
 
 type Join struct {
 	symbol string
-	LTable *Table
-	RTable *Table
+	LTable string
+	RTable string
 	LKeys  []string
 	RKeys  []string
 }
 
-func newJoin(lt *Table, ltKeys []string, rt *Table, rtKeys []string) *Join {
+func NewJoin(lt string, ltKeys []string, rt string, rtKeys []string) *Join {
 	j := &Join{}
 	j.symbol = symbolFrom
 	j.LTable = lt
@@ -31,8 +31,8 @@ func newJoin(lt *Table, ltKeys []string, rt *Table, rtKeys []string) *Join {
 	return j
 }
 
-func newLeftJoin(lt *Table, ltKeys []string, rt *Table, rtKeys []string) *Join {
-	j := newJoin(lt, ltKeys, rt, rtKeys)
+func NewLeftJoin(lt string, ltKeys []string, rt string, rtKeys []string) *Join {
+	j := NewJoin(lt, ltKeys, rt, rtKeys)
 	j.symbol = symbolLeft
 
 	return j
