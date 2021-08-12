@@ -1,10 +1,4 @@
 github.com/ClickHouse/clickhouse-go v1.4.5/go.mod h1:EaI/sW7Azgz9UATzd5ZdZHRUhHgv5+JMS9NSr2smCJI=
-github.com/auho/go-simple-db v1.0.2-0.20210727033234-fd5080029fea h1:WQl1H8IxNuX4zycDzY3SoAH3HsR71WUmBVlTt4oNx+Q=
-github.com/auho/go-simple-db v1.0.2-0.20210727033234-fd5080029fea/go.mod h1:nSBxArbFxWUQ8SUXY1ZB236vcJho9sjhxAB+uO9pN9w=
-github.com/auho/go-simple-db v1.0.2-0.20210729044138-102c0fb920ed h1:Nud2hoS5nMzP7ov8rEczGL+E4+OhHCcTjGfsbczQXXs=
-github.com/auho/go-simple-db v1.0.2-0.20210729044138-102c0fb920ed/go.mod h1:nSBxArbFxWUQ8SUXY1ZB236vcJho9sjhxAB+uO9pN9w=
-github.com/auho/go-simple-db v1.0.2 h1:hRDracAJwlC/lpFbspzwkgNkz5JJKDM+PmXbWtGI9zY=
-github.com/auho/go-simple-db v1.0.2/go.mod h1:nSBxArbFxWUQ8SUXY1ZB236vcJho9sjhxAB+uO9pN9w=
 github.com/auho/go-simple-db v1.0.3 h1:dFy6tr5eZvm7sTRj0i6RrAv/ZCmF2PxjBKm4YCjdlsE=
 github.com/auho/go-simple-db v1.0.3/go.mod h1:nSBxArbFxWUQ8SUXY1ZB236vcJho9sjhxAB+uO9pN9w=
 github.com/bkaradzic/go-lz4 v1.0.0/go.mod h1:0YdlkowM3VswSROI7qDxhRvJ3sLhlFrRRwjwegp5jy4=
