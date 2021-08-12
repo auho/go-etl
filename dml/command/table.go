@@ -5,14 +5,14 @@ import (
 )
 
 type Table struct {
-	commander commander
+	commander tableCommander
 	name      string
 	fields    map[string]string
 	where     string
 	groupBy   map[string]string
 	orderBy   map[string]string
 	limit     []int
-	on        *Join
+	join      *Join
 }
 
 func NewTable(name string) *Table {
@@ -89,7 +89,7 @@ func (t *Table) Aggregation(a map[string]string) *Table {
 }
 
 func (t *Table) LeftJoin(keys []string, joinTable *Table, joinKeys []string) *Table {
-	t.on = newLeftJoin(t, keys, joinTable, joinKeys)
+	t.join = newLeftJoin(t, keys, joinTable, joinKeys)
 
 	return t
 }
@@ -97,7 +97,7 @@ func (t *Table) LeftJoin(keys []string, joinTable *Table, joinKeys []string) *Ta
 func (t *Table) Sql() string {
 	return fmt.Sprintf("%s%s%s%s%s%s",
 		t.commander.Select(t.fields),
-		t.commander.From(t.on),
+		t.commander.From(t.join),
 		t.commander.Where(t.where),
 		t.commander.GroupBy(t.groupBy),
 		t.commander.OrderBy(t.orderBy),
