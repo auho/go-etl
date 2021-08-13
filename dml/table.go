@@ -9,10 +9,10 @@ import (
 type Table struct {
 	commander tableCommander
 	name      string
-	fields    *command.SortMap
+	fields    *command.Entries
 	where     string
-	groupBy   []string
-	orderBy   *command.SortMap
+	groupBy   *command.Entries
+	orderBy   *command.Entries
 	limit     []int
 	join      *command.Join
 }
@@ -20,9 +20,9 @@ type Table struct {
 func NewTable(name string) *Table {
 	t := &Table{}
 	t.name = name
-	t.fields = command.NewSortMap()
-	t.groupBy = make([]string, 0)
-	t.orderBy = command.NewSortMap()
+	t.fields = command.NewEntries()
+	t.groupBy = command.NewEntries()
+	t.orderBy = command.NewEntries()
 	t.limit = make([]int, 0)
 
 	t.commander = newTableCommand()
@@ -37,7 +37,7 @@ func (t *Table) GetName() string {
 
 func (t *Table) Select(fields []string) *Table {
 	for _, field := range fields {
-		t.fields.Store(field, field)
+		t.fields.AddEntry(field, field)
 	}
 
 	return t
@@ -45,7 +45,7 @@ func (t *Table) Select(fields []string) *Table {
 
 func (t *Table) SelectAlias(alias map[string]string) *Table {
 	for k, v := range alias {
-		t.fields.Store(k, v)
+		t.fields.AddEntry(k, v)
 	}
 
 	return t
@@ -59,8 +59,8 @@ func (t *Table) Where(s string) *Table {
 
 func (t *Table) GroupBy(g []string) *Table {
 	for _, v := range g {
-		t.groupBy = append(t.groupBy, v)
-		t.fields.Store(v, v)
+		t.groupBy.AddEntry(v, v)
+		t.fields.AddEntry(v, v)
 	}
 
 	return t
@@ -68,8 +68,8 @@ func (t *Table) GroupBy(g []string) *Table {
 
 func (t *Table) GroupByAlias(g map[string]string) *Table {
 	for k, v := range g {
-		t.groupBy = append(t.groupBy, k)
-		t.fields.Store(k, v)
+		t.groupBy.AddEntry(k, v)
+		t.fields.AddEntry(k, v)
 	}
 
 	return t
@@ -77,7 +77,7 @@ func (t *Table) GroupByAlias(g map[string]string) *Table {
 
 func (t *Table) OrderBy(o map[string]string) *Table {
 	for k, v := range o {
-		t.orderBy.Store(k, v)
+		t.orderBy.AddEntry(k, v)
 	}
 
 	return t
@@ -91,7 +91,8 @@ func (t *Table) Limit(start int, offset int) *Table {
 
 func (t *Table) Aggregation(a map[string]string) *Table {
 	for k, v := range a {
-		t.fields.Store(k, v)
+		e := command.NewAggregationEntry(k, v)
+		t.fields.Add(e)
 	}
 
 	return t

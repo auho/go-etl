@@ -13,16 +13,16 @@ var driver = ""
 
 type tableCommander interface {
 	SetName(string)
-	Select(*command.SortMap) string
-	BuildSelect(*command.SortMap) []string
-	From(join *command.Join) string
+	Select(*command.Entries) string
+	BuildSelect(*command.Entries) []string
+	From(*command.Join) string
 	BuildFrom(j *command.Join) []string
 	Where(string) string
 	BuildWhere(s string) []string
-	GroupBy(*command.SortMap) string
-	BuildGroupBy(map[string]string) []string
-	OrderBy(map[string]string) string
-	BuildOrderBy(map[string]string) []string
+	GroupBy(*command.Entries) string
+	BuildGroupBy(*command.Entries) []string
+	OrderBy(*command.Entries) string
+	BuildOrderBy(*command.Entries) []string
 	Limit([]int) string
 }
 

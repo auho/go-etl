@@ -22,29 +22,36 @@ func NewTableCommand() *TableCommand {
 
 func (c *TableCommand) SetName(n string) {
 	c.name = n
-	c.nameBackQuote = fmt.Sprintf("`%s`", c.name)
+	c.nameBackQuote = c.addBackQuote(c.name)
 }
 
-func (c *TableCommand) Select(fieldMap map[string]string) string {
-	fields := c.BuildSelect(fieldMap)
+func (c *TableCommand) Select(f *command.Entries) string {
+	fs := c.BuildSelect(f)
 
-	return c.SelectToString(fields)
+	return c.SelectToString(fs)
 }
 
-func (c *TableCommand) BuildSelect(fieldMap map[string]string) []string {
+func (c *TableCommand) BuildSelect(f *command.Entries) []string {
 	fields := make([]string, 0)
 
-	if len(fieldMap) == 0 {
+	if f.Len() == 0 {
 		fields = append(fields, fmt.Sprintf("%s.*", c.nameBackQuote))
 	} else {
-		for k, v := range fieldMap {
-			k = c.backQuote(k)
-
-			if k == v {
-				fields = append(fields, k)
+		for _, v := range f.Get() {
+			key, value := v.Get()
+			newKey := ""
+			if v.IsAggregation() {
+				newKey = c.addTablePrefix(key)
+				fields = append(fields, fmt.Sprintf("%s AS '%s'", newKey, value))
 			} else {
-				fields = append(fields, fmt.Sprintf("%s AS '%s'", k, v))
+				newKey = c.addTablePrefix(c.addBackQuote(key))
+				if key == value {
+					fields = append(fields, newKey)
+				} else {
+					fields = append(fields, fmt.Sprintf("%s AS '%s'", newKey, value))
+				}
 			}
+
 		}
 	}
 
@@ -60,17 +67,17 @@ func (c *TableCommand) From(j *command.Join) string {
 func (c *TableCommand) BuildFrom(j *command.Join) []string {
 	f := ""
 	if j == nil || j.IsFrom() {
-		f = fmt.Sprintf("FROM %s ", c.nameBackQuote)
+		f = fmt.Sprintf("FROM %s", c.nameBackQuote)
 	} else if j.IsLeft() {
 		f = fmt.Sprintf("LEFT JOIN %s ON ", c.nameBackQuote)
 
 		ons := make([]string, 0)
 		for k := range j.LKeys {
-			ons = append(ons, fmt.Sprintf("%s.%s = %s.%s ",
-				c.backQuote(j.LTable),
-				c.backQuote(j.LKeys[k]),
-				c.backQuote(j.RTable),
-				c.backQuote(j.RKeys[k]),
+			ons = append(ons, fmt.Sprintf("%s.%s = %s.%s",
+				c.addBackQuote(j.LTable),
+				c.addBackQuote(j.LKeys[k]),
+				c.addBackQuote(j.RTable),
+				c.addBackQuote(j.RKeys[k]),
 			))
 		}
 
@@ -91,43 +98,43 @@ func (c *TableCommand) BuildWhere(s string) []string {
 		return nil
 	}
 
-	return []string{c.backQuote(s)}
+	return []string{c.addTablePrefix(s)}
 }
 
-func (c *TableCommand) GroupBy(g map[string]string) string {
+func (c *TableCommand) GroupBy(g *command.Entries) string {
 	gs := c.BuildGroupBy(g)
 
 	return c.GroupByToString(gs)
 }
 
-func (c *TableCommand) BuildGroupBy(g map[string]string) []string {
-	if len(g) == 0 {
+func (c *TableCommand) BuildGroupBy(g *command.Entries) []string {
+	if g.Len() == 0 {
 		return nil
 	}
 
 	gs := make([]string, 0)
 
-	for k := range g {
-		gs = append(gs, c.backQuote(k))
+	for _, v := range g.Get() {
+		gs = append(gs, c.addTablePrefix(c.addBackQuote(v.GetValue())))
 	}
 
 	return gs
 }
 
-func (c *TableCommand) OrderBy(o map[string]string) string {
+func (c *TableCommand) OrderBy(o *command.Entries) string {
 	os := c.BuildOrderBy(o)
 
 	return c.OrderByToString(os)
 }
 
-func (c *TableCommand) BuildOrderBy(o map[string]string) []string {
-	if len(o) == 0 {
+func (c *TableCommand) BuildOrderBy(o *command.Entries) []string {
+	if o.Len() == 0 {
 		return nil
 	}
 
 	os := make([]string, 0)
-	for k, v := range o {
-		os = append(os, fmt.Sprintf("%s %s", c.backQuote(k), v))
+	for _, v := range o.Get() {
+		os = append(os, fmt.Sprintf("%s %s", c.addTablePrefix(c.addBackQuote(v.GetKey())), v.GetValue()))
 	}
 
 	return os
@@ -137,7 +144,12 @@ func (c *TableCommand) Limit(l []int) string {
 	return c.LimitToString(l)
 }
 
-func (c *TableCommand) backQuote(field string) string {
+func (c *TableCommand) addBackQuote(s string) string {
+	return fmt.Sprintf("`%s`", s)
+}
+
+func (c *TableCommand) addTablePrefix(s string) string {
 	re := regexp.MustCompile("([^.])(`[^`.]+`)([^.])")
-	return re.ReplaceAllString(field, fmt.Sprintf("$1%s$2$3", c.nameBackQuote))
+	s = re.ReplaceAllString(" "+s+" ", fmt.Sprintf("$1%s.$2$3", c.nameBackQuote))
+	return strings.Trim(s, " ")
 }
