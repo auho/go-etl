@@ -1,70 +1,10 @@
 package command
 
-import "sync"
+import (
+	"sync"
+)
 
 const flagAggregation = "aggregation"
-
-type SortMap struct {
-	RWMutex sync.RWMutex
-	m       map[string]string
-	keys    []string
-	index   int
-}
-
-func NewSortMap() *SortMap {
-	sm := &SortMap{}
-	sm.init()
-
-	return sm
-}
-
-func (sm *SortMap) init() {
-	sm.m = make(map[string]string)
-	sm.keys = make([]string, 0)
-	sm.index = -1
-}
-
-func (sm *SortMap) Store(k string, v string) {
-	sm.RWMutex.Lock()
-	defer sm.RWMutex.Unlock()
-
-	if _, ok := sm.m[k]; !ok {
-		sm.keys = append(sm.keys, k)
-	}
-
-	sm.m[k] = v
-}
-
-func (sm *SortMap) Load(k string) string {
-	sm.RWMutex.RLock()
-	defer sm.RWMutex.RUnlock()
-
-	return sm.m[k]
-}
-
-func (sm *SortMap) Next() bool {
-	sm.RWMutex.RLock()
-	if sm.index+1 >= len(sm.keys) {
-		sm.index = -1
-		return false
-	}
-
-	sm.index += 1
-
-	return true
-}
-
-func (sm *SortMap) Scan() (string, string) {
-	// TODO
-	defer sm.RWMutex.RUnlock()
-	key := sm.keys[sm.index]
-
-	return key, sm.Load(key)
-}
-
-func (sm *SortMap) Len() int {
-	return len(sm.m)
-}
 
 type Entry struct {
 	key   string
@@ -131,4 +71,66 @@ func (es *Entries) Add(e *Entry) {
 
 func (es *Entries) Len() int {
 	return len(es.entries)
+}
+
+type SortMap struct {
+	RWMutex sync.RWMutex
+	m       map[string]string
+	keys    []string
+	index   int
+}
+
+func NewSortMap() *SortMap {
+	sm := &SortMap{}
+	sm.init()
+
+	return sm
+}
+
+func (sm *SortMap) init() {
+	sm.m = make(map[string]string)
+	sm.keys = make([]string, 0)
+	sm.index = -1
+}
+
+func (sm *SortMap) Store(k string, v string) {
+	sm.RWMutex.Lock()
+	defer sm.RWMutex.Unlock()
+
+	if _, ok := sm.m[k]; !ok {
+		sm.keys = append(sm.keys, k)
+	}
+
+	sm.m[k] = v
+}
+
+func (sm *SortMap) Load(k string) string {
+	sm.RWMutex.RLock()
+	defer sm.RWMutex.RUnlock()
+
+	return sm.m[k]
+}
+
+func (sm *SortMap) Next() bool {
+	sm.RWMutex.RLock()
+	if sm.index+1 >= len(sm.keys) {
+		sm.index = -1
+		return false
+	}
+
+	sm.index += 1
+
+	return true
+}
+
+func (sm *SortMap) Scan() (string, string) {
+	// TODO
+	defer sm.RWMutex.RUnlock()
+	key := sm.keys[sm.index]
+
+	return key, sm.Load(key)
+}
+
+func (sm *SortMap) Len() int {
+	return len(sm.m)
 }

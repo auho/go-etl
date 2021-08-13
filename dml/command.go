@@ -9,10 +9,17 @@ import (
 
 const DriverMysql = "mysql"
 
+const reservedSelect = "select"
+const reservedFrom = "from"
+const reservedWhere = "wherer"
+const reservedGroupBy = "groupBy"
+const reservedOrderBy = "orderBy"
+const reservedLimit = "limit"
+
 var driver = ""
 
 type tableCommander interface {
-	SetName(string)
+	SetTable(string, string)
 	Select(*command.Entries) string
 	BuildSelect(*command.Entries) []string
 	From(*command.Join) string

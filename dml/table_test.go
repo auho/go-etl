@@ -17,7 +17,7 @@ func TestMain(t *testing.M) {
 
 func TestTable(t *testing.T) {
 	t1 := NewTable("abc")
-	s := t1.Select([]string{"a", "b"}).
+	s1 := t1.Select([]string{"a", "b"}).
 		SelectAlias(map[string]string{"a1": "a11", "b1": "b11"}).
 		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
 		Where("`a` = 1").
@@ -27,7 +27,11 @@ func TestTable(t *testing.T) {
 		Limit(0, 11).
 		Sql()
 
-	fmt.Println(s)
+	fmt.Println(s1)
+
+	t2 := NewSqlTable("efg", s1).Select([]string{"a11", "b11"}).Sql()
+
+	fmt.Println(t2)
 }
 
 func TestTableJoin(t *testing.T) {

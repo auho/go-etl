@@ -15,10 +15,27 @@ type Table struct {
 	orderBy   *command.Entries
 	limit     []int
 	join      *command.Join
+	asSql     string
 }
 
 func NewTable(name string) *Table {
 	t := &Table{}
+
+	t.init(name)
+
+	return t
+}
+
+func NewSqlTable(name string, sql string) *Table {
+	t := NewTable(name)
+	t.asSql = sql
+
+	t.init(name)
+
+	return t
+}
+
+func (t *Table) init(name string) {
 	t.name = name
 	t.fields = command.NewEntries()
 	t.groupBy = command.NewEntries()
@@ -26,9 +43,7 @@ func NewTable(name string) *Table {
 	t.limit = make([]int, 0)
 
 	t.commander = newTableCommand()
-	t.commander.SetName(t.name)
-
-	return t
+	t.commander.SetTable(t.name, t.asSql)
 }
 
 func (t *Table) GetName() string {

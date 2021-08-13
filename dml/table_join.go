@@ -3,9 +3,10 @@ package dml
 import "fmt"
 
 type TableJoin struct {
-	commander driverCommander
-	tables    []*Table
-	limit     []int
+	commander     driverCommander
+	tables        []*Table
+	limit         []int
+	toStringFuncs map[string]func() string
 }
 
 func NewTableJoin() *TableJoin {
@@ -15,7 +16,45 @@ func NewTableJoin() *TableJoin {
 
 	tj.commander = newDriverCommand()
 
+	tj.init()
+
 	return tj
+}
+
+func (tj *TableJoin) init() {
+	tj.toStringFuncs[reservedSelect] = func() string {
+		return tj.commander.SelectToString(tj.mergeTable(tj.tables, func(t *Table) []string {
+			return t.commander.BuildSelect(t.fields)
+		}))
+	}
+
+	tj.toStringFuncs[reservedFrom] = func() string {
+		return tj.commander.FromToString(tj.mergeTable(tj.tables, func(t *Table) []string {
+			return t.commander.BuildFrom(t.join)
+		}))
+	}
+
+	tj.toStringFuncs[reservedWhere] = func() string {
+		return tj.commander.WhereToString(tj.mergeTable(tj.tables, func(t *Table) []string {
+			return t.commander.BuildWhere(t.where)
+		}))
+	}
+
+	tj.toStringFuncs[reservedGroupBy] = func() string {
+		return tj.commander.GroupByToString(tj.mergeTable(tj.tables, func(t *Table) []string {
+			return t.commander.BuildGroupBy(t.groupBy)
+		}))
+	}
+
+	tj.toStringFuncs[reservedOrderBy] = func() string {
+		return tj.commander.OrderByToString(tj.mergeTable(tj.tables, func(t *Table) []string {
+			return t.commander.BuildOrderBy(t.orderBy)
+		}))
+	}
+
+	tj.toStringFuncs[reservedLimit] = func() string {
+		return tj.commander.LimitToString(tj.limit)
+	}
 }
 
 func (tj *TableJoin) Table(t *Table) *TableJoin {
@@ -46,30 +85,29 @@ func (tj *TableJoin) Limit(start int, offset int) *TableJoin {
 }
 
 func (tj *TableJoin) Sql() string {
+	ss := tj.runToStringFuncs([]string{
+		reservedSelect,
+		reservedFrom,
+		reservedWhere,
+		reservedGroupBy,
+		reservedOrderBy,
+		reservedLimit,
+	})
 
-	s := tj.commander.SelectToString(tj.mergeTable(tj.tables, func(t *Table) []string {
-		return t.commander.BuildSelect(t.fields)
-	}))
+	return fmt.Sprintf("%s%s%s%s%s%s", ss...)
+}
 
-	f := tj.commander.FromToString(tj.mergeTable(tj.tables, func(t *Table) []string {
-		return t.commander.BuildFrom(t.join)
-	}))
+func (tj *TableJoin) InsertInto() string {
+	ss := tj.runToStringFuncs([]string{
+		reservedSelect,
+		reservedFrom,
+		reservedWhere,
+		reservedGroupBy,
+		reservedOrderBy,
+		reservedLimit,
+	})
 
-	w := tj.commander.WhereToString(tj.mergeTable(tj.tables, func(t *Table) []string {
-		return t.commander.BuildWhere(t.where)
-	}))
-
-	g := tj.commander.GroupByToString(tj.mergeTable(tj.tables, func(t *Table) []string {
-		return t.commander.BuildGroupBy(t.groupBy)
-	}))
-
-	o := tj.commander.OrderByToString(tj.mergeTable(tj.tables, func(t *Table) []string {
-		return t.commander.BuildOrderBy(t.orderBy)
-	}))
-
-	l := tj.commander.LimitToString(tj.limit)
-
-	return fmt.Sprintf("%s%s%s%s%s%s", s, f, w, g, o, l)
+	return fmt.Sprintf("%s%s%s%s%s%s", ss...)
 }
 
 func (tj *TableJoin) addTable(t *Table) {
@@ -84,7 +122,6 @@ func (tj *TableJoin) mergeTable(ts []*Table, f func(table *Table) []string) []st
 
 	return s
 }
-
 func (tj *TableJoin) mergeSlice(ss [][]string) []string {
 	s := make([]string, 0)
 	for _, v := range ss {
@@ -92,4 +129,18 @@ func (tj *TableJoin) mergeSlice(ss [][]string) []string {
 	}
 
 	return s
+}
+
+func (tj *TableJoin) runToStringFuncs(ns []string) []interface{} {
+	ss := make([]interface{}, 0)
+	for _, n := range ns {
+		ss = append(ss, tj.runToStringFunc(n))
+	}
+
+	return ss
+}
+
+func (tj *TableJoin) runToStringFunc(n string) string {
+	f := tj.toStringFuncs[n]
+	return f()
 }

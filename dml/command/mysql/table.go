@@ -12,6 +12,7 @@ type TableCommand struct {
 	mysql
 	name          string
 	nameBackQuote string
+	asSql         string
 }
 
 func NewTableCommand() *TableCommand {
@@ -20,8 +21,9 @@ func NewTableCommand() *TableCommand {
 	return c
 }
 
-func (c *TableCommand) SetName(n string) {
-	c.name = n
+func (c *TableCommand) SetTable(name string, sql string) {
+	c.name = name
+	c.asSql = sql
 	c.nameBackQuote = c.addBackQuote(c.name)
 }
 
@@ -66,10 +68,17 @@ func (c *TableCommand) From(j *command.Join) string {
 
 func (c *TableCommand) BuildFrom(j *command.Join) []string {
 	f := ""
+	from := ""
+	if c.asSql == "" {
+		from = c.nameBackQuote
+	} else {
+		from = fmt.Sprintf("(%s) AS %s", c.asSql, c.nameBackQuote)
+	}
+
 	if j == nil || j.IsFrom() {
-		f = fmt.Sprintf("FROM %s", c.nameBackQuote)
+		f = fmt.Sprintf("FROM %s", from)
 	} else if j.IsLeft() {
-		f = fmt.Sprintf("LEFT JOIN %s ON ", c.nameBackQuote)
+		f = fmt.Sprintf("LEFT JOIN %s ON ", from)
 
 		ons := make([]string, 0)
 		for k := range j.LKeys {

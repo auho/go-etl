@@ -12,6 +12,10 @@ func NewMysqlCommand() *mysql {
 	return &mysql{}
 }
 
+func (m *mysql) InsertInto(name string, fields []string) string {
+	return fmt.Sprintf("INSERT INTO %s")
+}
+
 func (m *mysql) SelectToString(s []string) string {
 	return fmt.Sprintf("SELECT %s ", strings.Join(s, ", "))
 }
