@@ -5,26 +5,22 @@ import (
 	"strings"
 )
 
-type mysql struct {
+type mysqlCommand struct {
 }
 
-func NewMysqlCommand() *mysql {
-	return &mysql{}
+func NewMysqlCommand() *mysqlCommand {
+	return &mysqlCommand{}
 }
 
-func (m *mysql) InsertInto(name string, fields []string) string {
-	return fmt.Sprintf("INSERT INTO %s")
-}
-
-func (m *mysql) SelectToString(s []string) string {
+func (m *mysqlCommand) SelectToString(s []string) string {
 	return fmt.Sprintf("SELECT %s ", strings.Join(s, ", "))
 }
 
-func (m *mysql) FromToString(f []string) string {
+func (m *mysqlCommand) FromToString(f []string) string {
 	return fmt.Sprintf("%s ", strings.Join(f, " "))
 }
 
-func (m *mysql) WhereToString(w []string) string {
+func (m *mysqlCommand) WhereToString(w []string) string {
 	if w == nil {
 		return ""
 	}
@@ -32,7 +28,7 @@ func (m *mysql) WhereToString(w []string) string {
 	return fmt.Sprintf("WHERE %s ", strings.Join(w, " AND "))
 }
 
-func (m *mysql) GroupByToString(g []string) string {
+func (m *mysqlCommand) GroupByToString(g []string) string {
 	if g == nil {
 		return ""
 	}
@@ -40,7 +36,7 @@ func (m *mysql) GroupByToString(g []string) string {
 	return fmt.Sprintf("GROUP BY %s ", strings.Join(g, ", "))
 }
 
-func (m *mysql) OrderByToString(o []string) string {
+func (m *mysqlCommand) OrderByToString(o []string) string {
 	if o == nil {
 		return ""
 	}
@@ -48,7 +44,7 @@ func (m *mysql) OrderByToString(o []string) string {
 	return fmt.Sprintf("ORDER BY %s ", strings.Join(o, ", "))
 }
 
-func (m *mysql) LimitToString(l []int) string {
+func (m *mysqlCommand) LimitToString(l []int) string {
 	if len(l) == 0 {
 		return ""
 	}
@@ -61,4 +57,8 @@ func (m *mysql) LimitToString(l []int) string {
 	}
 
 	return "LIMIT " + s
+}
+
+func (m *mysqlCommand) addBackQuote(s string) string {
+	return fmt.Sprintf("`%s`", s)
 }

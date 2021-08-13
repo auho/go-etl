@@ -7,7 +7,7 @@ import (
 )
 
 type Table struct {
-	commander tableCommander
+	commander command.TableCommander
 	name      string
 	fields    *command.Entries
 	where     string
@@ -43,7 +43,6 @@ func (t *Table) init(name string) {
 	t.limit = make([]int, 0)
 
 	t.commander = newTableCommand()
-	t.commander.SetTable(t.name, t.asSql)
 }
 
 func (t *Table) GetName() string {
@@ -119,13 +118,26 @@ func (t *Table) LeftJoin(keys []string, joinTable *Table, joinKeys []string) *Ta
 	return t
 }
 
+func (t *Table) Prepare() {
+	t.commander.SetTable(t.name, t.asSql)
+	t.commander.SetSelect(t.fields)
+	t.commander.SetFrom(t.join)
+	t.commander.SetWhere(t.where)
+	t.commander.SetGroupBy(t.groupBy)
+	t.commander.SetOrderBy(t.orderBy)
+	t.commander.SetLimit(t.limit)
+
+}
+
 func (t *Table) Sql() string {
+	t.Prepare()
+
 	return fmt.Sprintf("%s%s%s%s%s%s",
-		t.commander.Select(t.fields),
-		t.commander.From(t.join),
-		t.commander.Where(t.where),
-		t.commander.GroupBy(t.groupBy),
-		t.commander.OrderBy(t.orderBy),
-		t.commander.Limit(t.limit),
+		t.commander.Select(),
+		t.commander.From(),
+		t.commander.Where(),
+		t.commander.GroupBy(),
+		t.commander.OrderBy(),
+		t.commander.Limit(),
 	)
 }

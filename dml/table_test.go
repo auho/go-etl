@@ -55,5 +55,20 @@ func TestTableJoin(t *testing.T) {
 
 	s3 := NewTableJoin().Table(t1).LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(1, 11).Sql()
 	fmt.Println(s3)
+}
 
+func TestInsert(t *testing.T) {
+	t1 := NewTable("abc").Select([]string{"a", "b"}).
+		SelectAlias(map[string]string{"a1": "a11", "b1": "b11"}).
+		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
+		Where("`a` = 1").
+		GroupBy([]string{"c", "d"}).
+		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
+		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
+		Limit(0, 11)
+
+	i1 := NewInsert("insert_table", t1, nil)
+	s := i1.Sql()
+
+	fmt.Println(s)
 }

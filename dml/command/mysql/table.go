@@ -8,65 +8,77 @@ import (
 	"github.com/auho/go-etl/dml/command"
 )
 
-type TableCommand struct {
-	mysql
+type tableCommand struct {
+	mysqlCommand
 	name          string
 	nameBackQuote string
+	fields        *command.Entries
+	where         string
+	groupBy       *command.Entries
+	orderBy       *command.Entries
+	limit         []int
+	join          *command.Join
 	asSql         string
 }
 
-func NewTableCommand() *TableCommand {
-	c := &TableCommand{}
-
-	return c
+func NewTableCommand() *tableCommand {
+	return &tableCommand{}
 }
 
-func (c *TableCommand) SetTable(name string, sql string) {
+func (c *tableCommand) SetTable(name string, sql string) {
 	c.name = name
 	c.asSql = sql
 	c.nameBackQuote = c.addBackQuote(c.name)
 }
 
-func (c *TableCommand) Select(f *command.Entries) string {
-	fs := c.BuildSelect(f)
+func (c *tableCommand) SetSelect(f *command.Entries) {
+	c.fields = f
+}
+
+func (c *tableCommand) Select() string {
+	fs := c.BuildSelect()
 
 	return c.SelectToString(fs)
 }
 
-func (c *TableCommand) BuildSelect(f *command.Entries) []string {
+func (c *tableCommand) BuildSelect() []string {
 	fields := make([]string, 0)
 
-	if f.Len() == 0 {
-		fields = append(fields, fmt.Sprintf("%s.*", c.nameBackQuote))
-	} else {
-		for _, v := range f.Get() {
-			key, value := v.Get()
-			newKey := ""
-			if v.IsAggregation() {
-				newKey = c.addTablePrefix(key)
-				fields = append(fields, fmt.Sprintf("%s AS '%s'", newKey, value))
+	for _, v := range c.fields.Get() {
+		key, value := v.Get()
+		newKey := ""
+		if v.IsAggregation() {
+			newKey = c.addTablePrefix(key)
+			fields = append(fields, fmt.Sprintf("%s AS '%s'", newKey, value))
+		} else {
+			if key == "*" {
+				newKey = key
 			} else {
 				newKey = c.addTablePrefix(c.addBackQuote(key))
-				if key == value {
-					fields = append(fields, newKey)
-				} else {
-					fields = append(fields, fmt.Sprintf("%s AS '%s'", newKey, value))
-				}
 			}
 
+			if key == value {
+				fields = append(fields, newKey)
+			} else {
+				fields = append(fields, fmt.Sprintf("%s AS '%s'", newKey, value))
+			}
 		}
 	}
 
 	return fields
 }
 
-func (c *TableCommand) From(j *command.Join) string {
-	fs := c.BuildFrom(j)
+func (c *tableCommand) SetFrom(j *command.Join) {
+	c.join = j
+}
+
+func (c *tableCommand) From() string {
+	fs := c.BuildFrom()
 
 	return c.FromToString(fs)
 }
 
-func (c *TableCommand) BuildFrom(j *command.Join) []string {
+func (c *tableCommand) BuildFrom() []string {
 	f := ""
 	from := ""
 	if c.asSql == "" {
@@ -75,18 +87,18 @@ func (c *TableCommand) BuildFrom(j *command.Join) []string {
 		from = fmt.Sprintf("(%s) AS %s", c.asSql, c.nameBackQuote)
 	}
 
-	if j == nil || j.IsFrom() {
+	if c.join == nil || c.join.IsFrom() {
 		f = fmt.Sprintf("FROM %s", from)
-	} else if j.IsLeft() {
+	} else if c.join.IsLeft() {
 		f = fmt.Sprintf("LEFT JOIN %s ON ", from)
 
 		ons := make([]string, 0)
-		for k := range j.LKeys {
+		for k := range c.join.LKeys {
 			ons = append(ons, fmt.Sprintf("%s.%s = %s.%s",
-				c.addBackQuote(j.LTable),
-				c.addBackQuote(j.LKeys[k]),
-				c.addBackQuote(j.RTable),
-				c.addBackQuote(j.RKeys[k]),
+				c.addBackQuote(c.join.LTable),
+				c.addBackQuote(c.join.LKeys[k]),
+				c.addBackQuote(c.join.RTable),
+				c.addBackQuote(c.join.RKeys[k]),
 			))
 		}
 
@@ -96,68 +108,80 @@ func (c *TableCommand) BuildFrom(j *command.Join) []string {
 	return []string{f}
 }
 
-func (c *TableCommand) Where(s string) string {
-	w := c.BuildWhere(s)
+func (c *tableCommand) SetWhere(s string) {
+	c.where = s
+}
+
+func (c *tableCommand) Where() string {
+	w := c.BuildWhere()
 
 	return c.WhereToString(w)
 }
 
-func (c *TableCommand) BuildWhere(s string) []string {
-	if s == "" {
+func (c *tableCommand) BuildWhere() []string {
+	if c.where == "" {
 		return nil
 	}
 
-	return []string{c.addTablePrefix(s)}
+	return []string{c.addTablePrefix(c.where)}
 }
 
-func (c *TableCommand) GroupBy(g *command.Entries) string {
-	gs := c.BuildGroupBy(g)
+func (c *tableCommand) SetGroupBy(g *command.Entries) {
+	c.groupBy = g
+}
+
+func (c *tableCommand) GroupBy() string {
+	gs := c.BuildGroupBy()
 
 	return c.GroupByToString(gs)
 }
 
-func (c *TableCommand) BuildGroupBy(g *command.Entries) []string {
-	if g.Len() == 0 {
+func (c *tableCommand) BuildGroupBy() []string {
+	if c.groupBy.Len() == 0 {
 		return nil
 	}
 
 	gs := make([]string, 0)
 
-	for _, v := range g.Get() {
+	for _, v := range c.groupBy.Get() {
 		gs = append(gs, c.addTablePrefix(c.addBackQuote(v.GetValue())))
 	}
 
 	return gs
 }
 
-func (c *TableCommand) OrderBy(o *command.Entries) string {
-	os := c.BuildOrderBy(o)
+func (c *tableCommand) SetOrderBy(o *command.Entries) {
+	c.orderBy = o
+}
+
+func (c *tableCommand) OrderBy() string {
+	os := c.BuildOrderBy()
 
 	return c.OrderByToString(os)
 }
 
-func (c *TableCommand) BuildOrderBy(o *command.Entries) []string {
-	if o.Len() == 0 {
+func (c *tableCommand) BuildOrderBy() []string {
+	if c.orderBy.Len() == 0 {
 		return nil
 	}
 
 	os := make([]string, 0)
-	for _, v := range o.Get() {
+	for _, v := range c.orderBy.Get() {
 		os = append(os, fmt.Sprintf("%s %s", c.addTablePrefix(c.addBackQuote(v.GetKey())), v.GetValue()))
 	}
 
 	return os
 }
 
-func (c *TableCommand) Limit(l []int) string {
-	return c.LimitToString(l)
+func (c *tableCommand) SetLimit(l []int) {
+	c.limit = l
 }
 
-func (c *TableCommand) addBackQuote(s string) string {
-	return fmt.Sprintf("`%s`", s)
+func (c *tableCommand) Limit() string {
+	return c.LimitToString(c.limit)
 }
 
-func (c *TableCommand) addTablePrefix(s string) string {
+func (c *tableCommand) addTablePrefix(s string) string {
 	re := regexp.MustCompile("([^.])(`[^`.]+`)([^.])")
 	s = re.ReplaceAllString(" "+s+" ", fmt.Sprintf("$1%s.$2$3", c.nameBackQuote))
 	return strings.Trim(s, " ")
