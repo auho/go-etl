@@ -6,7 +6,7 @@ import (
 )
 
 type insertCommand struct {
-	mysqlCommand
+	mysql
 	name          string
 	nameBackQuote string
 	fields        []string

@@ -129,15 +129,22 @@ func (t *Table) Prepare() {
 
 }
 
+func (t *Table) FieldsForInsert() []string {
+	return t.commander.BuildFieldsForInsert()
+}
+
+func (t *Table) Delete() string {
+	t.Prepare()
+
+	return fmt.Sprintf("%s%s%s",
+		t.commander.From(),
+		t.commander.Where(),
+		t.commander.Limit(),
+	)
+}
+
 func (t *Table) Sql() string {
 	t.Prepare()
 
-	return fmt.Sprintf("%s%s%s%s%s%s",
-		t.commander.Select(),
-		t.commander.From(),
-		t.commander.Where(),
-		t.commander.GroupBy(),
-		t.commander.OrderBy(),
-		t.commander.Limit(),
-	)
+	return t.commander.Query()
 }

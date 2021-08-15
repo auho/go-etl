@@ -1,19 +1,22 @@
 package command
 
-type SqlCommander interface {
-	Sql() string
+type Driver interface {
+	Query() string
+	FieldsForInsert() string
 }
 
-type DriverCommander interface {
+type TableJoinCommander interface {
 	SelectToString([]string) string
 	FromToString([]string) string
 	WhereToString([]string) string
 	GroupByToString([]string) string
 	OrderByToString([]string) string
 	LimitToString([]int) string
+	Query() string
 }
 
 type TableCommander interface {
+	BuildFieldsForInsert() []string
 	SetTable(string, string)
 	SetSelect(*Entries)
 	Select() string
@@ -32,6 +35,7 @@ type TableCommander interface {
 	BuildOrderBy() []string
 	SetLimit([]int)
 	Limit() string
+	Query() string
 }
 
 type InsertCommander interface {

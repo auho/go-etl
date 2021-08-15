@@ -9,7 +9,7 @@ import (
 )
 
 type tableCommand struct {
-	mysqlCommand
+	mysql
 	name          string
 	nameBackQuote string
 	fields        *command.Entries
@@ -23,6 +23,15 @@ type tableCommand struct {
 
 func NewTableCommand() *tableCommand {
 	return &tableCommand{}
+}
+
+func (c *tableCommand) BuildFieldsForInsert() []string {
+	s := make([]string, 0)
+	for _, field := range c.fields.Get() {
+		s = append(s, field.GetValue())
+	}
+
+	return s
 }
 
 func (c *tableCommand) SetTable(name string, sql string) {
@@ -179,6 +188,17 @@ func (c *tableCommand) SetLimit(l []int) {
 
 func (c *tableCommand) Limit() string {
 	return c.LimitToString(c.limit)
+}
+
+func (c *tableCommand) Query() string {
+	return fmt.Sprintf("%s%s%s%s%s%s",
+		c.Select(),
+		c.From(),
+		c.Where(),
+		c.GroupBy(),
+		c.OrderBy(),
+		c.Limit(),
+	)
 }
 
 func (c *tableCommand) addTablePrefix(s string) string {

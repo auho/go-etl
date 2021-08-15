@@ -9,12 +9,8 @@ import (
 
 const DriverMysql = "mysql"
 
-const reservedSelect = "select"
-const reservedFrom = "from"
-const reservedWhere = "where"
-const reservedGroupBy = "groupBy"
-const reservedOrderBy = "orderBy"
-const reservedLimit = "limit"
+
+const reservedFieldsForInsert = "fieldsForInsert"
 
 var driver = ""
 
@@ -22,10 +18,10 @@ func RegisterDriver(d string) {
 	driver = d
 }
 
-func newDriverCommand() command.DriverCommander {
+func newDriverCommand() command.TableJoinCommander {
 	switch driver {
 	case DriverMysql:
-		return mysql.NewMysqlCommand()
+		return mysql.NewTableJoinCommand()
 	default:
 		panic(fmt.Sprintf("driver[%s] is not exists", driver))
 	}
@@ -47,4 +43,9 @@ func newInsertCommand() command.InsertCommander {
 	default:
 		panic(fmt.Sprintf("driver[%s] is not exists", driver))
 	}
+}
+
+type Query interface {
+	FieldsForInsert() []string
+	Sql() string
 }

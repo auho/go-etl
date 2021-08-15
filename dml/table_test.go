@@ -67,8 +67,12 @@ func TestInsert(t *testing.T) {
 		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
 		Limit(0, 11)
 
-	i1 := NewInsert("insert_table", t1, nil)
-	s := i1.Sql()
+	i1 := NewInsert("insert_table", t1)
+	fmt.Println(i1.Sql())
 
-	fmt.Println(s)
+	i2 := NewInsertWithFields("insert_table", t1, nil)
+	fmt.Println(i2.Sql())
+
+	i3 := NewInsertWithSelectFields("insert_table", t1)
+	fmt.Println(i3.Sql())
 }

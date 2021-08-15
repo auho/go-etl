@@ -10,15 +10,28 @@ type Insert struct {
 	name         string
 	fields       []string
 	commander    command.InsertCommander
-	sqlCommander command.SqlCommander
+	sqlCommander Query
 }
 
-func NewInsert(name string, s command.SqlCommander, fields []string) *Insert {
+func NewInsert(name string, q Query) *Insert {
 	i := &Insert{}
 	i.name = name
-	i.fields = fields
-	i.sqlCommander = s
+	i.sqlCommander = q
 	i.commander = newInsertCommand()
+
+	return i
+}
+
+func NewInsertWithSelectFields(name string, q Query) *Insert {
+	i := NewInsert(name, q)
+	i.fields = q.FieldsForInsert()
+
+	return i
+}
+
+func NewInsertWithFields(name string, q Query, fields []string) *Insert {
+	i := NewInsert(name, q)
+	i.fields = fields
 
 	return i
 }
