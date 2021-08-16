@@ -70,9 +70,9 @@ func TestInsert(t *testing.T) {
 	i1 := NewInsert("insert_table", t1)
 	fmt.Println(i1.Sql())
 
-	i2 := NewInsertWithFields("insert_table", t1, nil)
-	fmt.Println(i2.Sql())
+	i2 := NewInsertWithFields("insert_table", t1, []string{"a", "a11", "d11"})
+	fmt.Println(i2.SqlWithFields())
 
 	i3 := NewInsertWithSelectFields("insert_table", t1)
-	fmt.Println(i3.Sql())
+	fmt.Println(i3.SqlWithFields())
 }

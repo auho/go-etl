@@ -9,7 +9,6 @@ import (
 
 const DriverMysql = "mysql"
 
-
 const reservedFieldsForInsert = "fieldsForInsert"
 
 var driver = ""
@@ -43,9 +42,4 @@ func newInsertCommand() command.InsertCommander {
 	default:
 		panic(fmt.Sprintf("driver[%s] is not exists", driver))
 	}
-}
-
-type Query interface {
-	FieldsForInsert() []string
-	Sql() string
 }

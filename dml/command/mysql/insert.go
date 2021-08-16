@@ -3,6 +3,8 @@ package mysql
 import (
 	"fmt"
 	"strings"
+
+	"github.com/auho/go-etl/dml/command"
 )
 
 type insertCommand struct {
@@ -10,6 +12,7 @@ type insertCommand struct {
 	name          string
 	nameBackQuote string
 	fields        []string
+	q             command.Query
 }
 
 func NewInsertCommand() *insertCommand {
@@ -25,16 +28,26 @@ func (i *insertCommand) SetFields(fields []string) {
 	i.fields = fields
 }
 
+func (i *insertCommand) SetQuery(q command.Query) {
+	i.q = q
+}
+
 func (i *insertCommand) Insert() string {
+	return fmt.Sprintf("INSERT INTO %s %s", i.nameBackQuote, i.q.Sql())
+}
+
+func (i *insertCommand) InsertWithFields() string {
 	s := ""
 	fields := make([]string, 0)
-	if i.fields != nil {
-		for _, f := range i.fields {
-			fields = append(fields, i.addBackQuote(f))
-		}
-
-		s = fmt.Sprintf(" (%s) ", strings.Join(fields, ", "))
+	if i.fields == nil {
+		i.fields = i.q.FieldsForInsert()
 	}
 
-	return fmt.Sprintf("INSERT INTO %s%s ", i.nameBackQuote, s)
+	for _, f := range i.fields {
+		fields = append(fields, i.addBackQuote(f))
+	}
+
+	s = fmt.Sprintf(" (%s) ", strings.Join(fields, ", "))
+
+	return fmt.Sprintf("INSERT INTO %s%s %s", i.nameBackQuote, s, i.q.Sql())
 }

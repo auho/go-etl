@@ -14,7 +14,10 @@ type tableJoinCommand struct {
 }
 
 func NewTableJoinCommand() *tableJoinCommand {
-	return &tableJoinCommand{}
+	c := &tableJoinCommand{}
+	c.init()
+
+	return c
 }
 
 func (c *tableJoinCommand) SetCommands(cs []*tableCommand) {
@@ -25,7 +28,13 @@ func (c *tableJoinCommand) SetLimit(l []int) {
 	c.limit = l
 }
 
-func (c *tableJoinCommand) Sql() string {
+func (c *tableJoinCommand) BuildFieldsForInsert() []string {
+	return c.mergeCommand(c.commands, func(tc *tableCommand) []string {
+		return tc.BuildFieldsForInsert()
+	})
+}
+
+func (c *tableJoinCommand) Query() string {
 	ss := c.runToStringFuncs([]string{
 		command.ReservedSelect,
 		command.ReservedFrom,
@@ -39,32 +48,34 @@ func (c *tableJoinCommand) Sql() string {
 }
 
 func (c *tableJoinCommand) init() {
+	c.toStringFuncs = make(map[string]func() string)
+
 	c.toStringFuncs[command.ReservedSelect] = func() string {
-		return c.SelectToString(c.mergeTable(c.commands, func(tc *tableCommand) []string {
+		return c.SelectToString(c.mergeCommand(c.commands, func(tc *tableCommand) []string {
 			return tc.BuildSelect()
 		}))
 	}
 
 	c.toStringFuncs[command.ReservedFrom] = func() string {
-		return c.FromToString(c.mergeTable(c.commands, func(tc *tableCommand) []string {
+		return c.FromToString(c.mergeCommand(c.commands, func(tc *tableCommand) []string {
 			return tc.BuildFrom()
 		}))
 	}
 
 	c.toStringFuncs[command.ReservedWhere] = func() string {
-		return c.WhereToString(c.mergeTable(c.commands, func(tc *tableCommand) []string {
+		return c.WhereToString(c.mergeCommand(c.commands, func(tc *tableCommand) []string {
 			return tc.BuildWhere()
 		}))
 	}
 
 	c.toStringFuncs[command.ReservedGroupBy] = func() string {
-		return c.GroupByToString(c.mergeTable(c.commands, func(tc *tableCommand) []string {
+		return c.GroupByToString(c.mergeCommand(c.commands, func(tc *tableCommand) []string {
 			return tc.BuildGroupBy()
 		}))
 	}
 
 	c.toStringFuncs[command.ReservedOrderBy] = func() string {
-		return c.OrderByToString(c.mergeTable(c.commands, func(tc *tableCommand) []string {
+		return c.OrderByToString(c.mergeCommand(c.commands, func(tc *tableCommand) []string {
 			return tc.BuildOrderBy()
 		}))
 	}
@@ -74,7 +85,7 @@ func (c *tableJoinCommand) init() {
 	}
 }
 
-func (c *tableJoinCommand) mergeTable(ts []*tableCommand, f func(table *tableCommand) []string) []string {
+func (c *tableJoinCommand) mergeCommand(ts []*tableCommand, f func(table *tableCommand) []string) []string {
 	s := make([]string, 0)
 	for _, t := range ts {
 		s = append(s, f(t)...)
@@ -82,6 +93,7 @@ func (c *tableJoinCommand) mergeTable(ts []*tableCommand, f func(table *tableCom
 
 	return s
 }
+
 func (c *tableJoinCommand) mergeSlice(ss [][]string) []string {
 	s := make([]string, 0)
 	for _, v := range ss {

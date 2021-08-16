@@ -1,8 +1,6 @@
 package dml
 
 import (
-	"fmt"
-
 	"github.com/auho/go-etl/dml/command"
 )
 
@@ -51,21 +49,7 @@ func (tj *TableJoin) Limit(start int, offset int) *TableJoin {
 }
 
 func (tj *TableJoin) FieldsForInsert() []string {
-	return tj.mergeTable(tj.tables, func(t *Table) []string {
-		return t.FieldsForInsert()
-	})
-}
-
-func (tj *TableJoin) Delete() string {
-	tj.prepare()
-
-	ss := tj.runToStringFuncs([]string{
-		reservedFrom,
-		reservedWhere,
-		reservedLimit,
-	})
-
-	return fmt.Sprintf("%s%s%s", ss...)
+	return tj.commander.BuildFieldsForInsert()
 }
 
 func (tj *TableJoin) Sql() string {
