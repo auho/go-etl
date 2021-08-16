@@ -1,10 +1,10 @@
 package command
 
 import (
+	"sort"
+	"strings"
 	"sync"
 )
-
-const flagAggregation = "aggregation"
 
 type Entry struct {
 	key   string
@@ -16,9 +16,9 @@ func NewEntry(k string, v string) *Entry {
 	return &Entry{k, v, ""}
 }
 
-func NewAggregationEntry(k string, v string) *Entry {
+func NewExpressionEntry(k string, v string) *Entry {
 	e := NewEntry(k, v)
-	e.flag = flagAggregation
+	e.flag = flagExpression
 
 	return e
 }
@@ -35,8 +35,8 @@ func (e *Entry) GetValue() string {
 	return e.value
 }
 
-func (e *Entry) IsAggregation() bool {
-	return e.flag == flagAggregation
+func (e *Entry) IsExpression() bool {
+	return e.flag == flagExpression
 }
 
 type Entries struct {
@@ -67,10 +67,26 @@ func (es *Entries) Add(e *Entry) {
 		es.keys[e.key] = len(es.entries)
 		es.entries = append(es.entries, e)
 	}
+
+	sort.Sort(sortEntries(es.entries))
 }
 
 func (es *Entries) Len() int {
 	return len(es.entries)
+}
+
+type sortEntries []*Entry
+
+func (se sortEntries) Len() int {
+	return len(se)
+}
+
+func (se sortEntries) Less(i, j int) bool {
+	return strings.ToLower(se[i].key) < strings.ToLower(se[j].key)
+}
+
+func (se sortEntries) Swap(i, j int) {
+	se[j], se[i] = se[i], se[j]
 }
 
 type SortMap struct {

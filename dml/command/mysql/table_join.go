@@ -55,13 +55,31 @@ func (c *tableJoinCommand) InsertWithFieldsQuery(name string, fields []string) s
 	return c.mysql.insertWithFields(name, fields, c)
 }
 
+func (c *tableJoinCommand) UpdateQuery() string {
+	ss := append([]interface{}{
+		c.addBackQuote(c.commands[0].Name())},
+		c.runToStringFuncs([]string{
+			command.ReservedFrom,
+			command.ReservedSet,
+			command.ReservedWhere,
+			command.ReservedOrderBy,
+			command.ReservedLimit,
+		})...,
+	)
+
+	return fmt.Sprintf("UPDATE %s %s%s%s%s%s", ss...)
+}
+
 func (c *tableJoinCommand) DeleteQuery() string {
-	ss := append([]interface{}{c.addBackQuote(c.commands[0].Name())}, c.runToStringFuncs([]string{
-		command.ReservedFrom,
-		command.ReservedWhere,
-		command.ReservedOrderBy,
-		command.ReservedLimit,
-	})...)
+	ss := append([]interface{}{
+		c.addBackQuote(c.commands[0].Name())},
+		c.runToStringFuncs([]string{
+			command.ReservedFrom,
+			command.ReservedWhere,
+			command.ReservedOrderBy,
+			command.ReservedLimit,
+		})...,
+	)
 
 	return fmt.Sprintf("DELETE %s %s%s%s%s", ss...)
 }
@@ -101,6 +119,12 @@ func (c *tableJoinCommand) init() {
 
 	c.toStringFuncs[command.ReservedLimit] = func() string {
 		return c.LimitToString(c.limit)
+	}
+
+	c.toStringFuncs[command.ReservedSet] = func() string {
+		return c.SetToString(c.mergeCommand(c.commands, func(tc command.TableCommander) []string {
+			return tc.BuildSet()
+		}))
 	}
 }
 

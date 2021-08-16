@@ -18,6 +18,7 @@ type tableCommand struct {
 	orderBy       *command.Entries
 	limit         []int
 	join          *command.Join
+	set           []*command.Set
 	asSql         string
 }
 
@@ -60,14 +61,14 @@ func (c *tableCommand) BuildSelect() []string {
 	for _, v := range c.fields.Get() {
 		key, value := v.Get()
 		newKey := ""
-		if v.IsAggregation() {
-			newKey = c.addTablePrefix(key)
+		if v.IsExpression() {
+			newKey = c.addSelfTablePrefix(key)
 			fields = append(fields, fmt.Sprintf("%s AS '%s'", newKey, value))
 		} else {
 			if key == "*" {
 				newKey = key
 			} else {
-				newKey = c.addTablePrefix(c.addBackQuote(key))
+				newKey = c.addSelfTablePrefix(c.addBackQuote(key))
 			}
 
 			if key == value {
@@ -136,7 +137,7 @@ func (c *tableCommand) BuildWhere() []string {
 		return nil
 	}
 
-	return []string{c.addTablePrefix(c.where)}
+	return []string{c.addSelfTablePrefix(c.where)}
 }
 
 func (c *tableCommand) SetGroupBy(g *command.Entries) {
@@ -157,7 +158,7 @@ func (c *tableCommand) BuildGroupBy() []string {
 	gs := make([]string, 0)
 
 	for _, v := range c.groupBy.Get() {
-		gs = append(gs, c.addTablePrefix(c.addBackQuote(v.GetValue())))
+		gs = append(gs, c.addSelfTablePrefix(c.addBackQuote(v.GetValue())))
 	}
 
 	return gs
@@ -180,7 +181,7 @@ func (c *tableCommand) BuildOrderBy() []string {
 
 	os := make([]string, 0)
 	for _, v := range c.orderBy.Get() {
-		os = append(os, fmt.Sprintf("%s %s", c.addTablePrefix(c.addBackQuote(v.GetKey())), v.GetValue()))
+		os = append(os, fmt.Sprintf("%s %s", c.addSelfTablePrefix(c.addBackQuote(v.GetKey())), v.GetValue()))
 	}
 
 	return os
@@ -192,6 +193,41 @@ func (c *tableCommand) SetLimit(l []int) {
 
 func (c *tableCommand) Limit() string {
 	return c.LimitToString(c.limit)
+}
+
+func (c *tableCommand) SetSet(s []*command.Set) {
+	c.set = s
+}
+
+func (c *tableCommand) Set() string {
+	ss := c.BuildSet()
+
+	return c.SetToString(ss)
+}
+
+func (c *tableCommand) BuildSet() []string {
+	ss := make([]string, 0)
+
+	for _, set := range c.set {
+		lValue := ""
+		rValue := ""
+		for k, v := range set.LKeys {
+			lValue = c.addTablePrefix(c.addBackQuote(v), set.LTable)
+			rValue = set.RKeys[k]
+			if set.IsExpression() {
+				rValue = c.addTablePrefix(rValue, set.RTable)
+			} else {
+				rValue = c.addTablePrefix(c.addBackQuote(rValue), set.RTable)
+			}
+
+			ss = append(ss, fmt.Sprintf("%s = %s",
+				lValue,
+				rValue,
+			))
+		}
+	}
+
+	return ss
 }
 
 func (c *tableCommand) Query() string {
@@ -213,12 +249,22 @@ func (c *tableCommand) InsertWithFieldsQuery(name string, fields []string) strin
 	return c.mysql.insertWithFields(name, fields, c)
 }
 
+func (c *tableCommand) UpdateQuery() string {
+	return fmt.Sprintf("UPDATE %s %s%s%s%s", c.nameBackQuote, c.Set(), c.Where(), c.OrderBy(), c.Limit())
+}
+
 func (c *tableCommand) DeleteQuery() string {
 	return fmt.Sprintf("DELETE %s%s%s%s", c.From(), c.Where(), c.OrderBy(), c.Limit())
 }
 
-func (c *tableCommand) addTablePrefix(s string) string {
+func (c *tableCommand) addSelfTablePrefix(s string) string {
+	return c.addTablePrefix(s, c.name)
+}
+
+func (c *tableCommand) addTablePrefix(s string, name string) string {
+	name = c.addBackQuote(name)
+
 	re := regexp.MustCompile("([^.])(`[^`.]+`)([^.])")
-	s = re.ReplaceAllString(" "+s+" ", fmt.Sprintf("$1%s.$2$3", c.nameBackQuote))
+	s = re.ReplaceAllString(" "+s+" ", fmt.Sprintf("$1%s.$2$3", name))
 	return strings.Trim(s, " ")
 }

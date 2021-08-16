@@ -9,15 +9,13 @@ import (
 
 const DriverMysql = "mysql"
 
-const reservedFieldsForInsert = "fieldsForInsert"
-
 var driver = ""
 
 func RegisterDriver(d string) {
 	driver = d
 }
 
-func newDriverCommand() command.TableJoinCommander {
+func newTableJoinCommand() command.TableJoinCommander {
 	switch driver {
 	case DriverMysql:
 		return mysql.NewTableJoinCommand()

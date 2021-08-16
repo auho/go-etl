@@ -11,6 +11,7 @@ type TableJoinCommander interface {
 	Query() string
 	InsertQuery(name string) string
 	InsertWithFieldsQuery(name string, fields []string) string
+	UpdateQuery() string
 	DeleteQuery() string
 }
 
@@ -35,8 +36,12 @@ type TableCommander interface {
 	BuildOrderBy() []string
 	SetLimit([]int)
 	Limit() string
+	SetSet([]*Set)
+	Set() string
+	BuildSet() []string
 	Query() string
 	InsertQuery(name string) string
 	InsertWithFieldsQuery(name string, fields []string) string
+	UpdateQuery() string
 	DeleteQuery() string
 }

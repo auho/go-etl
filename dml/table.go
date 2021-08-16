@@ -13,6 +13,7 @@ type Table struct {
 	orderBy   *command.Entries
 	limit     []int
 	join      *command.Join
+	set       []*command.Set
 	asSql     string
 }
 
@@ -39,6 +40,7 @@ func (t *Table) init(name string) {
 	t.groupBy = command.NewEntries()
 	t.orderBy = command.NewEntries()
 	t.limit = make([]int, 0)
+	t.set = make([]*command.Set, 0)
 
 	t.commander = newTableCommand()
 }
@@ -103,7 +105,7 @@ func (t *Table) Limit(start int, offset int) *Table {
 
 func (t *Table) Aggregation(a map[string]string) *Table {
 	for k, v := range a {
-		e := command.NewAggregationEntry(k, v)
+		e := command.NewExpressionEntry(k, v)
 		t.fields.Add(e)
 	}
 
@@ -116,28 +118,66 @@ func (t *Table) LeftJoin(keys []string, joinTable *Table, joinKeys []string) *Ta
 	return t
 }
 
-func (t *Table) Insert(name string) string {
-	t.prepare()
+func (t *Table) Set(s map[string]string) *Table {
+	keys := make([]string, 0)
+	values := make([]string, 0)
 
-	return t.commander.InsertQuery(name)
+	for k, v := range s {
+		keys = append(keys, k)
+		values = append(values, v)
+	}
+
+	t.set = append(t.set, command.NewSet(t.name, keys, t.name, values))
+
+	return t
 }
 
-func (t *Table) InsertWithFields(name string, fields []string) string {
-	t.prepare()
+func (t *Table) SetExpression(s map[string]string) *Table {
+	keys := make([]string, 0)
+	values := make([]string, 0)
 
-	return t.commander.InsertWithFieldsQuery(name, fields)
+	for k, v := range s {
+		keys = append(keys, k)
+		values = append(values, v)
+	}
+
+	t.set = append(t.set, command.NewExpressionSet(t.name, keys, t.name, values))
+
+	return t
 }
 
-func (t *Table) Delete() string {
-	t.prepare()
-
-	return t.commander.DeleteQuery()
+func (t *Table) SetSet(s *command.Set) {
+	t.set = append(t.set, s)
 }
 
 func (t *Table) Sql() string {
 	t.prepare()
 
 	return t.commander.Query()
+}
+
+func (t *Table) InsertSql(name string) string {
+	t.prepare()
+
+	return t.commander.InsertQuery(name)
+}
+
+func (t *Table) InsertWithFieldsSql(name string, fields []string) string {
+	t.prepare()
+
+	return t.commander.InsertWithFieldsQuery(name, fields)
+}
+
+func (t *Table) UpdateSql() string {
+	t.prepare()
+
+	return t.commander.UpdateQuery()
+}
+
+func (t *Table) DeleteSql() string {
+	t.prepare()
+
+	return t.commander.DeleteQuery()
 }
 
 func (t *Table) prepare() {
@@ -148,4 +188,5 @@ func (t *Table) prepare() {
 	t.commander.SetGroupBy(t.groupBy)
 	t.commander.SetOrderBy(t.orderBy)
 	t.commander.SetLimit(t.limit)
+	t.commander.SetSet(t.set)
 }

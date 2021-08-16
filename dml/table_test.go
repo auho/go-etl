@@ -37,29 +37,42 @@ func TestTableJoin(t *testing.T) {
 func TestInsert(t *testing.T) {
 	t1 := getTable1()
 
-	fmt.Println(t1.Insert("i1"))
+	fmt.Println(t1.InsertSql("i1"))
 
-	fmt.Println(t1.InsertWithFields("i2", []string{"a", "a11", "d11"}))
+	fmt.Println(t1.InsertWithFieldsSql("i2", []string{"a", "a11", "d11"}))
 
-	fmt.Println(t1.InsertWithFields("i2", nil))
+	fmt.Println(t1.InsertWithFieldsSql("i2", nil))
 
 	t2 := getTableJoin()
 
-	fmt.Println(t2.Insert("i1"))
+	fmt.Println(t2.InsertSql("i1"))
 
-	fmt.Println(t2.InsertWithFields("i2", []string{"a", "a11", "d11"}))
+	fmt.Println(t2.InsertWithFieldsSql("i2", []string{"a", "a11", "d11"}))
 
-	fmt.Println(t2.InsertWithFields("i2", nil))
+	fmt.Println(t2.InsertWithFieldsSql("i2", nil))
+}
+
+func TestUpdate(t *testing.T) {
+	t1 := getTable1()
+	t1.Set(map[string]string{"a": "b", "c": "d"})
+	t1.SetExpression(map[string]string{"a": "`b` + 1 ", "c": "`d` * 2"})
+	fmt.Println(t1.UpdateSql())
+
+	t2 := getTable2()
+	t3 := NewTableJoin().Table(t1).LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(1, 11)
+	t3.Set(t1, []string{"a", "b"}, t2, []string{"c", "d"})
+	t3.SetExpression(t1, []string{"a", "b"}, t2, []string{"`c` * 3", "`d` + 4 "})
+	fmt.Println(t3.UpdateSql())
 }
 
 func TestDelete(t *testing.T) {
 	t1 := getTable1()
 
-	fmt.Println(t1.Delete())
+	fmt.Println(t1.DeleteSql())
 
 	t2 := getTableJoin()
 
-	fmt.Println(t2.Delete())
+	fmt.Println(t2.DeleteSql())
 }
 
 func getTable1() *Table {

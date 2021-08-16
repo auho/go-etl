@@ -6,6 +6,9 @@ const ReservedWhere = "where"
 const ReservedGroupBy = "groupBy"
 const ReservedOrderBy = "orderBy"
 const ReservedLimit = "limit"
+const ReservedSet = "set"
 
 const SortDesc = "DESC"
 const SortASC = "ASC"
+
+const flagExpression = "expression"
