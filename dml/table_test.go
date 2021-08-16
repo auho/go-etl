@@ -16,17 +16,8 @@ func TestMain(t *testing.M) {
 }
 
 func TestTable(t *testing.T) {
-	t1 := NewTable("abc")
-	s1 := t1.Select([]string{"a", "b"}).
-		SelectAlias(map[string]string{"a1": "a11", "b1": "b11"}).
-		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
-		Where("`a` = 1").
-		GroupBy([]string{"c", "d"}).
-		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
-		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
-		Limit(0, 11).
-		Sql()
-
+	t1 := getTable1()
+	s1 := t1.Sql()
 	fmt.Println(s1)
 
 	t2 := NewSqlTable("efg", s1).Select([]string{"a11", "b11"}).Sql()
@@ -35,30 +26,44 @@ func TestTable(t *testing.T) {
 }
 
 func TestTableJoin(t *testing.T) {
-	t1 := NewTable("abc").Select([]string{"a", "b"}).
-		SelectAlias(map[string]string{"a1": "a11", "b1": "b11"}).
-		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
-		Where("`a` = 1").
-		GroupBy([]string{"c", "d"}).
-		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
-		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
-		Limit(0, 11)
+	t1 := getTable1()
 
-	t2 := NewTable("efg").Select([]string{"a", "b"}).
-		SelectAlias(map[string]string{"a1": "a11", "b1": "b11"}).
-		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
-		Where("`a` = 1").
-		GroupBy([]string{"c", "d"}).
-		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
-		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
-		Limit(0, 11)
+	t2 := getTable2()
 
 	s3 := NewTableJoin().Table(t1).LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(1, 11).Sql()
 	fmt.Println(s3)
 }
 
 func TestInsert(t *testing.T) {
-	t1 := NewTable("abc").Select([]string{"a", "b"}).
+	t1 := getTable1()
+
+	fmt.Println(t1.Insert("i1"))
+
+	fmt.Println(t1.InsertWithFields("i2", []string{"a", "a11", "d11"}))
+
+	fmt.Println(t1.InsertWithFields("i2", nil))
+
+	t2 := getTableJoin()
+
+	fmt.Println(t2.Insert("i1"))
+
+	fmt.Println(t2.InsertWithFields("i2", []string{"a", "a11", "d11"}))
+
+	fmt.Println(t2.InsertWithFields("i2", nil))
+}
+
+func TestDelete(t *testing.T) {
+	t1 := getTable1()
+
+	fmt.Println(t1.Delete())
+
+	t2 := getTableJoin()
+
+	fmt.Println(t2.Delete())
+}
+
+func getTable1() *Table {
+	return NewTable("abc").Select([]string{"a", "b"}).
 		SelectAlias(map[string]string{"a1": "a11", "b1": "b11"}).
 		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
 		Where("`a` = 1").
@@ -66,13 +71,23 @@ func TestInsert(t *testing.T) {
 		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
 		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
 		Limit(0, 11)
+}
 
-	i1 := NewInsert("insert_table", t1)
-	fmt.Println(i1.Sql())
+func getTable2() *Table {
+	return NewTable("efg").Select([]string{"a", "b"}).
+		SelectAlias(map[string]string{"a1": "a11", "b1": "b11"}).
+		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
+		Where("`a` = 1").
+		GroupBy([]string{"c", "d"}).
+		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
+		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
+		Limit(0, 11)
+}
 
-	i2 := NewInsertWithFields("insert_table", t1, []string{"a", "a11", "d11"})
-	fmt.Println(i2.SqlWithFields())
+func getTableJoin() *TableJoin {
+	t1 := getTable1()
 
-	i3 := NewInsertWithSelectFields("insert_table", t1)
-	fmt.Println(i3.SqlWithFields())
+	t2 := getTable2()
+
+	return NewTableJoin().Table(t1).LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(1, 11)
 }

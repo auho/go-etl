@@ -1,8 +1,6 @@
 package dml
 
 import (
-	"fmt"
-
 	"github.com/auho/go-etl/dml/command"
 )
 
@@ -113,12 +111,36 @@ func (t *Table) Aggregation(a map[string]string) *Table {
 }
 
 func (t *Table) LeftJoin(keys []string, joinTable *Table, joinKeys []string) *Table {
-	t.join = command.NewLeftJoin(t.GetName(), keys, joinTable.GetName(), joinKeys)
+	t.join = command.NewLeftJoin(joinTable.GetName(), joinKeys, t.GetName(), keys)
 
 	return t
 }
 
-func (t *Table) Prepare() {
+func (t *Table) Insert(name string) string {
+	t.prepare()
+
+	return t.commander.Insert(name)
+}
+
+func (t *Table) InsertWithFields(name string, fields []string) string {
+	t.prepare()
+
+	return t.commander.InsertWithFields(name, fields)
+}
+
+func (t *Table) Delete() string {
+	t.prepare()
+
+	return t.commander.Delete()
+}
+
+func (t *Table) Sql() string {
+	t.prepare()
+
+	return t.commander.Query()
+}
+
+func (t *Table) prepare() {
 	t.commander.SetTable(t.name, t.asSql)
 	t.commander.SetSelect(t.fields)
 	t.commander.SetFrom(t.join)
@@ -126,25 +148,4 @@ func (t *Table) Prepare() {
 	t.commander.SetGroupBy(t.groupBy)
 	t.commander.SetOrderBy(t.orderBy)
 	t.commander.SetLimit(t.limit)
-
-}
-
-func (t *Table) FieldsForInsert() []string {
-	return t.commander.BuildFieldsForInsert()
-}
-
-func (t *Table) Delete() string {
-	t.Prepare()
-
-	return fmt.Sprintf("%s%s%s",
-		t.commander.From(),
-		t.commander.Where(),
-		t.commander.Limit(),
-	)
-}
-
-func (t *Table) Sql() string {
-	t.Prepare()
-
-	return t.commander.Query()
 }

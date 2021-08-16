@@ -3,6 +3,8 @@ package mysql
 import (
 	"fmt"
 	"strings"
+
+	"github.com/auho/go-etl/dml/command"
 )
 
 type mysql struct {
@@ -53,6 +55,25 @@ func (m *mysql) LimitToString(l []int) string {
 	}
 
 	return "LIMIT " + s
+}
+
+func (m *mysql) insert(name string, q command.Query) string {
+	return fmt.Sprintf("INSERT INTO %s %s", m.addBackQuote(name), q.Query())
+}
+
+func (m *mysql) insertWithFields(name string, fields []string, q command.Query) string {
+	s := ""
+	if fields == nil {
+		fields = q.BuildFieldsForInsert()
+	}
+
+	for k, field := range fields {
+		fields[k] = m.addBackQuote(field)
+	}
+
+	s = fmt.Sprintf(" (%s) ", strings.Join(fields, ", "))
+
+	return fmt.Sprintf("INSERT INTO %s%s %s", m.addBackQuote(name), s, q.Query())
 }
 
 func (m *mysql) addBackQuote(s string) string {

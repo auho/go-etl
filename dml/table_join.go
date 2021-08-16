@@ -48,20 +48,39 @@ func (tj *TableJoin) Limit(start int, offset int) *TableJoin {
 	return tj
 }
 
-func (tj *TableJoin) FieldsForInsert() []string {
-	return tj.commander.BuildFieldsForInsert()
-}
-
 func (tj *TableJoin) Sql() string {
 	tj.prepare()
 
 	return tj.commander.Query()
 }
 
+func (tj *TableJoin) Insert(name string) string {
+	tj.prepare()
+
+	return tj.commander.Insert(name)
+}
+
+func (tj *TableJoin) InsertWithFields(name string, fields []string) string {
+	tj.prepare()
+
+	return tj.commander.InsertWithFields(name, fields)
+}
+
+func (tj *TableJoin) Delete() string {
+	tj.prepare()
+
+	return tj.commander.Delete()
+}
+
 func (tj *TableJoin) prepare() {
+	commands := make([]command.TableCommander, 0)
 	for _, t := range tj.tables {
-		t.Prepare()
+		t.prepare()
+
+		commands = append(commands, t.commander)
 	}
+
+	tj.commander.SetCommands(commands)
 }
 
 func (tj *TableJoin) addTable(t *Table) {

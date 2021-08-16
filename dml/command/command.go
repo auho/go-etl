@@ -1,17 +1,22 @@
 package command
 
 type Query interface {
-	FieldsForInsert() []string
-	Sql() string
-}
-
-type TableJoinCommander interface {
 	BuildFieldsForInsert() []string
 	Query() string
 }
 
+type TableJoinCommander interface {
+	SetCommands([]TableCommander)
+	SetLimit(l []int)
+	Query() string
+	Insert(name string) string
+	InsertWithFields(name string, fields []string) string
+	Delete() string
+}
+
 type TableCommander interface {
 	BuildFieldsForInsert() []string
+	Name() string
 	SetTable(string, string)
 	SetSelect(*Entries)
 	Select() string
@@ -31,6 +36,9 @@ type TableCommander interface {
 	SetLimit([]int)
 	Limit() string
 	Query() string
+	Insert(name string) string
+	InsertWithFields(name string, fields []string) string
+	Delete() string
 }
 
 type InsertCommander interface {

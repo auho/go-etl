@@ -25,6 +25,10 @@ func NewTableCommand() *tableCommand {
 	return &tableCommand{}
 }
 
+func (c *tableCommand) Name() string {
+	return c.name
+}
+
 func (c *tableCommand) BuildFieldsForInsert() []string {
 	s := make([]string, 0)
 	for _, field := range c.fields.Get() {
@@ -199,6 +203,18 @@ func (c *tableCommand) Query() string {
 		c.OrderBy(),
 		c.Limit(),
 	)
+}
+
+func (c *tableCommand) Insert(name string) string {
+	return c.mysql.insert(name, c)
+}
+
+func (c *tableCommand) InsertWithFields(name string, fields []string) string {
+	return c.mysql.insertWithFields(name, fields, c)
+}
+
+func (c *tableCommand) Delete() string {
+	return fmt.Sprintf("DELETE %s%s%s%s", c.From(), c.Where(), c.OrderBy(), c.Limit())
 }
 
 func (c *tableCommand) addTablePrefix(s string) string {

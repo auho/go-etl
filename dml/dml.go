@@ -34,12 +34,3 @@ func newTableCommand() command.TableCommander {
 		panic(fmt.Sprintf("driver[%s] is not exists", driver))
 	}
 }
-
-func newInsertCommand() command.InsertCommander {
-	switch driver {
-	case DriverMysql:
-		return mysql.NewInsertCommand()
-	default:
-		panic(fmt.Sprintf("driver[%s] is not exists", driver))
-	}
-}
