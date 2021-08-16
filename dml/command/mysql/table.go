@@ -205,15 +205,15 @@ func (c *tableCommand) Query() string {
 	)
 }
 
-func (c *tableCommand) Insert(name string) string {
+func (c *tableCommand) InsertQuery(name string) string {
 	return c.mysql.insert(name, c)
 }
 
-func (c *tableCommand) InsertWithFields(name string, fields []string) string {
+func (c *tableCommand) InsertWithFieldsQuery(name string, fields []string) string {
 	return c.mysql.insertWithFields(name, fields, c)
 }
 
-func (c *tableCommand) Delete() string {
+func (c *tableCommand) DeleteQuery() string {
 	return fmt.Sprintf("DELETE %s%s%s%s", c.From(), c.Where(), c.OrderBy(), c.Limit())
 }
 

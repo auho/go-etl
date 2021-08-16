@@ -57,19 +57,19 @@ func (tj *TableJoin) Sql() string {
 func (tj *TableJoin) Insert(name string) string {
 	tj.prepare()
 
-	return tj.commander.Insert(name)
+	return tj.commander.InsertQuery(name)
 }
 
 func (tj *TableJoin) InsertWithFields(name string, fields []string) string {
 	tj.prepare()
 
-	return tj.commander.InsertWithFields(name, fields)
+	return tj.commander.InsertWithFieldsQuery(name, fields)
 }
 
 func (tj *TableJoin) Delete() string {
 	tj.prepare()
 
-	return tj.commander.Delete()
+	return tj.commander.DeleteQuery()
 }
 
 func (tj *TableJoin) prepare() {

@@ -47,15 +47,15 @@ func (c *tableJoinCommand) Query() string {
 	return fmt.Sprintf("%s%s%s%s%s%s", ss...)
 }
 
-func (c *tableJoinCommand) Insert(name string) string {
+func (c *tableJoinCommand) InsertQuery(name string) string {
 	return c.mysql.insert(name, c)
 }
 
-func (c *tableJoinCommand) InsertWithFields(name string, fields []string) string {
+func (c *tableJoinCommand) InsertWithFieldsQuery(name string, fields []string) string {
 	return c.mysql.insertWithFields(name, fields, c)
 }
 
-func (c *tableJoinCommand) Delete() string {
+func (c *tableJoinCommand) DeleteQuery() string {
 	ss := append([]interface{}{c.addBackQuote(c.commands[0].Name())}, c.runToStringFuncs([]string{
 		command.ReservedFrom,
 		command.ReservedWhere,

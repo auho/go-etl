@@ -119,19 +119,19 @@ func (t *Table) LeftJoin(keys []string, joinTable *Table, joinKeys []string) *Ta
 func (t *Table) Insert(name string) string {
 	t.prepare()
 
-	return t.commander.Insert(name)
+	return t.commander.InsertQuery(name)
 }
 
 func (t *Table) InsertWithFields(name string, fields []string) string {
 	t.prepare()
 
-	return t.commander.InsertWithFields(name, fields)
+	return t.commander.InsertWithFieldsQuery(name, fields)
 }
 
 func (t *Table) Delete() string {
 	t.prepare()
 
-	return t.commander.Delete()
+	return t.commander.DeleteQuery()
 }
 
 func (t *Table) Sql() string {

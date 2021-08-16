@@ -9,9 +9,9 @@ type TableJoinCommander interface {
 	SetCommands([]TableCommander)
 	SetLimit(l []int)
 	Query() string
-	Insert(name string) string
-	InsertWithFields(name string, fields []string) string
-	Delete() string
+	InsertQuery(name string) string
+	InsertWithFieldsQuery(name string, fields []string) string
+	DeleteQuery() string
 }
 
 type TableCommander interface {
@@ -36,15 +36,7 @@ type TableCommander interface {
 	SetLimit([]int)
 	Limit() string
 	Query() string
-	Insert(name string) string
-	InsertWithFields(name string, fields []string) string
-	Delete() string
-}
-
-type InsertCommander interface {
-	SetTable(string)
-	SetFields([]string)
-	SetQuery(Query)
-	Insert() string
-	InsertWithFields() string
+	InsertQuery(name string) string
+	InsertWithFieldsQuery(name string, fields []string) string
+	DeleteQuery() string
 }
