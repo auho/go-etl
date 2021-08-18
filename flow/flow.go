@@ -23,7 +23,7 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 	fields = goEtl.RemoveReplicaSliceString(fields)
 
 	sourceConfig := database.NewDbSourceConfig()
-	sourceConfig.MaxConcurrent = runtime.NumCPU() * 2
+	sourceConfig.MaxConcurrent = runtime.NumCPU()
 	sourceConfig.Size = 2000
 	sourceConfig.Table = dataName
 	sourceConfig.Driver = config.Driver

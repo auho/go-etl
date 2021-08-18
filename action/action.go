@@ -32,7 +32,7 @@ func (a *action) init() {
 
 func (a *action) targetConfig(config go_etl.DbConfig, targetTableName string) *database.DbTargetConfig {
 	targetConfig := database.NewDbTargetConfig()
-	targetConfig.MaxConcurrent = a.concurrent * 2
+	targetConfig.MaxConcurrent = a.concurrent
 	targetConfig.Size = 2000
 	targetConfig.Driver = config.Driver
 	targetConfig.Dsn = config.Dsn
