@@ -20,9 +20,12 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	err := os.Mkdir("conf", 0700)
+	_, err := os.Stat("conf")
 	if err != nil {
-		panic(err)
+		err = os.Mkdir("conf", 0700)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	err = ioutil.WriteFile("conf/office.toml", []byte(testConfigContent), 0600)
