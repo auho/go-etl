@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
-	goEtl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/action"
 	"github.com/auho/go-etl/storage/database"
 )
 
-func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []action.Actionor) {
+func RunFlow(config goetl.DbConfig, dataName string, idName string, actions []action.Actionor) {
 	var wg sync.WaitGroup
 
 	fields := []string{idName}
@@ -20,7 +20,7 @@ func RunFlow(config goEtl.DbConfig, dataName string, idName string, actions []ac
 		fields = append(fields, a.GetFields()...)
 	}
 
-	fields = goEtl.RemoveReplicaSliceString(fields)
+	fields = goetl.RemoveReplicaSliceString(fields)
 
 	sourceConfig := database.NewDbSourceConfig()
 	sourceConfig.MaxConcurrent = runtime.NumCPU()

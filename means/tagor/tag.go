@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	goEtl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-simple-db/simple"
 )
 
@@ -146,11 +146,11 @@ func (t *TagMatcher) prepare(key string, db simple.Driver, Options ...TagMatcher
 
 func (t *TagMatcher) init() {
 	if t.shortTableName != "" {
-		t.tableName = goEtl.RuleTableNamePrefix + "_" + t.shortTableName
+		t.tableName = goetl.RuleTableNamePrefix + "_" + t.shortTableName
 	} else if t.dataName != "" {
-		t.tableName = goEtl.RuleTableNamePrefix + "_" + t.dataName + "_" + t.key
+		t.tableName = goetl.RuleTableNamePrefix + "_" + t.dataName + "_" + t.key
 	} else {
-		t.tableName = goEtl.RuleTableNamePrefix + "_" + t.key
+		t.tableName = goetl.RuleTableNamePrefix + "_" + t.key
 	}
 
 	t.keyFieldName = t.key + "_keyword"

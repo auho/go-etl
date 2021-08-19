@@ -3,7 +3,7 @@ package action
 import (
 	"fmt"
 
-	goEtl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
 	"github.com/auho/go-etl/storage/database"
 )
@@ -16,7 +16,7 @@ type Insert struct {
 	affixFields  []string
 }
 
-func NewInsert(config goEtl.DbConfig, tagTableName string, moder mode.InsertModer, affixFields []string) *Insert {
+func NewInsert(config goetl.DbConfig, tagTableName string, moder mode.InsertModer, affixFields []string) *Insert {
 	ia := &Insert{}
 	ia.tagTableName = tagTableName
 	ia.affixFields = affixFields

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	goEtl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
 	"github.com/auho/go-etl/storage/database"
 	"github.com/auho/go-simple-db/simple"
@@ -18,7 +18,7 @@ type Clean struct {
 	fields         []string
 }
 
-func NewClean(db simple.Driver, config goEtl.DbConfig, targetDataName string, modes []mode.UpdateModer) *Clean {
+func NewClean(db simple.Driver, config goetl.DbConfig, targetDataName string, modes []mode.UpdateModer) *Clean {
 	ca := &Clean{}
 	ca.modes = modes
 	ca.targetDataName = targetDataName

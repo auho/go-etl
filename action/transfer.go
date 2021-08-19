@@ -3,7 +3,7 @@ package action
 import (
 	"fmt"
 
-	goEtl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/storage/database"
 	"github.com/auho/go-simple-db/simple"
 )
@@ -17,7 +17,7 @@ type Transfer struct {
 	fixedValues    []interface{}
 }
 
-func NewTransfer(db simple.Driver, config goEtl.DbConfig, targetDataName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
+func NewTransfer(db simple.Driver, config goetl.DbConfig, targetDataName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
 	ta := &Transfer{}
 	ta.targetDataName = targetDataName
 

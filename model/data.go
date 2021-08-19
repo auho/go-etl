@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 
-	goEtl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 )
 
 type Data struct {
@@ -32,5 +32,9 @@ func (d *Data) TableName() string {
 }
 
 func (d *Data) TagTableName(tagName string) string {
-	return fmt.Sprintf("%s_%s_%s", goEtl.TagTableNamePrefix, d.name, tagName)
+	return fmt.Sprintf("%s_%s_%s", goetl.TagTableNamePrefix, d.name, tagName)
+}
+
+func (d *Data) RuleTableName(n string) string {
+	return fmt.Sprintf("%s_%s_%s", goetl.RuleTableNamePrefix, d.name, n)
 }

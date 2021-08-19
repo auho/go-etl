@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	goEtl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
 	"github.com/auho/go-etl/storage/database"
 )
@@ -17,7 +17,7 @@ type Update struct {
 	dataName string
 }
 
-func NewUpdate(config goEtl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) *Update {
+func NewUpdate(config goetl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) *Update {
 	ua := &Update{}
 	ua.dataName = dataName
 	ua.idName = idName
@@ -67,7 +67,7 @@ func (ua *Update) GetFields() []string {
 		fields = append(fields, m.GetFields()...)
 	}
 
-	fields = goEtl.RemoveReplicaSliceString(fields)
+	fields = goetl.RemoveReplicaSliceString(fields)
 
 	return append(fields, ua.idName)
 }

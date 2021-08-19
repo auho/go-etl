@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 
-	go_etl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 )
 
 type Rule struct {
@@ -22,7 +22,7 @@ func (r *Rule) GetName() string {
 }
 
 func (r *Rule) TableName() string {
-	return fmt.Sprintf("%s_%s", go_etl.RuleTableNamePrefix, r.name)
+	return fmt.Sprintf("%s_%s", goetl.RuleTableNamePrefix, r.name)
 }
 
 func (r *Rule) Keyword() string {
@@ -31,4 +31,8 @@ func (r *Rule) Keyword() string {
 
 func (r *Rule) KeywordNum() string {
 	return fmt.Sprintf("%s_keyword_num", r.name)
+}
+
+func (r *Rule) DataTableName(n string) string {
+	return fmt.Sprintf("%s_%s_%s", goetl.RuleTableNamePrefix, n, r.name)
 }

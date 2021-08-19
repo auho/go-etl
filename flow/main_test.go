@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	goEtl "github.com/auho/go-etl"
+	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-simple-db/mysql"
 )
 
@@ -22,7 +22,7 @@ var pkName = "did"
 var keyName = "name"
 var db *mysql.Mysql
 
-var dbConfig goEtl.DbConfig
+var dbConfig goetl.DbConfig
 
 func TestMain(m *testing.M) {
 	setUp()
