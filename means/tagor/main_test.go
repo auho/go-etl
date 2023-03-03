@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/auho/go-simple-db/mysql"
+	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
 var dsn = "test:test@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
 var dataRuleTableName = "rule_data_" + ruleName
-var db *mysql.Mysql
+var db *go_simple_db.SimpleDB
 var contents = []string{
 	`b一ab一bc一abc一123b一b123一123一0123一1234一01234一`,
 	`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
@@ -30,8 +30,9 @@ func TestMain(m *testing.M) {
 
 func setUp() {
 	rand.Seed(time.Now().UnixNano())
-	db = mysql.NewMysql(dsn)
-	err := db.Connection()
+
+	var err error
+	db, err = go_simple_db.NewMysql(dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -50,7 +51,7 @@ func setUp() {
 		"`keyword_len` int(11) NOT NULL DEFAULT '0'," +
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -62,7 +63,7 @@ func setUp() {
 		"('ab','ab1','ab',1)," +
 		"('123','123','123',3)," +
 		"('中文','中文1','中文',2)"
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -73,7 +74,7 @@ func setUp() {
 	}
 
 	query = fmt.Sprintf("INSERT INTO `%s` SELECT * FROM `%s`", dataRuleTableName, ruleTableName)
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}

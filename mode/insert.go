@@ -32,7 +32,7 @@ func (m *Insert) GetKeys() []string {
 	return m.insert.GetKeys()
 }
 
-func (m *Insert) Do(item map[string]interface{}) [][]interface{} {
+func (m *Insert) Do(item map[string]interface{}) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
@@ -78,14 +78,14 @@ func (m *InsertMulti) GetKeys() []string {
 	return m.insertFields
 }
 
-func (m *InsertMulti) Do(item map[string]interface{}) [][]interface{} {
+func (m *InsertMulti) Do(item map[string]interface{}) []map[string]interface{} {
 	if item == nil {
 		return nil
 	}
 
 	contents := m.GetKeysContent(m.keys, item)
 
-	items := make([][]interface{}, 0)
+	items := make([]map[string]interface{}, 0)
 	for _, i := range m.inserts {
 		res := i.Insert(contents)
 		if res == nil {

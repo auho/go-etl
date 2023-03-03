@@ -4,119 +4,79 @@ import (
 	"fmt"
 	"strings"
 
-	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
-	"github.com/auho/go-etl/storage/database"
+	"github.com/auho/go-etl/tool"
+	go_simple_db "github.com/auho/go-simple-db/v2"
 )
+
+var _ Actionor = (*Update)(nil)
 
 type Update struct {
 	action
-	target   *database.DbTargetMap
-	modes    []mode.UpdateModer
-	idName   string
-	dataName string
+	target         *go_simple_db.SimpleDB
+	modes          []mode.UpdateModer
+	targetDataName string
+	idName         string
+	dataName       string
 }
 
-func NewUpdate(config goetl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) *Update {
-	ua := &Update{}
-	ua.dataName = dataName
-	ua.idName = idName
-	ua.modes = modes
+func NewUpdate(db *go_simple_db.SimpleDB, dataName string, idName string, modes []mode.UpdateModer) *Update {
+	u := &Update{}
+	u.target = db
+	u.modes = modes
+	u.idName = idName
+	u.dataName = dataName
 
-	ua.init()
-
-	targetConfig := ua.targetConfig(config, ua.dataName)
-	ua.target = database.NewDbTargetUpdateSliceMap(targetConfig, idName)
-
-	return ua
+	return u
 }
 
-func (ua *Update) Start() {
-	ua.target.Start()
-
-	for i := 0; i < ua.concurrent; i++ {
-		ua.wg.Add(1)
-		go ua.doSource()
-	}
-}
-
-func (ua *Update) Done() {
-	if ua.isDone {
-		return
-	}
-
-	ua.isDone = true
-
-	close(ua.itemsChan)
-}
-
-func (ua *Update) Close() {
-	ua.wg.Wait()
-
-	for _, m := range ua.modes {
-		m.Close()
-	}
-
-	ua.target.Done()
-	ua.target.Close()
-}
-
-func (ua *Update) GetFields() []string {
+func (u *Update) GetFields() []string {
 	fields := make([]string, 0)
-	for _, m := range ua.modes {
+	for _, m := range u.modes {
 		fields = append(fields, m.GetFields()...)
 	}
 
-	fields = goetl.RemoveReplicaSliceString(fields)
+	fields = tool.RemoveReplicaSliceString(fields)
 
-	return append(fields, ua.idName)
+	return append(fields, u.idName)
 }
 
-func (ua *Update) Receive(items []map[string]interface{}) {
-	ua.itemsChan <- items
-}
-
-func (ua *Update) GetStatus() string {
-	return ua.target.State.GetStatus()
-}
-
-func (ua *Update) GetTitle() string {
+func (u *Update) Title() string {
 	s := make([]string, 0)
-	for _, m := range ua.modes {
+	for _, m := range u.modes {
 		s = append(s, m.GetTitle())
 	}
 
-	return fmt.Sprintf("Update[%s] {%s}", ua.dataName, strings.Join(s, ", "))
+	return fmt.Sprintf("Update[%s] {%s}", u.dataName, strings.Join(s, ", "))
 }
 
-func (ua *Update) doSource() {
-	for {
-		sourceItems, ok := <-ua.itemsChan
-		if ok == false {
-			break
+func (u *Update) Prepare() error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (u *Update) Do(items []map[string]any) {
+	targetItems := make([]map[string]interface{}, 0)
+
+	for _, item := range items {
+		_newItem := make(map[string]any)
+		for _, m := range u.modes {
+			_do := m.Do(item)
+			for k, v := range _do {
+				_newItem[k] = v
+			}
 		}
 
-		targetItems := make([]map[string]interface{}, 0)
-
-		for _, sourceItem := range sourceItems {
-			item := make(map[string]interface{})
-			for _, m := range ua.modes {
-				res := m.Do(sourceItem)
-				for k, v := range res {
-					item[k] = v
-				}
-			}
-
-			if len(item) <= 0 {
-				continue
-			}
-
-			item[ua.idName] = sourceItem[ua.idName]
-			targetItems = append(targetItems, item)
+		if len(_newItem) <= 0 {
+			continue
 		}
 
-		ua.target.Send(targetItems)
+		_newItem[u.idName] = item[u.idName]
+		targetItems = append(targetItems, _newItem)
 	}
 
-	ua.wg.Done()
+	_ = u.target.BulkUpdateFromSliceMapById(u.dataName, u.idName, targetItems)
+
 }
+
+func (u *Update) AfterDo() {}

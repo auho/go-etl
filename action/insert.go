@@ -3,118 +3,68 @@ package action
 import (
 	"fmt"
 
-	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
-	"github.com/auho/go-etl/storage/database"
+	go_simple_db "github.com/auho/go-simple-db/v2"
 )
+
+var _ Actionor = (*Insert)(nil)
 
 type Insert struct {
 	action
-	target       *database.DbTargetSlice
-	mode         mode.InsertModer
-	tagTableName string
-	affixFields  []string
+	target      *go_simple_db.SimpleDB
+	mode        mode.InsertModer
+	tagTable    string
+	affixFields []string
 }
 
-func NewInsert(config goetl.DbConfig, tagTableName string, moder mode.InsertModer, affixFields []string) *Insert {
-	ia := &Insert{}
-	ia.tagTableName = tagTableName
-	ia.affixFields = affixFields
-	ia.mode = moder
+func NewInsert(db *go_simple_db.SimpleDB, tagTable string, moder mode.InsertModer, affixFields []string) *Insert {
+	i := &Insert{}
+	i.target = db
+	i.mode = moder
+	i.tagTable = tagTable
+	i.affixFields = affixFields
 
-	ia.init()
-
-	targetConfig := ia.targetConfig(config, ia.tagTableName)
-	ia.target = database.NewDbTargetInsertSliceSlice(targetConfig, ia.getKeys(), database.WithDbTargetSliceTruncate())
-
-	return ia
+	return i
 }
 
-func (ia *Insert) Start() {
-	ia.target.Start()
-
-	for i := 0; i < ia.concurrent; i++ {
-		ia.wg.Add(1)
-		go ia.doSource()
-	}
+func (i *Insert) GetFields() []string {
+	return append(i.mode.GetFields(), i.affixFields...)
 }
 
-func (ia *Insert) Done() {
-	if ia.isDone {
-		return
-	}
-
-	ia.isDone = true
-
-	close(ia.itemsChan)
+func (i *Insert) getKeys() []string {
+	return append(i.mode.GetKeys(), i.affixFields...)
 }
 
-func (ia *Insert) Close() {
-	ia.wg.Wait()
-
-	ia.mode.Close()
-
-	ia.target.Done()
-	ia.target.Close()
+func (i *Insert) Title() string {
+	return fmt.Sprintf("Insert[%s] {%s}", i.tagTable, i.mode.GetTitle())
 }
 
-func (ia *Insert) GetFields() []string {
-	return append(ia.mode.GetFields(), ia.affixFields...)
+func (i *Insert) Prepare() error {
+	return nil
 }
 
-func (ia *Insert) Receive(items []map[string]interface{}) {
-	ia.itemsChan <- items
-}
+func (i *Insert) Do(items []map[string]any) {
+	targetItems := make([]map[string]any, 0)
 
-func (ia *Insert) GetStatus() string {
-	return ia.target.State.GetStatus()
-}
-
-func (ia *Insert) GetTitle() string {
-	return fmt.Sprintf("Insert[%s] {%s}", ia.tagTableName, ia.mode.GetTitle())
-}
-
-func (ia *Insert) getKeys() []string {
-	return append(ia.mode.GetKeys(), ia.affixFields...)
-}
-
-func (ia *Insert) doSource() {
-	for {
-		sourceItems, ok := <-ia.itemsChan
-		if ok == false {
-			break
+	for _, item := range items {
+		_doItem := i.mode.Do(item)
+		if _doItem == nil {
+			continue
 		}
 
-		targetItems := make([][]interface{}, 0)
-
-		for _, sourceItem := range sourceItems {
-			items := ia.doItem(sourceItem)
-			if items == nil {
-				continue
-			}
-
-			targetItems = append(targetItems, items...)
-		}
-
-		ia.target.Send(targetItems)
-	}
-
-	ia.wg.Done()
-}
-
-func (ia *Insert) doItem(item map[string]interface{}) [][]interface{} {
-	items := ia.mode.Do(item)
-	if items == nil {
-		return nil
-	}
-
-	if len(ia.affixFields) > 0 {
-		for index := range items {
-			for _, field := range ia.affixFields {
-				items[index] = append(items[index], item[field])
+		if len(i.affixFields) > 0 {
+			for index := range _doItem {
+				for _, field := range i.affixFields {
+					_doItem[index][field] = item[field]
+				}
 			}
 		}
+
+		i.AddAmount(1)
+		targetItems = append(targetItems, _doItem...)
 	}
 
-	return items
+	_ = i.target.BulkInsertFromSliceMap(i.tagTable, targetItems, 2000)
 }
+
+func (i *Insert) AfterDo() {}

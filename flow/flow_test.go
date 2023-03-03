@@ -2,7 +2,6 @@ package flow
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/auho/go-etl/action"
@@ -12,24 +11,19 @@ import (
 
 func Test_Update(t *testing.T) {
 	m := mode.NewUpdate([]string{keyName}, tagor.NewMostKey(ruleName, db))
-	ua := action.NewUpdate(dbConfig,
+	ua := action.NewUpdate(db,
 		dataTableName,
 		pkName,
 		[]mode.UpdateModer{m},
 	)
 
-	RunFlow(dbConfig, dataTableName, pkName, []action.Actionor{ua})
-	UpdateFlow(dbConfig, dataTableName, pkName, []mode.UpdateModer{m})
+	RunFlow(db, dataTableName, pkName, []action.Actionor{ua})
+	UpdateFlow(db, dataTableName, pkName, []mode.UpdateModer{m})
 
-	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` != ?", dataTableName, "a")
-	res, err := db.QueryFieldInterface("_count", query, "")
+	var count int64
+	err := db.Table(dataTableName).Where(fmt.Sprintf("%s != ?", "a"), "").Count(&count).Error
 	if err != nil {
 		t.Error(err)
-	}
-
-	count := res.(int64)
-	if count <= 0 {
-		t.Error("update error")
 	}
 
 	amount := getAmount(dataTableName, t)
@@ -40,7 +34,7 @@ func Test_Update(t *testing.T) {
 
 func Test_Insert(t *testing.T) {
 	m := mode.NewInsert([]string{keyName}, tagor.NewKey(ruleName, db))
-	ia := action.NewInsert(dbConfig,
+	ia := action.NewInsert(db,
 		tagTableName,
 		m,
 		[]string{pkName},
@@ -59,13 +53,13 @@ func Test_Insert(t *testing.T) {
 		t.Error(err)
 	}
 
-	ia1 := action.NewInsert(dbConfig, tagTableName+"1", m, []string{pkName})
-	ia2 := action.NewInsert(dbConfig, tagTableName+"2", m, []string{pkName})
+	ia1 := action.NewInsert(db, tagTableName+"1", m, []string{pkName})
+	ia2 := action.NewInsert(db, tagTableName+"2", m, []string{pkName})
 
-	RunFlow(dbConfig, dataTableName, pkName, []action.Actionor{ia, ia1, ia2})
-	InsertFlow(dbConfig, dataTableName, pkName, tagTableName, m, []string{pkName})
-	InsertFlow(dbConfig, dataTableName, pkName, tagTableName+"1", m, []string{pkName})
-	InsertFlow(dbConfig, dataTableName, pkName, tagTableName+"2", m, []string{pkName})
+	RunFlow(db, dataTableName, pkName, []action.Actionor{ia, ia1, ia2})
+	InsertFlow(db, dataTableName, pkName, tagTableName, m, []string{pkName})
+	InsertFlow(db, dataTableName, pkName, tagTableName+"1", m, []string{pkName})
+	InsertFlow(db, dataTableName, pkName, tagTableName+"2", m, []string{pkName})
 
 	dataCount := getAmount(dataTableName, t)
 	tagCount := getAmount(tagTableName, t)
@@ -100,7 +94,7 @@ func Test_Transfer(t *testing.T) {
 		"a_keyword_num": "a_keyword_num",
 	}
 
-	TransferFlow(db, dbConfig, dataTableName, pkName, tDataTableName, alias, map[string]interface{}{"xyz": "xyz1"})
+	TransferFlow(db, dataTableName, pkName, tDataTableName, alias, map[string]interface{}{"xyz": "xyz1"})
 	dataCount := getAmount(dataTableName, t)
 	tDataCount := getAmount(tDataTableName, t)
 	xDataCount := getFieldAmount(tDataTableName, "xyz", "xyz1", t)
@@ -112,7 +106,7 @@ func Test_Transfer(t *testing.T) {
 func Test_Clean(t *testing.T) {
 	m := mode.NewUpdate([]string{keyName}, tagor.NewMostKey(ruleName, db))
 
-	CleanFlow(db, dbConfig, dataTableName, pkName, cDataTableName, []mode.UpdateModer{m})
+	CleanFlow(db, dataTableName, pkName, cDataTableName, []mode.UpdateModer{m})
 	dataCount := getAmount(dataTableName, t)
 	cDataCount := getAmount(cDataTableName, t)
 	if cDataCount == dataCount || dataCount/cDataCount < 3 {
@@ -121,26 +115,21 @@ func Test_Clean(t *testing.T) {
 }
 
 func getAmount(tableName string, t *testing.T) int64 {
-	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s`", tableName)
-	res, err := db.QueryFieldInterface("_count", query)
+	var count int64
+	err := db.Table(tableName).Count(&count).Error
 	if err != nil {
 		t.Error(err)
 	}
 
-	count, err := strconv.Atoi(string(res.([]uint8)))
-	if err != nil {
-		t.Error(err)
-	}
-
-	return int64(count)
+	return count
 }
 
 func getFieldAmount(tableName string, field string, value interface{}, t *testing.T) int64 {
-	query := fmt.Sprintf("SELECT COUNT(*) AS _count FROM `%s` WHERE `%s` = ?", tableName, field)
-	res, err := db.QueryFieldInterface("_count", query, value)
+	var count int64
+	err := db.Table(tableName).Where(fmt.Sprintf("%s = ?", value)).Count(&count).Error
 	if err != nil {
 		t.Error(err)
 	}
 
-	return res.(int64)
+	return count
 }

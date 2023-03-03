@@ -3,3 +3,9 @@
 .vscode
 /vendor
 /office/
+
+go.work
+*.test
+*.out
+*.pprof
+*_linux

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-simple-db/simple"
+	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
 // TagMeans
@@ -26,22 +26,22 @@ func (tm *TagMeans) Close() {
 
 }
 
-func (tm *TagMeans) insertResult(f func() *Result) [][]interface{} {
+func (tm *TagMeans) insertResult(f func() *Result) []map[string]interface{} {
 	result := f()
 	if result == nil {
 		return nil
 	}
 
-	return tm.resultToSliceSlice(result)
+	return tm.resultToSliceMap(result)
 }
 
-func (tm *TagMeans) insertResults(f func() []*Result) [][]interface{} {
+func (tm *TagMeans) insertResults(f func() []*Result) []map[string]interface{} {
 	results := f()
 	if results == nil {
 		return nil
 	}
 
-	return tm.resultsToSliceSlice(results)
+	return tm.resultsToSliceMap(results)
 }
 
 func (tm *TagMeans) updateResult(f func() *Result) map[string]interface{} {
@@ -59,14 +59,14 @@ type Key struct {
 	TagMeans
 }
 
-func NewKey(ruleName string, db simple.Driver, Options ...TagMatcherOption) *Key {
+func NewKey(ruleName string, db *go_simple_db.SimpleDB, Options ...TagMatcherOption) *Key {
 	t := &Key{}
 	t.prepare(ruleName, db, Options...)
 
 	return t
 }
 
-func (t *Key) Insert(contents []string) [][]interface{} {
+func (t *Key) Insert(contents []string) []map[string]interface{} {
 	return t.insertResults(func() []*Result {
 		return t.Matcher.MatchKey(contents)
 	})
@@ -79,14 +79,14 @@ type MostText struct {
 	TagMeans
 }
 
-func NewMostText(ruleName string, db simple.Driver, Options ...TagMatcherOption) *MostText {
+func NewMostText(ruleName string, db *go_simple_db.SimpleDB, Options ...TagMatcherOption) *MostText {
 	t := &MostText{}
 	t.prepare(ruleName, db, Options...)
 
 	return t
 }
 
-func (t *MostText) Insert(contents []string) [][]interface{} {
+func (t *MostText) Insert(contents []string) []map[string]interface{} {
 	return t.insertResult(func() *Result {
 		return t.Matcher.MatchMostText(contents)
 	})
@@ -105,14 +105,14 @@ type MostKey struct {
 	TagMeans
 }
 
-func NewMostKey(ruleName string, db simple.Driver, Options ...TagMatcherOption) *MostKey {
+func NewMostKey(ruleName string, db *go_simple_db.SimpleDB, Options ...TagMatcherOption) *MostKey {
 	t := &MostKey{}
 	t.prepare(ruleName, db, Options...)
 
 	return t
 }
 
-func (t *MostKey) Insert(contents []string) [][]interface{} {
+func (t *MostKey) Insert(contents []string) []map[string]interface{} {
 	return t.insertResult(func() *Result {
 		return t.Matcher.MatchMostKey(contents)
 	})

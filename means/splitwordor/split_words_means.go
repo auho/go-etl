@@ -23,12 +23,12 @@ func (s *SplitWordsMeans) GetKeys() []string {
 	return []string{"word"}
 }
 
-func (s *SplitWordsMeans) Insert(contents []string) [][]interface{} {
-	items := make([][]interface{}, 0)
+func (s *SplitWordsMeans) Insert(contents []string) []map[string]interface{} {
+	items := make([]map[string]interface{}, 0)
 	for _, c := range contents {
 		results := strings.Split(c, s.sep)
 		for _, result := range results {
-			items = append(items, []interface{}{result})
+			items = append(items, map[string]interface{}{"word": result})
 		}
 	}
 
@@ -39,6 +39,4 @@ func (s *SplitWordsMeans) Insert(contents []string) [][]interface{} {
 	return items
 }
 
-func (s *SplitWordsMeans) Close() {
-
-}
+func (s *SplitWordsMeans) Close() {}

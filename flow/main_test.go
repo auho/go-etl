@@ -8,7 +8,7 @@ import (
 	"time"
 
 	goetl "github.com/auho/go-etl"
-	"github.com/auho/go-simple-db/mysql"
+	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
 var dsn = "test:test@tcp(127.0.0.1:3306)/test"
@@ -20,7 +20,7 @@ var cDataTableName = "data_c"
 var tagTableName = "tag_data_a"
 var pkName = "did"
 var keyName = "name"
-var db *mysql.Mysql
+var db *go_simple_db.SimpleDB
 
 var dbConfig goetl.DbConfig
 
@@ -32,13 +32,14 @@ func TestMain(m *testing.M) {
 }
 
 func setUp() {
+	rand.Seed(time.Now().UnixNano())
+
+	var err error
 	query := ""
 	dbConfig.Driver = "mysql"
 	dbConfig.Dsn = dsn
 
-	rand.Seed(time.Now().UnixNano())
-	db = mysql.NewMysql(dsn)
-	err := db.Connection()
+	db, err = dbConfig.BuildDB()
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +59,7 @@ func setUp() {
 		"`xyz` varchar(30) NOT NULL DEFAULT ''," +
 		"PRIMARY KEY (`did`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -78,7 +79,7 @@ func setUp() {
 		"`xyz` varchar(30) NOT NULL DEFAULT ''," +
 		"PRIMARY KEY (`did`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -98,18 +99,13 @@ func setUp() {
 	}
 
 	for i := 0; i < maxB; i++ {
-		res, err := db.BulkInsertFromSliceSlice(dataTableName, []string{"name"}, rows)
+		err = db.BulkInsertFromSliceSlice(dataTableName, []string{"name"}, rows, 2000)
 		if err != nil {
 			panic(err)
 		}
 
-		count, err := res.RowsAffected()
-		if err != nil {
-			panic(err)
-		}
-
-		if count != int64(maxA) {
-			panic(fmt.Sprintf("%d != %d", count, maxA))
+		if db.RowsAffected != int64(maxA) {
+			panic(fmt.Sprintf("%d != %d", db.RowsAffected, maxA))
 		}
 	}
 
@@ -137,7 +133,7 @@ func setUp() {
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -149,7 +145,7 @@ func setUp() {
 		"('ab','ab1','ab',1)," +
 		"('123','123','123',3)," +
 		"('中文','中文1','中文',2)"
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -168,7 +164,7 @@ func setUp() {
 		"`a_keyword_num` int(11) NOT NULL DEFAULT '0'," +
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}

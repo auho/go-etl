@@ -1,4 +1,4 @@
-package go_etl
+package tool
 
 import (
 	"fmt"

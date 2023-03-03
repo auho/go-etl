@@ -16,7 +16,7 @@ type InsertModer interface {
 	GetTitle() string
 	GetKeys() []string
 	GetFields() []string
-	Do(map[string]interface{}) [][]interface{}
+	Do(map[string]interface{}) []map[string]interface{}
 	Close()
 }
 

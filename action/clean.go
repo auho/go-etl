@@ -4,123 +4,80 @@ import (
 	"fmt"
 	"strings"
 
-	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
-	"github.com/auho/go-etl/storage/database"
-	"github.com/auho/go-simple-db/simple"
+	go_simple_db "github.com/auho/go-simple-db/v2"
 )
+
+var _ Actionor = (*Clean)(nil)
 
 type Clean struct {
 	action
-	target         *database.DbTargetSlice
+	target         *go_simple_db.SimpleDB
+	fields         []string
 	modes          []mode.UpdateModer
 	targetDataName string
-	fields         []string
 }
 
-func NewClean(db simple.Driver, config goetl.DbConfig, targetDataName string, modes []mode.UpdateModer) *Clean {
-	ca := &Clean{}
-	ca.modes = modes
-	ca.targetDataName = targetDataName
-
-	ca.init()
-
+func NewClean(db *go_simple_db.SimpleDB, targetDataName string, modes []mode.UpdateModer) *Clean {
 	var err error
-	ca.fields, err = db.GetTableColumns(ca.targetDataName)
+
+	c := &Clean{}
+	c.target = db
+	c.modes = modes
+	c.targetDataName = targetDataName
+
+	c.fields, err = db.GetTableColumns(c.targetDataName)
 	if err != nil {
 		panic(err)
 	}
 
-	targetConfig := ca.targetConfig(config, targetDataName)
-	ca.target = database.NewDbTargetInsertSliceSlice(targetConfig, ca.fields, database.WithDbTargetSliceTruncate())
-
-	return ca
+	return c
 }
 
-func (ca *Clean) Start() {
-	ca.target.Start()
-
-	for i := 0; i < ca.concurrent; i++ {
-		ca.wg.Add(1)
-		go ca.doSource()
-	}
+func (c *Clean) GetFields() []string {
+	return c.fields
 }
 
-func (ca *Clean) Done() {
-	if ca.isDone {
-		return
-	}
-
-	ca.isDone = true
-
-	close(ca.itemsChan)
-}
-
-func (ca *Clean) Close() {
-	ca.wg.Wait()
-
-	for _, m := range ca.modes {
-		m.Close()
-	}
-
-	ca.target.Done()
-	ca.target.Close()
-}
-
-func (ca *Clean) GetFields() []string {
-	return ca.fields
-}
-
-func (ca *Clean) Receive(items []map[string]interface{}) {
-	ca.itemsChan <- items
-}
-
-func (ca *Clean) GetStatus() string {
-	return ca.target.State.GetStatus()
-}
-
-func (ca *Clean) GetTitle() string {
+func (c *Clean) Title() string {
 	s := make([]string, 0)
-	for _, m := range ca.modes {
+	for _, m := range c.modes {
 		s = append(s, m.GetTitle())
 	}
 
-	return fmt.Sprintf("Clean[%s] {%s}", ca.targetDataName, strings.Join(s, ", "))
+	return fmt.Sprintf("Clean[%s] {%s}", c.targetDataName, strings.Join(s, ", "))
 }
 
-func (ca *Clean) doSource() {
-	for {
-		sourceItems, ok := <-ca.itemsChan
-		if ok == false {
-			break
+func (c *Clean) Prepare() error {
+	return nil
+}
+
+func (c *Clean) Do(items []map[string]any) {
+	targetItems := make([]map[string]any, 0)
+
+	for _, item := range items {
+		isClean := false
+		for _, m := range c.modes {
+			_res := m.Do(item)
+			if _res != nil || len(_res) > 0 {
+				isClean = true
+				break
+			}
 		}
 
-		targetItems := make([][]interface{}, 0)
-
-		for _, sourceItem := range sourceItems {
-			isClean := false
-			for _, m := range ca.modes {
-				res := m.Do(sourceItem)
-				if res != nil && len(res) > 0 {
-					isClean = true
-					break
-				}
-			}
-
-			if isClean == true {
-				continue
-			}
-
-			item := make([]interface{}, 0, len(ca.fields))
-			for _, field := range ca.fields {
-				item = append(item, sourceItem[field])
-			}
-
-			targetItems = append(targetItems, item)
+		if isClean == true {
+			continue
 		}
 
-		ca.target.Send(targetItems)
+		nm := make(map[string]any, len(c.fields))
+		for _, field := range c.fields {
+			nm[field] = item[field]
+		}
+
+		c.AddAmount(1)
+		targetItems = append(targetItems, item)
 	}
 
-	ca.wg.Done()
+	_ = c.target.BulkInsertFromSliceMap(c.targetDataName, targetItems, 2000)
 }
+
+func (c *Clean) AfterDo() {}

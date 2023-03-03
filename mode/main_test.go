@@ -6,14 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/auho/go-simple-db/mysql"
+	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
 var dsn = "test:test@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
 var keyName = "name"
-var db *mysql.Mysql
+var db *go_simple_db.SimpleDB
 var content = "b一ab一bc一abc一ab一123b一b123一中文一123一中文一一0123一1234一01234-a-ab-123-中文一b一中文一a"
 var item = map[string]interface{}{keyName: content}
 
@@ -26,8 +26,9 @@ func TestMain(m *testing.M) {
 
 func setUp() {
 	rand.Seed(time.Now().UnixNano())
-	db = mysql.NewMysql(dsn)
-	err := db.Connection()
+
+	var err error
+	db, err = go_simple_db.NewMysql(dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +47,7 @@ func setUp() {
 		"`keyword_len` int(11) NOT NULL DEFAULT '0'," +
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +59,7 @@ func setUp() {
 		"('ab','ab1','ab',1)," +
 		"('123','123','123',3)," +
 		"('中文','中文1','中文',2)"
-	_, err = db.Exec(query)
+	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}

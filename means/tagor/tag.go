@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	goetl "github.com/auho/go-etl"
-	"github.com/auho/go-simple-db/simple"
+	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
 // Result
@@ -92,7 +92,7 @@ func WithTagMatcherMatcher(options []MatcherOption) TagMatcherOption {
 //
 type TagMatcher struct {
 	Matcher           *Matcher
-	db                simple.Driver
+	db                *go_simple_db.SimpleDB
 	tagsName          []string
 	key               string
 	keyFieldName      string
@@ -109,14 +109,14 @@ type TagMatcher struct {
 	fixedValues    []interface{}
 }
 
-func newTagMatcher(key string, db simple.Driver, Options ...TagMatcherOption) *TagMatcher {
+func newTagMatcher(key string, db *go_simple_db.SimpleDB, Options ...TagMatcherOption) *TagMatcher {
 	t := &TagMatcher{}
 	t.prepare(key, db, Options...)
 
 	return t
 }
 
-func (t *TagMatcher) prepare(key string, db simple.Driver, Options ...TagMatcherOption) {
+func (t *TagMatcher) prepare(key string, db *go_simple_db.SimpleDB, Options ...TagMatcherOption) {
 	t.key = key
 	t.db = db
 	t.excludeTableField = []string{"id", "keyword_len"}
@@ -228,8 +228,9 @@ func (t *TagMatcher) getRules() []map[string]string {
 		columns = append(columns, f)
 	}
 
+	var rules []map[string]string
 	query := fmt.Sprintf("SELECT %s FROM `%s` ORDER BY `keyword_len` DESC, `id` ASC", strings.Join(columns, ", "), t.tableName)
-	rules, err := t.db.QueryString(query)
+	err := t.db.Exec(query).Scan(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -252,6 +253,10 @@ func (t *TagMatcher) resultsToSliceMap(results []*Result) []map[string]interface
 	}
 
 	return items
+}
+
+func (t *TagMatcher) resultToSliceMap(result *Result) []map[string]interface{} {
+	return []map[string]interface{}{t.resultToMap(result)}
 }
 
 func (t *TagMatcher) resultToMap(result *Result) map[string]interface{} {

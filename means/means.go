@@ -3,7 +3,7 @@ package means
 type InsertMeans interface {
 	GetTitle() string
 	GetKeys() []string
-	Insert([]string) [][]interface{}
+	Insert([]string) []map[string]interface{}
 	Close()
 }
 
