@@ -16,11 +16,11 @@ import (
 // Result
 // result 匹配结果
 type Result struct {
-	Key           string            // keyword
-	Num           int64             // matched num
-	Texts         map[string]int64  // matched text map[matched text]num
-	Tags          map[string]string // tags map[tag name]tag
-	IsTextComplex bool
+	Key        string            // keyword
+	Num        int64             // matched num
+	Texts      map[string]int64  // matched text map[matched text]num
+	Tags       map[string]string // tags map[tag name]tag
+	IsKeyMerge bool
 }
 
 func NewResult() *Result {
@@ -130,7 +130,7 @@ func (t *TagMatcher) prepare(key string, db *go_simple_db.SimpleDB, Options ...T
 	}
 
 	if t.Matcher == nil {
-		t.Matcher = NewMatcher(WithTagMatcherKeyFun(func(s string) string {
+		t.Matcher = NewMatcher(WithTagMatcherKeyFunc(func(s string) string {
 			res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 			if err != nil {
 				return s
@@ -145,7 +145,7 @@ func (t *TagMatcher) prepare(key string, db *go_simple_db.SimpleDB, Options ...T
 	}
 
 	t.init()
-	t.Matcher.init(t.keyFieldName, t.getRules())
+	t.Matcher.prepare(t.keyFieldName, t.getRules())
 }
 
 func (t *TagMatcher) init() {
@@ -326,24 +326,26 @@ func (t *TagMatcher) resultsToSliceSlice(results []*Result) [][]interface{} {
 
 // MatcherOption
 // tag match option
-//
 type MatcherOption func(mt *Matcher)
 
-func WithTagMatcherKeyFun(f func(string) string) MatcherOption {
-	return func(tm *Matcher) {
-		tm.addKeyFormatFun(f)
+// MatcherKeyFormatFunc
+// 匹配前格式化 keyword 的 funcs
+type MatcherKeyFormatFunc func(string) string
+
+func WithTagMatcherKeyFunc(f MatcherKeyFormatFunc) MatcherOption {
+	return func(m *Matcher) {
+		m.addKeyFormatFunc(f)
 	}
 }
 
 // Matcher
-// matcher
-//
+// 从 rule 条目生成 regexp，匹配 content, 得到 keyword, matched text
 type Matcher struct {
-	keyFormatFunList []func(string) string        // 在匹配前处理关键词（使匹配更精确、丰富）
+	keyFormatFuncs   []func(string) string        // 在匹配前格式化关键词（使匹配更精确、丰富）
 	regexpItems      map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名称][标签]
 	regexp           *regexp.Regexp               // 所有关键词的 regexp
 	regexpString     string                       // regular expression
-	normalRegexpName string                       // 普通匹配的分组名称
+	normalRegexpName string                       // 普通匹配、非普通匹配的分组名称前缀（防止和自定义名称冲突）
 	badKeyMap        map[string]string            // 非普通匹配分组名称
 	tagsName         []string                     // 标签名称列表
 }
@@ -360,7 +362,10 @@ func NewMatcher(Options ...MatcherOption) *Matcher {
 	return m
 }
 
-func (m *Matcher) init(keyName string, items []map[string]string) {
+// prepare
+// keyName keyword
+// items map[keyword, tags]
+func (m *Matcher) prepare(keyName string, items []map[string]string) {
 	m.regexpItems = make(map[string]map[string]string, len(items))
 
 	for k := range items[0] {
@@ -379,7 +384,7 @@ func (m *Matcher) init(keyName string, items []map[string]string) {
 		m.regexpItems[keyValue] = items[itemK]
 
 		newKeyValue := regexp.QuoteMeta(keyValue)
-		for _, keyFormatFun := range m.keyFormatFunList {
+		for _, keyFormatFun := range m.keyFormatFuncs {
 			newKeyValue = keyFormatFun(newKeyValue)
 		}
 
@@ -584,8 +589,8 @@ func (m *Matcher) MatchLabelMostText(contents []string) *LabelResult {
 	return results[0]
 }
 
-func (m *Matcher) addKeyFormatFun(f func(string) string) {
-	m.keyFormatFunList = append(m.keyFormatFunList, f)
+func (m *Matcher) addKeyFormatFunc(f func(string) string) {
+	m.keyFormatFuncs = append(m.keyFormatFuncs, f)
 }
 
 // correctBadKeyOfGroupName
@@ -606,13 +611,13 @@ func (m *Matcher) matchesToResults(matches [][]string) []*Result {
 	return results
 }
 
-func (m *Matcher) matchToResult(match []string, isTextComplex bool) *Result {
+func (m *Matcher) matchToResult(match []string, isKeyMerge bool) *Result {
 	mRes := NewResult()
 	mRes.Key = match[0]
 	mRes.Texts[match[1]] = 1
 	mRes.Num = 1
 	mRes.Tags = m.regexpItems[mRes.Key]
-	mRes.IsTextComplex = isTextComplex
+	mRes.IsKeyMerge = isKeyMerge
 
 	return mRes
 }

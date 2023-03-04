@@ -25,7 +25,7 @@ func TestMatcher(t *testing.T) {
 	items = append(items, map[string]string{"a": "，。【】", "b": "b5", "c": "c5"})
 	items = append(items, map[string]string{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"})
 
-	m := NewMatcher(WithTagMatcherKeyFun(func(s string) string {
+	m := NewMatcher(WithTagMatcherKeyFunc(func(s string) string {
 		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 		if err != nil {
 			return s
@@ -38,7 +38,7 @@ func TestMatcher(t *testing.T) {
 		}
 	}))
 
-	m.init("a", items)
+	m.prepare("a", items)
 
 	var results []*Result
 	var result *Result
