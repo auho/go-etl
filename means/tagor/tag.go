@@ -11,14 +11,15 @@ import (
 	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
+// #TODO 重命名（key keyword  label=>tag）
+
 // Result
-// result
-//
+// result 匹配结果
 type Result struct {
-	Key           string
-	Num           int64
-	Texts         map[string]int64
-	Tags          map[string]string
+	Key           string            // keyword
+	Num           int64             // matched num
+	Texts         map[string]int64  // matched text map[matched text]num
+	Tags          map[string]string // tags map[tag name]tag
 	IsTextComplex bool
 }
 
@@ -32,13 +33,12 @@ func NewResult() *Result {
 
 // LabelResult
 // label result
-//
 type LabelResult struct {
 	Identity string
-	Labels   map[string]string
-	Match    map[string]map[string]int
-	KeyNum   int64
-	TextNum  int64
+	Labels   map[string]string         // tags map[tag name]tag
+	Match    map[string]map[string]int // keyword and match text map[keyword]map[matched text]num
+	KeyNum   int64                     // keyword num
+	TextNum  int64                     // all text word num
 }
 
 func NewLabelResult() *LabelResult {
@@ -89,24 +89,28 @@ func WithTagMatcherMatcher(options []MatcherOption) TagMatcherOption {
 
 // TagMatcher
 // tag matcher
+// table name
+// - rule prefix + data name + rule key name
+// - rule prefix + short table name
+// - rule prefix + rule key name
 //
 type TagMatcher struct {
 	Matcher           *Matcher
 	db                *go_simple_db.SimpleDB
-	tagsName          []string
-	key               string
-	keyFieldName      string
-	keyNumFieldName   string
-	tableName         string
-	tableTagFields    []string
-	excludeTableField []string
+	tagsName          []string            // 关键词匹配的标签列表名称： [tagA1, tagA2]
+	key               string              // 关键词名称： tagA
+	keyFieldName      string              // 关键词字段名称：tagA_keyword
+	keyNumFieldName   string              // 关键词出现数量：tagA_keyword_num
+	tableName         string              // rule 表：rule_tagA
+	tableTagFields    []string            // 数据表标签字段：[tagA1, tagA2, tagA_keyword]
+	excludeTableField map[string]struct{} // 排除的数据表字段：[id, keyword_len]
 
-	dataName       string
-	shortTableName string
-	alias          map[string]string
-	fixedTags      map[string]string
-	fixedKeys      []string
-	fixedValues    []interface{}
+	dataName       string            // data name
+	shortTableName string            // short name of tag data table
+	alias          map[string]string // 别名 [data name => output name]
+	fixedTags      map[string]string // fixed tags data
+	fixedKeys      []string          // keys of fixed data
+	fixedValues    []interface{}     // values of fixed data
 }
 
 func newTagMatcher(key string, db *go_simple_db.SimpleDB, Options ...TagMatcherOption) *TagMatcher {
@@ -119,7 +123,7 @@ func newTagMatcher(key string, db *go_simple_db.SimpleDB, Options ...TagMatcherO
 func (t *TagMatcher) prepare(key string, db *go_simple_db.SimpleDB, Options ...TagMatcherOption) {
 	t.key = key
 	t.db = db
-	t.excludeTableField = []string{"id", "keyword_len"}
+	t.excludeTableField = map[string]struct{}{"id": {}, "keyword_len": {}}
 
 	for _, option := range Options {
 		option(t)
@@ -163,29 +167,27 @@ func (t *TagMatcher) init() {
 
 	t.tableTagFields = make([]string, 0)
 
-	isTagsName := false
+	hasAssignTagsName := false
 	if len(t.tagsName) > 0 {
-		isTagsName = true
+		hasAssignTagsName = true
 	} else {
 		t.tagsName = make([]string, 0)
 	}
 
+	// 获取被匹配的标签字段列表
 	for k := range row {
 		column := row[k]
-		for _, ec := range t.excludeTableField {
-			if ec == column {
-				goto LOOP
-			}
+		if _, ok := t.excludeTableField[column]; ok {
+			continue
 		}
 
 		t.tableTagFields = append(t.tableTagFields, column)
 
-		if isTagsName == false {
+		if hasAssignTagsName == false {
 			if column != t.keyFieldName {
 				t.tagsName = append(t.tagsName, column)
 			}
 		}
-	LOOP:
 	}
 
 	for k, v := range t.tagsName {
@@ -228,9 +230,9 @@ func (t *TagMatcher) getRules() []map[string]string {
 		columns = append(columns, f)
 	}
 
-	var rules []map[string]string
-	query := fmt.Sprintf("SELECT %s FROM `%s` ORDER BY `keyword_len` DESC, `id` ASC", strings.Join(columns, ", "), t.tableName)
-	err := t.db.Exec(query).Scan(query).Error
+	rules := make([]map[string]interface{}, 0)
+	query := fmt.Sprintf("SELECT %s FROM %s ORDER BY keyword_len DESC, id ASC", strings.Join(columns, ", "), t.tableName)
+	err := t.db.Raw(query).Scan(&rules).Error
 	if err != nil {
 		panic(err)
 	}
@@ -239,7 +241,21 @@ func (t *TagMatcher) getRules() []map[string]string {
 		panic("rules is null")
 	}
 
-	return rules
+	_rules := make([]map[string]string, 0)
+	for _, rule := range rules {
+		_rule := make(map[string]string)
+		for k, v := range rule {
+			if _v, ok := v.(string); ok {
+				_rule[k] = _v
+			} else {
+				panic(fmt.Sprintf("TagMatcher type of v is not string %s => %v", k, v))
+			}
+		}
+
+		_rules = append(_rules, _rule)
+	}
+
+	return _rules
 }
 
 func (t *TagMatcher) getResultInsertKeys() []string {
@@ -323,13 +339,13 @@ func WithTagMatcherKeyFun(f func(string) string) MatcherOption {
 // matcher
 //
 type Matcher struct {
-	keyFormatFunList []func(string) string
-	regexpItems      map[string]map[string]string
-	regexp           *regexp.Regexp
-	regexpString     string
-	normalRegexpName string
-	badKeyMap        map[string]string
-	tagsName         []string
+	keyFormatFunList []func(string) string        // 在匹配前处理关键词（使匹配更精确、丰富）
+	regexpItems      map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名称][标签]
+	regexp           *regexp.Regexp               // 所有关键词的 regexp
+	regexpString     string                       // regular expression
+	normalRegexpName string                       // 普通匹配的分组名称
+	badKeyMap        map[string]string            // 非普通匹配分组名称
+	tagsName         []string                     // 标签名称列表
 }
 
 func NewMatcher(Options ...MatcherOption) *Matcher {
@@ -353,6 +369,7 @@ func (m *Matcher) init(keyName string, items []map[string]string) {
 		}
 	}
 
+	// 普通匹配和非普通匹配的表达式（英文、数字等需要通过前后限定符分组精确匹配）
 	regexpNormalItems := make([]string, 0)
 	regexpGroupItems := make([]string, 0)
 
@@ -383,6 +400,8 @@ func (m *Matcher) init(keyName string, items []map[string]string) {
 	m.regexp.Longest()
 }
 
+// Match
+// 重复结果不合并
 func (m *Matcher) Match(contents []string) []*Result {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
@@ -392,6 +411,8 @@ func (m *Matcher) Match(contents []string) []*Result {
 	return m.matchesToResults(matches)
 }
 
+// MatchText
+// match text 合并相同的 matched text
 func (m *Matcher) MatchText(contents []string) []*Result {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
@@ -402,7 +423,6 @@ func (m *Matcher) MatchText(contents []string) []*Result {
 	resultIndex := make(map[string]int)
 
 	for _, match := range matches {
-		key := match[0]
 		text := match[1]
 
 		if index, ok := resultIndex[text]; ok {
@@ -410,13 +430,15 @@ func (m *Matcher) MatchText(contents []string) []*Result {
 			results[index].Num += 1
 		} else {
 			results = append(results, m.matchToResult(match, false))
-			resultIndex[key] = len(results) - 1
+			resultIndex[text] = len(results) - 1
 		}
 	}
 
 	return results
 }
 
+// MatchKey
+// match key 合并相同的 keyword（同时也合并 matched text）
 func (m *Matcher) MatchKey(contents []string) []*Result {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
@@ -431,7 +453,7 @@ func (m *Matcher) MatchKey(contents []string) []*Result {
 		text := match[1]
 
 		if index, ok := resultIndex[key]; ok {
-			if _, ok := results[index].Texts[text]; ok {
+			if _, ok1 := results[index].Texts[text]; ok1 {
 				results[index].Texts[text] += 1
 			} else {
 				results[index].Texts[text] = 1
@@ -447,6 +469,8 @@ func (m *Matcher) MatchKey(contents []string) []*Result {
 	return results
 }
 
+// MatchFirstText
+// match first text 匹配第一个被匹配的 text
 func (m *Matcher) MatchFirstText(contents []string) *Result {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
@@ -456,6 +480,8 @@ func (m *Matcher) MatchFirstText(contents []string) *Result {
 	return m.matchToResult(matches[0], false)
 }
 
+// MatchLastText
+// match first text 最后一个被匹配的 text
 func (m *Matcher) MatchLastText(contents []string) *Result {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
@@ -465,6 +491,8 @@ func (m *Matcher) MatchLastText(contents []string) *Result {
 	return m.matchToResult(matches[len(matches)-1], false)
 }
 
+// MatchMostKey
+// match most key 被匹配次数最多的 keyword
 func (m *Matcher) MatchMostKey(contents []string) *Result {
 	results := m.MatchKey(contents)
 	if results == nil {
@@ -476,6 +504,8 @@ func (m *Matcher) MatchMostKey(contents []string) *Result {
 	return results[0]
 }
 
+// MatchMostText
+// match most text 被匹配次数最多的 matched text
 func (m *Matcher) MatchMostText(contents []string) *Result {
 	results := m.MatchText(contents)
 	if results == nil {
@@ -487,6 +517,8 @@ func (m *Matcher) MatchMostText(contents []string) *Result {
 	return results[0]
 }
 
+// MatchLabel
+// match label 合并重复的 tags 组合
 func (m *Matcher) MatchLabel(contents []string) []*LabelResult {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
@@ -507,12 +539,13 @@ func (m *Matcher) MatchLabel(contents []string) []*LabelResult {
 			tagsContent = tagsContent + "-" + tags[tag]
 		}
 
+		// # TODO delete
 		tagsIdentity := fmt.Sprintf("%x", md5.Sum([]byte(tagsContent)))
 
 		if index, ok := resultIndex[tagsIdentity]; ok {
 			result := results[index]
-			if _, ok := result.Match[key]; ok {
-				if _, ok := result.Match[key][text]; ok {
+			if _, ok1 := result.Match[key]; ok1 {
+				if _, ok2 := result.Match[key][text]; ok2 {
 					result.Match[key][text] += 1
 				} else {
 					result.Match[key][text] = 1
@@ -538,6 +571,8 @@ func (m *Matcher) MatchLabel(contents []string) []*LabelResult {
 	return results
 }
 
+// MatchLabelMostText
+// match label most text 合并重复的 tags 组合中，text 最多次数
 func (m *Matcher) MatchLabelMostText(contents []string) *LabelResult {
 	results := m.MatchLabel(contents)
 	if results == nil {
@@ -553,6 +588,8 @@ func (m *Matcher) addKeyFormatFun(f func(string) string) {
 	m.keyFormatFunList = append(m.keyFormatFunList, f)
 }
 
+// correctBadKeyOfGroupName
+// 避免不合法的分组名称
 func (m *Matcher) correctBadKeyOfGroupName(key string, keyIndex int) string {
 	newKey := fmt.Sprintf("%s%d", m.normalRegexpName, keyIndex)
 	m.badKeyMap[newKey] = key
@@ -580,6 +617,8 @@ func (m *Matcher) matchToResult(match []string, isTextComplex bool) *Result {
 	return mRes
 }
 
+// findAllMatch
+// [][keyword, matched text]
 func (m *Matcher) findAllMatch(contents []string) [][]string {
 	results := make([][]string, 0)
 
@@ -597,7 +636,10 @@ func (m *Matcher) findAllMatch(contents []string) [][]string {
 	return results
 }
 
+// findAllSubMatch
+// [][keyword, matched text]
 func (m *Matcher) findAllSubMatch(content string) [][]string {
+	// 所有分组的匹配结果
 	allSubGroup := m.regexp.SubexpNames()
 	allSubMatch := m.regexp.FindAllStringSubmatch(content, -1)
 

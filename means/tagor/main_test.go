@@ -10,7 +10,7 @@ import (
 	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
-var dsn = "test:test@tcp(127.0.0.1:3306)/test"
+var dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
 var dataRuleTableName = "rule_data_" + ruleName

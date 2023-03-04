@@ -11,7 +11,7 @@ import (
 	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
-var dsn = "test:test@tcp(127.0.0.1:3306)/test"
+var dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
 var dataTableName = "data"
@@ -103,10 +103,16 @@ func setUp() {
 		if err != nil {
 			panic(err)
 		}
+	}
 
-		if db.RowsAffected != int64(maxA) {
-			panic(fmt.Sprintf("%d != %d", db.RowsAffected, maxA))
-		}
+	var count int64
+	err = db.Table(dataTableName).Count(&count).Error
+	if err != nil {
+		panic(err)
+	}
+
+	if count != int64(maxA*maxB) {
+		panic(fmt.Sprintf("%d != %d", db.RowsAffected, maxA))
 	}
 
 	err = db.Drop(cDataTableName)

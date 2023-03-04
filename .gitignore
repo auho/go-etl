@@ -5,6 +5,7 @@
 /office/
 
 go.work
+go.work.sum
 *.test
 *.out
 *.pprof
