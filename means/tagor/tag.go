@@ -11,7 +11,7 @@ import (
 	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
-// #TODO 重命名（key keyword  label=>tag）
+// #TODO 重命名（key keyword  label=>tag） SQL use orm or interface
 
 // Result
 // result 匹配结果
@@ -51,30 +51,40 @@ func NewLabelResult() *LabelResult {
 
 type TagMatcherOption func(*TagMatcher)
 
+// WithTagMatcherTags
+// [tagA1, tagA2]
 func WithTagMatcherTags(s []string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.tagsName = s
 	}
 }
 
+// WithTagMatcherAlias
+// alias [data name => output name]
 func WithTagMatcherAlias(alias map[string]string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.alias = alias
 	}
 }
 
+// WithTagMatcherDataName
+// rule prefix + data name + rule key name
 func WithTagMatcherDataName(d string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.dataName = d
 	}
 }
 
+// WithTagMatcherShortTableName
+// rule prefix + short table name
 func WithTagMatcherShortTableName(s string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.shortTableName = s
 	}
 }
 
+// WithTagMatcherFixedTags
+// fixed data map[tagName]tag
 func WithTagMatcherFixedTags(m map[string]string) TagMatcherOption {
 	return func(t *TagMatcher) {
 		t.fixedTags = m
@@ -87,6 +97,19 @@ func WithTagMatcherMatcher(options []MatcherOption) TagMatcherOption {
 	}
 }
 
+func WithExcludeTableFiled(ss []string) TagMatcherOption {
+	return func(t *TagMatcher) {
+		m := make(map[string]struct{})
+		for _, s := range ss {
+			m[s] = struct{}{}
+		}
+
+		t.excludeTableFields = m
+	}
+}
+
+var defaultExcludeTableFields = map[string]struct{}{"id": {}, "keyword_len": {}}
+
 // TagMatcher
 // tag matcher
 // table name
@@ -95,19 +118,19 @@ func WithTagMatcherMatcher(options []MatcherOption) TagMatcherOption {
 // - rule prefix + rule key name
 //
 type TagMatcher struct {
-	Matcher           *Matcher
-	db                *go_simple_db.SimpleDB
-	tagsName          []string            // 关键词匹配的标签列表名称： [tagA1, tagA2]
-	key               string              // 关键词名称： tagA
-	keyFieldName      string              // 关键词字段名称：tagA_keyword
-	keyNumFieldName   string              // 关键词出现数量：tagA_keyword_num
-	tableName         string              // rule 表：rule_tagA
-	tableTagFields    []string            // 数据表标签字段：[tagA1, tagA2, tagA_keyword]
-	excludeTableField map[string]struct{} // 排除的数据表字段：[id, keyword_len]
+	Matcher            *Matcher
+	db                 *go_simple_db.SimpleDB
+	tagsName           []string            // 关键词匹配的标签列表名称： [tagA1, tagA2]
+	key                string              // 关键词名称： tagA
+	keyFieldName       string              // 关键词字段名称：tagA_keyword
+	keyNumFieldName    string              // 关键词出现数量：tagA_keyword_num
+	tableName          string              // rule 表：rule_tagA
+	tableTagFields     []string            // 数据表标签字段：[tagA1, tagA2, tagA_keyword]
+	excludeTableFields map[string]struct{} // 排除的数据表字段：[id, keyword_len]
 
 	dataName       string            // data name
 	shortTableName string            // short name of tag data table
-	alias          map[string]string // 别名 [data name => output name]
+	alias          map[string]string // alias [data name => output name]
 	fixedTags      map[string]string // fixed tags data
 	fixedKeys      []string          // keys of fixed data
 	fixedValues    []interface{}     // values of fixed data
@@ -123,28 +146,21 @@ func newTagMatcher(key string, db *go_simple_db.SimpleDB, Options ...TagMatcherO
 func (t *TagMatcher) prepare(key string, db *go_simple_db.SimpleDB, Options ...TagMatcherOption) {
 	t.key = key
 	t.db = db
-	t.excludeTableField = map[string]struct{}{"id": {}, "keyword_len": {}}
 
 	for _, option := range Options {
 		option(t)
 	}
 
-	if t.Matcher == nil {
-		t.Matcher = NewMatcher(WithTagMatcherKeyFunc(func(s string) string {
-			res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
-			if err != nil {
-				return s
-			}
-
-			if res {
-				return fmt.Sprintf(`\b%s\b`, s)
-			} else {
-				return strings.ReplaceAll(s, "_", `.{1,3}`)
-			}
-		}))
+	if len(t.excludeTableFields) <= 0 {
+		t.excludeTableFields = defaultExcludeTableFields
 	}
 
 	t.init()
+
+	if t.Matcher == nil {
+		t.Matcher = DefaultMatcher
+	}
+
 	t.Matcher.prepare(t.keyFieldName, t.getRules())
 }
 
@@ -177,7 +193,7 @@ func (t *TagMatcher) init() {
 	// 获取被匹配的标签字段列表
 	for k := range row {
 		column := row[k]
-		if _, ok := t.excludeTableField[column]; ok {
+		if _, ok := t.excludeTableFields[column]; ok {
 			continue
 		}
 
@@ -338,6 +354,19 @@ func WithTagMatcherKeyFunc(f MatcherKeyFormatFunc) MatcherOption {
 	}
 }
 
+var DefaultMatcher = NewMatcher(WithTagMatcherKeyFunc(func(s string) string {
+	res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
+	if err != nil {
+		return s
+	}
+
+	if res {
+		return fmt.Sprintf(`\b%s\b`, s)
+	} else {
+		return strings.ReplaceAll(s, "_", `.{1,3}`)
+	}
+}))
+
 // Matcher
 // 从 rule 条目生成 regexp，匹配 content, 得到 keyword, matched text
 type Matcher struct {
@@ -476,29 +505,29 @@ func (m *Matcher) MatchKey(contents []string) []*Result {
 
 // MatchFirstText
 // match first text 匹配第一个被匹配的 text
-func (m *Matcher) MatchFirstText(contents []string) *Result {
+func (m *Matcher) MatchFirstText(contents []string) []*Result {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
 
-	return m.matchToResult(matches[0], false)
+	return m.matchToResults(matches[0], false)
 }
 
 // MatchLastText
 // match first text 最后一个被匹配的 text
-func (m *Matcher) MatchLastText(contents []string) *Result {
+func (m *Matcher) MatchLastText(contents []string) []*Result {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
 	}
 
-	return m.matchToResult(matches[len(matches)-1], false)
+	return m.matchToResults(matches[len(matches)-1], false)
 }
 
 // MatchMostKey
 // match most key 被匹配次数最多的 keyword
-func (m *Matcher) MatchMostKey(contents []string) *Result {
+func (m *Matcher) MatchMostKey(contents []string) []*Result {
 	results := m.MatchKey(contents)
 	if results == nil {
 		return nil
@@ -506,12 +535,12 @@ func (m *Matcher) MatchMostKey(contents []string) *Result {
 
 	sort.Sort(sortResults(results))
 
-	return results[0]
+	return results[0:1]
 }
 
 // MatchMostText
 // match most text 被匹配次数最多的 matched text
-func (m *Matcher) MatchMostText(contents []string) *Result {
+func (m *Matcher) MatchMostText(contents []string) []*Result {
 	results := m.MatchText(contents)
 	if results == nil {
 		return nil
@@ -519,7 +548,7 @@ func (m *Matcher) MatchMostText(contents []string) *Result {
 
 	sort.Sort(sortResults(results))
 
-	return results[0]
+	return results[0:1]
 }
 
 // MatchLabel
@@ -578,7 +607,7 @@ func (m *Matcher) MatchLabel(contents []string) []*LabelResult {
 
 // MatchLabelMostText
 // match label most text 合并重复的 tags 组合中，text 最多次数
-func (m *Matcher) MatchLabelMostText(contents []string) *LabelResult {
+func (m *Matcher) MatchLabelMostText(contents []string) []*LabelResult {
 	results := m.MatchLabel(contents)
 	if results == nil {
 		return nil
@@ -586,7 +615,7 @@ func (m *Matcher) MatchLabelMostText(contents []string) *LabelResult {
 
 	sort.Sort(sortLabelResults(results))
 
-	return results[0]
+	return results[0:1]
 }
 
 func (m *Matcher) addKeyFormatFunc(f func(string) string) {
@@ -609,6 +638,10 @@ func (m *Matcher) matchesToResults(matches [][]string) []*Result {
 	}
 
 	return results
+}
+
+func (m *Matcher) matchToResults(match []string, isKeyMerge bool) []*Result {
+	return []*Result{m.matchToResult(match, isKeyMerge)}
 }
 
 func (m *Matcher) matchToResult(match []string, isKeyMerge bool) *Result {

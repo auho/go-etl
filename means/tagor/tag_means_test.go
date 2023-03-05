@@ -5,10 +5,9 @@ import (
 )
 
 func TestTagMeans(t *testing.T) {
-	tm := &TagMeans{}
-	tm.prepare(ruleName, db, WithTagMatcherShortTableName("data_a"))
+	tm := NewTagMeans(ruleName, db, nil, WithTagMatcherShortTableName("data_a"))
 
-	if tm.tableName != dataRuleTableName {
+	if tm.tagMatcher.tableName != dataRuleTableName {
 		t.Error("table name is error")
 	}
 
@@ -68,11 +67,11 @@ func TestTagMostTextMeans(t *testing.T) {
 		}),
 	)
 
-	if tm.tableName != dataRuleTableName {
+	if tm.tagMatcher.tableName != dataRuleTableName {
 		t.Error("table name error")
 	}
 
-	for _, k := range tm.tagsName {
+	for _, k := range tm.tagMatcher.tagsName {
 		if k != "aa" && k != "aabb" {
 			t.Error("alias is error")
 		}

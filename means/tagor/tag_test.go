@@ -41,9 +41,7 @@ func TestMatcher(t *testing.T) {
 	m.prepare("a", items)
 
 	var results []*Result
-	var result *Result
 	var tagResults []*LabelResult
-	var tagResult *LabelResult
 
 	fmt.Println("\n Match")
 	results = m.Match(contents)
@@ -64,20 +62,28 @@ func TestMatcher(t *testing.T) {
 	}
 
 	fmt.Println("\n MatchFirstText")
-	result = m.MatchFirstText(contents)
-	fmt.Println(result)
+	results = m.MatchFirstText(contents)
+	for _, result := range results {
+		fmt.Println(result)
+	}
 
 	fmt.Println("\n MatchLastText")
-	result = m.MatchLastText(contents)
-	fmt.Println(result)
+	results = m.MatchLastText(contents)
+	for _, result := range results {
+		fmt.Println(result)
+	}
 
 	fmt.Println("\n MatchMostKey")
-	result = m.MatchMostKey(contents)
-	fmt.Println(result)
+	results = m.MatchMostKey(contents)
+	for _, result := range results {
+		fmt.Println(result)
+	}
 
 	fmt.Println("\n MatchMostText")
-	result = m.MatchMostText(contents)
-	fmt.Println(result)
+	results = m.MatchMostText(contents)
+	for _, result := range results {
+		fmt.Println(result)
+	}
 
 	fmt.Println("\n MatchLabel")
 	tagResults = m.MatchLabel(contents)
@@ -86,7 +92,8 @@ func TestMatcher(t *testing.T) {
 	}
 
 	fmt.Println("\n MatchLabelMostText")
-	tagResult = m.MatchLabelMostText(contents)
-	fmt.Println(tagResult)
-
+	tagResults = m.MatchLabelMostText(contents)
+	for _, tagResult := range tagResults {
+		fmt.Println(tagResult)
+	}
 }
