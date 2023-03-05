@@ -4,18 +4,22 @@ import (
 	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
+// Transfer
+// transfer data source to dst
 type Transfer struct {
 	Mode
-	Db          *go_simple_db.SimpleDB
-	fields      []string
-	alias       map[string]string
+	db          *go_simple_db.SimpleDB
+	fields      []string          // source data table filed name
+	alias       map[string]string // alias map[data key name]alias key name
 	fixedFields []string
-	fixedData   map[string]interface{}
+	fixedData   map[string]interface{} // fixed data map[data key name]value
 }
 
+// NewTransfer
+// tableName source table name
 func NewTransfer(db *go_simple_db.SimpleDB, tableName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
 	m := &Transfer{}
-	m.Db = db
+	m.db = db
 	m.keys = make([]string, 0)
 	m.fields = make([]string, 0)
 	m.alias = alias
@@ -27,7 +31,7 @@ func NewTransfer(db *go_simple_db.SimpleDB, tableName string, alias map[string]s
 		}
 	} else {
 		var err error
-		m.fields, err = db.GetTableColumns(tableName)
+		m.fields, err = m.db.GetTableColumns(tableName)
 		if err != nil {
 			panic(err)
 		}

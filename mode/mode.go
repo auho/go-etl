@@ -14,24 +14,24 @@ type VoidModer interface {
 
 type InsertModer interface {
 	GetTitle() string
-	GetKeys() []string
-	GetFields() []string
+	GetKeys() []string   // 处理后的 key name
+	GetFields() []string // source data 里的 key name
 	Do(map[string]interface{}) []map[string]interface{}
 	Close()
 }
 
 type UpdateModer interface {
 	GetTitle() string
-	GetFields() []string
+	GetFields() []string // source data 里的 key name
 	Do(map[string]interface{}) map[string]interface{}
 	Close()
 }
 
 type Mode struct {
-	keys []string
+	keys []string // 要被处理的 key name
 }
 
-func (t *Mode) getModeTitle() string {
+func (t *Mode) getTitle() string {
 	return "keys[" + strings.Join(t.keys, ", ") + "]"
 }
 

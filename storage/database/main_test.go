@@ -10,7 +10,7 @@ import (
 	"github.com/auho/go-simple-db/mysql"
 )
 
-var dsn = "test:test@tcp(127.0.0.1:3306)/test"
+var dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 var tableName = "test_mysql"
 var pkName = "id"
 var db *mysql.Mysql

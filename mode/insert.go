@@ -7,21 +7,23 @@ import (
 	"github.com/auho/go-etl/means"
 )
 
+// Insert
+// single means
 type Insert struct {
 	Mode
-	insert means.InsertMeans
+	means means.InsertMeans
 }
 
-func NewInsert(keys []string, insert means.InsertMeans) *Insert {
+func NewInsert(keys []string, means means.InsertMeans) *Insert {
 	m := &Insert{}
 	m.keys = keys
-	m.insert = insert
+	m.means = means
 
 	return m
 }
 
 func (m *Insert) GetTitle() string {
-	return m.getModeTitle() + " " + m.insert.GetTitle()
+	return "Insert " + m.Mode.getTitle() + " " + m.means.GetTitle()
 }
 
 func (m *Insert) GetFields() []string {
@@ -29,7 +31,7 @@ func (m *Insert) GetFields() []string {
 }
 
 func (m *Insert) GetKeys() []string {
-	return m.insert.GetKeys()
+	return m.means.GetKeys()
 }
 
 func (m *Insert) Do(item map[string]interface{}) []map[string]interface{} {
@@ -39,35 +41,38 @@ func (m *Insert) Do(item map[string]interface{}) []map[string]interface{} {
 
 	contents := m.GetKeysContent(m.keys, item)
 
-	return m.insert.Insert(contents)
+	return m.means.Insert(contents)
 }
 
 func (m *Insert) Close() {
-	m.insert.Close()
+	m.means.Close()
 }
 
+// InsertMulti
+// multi means
+// 多个 means merge，使用相同 key 名称
 type InsertMulti struct {
 	Mode
-	inserts      []means.InsertMeans
-	insertFields []string
+	meanses   []means.InsertMeans
+	meansKeys []string
 }
 
-func NewInsertMulti(keys []string, insertFields []string, inserts []means.InsertMeans) *InsertMulti {
+func NewInsertMulti(keys []string, meansKeys []string, meanses ...means.InsertMeans) *InsertMulti {
 	m := &InsertMulti{}
 	m.keys = keys
-	m.inserts = inserts
-	m.insertFields = insertFields
+	m.meanses = meanses
+	m.meansKeys = meansKeys
 
 	return m
 }
 
 func (m *InsertMulti) GetTitle() string {
 	is := make([]string, 0)
-	for _, i := range m.inserts {
+	for _, i := range m.meanses {
 		is = append(is, i.GetTitle())
 	}
 
-	return fmt.Sprintf("%s{%s}", m.getModeTitle(), strings.Join(is, ","))
+	return fmt.Sprintf("Insert multi %s{%s}", m.Mode.getTitle(), strings.Join(is, ","))
 }
 
 func (m *InsertMulti) GetFields() []string {
@@ -75,7 +80,7 @@ func (m *InsertMulti) GetFields() []string {
 }
 
 func (m *InsertMulti) GetKeys() []string {
-	return m.insertFields
+	return m.meansKeys
 }
 
 func (m *InsertMulti) Do(item map[string]interface{}) []map[string]interface{} {
@@ -86,7 +91,7 @@ func (m *InsertMulti) Do(item map[string]interface{}) []map[string]interface{} {
 	contents := m.GetKeysContent(m.keys, item)
 
 	items := make([]map[string]interface{}, 0)
-	for _, i := range m.inserts {
+	for _, i := range m.meanses {
 		res := i.Insert(contents)
 		if res == nil {
 			continue
@@ -99,7 +104,7 @@ func (m *InsertMulti) Do(item map[string]interface{}) []map[string]interface{} {
 }
 
 func (m *InsertMulti) Close() {
-	for _, i := range m.inserts {
+	for _, i := range m.meanses {
 		i.Close()
 	}
 }

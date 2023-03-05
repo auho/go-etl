@@ -7,7 +7,7 @@ import (
 )
 
 var testConfigContent = `[db]
-dsn = "test:test@tcp(127.0.0.1:3306)/test"
+dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 driver = "mysql"
 `
 var app *App

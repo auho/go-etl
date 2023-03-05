@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/means"
 	"github.com/auho/go-etl/means/segwordor"
 	"github.com/auho/go-etl/means/tagor"
 )
@@ -42,7 +41,7 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	ti5 := NewInsertMulti([]string{keyName}, sw.GetKeys(), []means.InsertMeans{sw, sw})
+	ti5 := NewInsertMulti([]string{keyName}, sw.GetKeys(), sw, sw)
 	results2 := ti5.Do(item)
 	if len(results2) <= 0 {
 		t.Error("error")
@@ -63,6 +62,6 @@ func Test_InsertMode(t *testing.T) {
 	}
 
 	if len(results)*2 != len(results2) {
-		t.Error("multi insert mode is error")
+		t.Error("multi means mode is error")
 	}
 }
