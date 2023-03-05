@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/means/segwordor"
-	"github.com/auho/go-etl/means/tagor"
+	"github.com/auho/go-etl/means/segword"
+	"github.com/auho/go-etl/means/tag"
 )
 
 func Test_InsertMode(t *testing.T) {
-	ttm := tagor.NewKey(ruleName, db)
+	ttm := tag.NewKey(ruleName, tag.WithDBRule(db))
 	ti1 := NewInsert([]string{keyName}, ttm)
 	results := ti1.Do(item)
 	if len(results) <= 0 {
@@ -17,7 +17,7 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	tmtm := tagor.NewMostText(ruleName, db)
+	tmtm := tag.NewMostText(ruleName, tag.WithDBRule(db))
 	ti2 := NewInsert([]string{keyName}, tmtm)
 	results = ti2.Do(item)
 	if len(results) <= 0 {
@@ -25,7 +25,7 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	tmkm := tagor.NewMostKey(ruleName, db)
+	tmkm := tag.NewMostKey(ruleName, tag.WithDBRule(db))
 	ti3 := NewInsert([]string{keyName}, tmkm)
 	results = ti3.Do(item)
 	if len(results) <= 0 {
@@ -33,7 +33,7 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	sw := segwordor.NewSegWordsMeans()
+	sw := segword.NewSegWordsMeans()
 	ti4 := NewInsert([]string{keyName}, sw)
 	results = ti4.Do(item)
 	if len(results) <= 0 {

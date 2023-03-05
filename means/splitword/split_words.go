@@ -1,4 +1,4 @@
-package splitwordor
+package splitword
 
 type SplitWords struct {
 }

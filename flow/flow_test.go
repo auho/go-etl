@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"github.com/auho/go-etl/action"
-	"github.com/auho/go-etl/means/tagor"
+	"github.com/auho/go-etl/means/tag"
 	"github.com/auho/go-etl/mode"
 )
 
 func Test_Update(t *testing.T) {
-	m := mode.NewUpdate([]string{keyName}, tagor.NewMostKey(ruleName, db))
+	m := mode.NewUpdate([]string{keyName}, tag.NewMostKey(ruleName, tag.WithDBRule(db)))
 	ua := action.NewUpdate(db,
 		dataTableName,
 		pkName,
@@ -33,7 +33,7 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_Insert(t *testing.T) {
-	m := mode.NewInsert([]string{keyName}, tagor.NewKey(ruleName, db))
+	m := mode.NewInsert([]string{keyName}, tag.NewKey(ruleName, tag.WithDBRule(db)))
 	ia := action.NewInsert(db,
 		tagTableName,
 		m,
@@ -104,7 +104,7 @@ func Test_Transfer(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	m := mode.NewUpdate([]string{keyName}, tagor.NewMostKey(ruleName, db))
+	m := mode.NewUpdate([]string{keyName}, tag.NewMostKey(ruleName, tag.WithDBRule(db)))
 
 	CleanFlow(db, dataTableName, pkName, cDataTableName, []mode.UpdateModer{m})
 	dataCount := getAmount(dataTableName, t)
@@ -126,7 +126,7 @@ func getAmount(tableName string, t *testing.T) int64 {
 
 func getFieldAmount(tableName string, field string, value interface{}, t *testing.T) int64 {
 	var count int64
-	err := db.Table(tableName).Where(fmt.Sprintf("%s = ?", value)).Count(&count).Error
+	err := db.Table(tableName).Where(fmt.Sprintf("%s = ?", field), value).Count(&count).Error
 	if err != nil {
 		t.Error(err)
 	}

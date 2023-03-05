@@ -1,4 +1,4 @@
-package segwordor
+package segword
 
 import (
 	"unicode/utf8"

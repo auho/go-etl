@@ -1,15 +1,13 @@
-package tagor
+package tag
 
 import (
 	"testing"
+
+	"github.com/auho/go-etl/means/tag/rule"
 )
 
 func TestTagMeans(t *testing.T) {
-	tm := NewTagMeans(ruleName, db, nil, WithTagMatcherShortTableName("data_a"))
-
-	if tm.tagMatcher.tableName != dataRuleTableName {
-		t.Error("table name is error")
-	}
+	tm := NewTagMeans(ruleName, nil, WithDBRule(db, rule.WithDBRuleDataName("data")))
 
 	keys := tm.GetKeys()
 	if len(keys) < 4 {
@@ -18,7 +16,7 @@ func TestTagMeans(t *testing.T) {
 }
 
 func TestTagKeyMeans(t *testing.T) {
-	tm := NewKey(ruleName, db)
+	tm := NewKey(ruleName, WithDBRule(db))
 	resSlice := tm.Insert(contents)
 	if len(resSlice) <= 0 {
 		t.Error("error")
@@ -26,7 +24,7 @@ func TestTagKeyMeans(t *testing.T) {
 }
 
 func TestTagMostKeyMeans(t *testing.T) {
-	tm := NewMostKey(ruleName, db)
+	tm := NewMostKey(ruleName, WithDBRule(db))
 	resSlice := tm.Insert(contents)
 	if len(resSlice) <= 0 {
 		t.Error("error")
@@ -52,27 +50,26 @@ func TestTagMostKeyMeans(t *testing.T) {
 }
 
 func TestTagMostTextMeans(t *testing.T) {
-	tm := NewMostText(ruleName, db,
-		WithTagMatcherTags([]string{"a"}),
-		WithTagMatcherDataName("data"),
-		WithTagMatcherAlias(map[string]string{
-			"a":             "aa",
-			"ab":            "aabb",
-			"a_keyword":     "aa_keyword",
-			"a_keyword_num": "aa_keyword_num",
+	tm := NewMostText(ruleName,
+		WithAlias(map[string]string{
+			"a":             "a_alias",
+			"ab":            "ab_alias",
+			"a_keyword":     "a_keyword_alias",
+			"a_keyword_num": "a_keyword_num_alias",
 		}),
-		WithTagMatcherFixedTags(map[string]string{
-			"c": "c1",
-			"d": "d1",
+		WithFixedTags(map[string]string{
+			"c": "c_fixed",
+			"d": "d_fixed",
 		}),
+		WithDBRule(
+			db,
+			rule.WithDBRuleTagsName([]string{"a"}),
+			rule.WithDBRuleDataName("data"),
+		),
 	)
 
-	if tm.tagMatcher.tableName != dataRuleTableName {
-		t.Error("table name error")
-	}
-
 	for _, k := range tm.tagMatcher.tagsName {
-		if k != "aa" && k != "aabb" {
+		if k != "a_alias" && k != "ab_alias" {
 			t.Error("alias is error")
 		}
 	}
@@ -84,7 +81,7 @@ func TestTagMostTextMeans(t *testing.T) {
 
 	keys := tm.GetKeys()
 	for _, k := range keys {
-		if k != "aa" && k != "aabb" && k != "aa_keyword" && k != "aa_keyword_num" && k != "c" && k != "d" {
+		if k != "a_alias" && k != "ab_alias" && k != "a_keyword_alias" && k != "a_keyword_num_alias" && k != "c_alias" && k != "d_alias" {
 			t.Error("keys error")
 		}
 	}

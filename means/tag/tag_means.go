@@ -1,22 +1,20 @@
-package tagor
+package tag
 
 import (
 	"fmt"
 	"strings"
-
-	go_simple_db "github.com/auho/go-simple-db/v2"
 )
 
 // TagMeans
 // tag means
 type TagMeans struct {
-	tagMatcher *TagMatcher
+	tagMatcher *ruleMatcher
 	fn         func(*Matcher, []string) []*Result
 }
 
-func NewTagMeans(ruleName string, db *go_simple_db.SimpleDB, fn func(*Matcher, []string) []*Result, opts ...TagMatcherOption) *TagMeans {
+func NewTagMeans(ruleName string, fn func(*Matcher, []string) []*Result, opts ...RuleMatcherOption) *TagMeans {
 	t := &TagMeans{
-		tagMatcher: newTagMatcher(ruleName, db, opts...),
+		tagMatcher: newRuleMatcher(ruleName, opts...),
 		fn:         fn,
 	}
 
@@ -34,7 +32,7 @@ func (t *TagMeans) GetKeys() []string {
 func (t *TagMeans) Close() {}
 
 func (t *TagMeans) Insert(contents []string) []map[string]interface{} {
-	results := t.fn(t.tagMatcher.Matcher, contents)
+	results := t.fn(t.tagMatcher.matcher, contents)
 	if results == nil {
 		return nil
 	}
@@ -43,7 +41,7 @@ func (t *TagMeans) Insert(contents []string) []map[string]interface{} {
 }
 
 func (t *TagMeans) Update(contents []string) map[string]interface{} {
-	results := t.fn(t.tagMatcher.Matcher, contents)
+	results := t.fn(t.tagMatcher.matcher, contents)
 	if results == nil {
 		return nil
 	}
@@ -51,24 +49,24 @@ func (t *TagMeans) Update(contents []string) map[string]interface{} {
 	return t.tagMatcher.resultToMap(results[0])
 }
 
-func NewKey(ruleName string, db *go_simple_db.SimpleDB, opts ...TagMatcherOption) *TagMeans {
-	t := NewTagMeans(ruleName, db, func(m *Matcher, c []string) []*Result {
+func NewKey(ruleName string, opts ...RuleMatcherOption) *TagMeans {
+	t := NewTagMeans(ruleName, func(m *Matcher, c []string) []*Result {
 		return m.MatchKey(c)
 	}, opts...)
 
 	return t
 }
 
-func NewMostText(ruleName string, db *go_simple_db.SimpleDB, opts ...TagMatcherOption) *TagMeans {
-	t := NewTagMeans(ruleName, db, func(m *Matcher, c []string) []*Result {
+func NewMostText(ruleName string, opts ...RuleMatcherOption) *TagMeans {
+	t := NewTagMeans(ruleName, func(m *Matcher, c []string) []*Result {
 		return m.MatchMostText(c)
 	}, opts...)
 
 	return t
 }
 
-func NewMostKey(ruleName string, db *go_simple_db.SimpleDB, opts ...TagMatcherOption) *TagMeans {
-	t := NewTagMeans(ruleName, db, func(m *Matcher, c []string) []*Result {
+func NewMostKey(ruleName string, opts ...RuleMatcherOption) *TagMeans {
+	t := NewTagMeans(ruleName, func(m *Matcher, c []string) []*Result {
 		return m.MatchMostKey(c)
 	}, opts...)
 

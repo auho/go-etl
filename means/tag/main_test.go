@@ -1,4 +1,4 @@
-package tagor
+package tag
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 var dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
-var dataRuleTableName = "rule_data_" + ruleName
+var ruleDataTableName = "rule_data_" + ruleName
 var db *go_simple_db.SimpleDB
 var contents = []string{
 	`b一ab一bc一abc一123b一b123一123一0123一1234一01234一`,
@@ -68,12 +68,17 @@ func setUp() {
 		panic(err)
 	}
 
-	err = db.Copy(ruleTableName, dataRuleTableName)
+	err = db.Drop(ruleDataTableName)
 	if err != nil {
 		panic(err)
 	}
 
-	query = fmt.Sprintf("INSERT INTO `%s` SELECT * FROM `%s`", dataRuleTableName, ruleTableName)
+	err = db.Copy(ruleTableName, ruleDataTableName)
+	if err != nil {
+		panic(err)
+	}
+
+	query = fmt.Sprintf("INSERT INTO `%s` SELECT * FROM `%s`", ruleDataTableName, ruleTableName)
 	err = db.Exec(query).Error
 	if err != nil {
 		panic(err)
@@ -82,5 +87,5 @@ func setUp() {
 
 func tearDown() {
 	_ = db.Drop(ruleTableName)
-	_ = db.Drop(dataRuleTableName)
+	_ = db.Drop(ruleDataTableName)
 }

@@ -1,4 +1,4 @@
-package tagor
+package tag
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestTagMatcher_GetResultInsertKeys(t *testing.T) {
-	tm := newTagMatcher(ruleName, db)
+	tm := newRuleMatcher(ruleName, WithDBRule(db))
 	keys := tm.getResultInsertKeys()
 	if len(keys) < 4 {
 		t.Error("error")
