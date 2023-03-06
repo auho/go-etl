@@ -6,7 +6,7 @@ import (
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Actionor = (*Transfer)(nil)
+var _ Actioner = (*Transfer)(nil)
 
 type Transfer struct {
 	action

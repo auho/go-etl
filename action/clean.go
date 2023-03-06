@@ -8,7 +8,7 @@ import (
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Actionor = (*Clean)(nil)
+var _ Actioner = (*Clean)(nil)
 
 type Clean struct {
 	action

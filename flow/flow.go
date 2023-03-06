@@ -11,7 +11,7 @@ import (
 	"github.com/auho/go-toolkit/flow/storage/database/source"
 )
 
-func RunFlow(db *goSimpleDb.SimpleDB, dataTable string, idName string, actions []action.Actionor) {
+func RunFlow(db *goSimpleDb.SimpleDB, dataTable string, idName string, actions []action.Actioner) {
 	fields := []string{idName}
 	for _, a := range actions {
 		fields = append(fields, a.GetFields()...)

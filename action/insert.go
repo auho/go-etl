@@ -7,7 +7,7 @@ import (
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Actionor = (*Insert)(nil)
+var _ Actioner = (*Insert)(nil)
 
 type Insert struct {
 	action

@@ -9,7 +9,7 @@ import (
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Actionor = (*Update)(nil)
+var _ Actioner = (*Update)(nil)
 
 type Update struct {
 	action

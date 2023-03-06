@@ -7,7 +7,7 @@ import (
 
 const batchSize = 2000
 
-type Actionor interface {
+type Actioner interface {
 	task.Tasker[storage.MapEntry]
 	GetFields() []string
 }

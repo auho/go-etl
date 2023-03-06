@@ -3,7 +3,7 @@ module github.com/auho/go-etl
 go 1.18
 
 require (
-	github.com/auho/go-simple-db/v2 v2.0.0
+	github.com/auho/go-simple-db/v2 v2.0.1
 	github.com/auho/go-toolkit/flow v0.0.0-20230302113404-7671f9e04b95
 	github.com/pelletier/go-toml v1.9.3
 	github.com/yanyiwu/gojieba v1.1.2

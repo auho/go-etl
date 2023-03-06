@@ -8,10 +8,10 @@ import (
 
 func UpdateAndTransferFlow(db *goSimpleDb.SimpleDB, dataTable, idName, transferTable string, modes []mode.UpdateModer) {
 	a := action.NewUpdateAndTransfer(db, dataTable, transferTable, idName, modes)
-	RunFlow(db, dataTable, idName, []action.Actionor{a})
+	RunFlow(db, dataTable, idName, []action.Actioner{a})
 }
 
 func UpdateFlow(db *goSimpleDb.SimpleDB, dataTable, idName string, modes []mode.UpdateModer) {
 	a := action.NewUpdate(db, dataTable, idName, modes)
-	RunFlow(db, dataTable, idName, []action.Actionor{a})
+	RunFlow(db, dataTable, idName, []action.Actioner{a})
 }
