@@ -1,14 +1,14 @@
 package mode
 
 import (
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 // Transfer
 // transfer data source to dst
 type Transfer struct {
 	Mode
-	db          *go_simple_db.SimpleDB
+	db          *goSimpleDb.SimpleDB
 	fields      []string          // source data table filed name
 	alias       map[string]string // alias map[data key name]alias key name
 	fixedFields []string
@@ -17,7 +17,7 @@ type Transfer struct {
 
 // NewTransfer
 // tableName source table name
-func NewTransfer(db *go_simple_db.SimpleDB, tableName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
+func NewTransfer(db *goSimpleDb.SimpleDB, tableName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
 	m := &Transfer{}
 	m.db = db
 	m.keys = make([]string, 0)

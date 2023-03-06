@@ -6,39 +6,62 @@ import (
 
 	"github.com/auho/go-etl/mode"
 	"github.com/auho/go-etl/tool"
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Actionor = (*Update)(nil)
 
 type Update struct {
 	action
-	target         *go_simple_db.SimpleDB
-	modes          []mode.UpdateModer
-	targetDataName string
-	idName         string
-	dataName       string
+	db        *goSimpleDb.SimpleDB
+	modes     []mode.UpdateModer
+	idName    string
+	dataTable string
+
+	isTransfer    bool
+	transferTable string
 }
 
-func NewUpdate(db *go_simple_db.SimpleDB, dataName string, idName string, modes []mode.UpdateModer) *Update {
+func NewUpdateAndTransfer(db *goSimpleDb.SimpleDB, dataTable string, transferTable string, idName string, modes []mode.UpdateModer) *Update {
+	u := NewUpdate(db, dataTable, idName, modes)
+	u.isTransfer = true
+	u.transferTable = transferTable
+
+	return u
+}
+
+func NewUpdate(db *goSimpleDb.SimpleDB, dataTable string, idName string, modes []mode.UpdateModer) *Update {
 	u := &Update{}
-	u.target = db
+	u.db = db
 	u.modes = modes
 	u.idName = idName
-	u.dataName = dataName
+	u.dataTable = dataTable
+
+	u.Init()
 
 	return u
 }
 
 func (u *Update) GetFields() []string {
 	fields := make([]string, 0)
+	fields = append(fields, u.idName)
+
 	for _, m := range u.modes {
 		fields = append(fields, m.GetFields()...)
 	}
 
+	if u.isTransfer {
+		columns, err := u.db.GetTableColumns(u.transferTable)
+		if err != nil {
+			panic(err)
+		}
+
+		fields = append(fields, columns...)
+	}
+
 	fields = tool.RemoveReplicaSliceString(fields)
 
-	return append(fields, u.idName)
+	return fields
 }
 
 func (u *Update) Title() string {
@@ -47,19 +70,25 @@ func (u *Update) Title() string {
 		s = append(s, m.GetTitle())
 	}
 
-	return fmt.Sprintf("Update[%s] {%s}", u.dataName, strings.Join(s, ", "))
+	return fmt.Sprintf("Update[%s] {%s}", u.dataTable, strings.Join(s, ", "))
 }
 
 func (u *Update) Prepare() error {
-	//TODO implement me
-	panic("implement me")
+	return nil
 }
 
 func (u *Update) Do(items []map[string]any) {
-	targetItems := make([]map[string]interface{}, 0)
+	newItems := make([]map[string]interface{}, 0)
 
 	for _, item := range items {
-		_newItem := make(map[string]any)
+		var _newItem map[string]any
+		if u.isTransfer {
+			_newItem = item
+		} else {
+			_newItem = make(map[string]any)
+			_newItem[u.idName] = item[u.idName]
+		}
+
 		for _, m := range u.modes {
 			_do := m.Do(item)
 			for k, v := range _do {
@@ -71,11 +100,19 @@ func (u *Update) Do(items []map[string]any) {
 			continue
 		}
 
-		_newItem[u.idName] = item[u.idName]
-		targetItems = append(targetItems, _newItem)
+		newItems = append(newItems, _newItem)
 	}
 
-	_ = u.target.BulkUpdateFromSliceMapById(u.dataName, u.idName, targetItems)
+	var err error
+	if u.isTransfer {
+		err = u.db.BulkInsertFromSliceMap(u.transferTable, newItems, batchSize)
+	} else {
+		err = u.db.BulkUpdateFromSliceMapById(u.dataTable, u.idName, newItems)
+	}
+
+	if err != nil {
+		panic(err)
+	}
 
 }
 

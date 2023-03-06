@@ -6,7 +6,7 @@ import (
 
 	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/tool"
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var defaultExcludeTableFields = []string{"id", "keyword_len"}
@@ -49,7 +49,7 @@ func WithDBRuleExcludeFields(e []string) func(rule *DBRule) {
 // - rule prefix + short table name
 // - rule prefix + rule key name
 type DBRule struct {
-	db             *go_simple_db.SimpleDB
+	db             *goSimpleDb.SimpleDB
 	key            string   //
 	tableName      string   // rule 表：rule_tagA
 	dataName       string   // data name
@@ -58,7 +58,7 @@ type DBRule struct {
 	excludeFields  []string
 }
 
-func NewDBRule(db *go_simple_db.SimpleDB, key string, opts ...func(*DBRule)) *DBRule {
+func NewDBRule(db *goSimpleDb.SimpleDB, key string, opts ...func(*DBRule)) *DBRule {
 	d := &DBRule{
 		db:  db,
 		key: key,

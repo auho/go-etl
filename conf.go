@@ -3,9 +3,14 @@ package go_etl
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
+	"os"
+	"time"
 
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 	"github.com/pelletier/go-toml"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Config struct {
@@ -17,14 +22,28 @@ type DbConfig struct {
 	Dsn    string
 }
 
-func (dc *DbConfig) BuildDB() (*go_simple_db.SimpleDB, error) {
-	var db *go_simple_db.SimpleDB
+func (dc *DbConfig) BuildDB() (*goSimpleDb.SimpleDB, error) {
+	var db *goSimpleDb.SimpleDB
 	var err error
+
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）
+		logger.Config{
+			SlowThreshold:             time.Second,  // 慢 SQL 阈值
+			LogLevel:                  logger.Error, // 日志级别
+			IgnoreRecordNotFoundError: true,         // 忽略ErrRecordNotFound（记录未找到）错误
+		},
+	)
+
+	dbc := &gorm.Config{
+		Logger: newLogger,
+	}
+
 	switch dc.Driver {
 	case "mysql":
-		db, err = go_simple_db.NewMysql(dc.Dsn)
+		db, err = goSimpleDb.NewMysql(dc.Dsn, dbc)
 	case "clickhouse":
-		db, err = go_simple_db.NewClickhouse(dc.Dsn)
+		db, err = goSimpleDb.NewClickhouse(dc.Dsn, dbc)
 	default:
 		err = fmt.Errorf("driver[%s] not found", dc.Driver)
 	}

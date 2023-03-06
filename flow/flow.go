@@ -5,13 +5,13 @@ import (
 
 	"github.com/auho/go-etl/action"
 	"github.com/auho/go-etl/tool"
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 	"github.com/auho/go-toolkit/flow"
 	"github.com/auho/go-toolkit/flow/storage/database"
 	"github.com/auho/go-toolkit/flow/storage/database/source"
 )
 
-func RunFlow(db *go_simple_db.SimpleDB, dataName string, idName string, actions []action.Actionor) {
+func RunFlow(db *goSimpleDb.SimpleDB, dataTable string, idName string, actions []action.Actionor) {
 	fields := []string{idName}
 	for _, a := range actions {
 		fields = append(fields, a.GetFields()...)
@@ -23,7 +23,7 @@ func RunFlow(db *go_simple_db.SimpleDB, dataName string, idName string, actions 
 		Config: source.Config{
 			Concurrency: runtime.NumCPU(),
 			PageSize:    2000,
-			TableName:   dataName,
+			TableName:   dataTable,
 			IdName:      idName,
 		},
 		Fields: fields,
@@ -37,7 +37,7 @@ func RunFlow(db *go_simple_db.SimpleDB, dataName string, idName string, actions 
 	opts := flow.Options[map[string]any]{}
 	opts = append(opts, flow.WithSource[map[string]any](dataSource))
 	for _, a := range actions {
-		flow.WithTasker[map[string]any](a)
+		opts = append(opts, flow.WithTasker[map[string]any](a))
 	}
 
 	err = flow.RunFlow[map[string]any](opts...)

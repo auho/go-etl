@@ -5,31 +5,33 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/mode"
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Actionor = (*Clean)(nil)
 
 type Clean struct {
 	action
-	target         *go_simple_db.SimpleDB
-	fields         []string
-	modes          []mode.UpdateModer
-	targetDataName string
+	db          *goSimpleDb.SimpleDB
+	fields      []string
+	modes       []mode.UpdateModer
+	targetTable string
 }
 
-func NewClean(db *go_simple_db.SimpleDB, targetDataName string, modes []mode.UpdateModer) *Clean {
+func NewClean(db *goSimpleDb.SimpleDB, targetTable string, modes []mode.UpdateModer) *Clean {
 	var err error
 
 	c := &Clean{}
-	c.target = db
+	c.db = db
 	c.modes = modes
-	c.targetDataName = targetDataName
+	c.targetTable = targetTable
 
-	c.fields, err = db.GetTableColumns(c.targetDataName)
+	c.fields, err = db.GetTableColumns(c.targetTable)
 	if err != nil {
 		panic(err)
 	}
+
+	c.Init()
 
 	return c
 }
@@ -44,7 +46,7 @@ func (c *Clean) Title() string {
 		s = append(s, m.GetTitle())
 	}
 
-	return fmt.Sprintf("Clean[%s] {%s}", c.targetDataName, strings.Join(s, ", "))
+	return fmt.Sprintf("Clean[%s] {%s}", c.targetTable, strings.Join(s, ", "))
 }
 
 func (c *Clean) Prepare() error {
@@ -52,13 +54,13 @@ func (c *Clean) Prepare() error {
 }
 
 func (c *Clean) Do(items []map[string]any) {
-	targetItems := make([]map[string]any, 0)
+	newItems := make([]map[string]any, 0)
 
 	for _, item := range items {
 		isClean := false
 		for _, m := range c.modes {
 			_res := m.Do(item)
-			if _res != nil || len(_res) > 0 {
+			if len(_res) > 0 {
 				isClean = true
 				break
 			}
@@ -74,10 +76,13 @@ func (c *Clean) Do(items []map[string]any) {
 		}
 
 		c.AddAmount(1)
-		targetItems = append(targetItems, item)
+		newItems = append(newItems, item)
 	}
 
-	_ = c.target.BulkInsertFromSliceMap(c.targetDataName, targetItems, 2000)
+	err := c.db.BulkInsertFromSliceMap(c.targetTable, newItems, batchSize)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (c *Clean) AfterDo() {}

@@ -5,6 +5,8 @@ import (
 	"github.com/auho/go-toolkit/flow/task"
 )
 
+const batchSize = 2000
+
 type Actionor interface {
 	task.Tasker[storage.MapEntry]
 	GetFields() []string

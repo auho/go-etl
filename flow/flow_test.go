@@ -12,64 +12,84 @@ import (
 func Test_Update(t *testing.T) {
 	m := mode.NewUpdate([]string{keyName}, tag.NewMostKey(ruleName, tag.WithDBRule(db)))
 	ua := action.NewUpdate(db,
-		dataTableName,
+		dataTable,
 		pkName,
 		[]mode.UpdateModer{m},
 	)
 
-	RunFlow(db, dataTableName, pkName, []action.Actionor{ua})
-	UpdateFlow(db, dataTableName, pkName, []mode.UpdateModer{m})
+	RunFlow(db, dataTable, pkName, []action.Actionor{ua})
+	UpdateFlow(db, dataTable, pkName, []mode.UpdateModer{m})
 
 	var count int64
-	err := db.Table(dataTableName).Where(fmt.Sprintf("%s != ?", "a"), "").Count(&count).Error
+	err := db.Table(dataTable).Where(fmt.Sprintf("%s != ?", "a"), "").Count(&count).Error
 	if err != nil {
 		t.Error(err)
 	}
 
-	amount := getAmount(dataTableName, t)
+	amount := getAmount(dataTable, t)
 	if float32(count/amount) > 0.5 {
 		t.Error("update error")
+	}
+}
+
+func Test_UpdateAndTransfer(t *testing.T) {
+	m := mode.NewUpdate([]string{keyName}, tag.NewMostKey(ruleName, tag.WithDBRule(db)))
+	ua := action.NewUpdateAndTransfer(db,
+		dataTable,
+		updateAndTransferTable,
+		pkName,
+		[]mode.UpdateModer{m},
+	)
+
+	RunFlow(db, dataTable, pkName, []action.Actionor{ua})
+	UpdateAndTransferFlow(db, dataTable, pkName, updateAndTransferTable, []mode.UpdateModer{m})
+
+	dataCount := getAmount(dataTable, t)
+	transferCount := getAmount(updateAndTransferTable, t)
+
+	if dataCount*2 != transferCount {
+		t.Error("update and transfer error")
 	}
 }
 
 func Test_Insert(t *testing.T) {
 	m := mode.NewInsert([]string{keyName}, tag.NewKey(ruleName, tag.WithDBRule(db)))
 	ia := action.NewInsert(db,
-		tagTableName,
+		tagATable,
 		m,
 		[]string{pkName},
 	)
 
-	_ = db.Drop(tagTableName + "1")
+	_ = db.Drop(tagATable + "1")
 
-	err := db.Copy(tagTableName, tagTableName+"1")
+	err := db.Copy(tagATable, tagATable+"1")
 	if err != nil {
 		t.Error(err)
 	}
 
-	_ = db.Drop(tagTableName + "2")
-	err = db.Copy(tagTableName, tagTableName+"2")
+	_ = db.Drop(tagATable + "2")
+	err = db.Copy(tagATable, tagATable+"2")
 	if err != nil {
 		t.Error(err)
 	}
 
-	ia1 := action.NewInsert(db, tagTableName+"1", m, []string{pkName})
-	ia2 := action.NewInsert(db, tagTableName+"2", m, []string{pkName})
+	ia1 := action.NewInsert(db, tagATable+"1", m, []string{pkName})
+	ia2 := action.NewInsert(db, tagATable+"2", m, []string{pkName})
 
-	RunFlow(db, dataTableName, pkName, []action.Actionor{ia, ia1, ia2})
-	InsertFlow(db, dataTableName, pkName, tagTableName, m, []string{pkName})
-	InsertFlow(db, dataTableName, pkName, tagTableName+"1", m, []string{pkName})
-	InsertFlow(db, dataTableName, pkName, tagTableName+"2", m, []string{pkName})
+	RunFlow(db, dataTable, pkName, []action.Actionor{ia, ia1, ia2})
+	InsertFlow(db, dataTable, pkName, tagATable, m, []string{pkName})
+	InsertFlow(db, dataTable, pkName, tagATable+"1", m, []string{pkName})
+	InsertFlow(db, dataTable, pkName, tagATable+"2", m, []string{pkName})
 
-	dataCount := getAmount(dataTableName, t)
-	tagCount := getAmount(tagTableName, t)
+	dataCount := getAmount(dataTable, t)
+	tagCount := getAmount(tagATable, t)
 
-	if dataCount*2 != tagCount {
-		t.Error("data *2 != tag")
+	if dataCount*4 != tagCount {
+		t.Error("data *4 != tag")
 	}
 
-	count1 := getAmount(tagTableName+"1", t)
-	count2 := getAmount(tagTableName+"2", t)
+	count1 := getAmount(tagATable+"1", t)
+	count2 := getAmount(tagATable+"2", t)
 
 	if count1 != count2 {
 		t.Error("count 1 != count 2")
@@ -79,8 +99,8 @@ func Test_Insert(t *testing.T) {
 		t.Error("tag count != count 1")
 	}
 
-	_ = db.Drop(tagTableName + "1")
-	_ = db.Drop(tagTableName + "2")
+	_ = db.Drop(tagATable + "1")
+	_ = db.Drop(tagATable + "2")
 
 }
 
@@ -94,10 +114,10 @@ func Test_Transfer(t *testing.T) {
 		"a_keyword_num": "a_keyword_num",
 	}
 
-	TransferFlow(db, dataTableName, pkName, tDataTableName, alias, map[string]interface{}{"xyz": "xyz1"})
-	dataCount := getAmount(dataTableName, t)
-	tDataCount := getAmount(tDataTableName, t)
-	xDataCount := getFieldAmount(tDataTableName, "xyz", "xyz1", t)
+	TransferFlow(db, dataTable, pkName, transferTable, alias, map[string]interface{}{"xyz": "xyz1"})
+	dataCount := getAmount(dataTable, t)
+	tDataCount := getAmount(transferTable, t)
+	xDataCount := getFieldAmount(transferTable, "xyz", "xyz1", t)
 	if tDataCount != dataCount || xDataCount != dataCount {
 		t.Error("tData != data")
 	}
@@ -106,9 +126,9 @@ func Test_Transfer(t *testing.T) {
 func Test_Clean(t *testing.T) {
 	m := mode.NewUpdate([]string{keyName}, tag.NewMostKey(ruleName, tag.WithDBRule(db)))
 
-	CleanFlow(db, dataTableName, pkName, cDataTableName, []mode.UpdateModer{m})
-	dataCount := getAmount(dataTableName, t)
-	cDataCount := getAmount(cDataTableName, t)
+	CleanFlow(db, dataTable, pkName, cleanTable, []mode.UpdateModer{m})
+	dataCount := getAmount(dataTable, t)
+	cDataCount := getAmount(cleanTable, t)
 	if cDataCount == dataCount || dataCount/cDataCount < 3 {
 		t.Error("cData != data")
 	}

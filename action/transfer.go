@@ -3,25 +3,25 @@ package action
 import (
 	"fmt"
 
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Actionor = (*Transfer)(nil)
 
 type Transfer struct {
 	action
-	target         *go_simple_db.SimpleDB
-	targetDataName string
-	alias          map[string]string
-	fields         []string
-	fixedFields    []string
-	fixedData      map[string]any
+	db          *goSimpleDb.SimpleDB
+	targetTable string
+	fields      []string
+	alias       map[string]string // alias map[table data name]output name
+	fixedFields []string          // fixed data []key
+	fixedData   map[string]any    // fixed data map[key]value
 }
 
-func NewTransfer(db *go_simple_db.SimpleDB, targetDataName string, alias map[string]string, fixedData map[string]any) *Transfer {
+func NewTransfer(db *goSimpleDb.SimpleDB, targetTable string, alias map[string]string, fixedData map[string]any) *Transfer {
 	t := &Transfer{}
-	t.target = db
-	t.targetDataName = targetDataName
+	t.db = db
+	t.targetTable = targetTable
 
 	if len(alias) >= 0 {
 		for k := range alias {
@@ -31,7 +31,7 @@ func NewTransfer(db *go_simple_db.SimpleDB, targetDataName string, alias map[str
 		t.alias = alias
 	} else {
 		var err error
-		t.fields, err = db.GetTableColumns(targetDataName)
+		t.fields, err = db.GetTableColumns(targetTable)
 		if err != nil {
 			panic(err)
 		}
@@ -45,6 +45,8 @@ func NewTransfer(db *go_simple_db.SimpleDB, targetDataName string, alias map[str
 		t.fixedData = fixedData
 	}
 
+	t.Init()
+
 	return t
 }
 
@@ -53,7 +55,7 @@ func (t *Transfer) GetFields() []string {
 }
 
 func (t *Transfer) Title() string {
-	return fmt.Sprintf("Transfer[%s]", t.targetDataName)
+	return fmt.Sprintf("Transfer[%s]", t.targetTable)
 }
 
 func (t *Transfer) Prepare() error {
@@ -61,7 +63,7 @@ func (t *Transfer) Prepare() error {
 }
 
 func (t *Transfer) Do(items []map[string]any) {
-	targetItems := make([]map[string]any, 0)
+	newItems := make([]map[string]any, 0)
 
 	for _, item := range items {
 		_item := make(map[string]any)
@@ -81,10 +83,13 @@ func (t *Transfer) Do(items []map[string]any) {
 			}
 		}
 
-		targetItems = append(targetItems, _item)
+		newItems = append(newItems, _item)
 	}
 
-	_ = t.target.BulkInsertFromSliceMap(t.targetDataName, targetItems, 2000)
+	err := t.db.BulkInsertFromSliceMap(t.targetTable, newItems, batchSize)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (t *Transfer) AfterDo() {}

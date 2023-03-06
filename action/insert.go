@@ -4,25 +4,40 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/mode"
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Actionor = (*Insert)(nil)
 
 type Insert struct {
 	action
-	target      *go_simple_db.SimpleDB
+	db          *goSimpleDb.SimpleDB
 	mode        mode.InsertModer
-	tagTable    string
+	targetTable string
 	affixFields []string
 }
 
-func NewInsert(db *go_simple_db.SimpleDB, tagTable string, moder mode.InsertModer, affixFields []string) *Insert {
+// NewInsertAndTransfer
+// insert and transfer
+func NewInsertAndTransfer(db *goSimpleDb.SimpleDB, targetTable string, moder mode.InsertModer) *Insert {
+	columns, err := db.GetTableColumns(targetTable)
+	if err != nil {
+		panic(err)
+	}
+
+	return NewInsert(db, targetTable, moder, columns)
+}
+
+// NewInsert
+// insert
+func NewInsert(db *goSimpleDb.SimpleDB, targetTable string, moder mode.InsertModer, affixFields []string) *Insert {
 	i := &Insert{}
-	i.target = db
+	i.db = db
 	i.mode = moder
-	i.tagTable = tagTable
+	i.targetTable = targetTable
 	i.affixFields = affixFields
+
+	i.Init()
 
 	return i
 }
@@ -36,7 +51,7 @@ func (i *Insert) getKeys() []string {
 }
 
 func (i *Insert) Title() string {
-	return fmt.Sprintf("Insert[%s] {%s}", i.tagTable, i.mode.GetTitle())
+	return fmt.Sprintf("Insert[%s] {%s}", i.targetTable, i.mode.GetTitle())
 }
 
 func (i *Insert) Prepare() error {
@@ -44,7 +59,7 @@ func (i *Insert) Prepare() error {
 }
 
 func (i *Insert) Do(items []map[string]any) {
-	targetItems := make([]map[string]any, 0)
+	newItems := make([]map[string]any, 0)
 
 	for _, item := range items {
 		_doItem := i.mode.Do(item)
@@ -61,10 +76,13 @@ func (i *Insert) Do(items []map[string]any) {
 		}
 
 		i.AddAmount(1)
-		targetItems = append(targetItems, _doItem...)
+		newItems = append(newItems, _doItem...)
 	}
 
-	_ = i.target.BulkInsertFromSliceMap(i.tagTable, targetItems, 2000)
+	err := i.db.BulkInsertFromSliceMap(i.targetTable, newItems, batchSize)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (i *Insert) AfterDo() {}

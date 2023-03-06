@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 var ruleName = "a"
 var ruleTableName = "rule_" + ruleName
 var ruleDataTableName = "rule_data_" + ruleName
-var db *go_simple_db.SimpleDB
+var db *goSimpleDb.SimpleDB
 var contents = []string{
 	`b一ab一bc一abc一123b一b123一123一0123一1234一01234一`,
 	`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
@@ -32,7 +32,7 @@ func setUp() {
 	rand.Seed(time.Now().UnixNano())
 
 	var err error
-	db, err = go_simple_db.NewMysql(dsn)
+	db, err = goSimpleDb.NewMysql(dsn)
 	if err != nil {
 		panic(err)
 	}

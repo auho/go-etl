@@ -2,7 +2,7 @@ package tag
 
 import (
 	"github.com/auho/go-etl/means/tag/rule"
-	go_simple_db "github.com/auho/go-simple-db/v2"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 // #TODO 重命名（key keyword  label=>tag） SQL use orm or interface
@@ -71,7 +71,7 @@ func WithRule(rule rule.Ruler) RuleMatcherOption {
 
 // WithDBRule
 // with db rule
-func WithDBRule(db *go_simple_db.SimpleDB, opts ...func(*rule.DBRule)) RuleMatcherOption {
+func WithDBRule(db *goSimpleDb.SimpleDB, opts ...func(*rule.DBRule)) RuleMatcherOption {
 	return func(r *ruleMatcher) {
 		r.postOptionsFuncs = append(r.postOptionsFuncs, func(rr *ruleMatcher) {
 			fn := WithRule(rule.NewDBRule(db, rr.key, opts...))
