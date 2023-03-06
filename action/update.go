@@ -100,6 +100,7 @@ func (u *Update) Do(items []map[string]any) {
 			continue
 		}
 
+		u.AddAmount(1)
 		newItems = append(newItems, _newItem)
 	}
 

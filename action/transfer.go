@@ -83,6 +83,7 @@ func (t *Transfer) Do(items []map[string]any) {
 			}
 		}
 
+		t.AddAmount(1)
 		newItems = append(newItems, _item)
 	}
 

@@ -16,6 +16,8 @@ github.com/auho/go-toolkit/console v0.0.0-20230302113404-7671f9e04b95 h1:4V08oYN
 github.com/auho/go-toolkit/console v0.0.0-20230302113404-7671f9e04b95/go.mod h1:GbyPjwDniq2mT91rPTpLpKi/KuFzRKjgLXMmD7EINnE=
 github.com/auho/go-toolkit/flow v0.0.0-20230302113404-7671f9e04b95 h1:H6izpO3Wyg4dC2Q2gF/mdFrSspMoHxHgZ6D+oWfwfrQ=
 github.com/auho/go-toolkit/flow v0.0.0-20230302113404-7671f9e04b95/go.mod h1:Ml0q7SQ5XqcvbxiJ1XEHKVZSBmcAHj0hIrPA2x41ygA=
+github.com/auho/go-toolkit/flow v0.0.0-20230306094531-440f18e5419a h1:7GLhjThRhnYgnydTKuzZd3ZHFqQ9gjMbOD2DX4pv+4E=
+github.com/auho/go-toolkit/flow v0.0.0-20230306094531-440f18e5419a/go.mod h1:jZtyBYyaQL434o8MwmHZTO+jTBIputfHrKysu1+gFXE=
 github.com/auho/go-toolkit/time v0.0.0-20230302113404-7671f9e04b95 h1:5YwA9nQZDPY1mJ0ttfg64bKkrTTiIl9aGIwrbc63PZM=
 github.com/auho/go-toolkit/time v0.0.0-20230302113404-7671f9e04b95/go.mod h1:bkpYGleE+ATwcAryjTbzMiv8D1uu6J8zEFON1gwg/qw=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
