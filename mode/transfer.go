@@ -1,24 +1,28 @@
 package mode
 
 import (
-	"github.com/auho/go-simple-db/simple"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
+// Transfer
+// transfer data source to dst
 type Transfer struct {
 	Mode
-	Db          simple.Driver
-	fields      []string
-	alias       map[string]string
-	fixedValues []interface{}
+	db          *goSimpleDb.SimpleDB
+	fields      []string          // source data table filed name
+	alias       map[string]string // alias map[data key name]alias key name
+	fixedFields []string
+	fixedData   map[string]interface{} // fixed data map[data key name]value
 }
 
-func NewTransfer(db simple.Driver, tableName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
+// NewTransfer
+// tableName source table name
+func NewTransfer(db *goSimpleDb.SimpleDB, tableName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
 	m := &Transfer{}
-	m.Db = db
+	m.db = db
 	m.keys = make([]string, 0)
 	m.fields = make([]string, 0)
 	m.alias = alias
-	m.fixedValues = make([]interface{}, 0)
 
 	if len(m.alias) >= 0 {
 		for k, v := range alias {
@@ -27,7 +31,7 @@ func NewTransfer(db simple.Driver, tableName string, alias map[string]string, fi
 		}
 	} else {
 		var err error
-		m.fields, err = db.GetTableColumns(tableName)
+		m.fields, err = m.db.GetTableColumns(tableName)
 		if err != nil {
 			panic(err)
 		}
@@ -38,10 +42,12 @@ func NewTransfer(db simple.Driver, tableName string, alias map[string]string, fi
 	}
 
 	if len(fixedData) > 0 {
-		for k, v := range fixedData {
+		for k := range fixedData {
 			m.keys = append(m.keys, k)
-			m.fixedValues = append(m.fixedValues, v)
+			m.fixedFields = append(m.fixedFields, k)
 		}
+
+		m.fixedData = fixedData
 	}
 
 	return m
@@ -59,19 +65,12 @@ func (m *Transfer) GetFields() []string {
 	return m.fields
 }
 
-func (m *Transfer) Do(item map[string]interface{}) [][]interface{} {
-	result := make([]interface{}, len(m.fields), len(m.fields))
-	for k, field := range m.fields {
-		result[k] = item[field]
+func (m *Transfer) Do(item map[string]interface{}) []map[string]interface{} {
+	for _, k := range m.fixedFields {
+		item[k] = m.fixedData[k]
 	}
 
-	if len(m.fixedValues) > 0 {
-		result = append(result, m.fixedValues...)
-	}
-
-	return [][]interface{}{result}
+	return []map[string]interface{}{item}
 }
 
-func (m *Transfer) Close() {
-
-}
+func (m *Transfer) Close() {}

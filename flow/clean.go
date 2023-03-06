@@ -1,13 +1,12 @@
 package flow
 
 import (
-	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/action"
 	"github.com/auho/go-etl/mode"
-	"github.com/auho/go-simple-db/simple"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-func CleanFlow(db simple.Driver, config goetl.DbConfig, dataName string, idName string, targetTableName string, modes []mode.UpdateModer) {
-	cleanAction := action.NewClean(db, config, targetTableName, modes)
-	RunFlow(config, dataName, idName, []action.Actionor{cleanAction})
+func CleanFlow(db *goSimpleDb.SimpleDB, dataTable string, idName string, targetTable string, modes []mode.UpdateModer) {
+	cleanAction := action.NewClean(db, targetTable, modes)
+	RunFlow(db, dataTable, idName, []action.Actioner{cleanAction})
 }

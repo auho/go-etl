@@ -3,3 +3,10 @@
 .vscode
 /vendor
 /office/
+
+go.work
+go.work.sum
+*.test
+*.out
+*.pprof
+*_linux

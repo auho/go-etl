@@ -1,12 +1,12 @@
 package flow
 
 import (
-	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/action"
 	"github.com/auho/go-etl/mode"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-func InsertFlow(config goetl.DbConfig, dataName string, idName string, tagTableName string, moder mode.InsertModer, affixFields []string) {
-	a := action.NewInsert(config, tagTableName, moder, affixFields)
-	RunFlow(config, dataName, idName, []action.Actionor{a})
+func InsertFlow(db *goSimpleDb.SimpleDB, dataTable, idName, targetTable string, moder mode.InsertModer, affixFields []string) {
+	a := action.NewInsert(db, targetTable, moder, affixFields)
+	RunFlow(db, dataTable, idName, []action.Actioner{a})
 }

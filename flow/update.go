@@ -1,12 +1,17 @@
 package flow
 
 import (
-	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/action"
 	"github.com/auho/go-etl/mode"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-func UpdateFlow(config goetl.DbConfig, dataName string, idName string, modes []mode.UpdateModer) {
-	a := action.NewUpdate(config, dataName, idName, modes)
-	RunFlow(config, dataName, idName, []action.Actionor{a})
+func UpdateAndTransferFlow(db *goSimpleDb.SimpleDB, dataTable, idName, transferTable string, modes []mode.UpdateModer) {
+	a := action.NewUpdateAndTransfer(db, dataTable, transferTable, idName, modes)
+	RunFlow(db, dataTable, idName, []action.Actioner{a})
+}
+
+func UpdateFlow(db *goSimpleDb.SimpleDB, dataTable, idName string, modes []mode.UpdateModer) {
+	a := action.NewUpdate(db, dataTable, idName, modes)
+	RunFlow(db, dataTable, idName, []action.Actioner{a})
 }

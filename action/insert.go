@@ -3,118 +3,86 @@ package action
 import (
 	"fmt"
 
-	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/mode"
-	"github.com/auho/go-etl/storage/database"
+	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
+
+var _ Actioner = (*Insert)(nil)
 
 type Insert struct {
 	action
-	target       *database.DbTargetSlice
-	mode         mode.InsertModer
-	tagTableName string
-	affixFields  []string
+	db          *goSimpleDb.SimpleDB
+	mode        mode.InsertModer
+	targetTable string
+	affixFields []string
 }
 
-func NewInsert(config goetl.DbConfig, tagTableName string, moder mode.InsertModer, affixFields []string) *Insert {
-	ia := &Insert{}
-	ia.tagTableName = tagTableName
-	ia.affixFields = affixFields
-	ia.mode = moder
-
-	ia.init()
-
-	targetConfig := ia.targetConfig(config, ia.tagTableName)
-	ia.target = database.NewDbTargetInsertSliceSlice(targetConfig, ia.getKeys(), database.WithDbTargetSliceTruncate())
-
-	return ia
-}
-
-func (ia *Insert) Start() {
-	ia.target.Start()
-
-	for i := 0; i < ia.concurrent; i++ {
-		ia.wg.Add(1)
-		go ia.doSource()
-	}
-}
-
-func (ia *Insert) Done() {
-	if ia.isDone {
-		return
+// NewInsertAndTransfer
+// insert and transfer
+func NewInsertAndTransfer(db *goSimpleDb.SimpleDB, targetTable string, moder mode.InsertModer) *Insert {
+	columns, err := db.GetTableColumns(targetTable)
+	if err != nil {
+		panic(err)
 	}
 
-	ia.isDone = true
-
-	close(ia.itemsChan)
+	return NewInsert(db, targetTable, moder, columns)
 }
 
-func (ia *Insert) Close() {
-	ia.wg.Wait()
+// NewInsert
+// insert
+func NewInsert(db *goSimpleDb.SimpleDB, targetTable string, moder mode.InsertModer, affixFields []string) *Insert {
+	i := &Insert{}
+	i.db = db
+	i.mode = moder
+	i.targetTable = targetTable
+	i.affixFields = affixFields
 
-	ia.mode.Close()
+	i.Init()
 
-	ia.target.Done()
-	ia.target.Close()
+	return i
 }
 
-func (ia *Insert) GetFields() []string {
-	return append(ia.mode.GetFields(), ia.affixFields...)
+func (i *Insert) GetFields() []string {
+	return append(i.mode.GetFields(), i.affixFields...)
 }
 
-func (ia *Insert) Receive(items []map[string]interface{}) {
-	ia.itemsChan <- items
+func (i *Insert) getKeys() []string {
+	return append(i.mode.GetKeys(), i.affixFields...)
 }
 
-func (ia *Insert) GetStatus() string {
-	return ia.target.State.GetStatus()
+func (i *Insert) Title() string {
+	return fmt.Sprintf("Insert[%s] {%s}", i.targetTable, i.mode.GetTitle())
 }
 
-func (ia *Insert) GetTitle() string {
-	return fmt.Sprintf("Insert[%s] {%s}", ia.tagTableName, ia.mode.GetTitle())
+func (i *Insert) Prepare() error {
+	return nil
 }
 
-func (ia *Insert) getKeys() []string {
-	return append(ia.mode.GetKeys(), ia.affixFields...)
-}
+func (i *Insert) Do(items []map[string]any) {
+	newItems := make([]map[string]any, 0)
 
-func (ia *Insert) doSource() {
-	for {
-		sourceItems, ok := <-ia.itemsChan
-		if ok == false {
-			break
+	for _, item := range items {
+		_doItem := i.mode.Do(item)
+		if _doItem == nil {
+			continue
 		}
 
-		targetItems := make([][]interface{}, 0)
-
-		for _, sourceItem := range sourceItems {
-			items := ia.doItem(sourceItem)
-			if items == nil {
-				continue
-			}
-
-			targetItems = append(targetItems, items...)
-		}
-
-		ia.target.Send(targetItems)
-	}
-
-	ia.wg.Done()
-}
-
-func (ia *Insert) doItem(item map[string]interface{}) [][]interface{} {
-	items := ia.mode.Do(item)
-	if items == nil {
-		return nil
-	}
-
-	if len(ia.affixFields) > 0 {
-		for index := range items {
-			for _, field := range ia.affixFields {
-				items[index] = append(items[index], item[field])
+		if len(i.affixFields) > 0 {
+			for index := range _doItem {
+				for _, field := range i.affixFields {
+					_doItem[index][field] = item[field]
+				}
 			}
 		}
+
+		i.AddAmount(1)
+		newItems = append(newItems, _doItem...)
 	}
 
-	return items
+	err := i.db.BulkInsertFromSliceMap(i.targetTable, newItems, batchSize)
+	if err != nil {
+		panic(err)
+	}
 }
+
+func (i *Insert) AfterDo() {}

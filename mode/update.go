@@ -1,40 +1,60 @@
 package mode
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/auho/go-etl/means"
 )
 
+// Update
+// handle some keys of data for update
 type Update struct {
 	Mode
-	update means.UpdateMeans
+	meanses []means.UpdateMeans
 }
 
-func NewUpdate(keys []string, update means.UpdateMeans) *Update {
+func NewUpdate(keys []string, meanses ...means.UpdateMeans) *Update {
 	m := &Update{}
 	m.keys = keys
-	m.update = update
+	m.meanses = meanses
 
 	return m
 }
 
-func (m *Update) GetTitle() string {
-	return m.getModeTitle() + " " + m.update.GetTitle()
+func (u *Update) GetTitle() string {
+	is := make([]string, 0)
+	for _, i := range u.meanses {
+		is = append(is, i.GetTitle())
+	}
+
+	return fmt.Sprintf("Update %s{%s}", u.Mode.getTitle(), strings.Join(is, ","))
 }
 
-func (m *Update) GetFields() []string {
-	return m.keys
+func (u *Update) GetFields() []string {
+	return u.keys
 }
 
-func (m *Update) Do(item map[string]interface{}) map[string]interface{} {
+func (u *Update) Do(item map[string]interface{}) map[string]interface{} {
 	if item == nil {
 		return nil
 	}
 
-	contents := m.GetKeysContent(m.keys, item)
+	contents := u.GetKeysContent(u.keys, item)
 
-	return m.update.Update(contents)
+	m := make(map[string]interface{})
+	for _, uMeans := range u.meanses {
+		_m := uMeans.Update(contents)
+		for _k, _v := range _m {
+			m[_k] = _v
+		}
+	}
+
+	return m
 }
 
-func (m *Update) Close() {
-	m.update.Close()
+func (u *Update) Close() {
+	for k := range u.meanses {
+		u.meanses[k].Close()
+	}
 }
