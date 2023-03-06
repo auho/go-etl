@@ -34,20 +34,12 @@ func Test_Update(t *testing.T) {
 
 func Test_UpdateAndTransfer(t *testing.T) {
 	m := mode.NewUpdate([]string{keyName}, tag.NewMostKey(ruleName, tag.WithDBRule(db)))
-	ua := action.NewUpdateAndTransfer(db,
-		dataTable,
-		updateAndTransferTable,
-		pkName,
-		[]mode.UpdateModer{m},
-	)
-
-	RunFlow(db, dataTable, pkName, []action.Actionor{ua})
 	UpdateAndTransferFlow(db, dataTable, pkName, updateAndTransferTable, []mode.UpdateModer{m})
 
 	dataCount := getAmount(dataTable, t)
 	transferCount := getAmount(updateAndTransferTable, t)
 
-	if dataCount*2 != transferCount {
+	if dataCount != transferCount {
 		t.Error("update and transfer error")
 	}
 }

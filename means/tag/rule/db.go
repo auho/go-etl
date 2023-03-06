@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	goetl "github.com/auho/go-etl"
 	"github.com/auho/go-etl/tool"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
@@ -69,11 +68,11 @@ func NewDBRule(db *goSimpleDb.SimpleDB, key string, opts ...func(*DBRule)) *DBRu
 	}
 
 	if d.shortTableName != "" {
-		d.tableName = goetl.RuleTableNamePrefix + "_" + d.shortTableName
+		d.tableName = tool.RuleTableNamePrefix + "_" + d.shortTableName
 	} else if d.dataName != "" {
-		d.tableName = goetl.RuleTableNamePrefix + "_" + d.dataName + "_" + d.key
+		d.tableName = tool.RuleTableNamePrefix + "_" + d.dataName + "_" + d.key
 	} else {
-		d.tableName = goetl.RuleTableNamePrefix + "_" + d.key
+		d.tableName = tool.RuleTableNamePrefix + "_" + d.key
 	}
 
 	if len(d.excludeFields) <= 0 {
