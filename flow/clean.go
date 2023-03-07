@@ -8,5 +8,5 @@ import (
 
 func CleanFlow(db *goSimpleDb.SimpleDB, dataTable string, idName string, targetTable string, modes []mode.UpdateModer) {
 	cleanAction := action.NewClean(db, targetTable, modes)
-	RunFlow(db, dataTable, idName, []action.Actioner{cleanAction})
+	RunFlow(db, dataTable, idName, []action.Actor{cleanAction})
 }

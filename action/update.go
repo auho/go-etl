@@ -9,7 +9,7 @@ import (
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Actioner = (*Update)(nil)
+var _ Actor = (*Update)(nil)
 
 type Update struct {
 	action
@@ -77,44 +77,45 @@ func (u *Update) Prepare() error {
 	return nil
 }
 
-func (u *Update) Do(items []map[string]any) {
-	newItems := make([]map[string]interface{}, 0)
-
-	for _, item := range items {
-		var _newItem map[string]any
-		if u.isTransfer {
-			_newItem = item
-		} else {
-			_newItem = make(map[string]any)
-			_newItem[u.idName] = item[u.idName]
+func (u *Update) Do(item map[string]any) ([]map[string]any, bool) {
+	_does := make(map[string]any)
+	for _, m := range u.modes {
+		_do := m.Do(item)
+		for k, v := range _do {
+			_does[k] = v
 		}
-
-		for _, m := range u.modes {
-			_do := m.Do(item)
-			for k, v := range _do {
-				_newItem[k] = v
-			}
-		}
-
-		if len(_newItem) <= 0 {
-			continue
-		}
-
-		u.AddAmount(1)
-		newItems = append(newItems, _newItem)
 	}
 
+	if len(_does) <= 0 && u.isTransfer == false {
+		return nil, false
+	}
+
+	var newItem map[string]any
+	if u.isTransfer {
+		newItem = item
+	} else {
+		newItem = make(map[string]any)
+		newItem[u.idName] = item[u.idName]
+	}
+
+	for k, v := range _does {
+		newItem[k] = v
+	}
+
+	return []map[string]any{newItem}, true
+}
+
+func (u *Update) PostBatchDo(items []map[string]any) {
 	var err error
 	if u.isTransfer {
-		err = u.db.BulkInsertFromSliceMap(u.transferTable, newItems, batchSize)
+		err = u.db.BulkInsertFromSliceMap(u.transferTable, items, batchSize)
 	} else {
-		err = u.db.BulkUpdateFromSliceMapById(u.dataTable, u.idName, newItems)
+		err = u.db.BulkUpdateFromSliceMapById(u.dataTable, u.idName, items)
 	}
 
 	if err != nil {
 		panic(err)
 	}
-
 }
 
-func (u *Update) AfterDo() {}
+func (u *Update) PostDo() {}

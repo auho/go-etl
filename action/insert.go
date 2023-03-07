@@ -7,7 +7,7 @@ import (
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Actioner = (*Insert)(nil)
+var _ Actor = (*Insert)(nil)
 
 type Insert struct {
 	action
@@ -58,31 +58,28 @@ func (i *Insert) Prepare() error {
 	return nil
 }
 
-func (i *Insert) Do(items []map[string]any) {
-	newItems := make([]map[string]any, 0)
-
-	for _, item := range items {
-		_doItem := i.mode.Do(item)
-		if _doItem == nil {
-			continue
-		}
-
-		if len(i.affixFields) > 0 {
-			for index := range _doItem {
-				for _, field := range i.affixFields {
-					_doItem[index][field] = item[field]
-				}
-			}
-		}
-
-		i.AddAmount(1)
-		newItems = append(newItems, _doItem...)
+func (i *Insert) Do(item map[string]any) ([]map[string]any, bool) {
+	newItems := i.mode.Do(item)
+	if newItems == nil {
+		return nil, false
 	}
 
-	err := i.db.BulkInsertFromSliceMap(i.targetTable, newItems, batchSize)
+	if len(i.affixFields) > 0 {
+		for index := range newItems {
+			for _, field := range i.affixFields {
+				newItems[index][field] = item[field]
+			}
+		}
+	}
+
+	return newItems, true
+}
+
+func (i *Insert) PostBatchDo(items []map[string]any) {
+	err := i.db.BulkInsertFromSliceMap(i.targetTable, items, batchSize)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (i *Insert) AfterDo() {}
+func (i *Insert) PostDo() {}

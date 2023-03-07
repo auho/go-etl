@@ -7,5 +7,5 @@ import (
 
 func TransferFlow(db *goSimpleDb.SimpleDB, dataTable, idName, targetTable string, alias map[string]string, fixedData map[string]interface{}) {
 	transferAction := action.NewTransfer(db, targetTable, alias, fixedData)
-	RunFlow(db, dataTable, idName, []action.Actioner{transferAction})
+	RunFlow(db, dataTable, idName, []action.Actor{transferAction})
 }
