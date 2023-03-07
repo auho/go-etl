@@ -6,7 +6,8 @@ import (
 	"github.com/auho/go-etl/action"
 	"github.com/auho/go-etl/tool"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
-	"github.com/auho/go-toolkit/flow/flow/singleton"
+	"github.com/auho/go-toolkit/flow/action/singleton"
+	"github.com/auho/go-toolkit/flow/flow"
 	"github.com/auho/go-toolkit/flow/storage/database"
 	"github.com/auho/go-toolkit/flow/storage/database/source"
 )
@@ -34,13 +35,13 @@ func RunFlow(db *goSimpleDb.SimpleDB, dataTable string, idName string, actions [
 		panic(err)
 	}
 
-	var opts []singleton.Option[map[string]any]
-	opts = append(opts, singleton.WithSource[map[string]any](dataSource))
+	var opts []flow.Option[map[string]any]
+	opts = append(opts, flow.WithSource[map[string]any](dataSource))
 	for _, a := range actions {
-		opts = append(opts, singleton.WithTasker[map[string]any](a))
+		opts = append(opts, flow.WithActor[map[string]any](singleton.NewActor[map[string]any](a)))
 	}
 
-	err = singleton.RunFlow[map[string]any](opts...)
+	err = flow.RunFlow[map[string]any](opts...)
 	if err != nil {
 		panic(err)
 	}
