@@ -1,8 +1,8 @@
 package flow
 
 import (
-	"github.com/auho/go-etl/action"
-	"github.com/auho/go-etl/mode"
+	"github.com/auho/go-etl/v2/action"
+	"github.com/auho/go-etl/v2/mode"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 

@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"example/demand"
-	"github.com/auho/go-etl/insight/app"
+	"github.com/auho/go-etl/v2/insight/app"
 	"github.com/spf13/cobra"
 )
 

@@ -3,7 +3,7 @@ package mysql
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/insight/dml/command"
+	"github.com/auho/go-etl/v2/insight/dml/command"
 )
 
 var _ command.TableJoinCommander = (*tableJoinCommand)(nil)
@@ -58,7 +58,7 @@ func (c *tableJoinCommand) InsertWithFieldsQuery(name string, fields []string) s
 }
 
 func (c *tableJoinCommand) UpdateQuery() string {
-	ss := append([]interface{}{
+	ss := append([]any{
 		c.addBackQuote(c.commands[0].Name())},
 		c.runToStringFuncs([]string{
 			command.ReservedFrom,
@@ -73,7 +73,7 @@ func (c *tableJoinCommand) UpdateQuery() string {
 }
 
 func (c *tableJoinCommand) DeleteQuery() string {
-	ss := append([]interface{}{
+	ss := append([]any{
 		c.addBackQuote(c.commands[0].Name())},
 		c.runToStringFuncs([]string{
 			command.ReservedFrom,
@@ -148,8 +148,8 @@ func (c *tableJoinCommand) mergeSlice(ss [][]string) []string {
 	return s
 }
 
-func (c *tableJoinCommand) runToStringFuncs(ns []string) []interface{} {
-	ss := make([]interface{}, 0)
+func (c *tableJoinCommand) runToStringFuncs(ns []string) []any {
+	ss := make([]any, 0)
 	for _, n := range ns {
 		ss = append(ss, c.runToStringFunc(n))
 	}

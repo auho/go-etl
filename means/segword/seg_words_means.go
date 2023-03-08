@@ -23,19 +23,19 @@ func (sw *SegWordsMeans) GetKeys() []string {
 	return []string{"word", "flag"}
 }
 
-func (sw *SegWordsMeans) Insert(contents []string) []map[string]interface{} {
+func (sw *SegWordsMeans) Insert(contents []string) []map[string]any {
 	results := sw.tag(contents)
 	if results == nil {
 		return nil
 	}
 
-	items := make([]map[string]interface{}, 0, len(results))
+	items := make([]map[string]any, 0, len(results))
 	for _, result := range results {
 		if utf8.RuneCountInString(result[0]) < 2 || result[1] == "eng" || result[1] == "m" {
 			continue
 		}
 
-		items = append(items, map[string]interface{}{
+		items = append(items, map[string]any{
 			"word": result[0],
 			"flag": result[1]},
 		)

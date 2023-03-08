@@ -3,7 +3,7 @@ package tag
 import (
 	"testing"
 
-	"github.com/auho/go-etl/means/tag/rule"
+	"github.com/auho/go-etl/v2/means/tag/rule"
 )
 
 func TestTagMeans(t *testing.T) {

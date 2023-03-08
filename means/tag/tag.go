@@ -1,7 +1,7 @@
 package tag
 
 import (
-	"github.com/auho/go-etl/means/tag/rule"
+	"github.com/auho/go-etl/v2/means/tag/rule"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -198,8 +198,8 @@ func (r *ruleMatcher) getResultInsertKeys() []string {
 	return append([]string{r.keyFieldName, r.keyNumFieldName}, append(r.tagsName, r.fixedKeys...)...)
 }
 
-func (r *ruleMatcher) resultsToSliceMap(results []*Result) []map[string]interface{} {
-	items := make([]map[string]interface{}, 0, len(results))
+func (r *ruleMatcher) resultsToSliceMap(results []*Result) []map[string]any {
+	items := make([]map[string]any, 0, len(results))
 	for _, result := range results {
 		items = append(items, r.resultToMap(result))
 	}
@@ -207,12 +207,12 @@ func (r *ruleMatcher) resultsToSliceMap(results []*Result) []map[string]interfac
 	return items
 }
 
-func (r *ruleMatcher) resultToSliceMap(result *Result) []map[string]interface{} {
-	return []map[string]interface{}{r.resultToMap(result)}
+func (r *ruleMatcher) resultToSliceMap(result *Result) []map[string]any {
+	return []map[string]any{r.resultToMap(result)}
 }
 
-func (r *ruleMatcher) resultToMap(result *Result) map[string]interface{} {
-	item := make(map[string]interface{})
+func (r *ruleMatcher) resultToMap(result *Result) map[string]any {
+	item := make(map[string]any)
 	item[r.keyFieldName] = result.Key
 	item[r.keyNumFieldName] = result.Num
 

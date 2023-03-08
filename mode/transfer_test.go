@@ -6,7 +6,7 @@ import (
 
 func TestTransferMode(t *testing.T) {
 	newKeyName := "abc"
-	m := NewTransfer(db, ruleTableName, map[string]string{keyName: newKeyName}, map[string]interface{}{"abc": 1})
+	m := NewTransfer(db, ruleTableName, map[string]string{keyName: newKeyName}, map[string]any{"abc": 1})
 	if len(m.GetFields()) != 1 {
 		t.Error("fields error")
 	}

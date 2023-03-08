@@ -31,7 +31,7 @@ func (t *TagMeans) GetKeys() []string {
 
 func (t *TagMeans) Close() {}
 
-func (t *TagMeans) Insert(contents []string) []map[string]interface{} {
+func (t *TagMeans) Insert(contents []string) []map[string]any {
 	results := t.fn(t.tagMatcher.matcher, contents)
 	if results == nil {
 		return nil
@@ -40,7 +40,7 @@ func (t *TagMeans) Insert(contents []string) []map[string]interface{} {
 	return t.tagMatcher.resultsToSliceMap(results)
 }
 
-func (t *TagMeans) Update(contents []string) map[string]interface{} {
+func (t *TagMeans) Update(contents []string) map[string]any {
 	results := t.fn(t.tagMatcher.matcher, contents)
 	if results == nil {
 		return nil

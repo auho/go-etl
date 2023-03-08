@@ -3,7 +3,7 @@ package action
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/mode"
+	"github.com/auho/go-etl/v2/mode"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 

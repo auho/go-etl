@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/tool"
+	"github.com/auho/go-etl/v2/tool"
 )
 
 type Data struct {

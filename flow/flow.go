@@ -3,8 +3,8 @@ package flow
 import (
 	"runtime"
 
-	"github.com/auho/go-etl/action"
-	"github.com/auho/go-etl/tool"
+	"github.com/auho/go-etl/v2/action"
+	"github.com/auho/go-etl/v2/tool"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 	"github.com/auho/go-toolkit/flow/action/singleton"
 	"github.com/auho/go-toolkit/flow/flow"

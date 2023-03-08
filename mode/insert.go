@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/means"
+	"github.com/auho/go-etl/v2/means"
 )
 
 // Insert
@@ -34,7 +34,7 @@ func (m *Insert) GetKeys() []string {
 	return m.means.GetKeys()
 }
 
-func (m *Insert) Do(item map[string]interface{}) []map[string]interface{} {
+func (m *Insert) Do(item map[string]any) []map[string]any {
 	if item == nil {
 		return nil
 	}
@@ -83,14 +83,14 @@ func (m *InsertMulti) GetKeys() []string {
 	return m.meansKeys
 }
 
-func (m *InsertMulti) Do(item map[string]interface{}) []map[string]interface{} {
+func (m *InsertMulti) Do(item map[string]any) []map[string]any {
 	if item == nil {
 		return nil
 	}
 
 	contents := m.GetKeysContent(m.keys, item)
 
-	items := make([]map[string]interface{}, 0)
+	items := make([]map[string]any, 0)
 	for _, i := range m.meanses {
 		res := i.Insert(contents)
 		if res == nil {

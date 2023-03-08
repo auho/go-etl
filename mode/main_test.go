@@ -15,7 +15,7 @@ var ruleTableName = "rule_" + ruleName
 var keyName = "name"
 var db *goSimpleDb.SimpleDB
 var content = "b一ab一bc一abc一ab一123b一b123一中文一123一中文一一0123一1234一01234-a-ab-123-中文一b一中文一a"
-var item = map[string]interface{}{keyName: content}
+var item = map[string]any{keyName: content}
 
 func TestMain(m *testing.M) {
 	setUp()

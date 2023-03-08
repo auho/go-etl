@@ -3,12 +3,12 @@ package means
 type InsertMeans interface {
 	GetTitle() string
 	GetKeys() []string
-	Insert([]string) []map[string]interface{}
+	Insert([]string) []map[string]any
 	Close()
 }
 
 type UpdateMeans interface {
 	GetTitle() string
-	Update([]string) map[string]interface{}
+	Update([]string) map[string]any
 	Close()
 }

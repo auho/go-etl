@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/auho/go-etl/tool/conf"
+	"github.com/auho/go-etl/v2/tool/conf"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 

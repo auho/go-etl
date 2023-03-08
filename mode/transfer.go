@@ -12,12 +12,12 @@ type Transfer struct {
 	fields      []string          // source data table filed name
 	alias       map[string]string // alias map[data key name]alias key name
 	fixedFields []string
-	fixedData   map[string]interface{} // fixed data map[data key name]value
+	fixedData   map[string]any // fixed data map[data key name]value
 }
 
 // NewTransfer
 // tableName source table name
-func NewTransfer(db *goSimpleDb.SimpleDB, tableName string, alias map[string]string, fixedData map[string]interface{}) *Transfer {
+func NewTransfer(db *goSimpleDb.SimpleDB, tableName string, alias map[string]string, fixedData map[string]any) *Transfer {
 	m := &Transfer{}
 	m.db = db
 	m.keys = make([]string, 0)
@@ -65,12 +65,12 @@ func (m *Transfer) GetFields() []string {
 	return m.fields
 }
 
-func (m *Transfer) Do(item map[string]interface{}) []map[string]interface{} {
+func (m *Transfer) Do(item map[string]any) []map[string]any {
 	for _, k := range m.fixedFields {
 		item[k] = m.fixedData[k]
 	}
 
-	return []map[string]interface{}{item}
+	return []map[string]any{item}
 }
 
 func (m *Transfer) Close() {}

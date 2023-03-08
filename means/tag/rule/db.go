@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/tool"
+	"github.com/auho/go-etl/v2/tool"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -111,7 +111,7 @@ func (d *DBRule) TagsName() []string {
 }
 
 func (d *DBRule) Items() []map[string]string {
-	rules := make([]map[string]interface{}, 0)
+	rules := make([]map[string]any, 0)
 	query := fmt.Sprintf("SELECT %s FROM %s ORDER BY keyword_len DESC, id ASC", strings.Join(d.tagsName, ", "), d.tableName)
 	err := d.db.Raw(query).Scan(&rules).Error
 	if err != nil {

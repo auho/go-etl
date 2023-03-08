@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/auho/go-etl/tool/conf"
+	"github.com/auho/go-etl/v2/tool/conf"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -85,7 +85,7 @@ func setUp() {
 		panic(err)
 	}
 
-	items := []interface{}{
+	items := []any{
 		"b一ab一bc一abc一123b一b123一123一0123一1234一01234",
 		`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
 123一一`,
@@ -94,9 +94,9 @@ func setUp() {
 
 	maxA := (rand.Intn(100) + 10) * 3
 	maxB := rand.Intn(100) + 10
-	rows := make([][]interface{}, 0)
+	rows := make([][]any, 0)
 	for i := 0; i < maxA; i++ {
-		rows = append(rows, []interface{}{items[i%3]})
+		rows = append(rows, []any{items[i%3]})
 	}
 
 	for i := 0; i < maxB; i++ {

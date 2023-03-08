@@ -3,8 +3,8 @@ package dml
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/insight/dml/command"
-	"github.com/auho/go-etl/insight/dml/command/mysql"
+	"github.com/auho/go-etl/v2/insight/dml/command"
+	"github.com/auho/go-etl/v2/insight/dml/command/mysql"
 )
 
 const DriverMysql = "mysql"

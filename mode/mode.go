@@ -8,7 +8,7 @@ import (
 
 type VoidModer interface {
 	GetTitle() string
-	Do(map[string]interface{})
+	Do(map[string]any)
 	Close()
 }
 
@@ -16,14 +16,14 @@ type InsertModer interface {
 	GetTitle() string
 	GetKeys() []string   // 处理后的 key name
 	GetFields() []string // source data 里的 key name
-	Do(map[string]interface{}) []map[string]interface{}
+	Do(map[string]any) []map[string]any
 	Close()
 }
 
 type UpdateModer interface {
 	GetTitle() string
 	GetFields() []string // source data 里的 key name
-	Do(map[string]interface{}) map[string]interface{}
+	Do(map[string]any) map[string]any
 	Close()
 }
 
@@ -35,7 +35,7 @@ func (t *Mode) getTitle() string {
 	return "keys[" + strings.Join(t.keys, ", ") + "]"
 }
 
-func (t *Mode) GetKeysContent(keys []string, item map[string]interface{}) []string {
+func (t *Mode) GetKeysContent(keys []string, item map[string]any) []string {
 	contents := make([]string, 0)
 	for _, key := range keys {
 		keyValue := t.KeyValueToString(key, item)
@@ -46,7 +46,7 @@ func (t *Mode) GetKeysContent(keys []string, item map[string]interface{}) []stri
 	return contents
 }
 
-func (t *Mode) KeyValueToString(key string, item map[string]interface{}) string {
+func (t *Mode) KeyValueToString(key string, item map[string]any) string {
 	keyValue := ""
 
 	switch item[key].(type) {

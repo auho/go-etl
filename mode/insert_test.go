@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/means/segword"
-	"github.com/auho/go-etl/means/tag"
+	"github.com/auho/go-etl/v2/means/segword"
+	"github.com/auho/go-etl/v2/means/tag"
 )
 
 func Test_InsertMode(t *testing.T) {

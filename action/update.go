@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/mode"
-	"github.com/auho/go-etl/tool"
+	"github.com/auho/go-etl/v2/mode"
+	"github.com/auho/go-etl/v2/tool"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 

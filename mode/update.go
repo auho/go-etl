@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/means"
+	"github.com/auho/go-etl/v2/means"
 )
 
 // Update
@@ -35,14 +35,14 @@ func (u *Update) GetFields() []string {
 	return u.keys
 }
 
-func (u *Update) Do(item map[string]interface{}) map[string]interface{} {
+func (u *Update) Do(item map[string]any) map[string]any {
 	if item == nil {
 		return nil
 	}
 
 	contents := u.GetKeysContent(u.keys, item)
 
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 	for _, uMeans := range u.meanses {
 		_m := uMeans.Update(contents)
 		for _k, _v := range _m {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/action"
-	"github.com/auho/go-etl/means/tag"
-	"github.com/auho/go-etl/mode"
+	"github.com/auho/go-etl/v2/action"
+	"github.com/auho/go-etl/v2/means/tag"
+	"github.com/auho/go-etl/v2/mode"
 )
 
 func Test_Update(t *testing.T) {
@@ -106,7 +106,7 @@ func Test_Transfer(t *testing.T) {
 		"a_keyword_num": "a_keyword_num",
 	}
 
-	TransferFlow(db, dataTable, pkName, transferTable, alias, map[string]interface{}{"xyz": "xyz1"})
+	TransferFlow(db, dataTable, pkName, transferTable, alias, map[string]any{"xyz": "xyz1"})
 	dataCount := getAmount(dataTable, t)
 	tDataCount := getAmount(transferTable, t)
 	xDataCount := getFieldAmount(transferTable, "xyz", "xyz1", t)
@@ -136,7 +136,7 @@ func getAmount(tableName string, t *testing.T) int64 {
 	return count
 }
 
-func getFieldAmount(tableName string, field string, value interface{}, t *testing.T) int64 {
+func getFieldAmount(tableName string, field string, value any, t *testing.T) int64 {
 	var count int64
 	err := db.Table(tableName).Where(fmt.Sprintf("%s = ?", field), value).Count(&count).Error
 	if err != nil {
