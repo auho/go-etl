@@ -8,5 +8,5 @@ import (
 
 func InsertFlow(db *goSimpleDb.SimpleDB, dataTable, idName, targetTable string, moder mode.InsertModer, affixFields []string) {
 	a := action.NewInsert(db, targetTable, moder, affixFields)
-	RunFlow(db, dataTable, idName, []action.Actioner{a})
+	RunFlow(db, dataTable, idName, []action.Actor{a})
 }

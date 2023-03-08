@@ -8,7 +8,7 @@ import (
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Actioner = (*Clean)(nil)
+var _ Actor = (*Clean)(nil)
 
 type Clean struct {
 	action
@@ -53,36 +53,28 @@ func (c *Clean) Prepare() error {
 	return nil
 }
 
-func (c *Clean) Do(items []map[string]any) {
-	newItems := make([]map[string]any, 0)
-
-	for _, item := range items {
-		isClean := false
-		for _, m := range c.modes {
-			_res := m.Do(item)
-			if len(_res) > 0 {
-				isClean = true
-				break
-			}
+func (c *Clean) Do(item map[string]any) ([]map[string]any, bool) {
+	isClean := false
+	for _, m := range c.modes {
+		_res := m.Do(item)
+		if len(_res) > 0 {
+			isClean = true
+			break
 		}
-
-		if isClean == true {
-			continue
-		}
-
-		nm := make(map[string]any, len(c.fields))
-		for _, field := range c.fields {
-			nm[field] = item[field]
-		}
-
-		c.AddAmount(1)
-		newItems = append(newItems, item)
 	}
 
-	err := c.db.BulkInsertFromSliceMap(c.targetTable, newItems, batchSize)
+	if isClean == true {
+		return nil, false
+	}
+
+	return []map[string]any{item}, true
+}
+
+func (c *Clean) PostBatchDo(items []map[string]any) {
+	err := c.db.BulkInsertFromSliceMap(c.targetTable, items, batchSize)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (c *Clean) AfterDo() {}
+func (c *Clean) PostDo() {}

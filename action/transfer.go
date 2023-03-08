@@ -6,7 +6,7 @@ import (
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Actioner = (*Transfer)(nil)
+var _ Actor = (*Transfer)(nil)
 
 type Transfer struct {
 	action
@@ -62,35 +62,32 @@ func (t *Transfer) Prepare() error {
 	return nil
 }
 
-func (t *Transfer) Do(items []map[string]any) {
-	newItems := make([]map[string]any, 0)
-
-	for _, item := range items {
-		_item := make(map[string]any)
-		for _, field := range t.fields {
-			if ka, ok := t.alias[field]; ok {
-				_item[ka] = item[field]
-			} else {
-				_item[field] = item[field]
-			}
+func (t *Transfer) Do(item map[string]any) ([]map[string]any, bool) {
+	newItem := make(map[string]any)
+	for _, field := range t.fields {
+		if ka, ok := t.alias[field]; ok {
+			newItem[ka] = item[field]
+		} else {
+			newItem[field] = item[field]
 		}
-
-		for k, v := range t.fixedData {
-			if ka, ok := t.alias[k]; ok {
-				_item[ka] = v
-			} else {
-				_item[k] = v
-			}
-		}
-
-		t.AddAmount(1)
-		newItems = append(newItems, _item)
 	}
 
-	err := t.db.BulkInsertFromSliceMap(t.targetTable, newItems, batchSize)
+	for k, v := range t.fixedData {
+		if ka, ok := t.alias[k]; ok {
+			newItem[ka] = v
+		} else {
+			newItem[k] = v
+		}
+	}
+
+	return []map[string]any{newItem}, true
+}
+
+func (t *Transfer) PostBatchDo(items []map[string]any) {
+	err := t.db.BulkInsertFromSliceMap(t.targetTable, items, batchSize)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (t *Transfer) AfterDo() {}
+func (t *Transfer) PostDo() {}

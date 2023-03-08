@@ -17,7 +17,7 @@ func Test_Update(t *testing.T) {
 		[]mode.UpdateModer{m},
 	)
 
-	RunFlow(db, dataTable, pkName, []action.Actioner{ua})
+	RunFlow(db, dataTable, pkName, []action.Actor{ua})
 	UpdateFlow(db, dataTable, pkName, []mode.UpdateModer{m})
 
 	var count int64
@@ -68,7 +68,7 @@ func Test_Insert(t *testing.T) {
 	ia1 := action.NewInsert(db, tagATable+"1", m, []string{pkName})
 	ia2 := action.NewInsert(db, tagATable+"2", m, []string{pkName})
 
-	RunFlow(db, dataTable, pkName, []action.Actioner{ia, ia1, ia2})
+	RunFlow(db, dataTable, pkName, []action.Actor{ia, ia1, ia2})
 	InsertFlow(db, dataTable, pkName, tagATable, m, []string{pkName})
 	InsertFlow(db, dataTable, pkName, tagATable+"1", m, []string{pkName})
 	InsertFlow(db, dataTable, pkName, tagATable+"2", m, []string{pkName})
