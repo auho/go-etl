@@ -2,8 +2,6 @@ package model
 
 import (
 	"fmt"
-
-	"github.com/auho/go-etl/v2/tool"
 )
 
 type Data struct {
@@ -28,13 +26,5 @@ func (d *Data) GetIdName() string {
 }
 
 func (d *Data) TableName() string {
-	return d.name
-}
-
-func (d *Data) TagTableName(tagName string) string {
-	return fmt.Sprintf("%s_%s_%s", tool.TagTableNamePrefix, d.name, tagName)
-}
-
-func (d *Data) RuleTableName(n string) string {
-	return fmt.Sprintf("%s_%s_%s", tool.RuleTableNamePrefix, d.name, n)
+	return fmt.Sprintf("%s_%s", NameData, d.name)
 }

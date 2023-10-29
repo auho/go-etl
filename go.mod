@@ -4,8 +4,9 @@ go 1.18
 
 require (
 	github.com/auho/go-simple-db/v2 v2.0.1
-	github.com/auho/go-toolkit/flow v0.0.0-20230306094531-440f18e5419a
+	github.com/auho/go-toolkit/flow v0.0.0-20230314142833-3cc0a19e9a0d
 	github.com/pelletier/go-toml v1.9.3
+	github.com/spf13/cobra v1.7.0
 	github.com/yanyiwu/gojieba v1.1.2
 	gorm.io/gorm v1.24.6
 )
@@ -21,19 +22,20 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.16.0 // indirect
-	github.com/kr/text v0.2.0 // indirect
+	github.com/kr/pretty v0.2.1 // indirect
 	github.com/paulmach/orb v0.9.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	go.opentelemetry.io/otel v1.14.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/clickhouse v0.5.0 // indirect
 	gorm.io/driver/mysql v1.4.7 // indirect

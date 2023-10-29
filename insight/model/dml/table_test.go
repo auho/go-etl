@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/auho/go-etl/v2/insight/dml/command"
+	"github.com/auho/go-etl/v2/insight/model/dml/command"
 )
 
 func TestMain(t *testing.M) {

@@ -3,7 +3,7 @@ package mysql
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/dml/command"
+	"github.com/auho/go-etl/v2/insight/model/dml/command"
 )
 
 var _ command.TableJoinCommander = (*tableJoinCommand)(nil)

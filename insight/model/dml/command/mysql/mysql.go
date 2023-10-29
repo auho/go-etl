@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v2/insight/dml/command"
+	"github.com/auho/go-etl/v2/insight/model/dml/command"
 )
 
 type mysql struct {

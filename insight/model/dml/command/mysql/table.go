@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/auho/go-etl/v2/insight/dml/command"
+	"github.com/auho/go-etl/v2/insight/model/dml/command"
 )
 
 var _ command.TableCommander = (*tableCommand)(nil)

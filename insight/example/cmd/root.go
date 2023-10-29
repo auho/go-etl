@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
-	"example/demand"
 	"github.com/auho/go-etl/v2/insight/app"
+	"github.com/auho/go-etl/v2/insight/example/demand"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +14,6 @@ func initial() {
 
 var confName string
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use: "example",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
