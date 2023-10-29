@@ -28,6 +28,6 @@ func (rt *DataRuleTable) buildDataRule() {
 		rt.table.AddStringWithLength(label, length)
 	}
 
-	rt.AddUniqueString(rt.dataRule.GetRule().Keyword(), rt.dataRule.GetRule().GetKeywordLength())
-	rt.AddInt(rt.dataRule.GetRule().KeywordLen())
+	rt.AddUniqueString(rt.dataRule.GetRule().KeywordName(), rt.dataRule.GetRule().GetKeywordLength())
+	rt.AddInt(rt.dataRule.GetRule().KeywordLenName())
 }

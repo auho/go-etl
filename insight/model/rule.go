@@ -49,10 +49,10 @@ func (r *Rule) TableName() string {
 	return fmt.Sprintf("%s_%s", NameRule, r.name)
 }
 
-func (r *Rule) Keyword() string {
+func (r *Rule) KeywordName() string {
 	return fmt.Sprintf("%s_%s", r.name, NameKeyword)
 }
 
-func (r *Rule) KeywordLen() string {
+func (r *Rule) KeywordLenName() string {
 	return fmt.Sprintf("%s_%s", r.name, NameKeywordLen)
 }

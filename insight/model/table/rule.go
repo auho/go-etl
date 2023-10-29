@@ -28,6 +28,6 @@ func (rt *RuleTable) buildRule() {
 		rt.table.AddStringWithLength(label, length)
 	}
 
-	rt.AddUniqueString(rt.rule.Keyword(), rt.rule.GetLength())
-	rt.AddInt(rt.rule.KeywordLen())
+	rt.AddUniqueString(rt.rule.KeywordName(), rt.rule.GetLength())
+	rt.AddInt(rt.rule.KeywordLenName())
 }

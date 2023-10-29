@@ -29,10 +29,10 @@ func (dr *DataRule) TableName() string {
 	return fmt.Sprintf("%s_%s_%s", NameRule, dr.data.GetName(), dr.rule.GetName())
 }
 
-func (dr *DataRule) Keyword() string {
+func (dr *DataRule) KeywordName() string {
 	return fmt.Sprintf("%s_%s", dr.rule.GetName(), NameKeyword)
 }
 
-func (dr *DataRule) KeywordLen() string {
+func (dr *DataRule) KeywordLenName() string {
 	return fmt.Sprintf("%s_%s", dr.rule.GetName(), NameKeywordLen)
 }

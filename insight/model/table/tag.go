@@ -29,6 +29,6 @@ func (tt *TagTable) buildTag() {
 		tt.table.AddStringWithLength(label, length)
 	}
 
-	tt.AddStringWithLength(tt.tag.GetRule().Keyword(), tt.tag.GetRule().GetKeywordLength())
-	tt.AddInt(tt.tag.KeywordNum())
+	tt.AddStringWithLength(tt.tag.GetRule().KeywordName(), tt.tag.GetRule().GetKeywordLength())
+	tt.AddInt(tt.tag.KeywordNumName())
 }

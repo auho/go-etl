@@ -29,6 +29,6 @@ func (t *Tag) TableName() string {
 	return fmt.Sprintf("%s_%s_%s", NameTag, t.data.GetName(), t.rule.GetName())
 }
 
-func (t *Tag) KeywordNum() string {
+func (t *Tag) KeywordNumName() string {
 	return fmt.Sprintf("%s_%s", t.rule.GetName(), NameKeywordNum)
 }
