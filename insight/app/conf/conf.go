@@ -2,7 +2,6 @@ package conf
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -57,7 +56,7 @@ func (dc *DbConfig) BuildDB() (*goSimpleDb.SimpleDB, error) {
 
 func LoadConfig(name string) (*Config, error) {
 	filePath := fmt.Sprintf("conf/%s.toml", name)
-	fileContent, err := ioutil.ReadFile(filePath)
+	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}

@@ -76,7 +76,7 @@ func (t *table) AddStringWithLength(name string, length int) {
 	t.table.AddVarchar(name, length, "")
 }
 
-func (t *table) Build(db simpleDb.SimpleDB) error {
+func (t *table) Build(db *simpleDb.SimpleDB) error {
 	sql := t.table.SqlForCreate()
 
 	return db.Exec(sql).Error

@@ -11,6 +11,10 @@ type Rule struct {
 	labels        map[string]int
 }
 
+func NewRuleSimple(name string, labels map[string]int) *Rule {
+	return NewRule(name, 30, 30, labels)
+}
+
 func NewRule(name string, length, keywordLength int, labels map[string]int) *Rule {
 	r := &Rule{}
 	r.name = name

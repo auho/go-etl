@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/auho/go-etl/v2/tool/conf"
+	"github.com/auho/go-etl/v2/insight/app/conf"
 	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
