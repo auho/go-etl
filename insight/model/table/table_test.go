@@ -30,6 +30,11 @@ func TestData(t *testing.T) {
 	dt.AddStringWithLength("s2", 125)
 	dt.AddKeyString("s3", 20, 0)
 	dt.AddUniqueString("s4", 20)
+	dt.AddTimestamp("ts1", false, false)
+	dt.AddTimestamp("ts2", false, true)
+	dt.AddTimestamp("ts3", true, false)
+	dt.AddTimestamp("ts4", true, true)
+	dt.AddText("t1")
 
 	sql := dt.GetTable().SqlForCreate()
 	fmt.Println(sql)

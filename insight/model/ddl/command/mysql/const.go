@@ -10,6 +10,10 @@ const typeDecimal = "decimal"
 const typeVarchar = "varchar"
 const typeText = "text"
 
+const typeTimestamp = "timestamp"
+
+const defaultCurrentTimestamp = "CURRENT_TIMESTAMP"
+
 const extraAutoIncrement = "AUTO_INCREMENT"
 const extraOnUpdateCurrentTimestamp = "ON UPDATE CURRENT_TIMESTAMP"
 

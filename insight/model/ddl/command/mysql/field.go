@@ -95,16 +95,18 @@ func (f *Field) statement() string {
 		null = "NULL "
 	}
 
-	switch f._type {
-	case typeText:
-		null = ""
-	}
-
 	_default := fmt.Sprintf("DEFAULT '%s' ", f._default)
 
 	switch f._type {
 	case typeText:
 		_default = ""
+	case typeTimestamp:
+		if f._default == "" {
+			_default = "DEFAULT NULL "
+			null = "NULL "
+		} else {
+			_default = fmt.Sprintf("DEFAULT %s ", defaultCurrentTimestamp)
+		}
 	}
 
 	extra := f.extra

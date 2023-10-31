@@ -76,6 +76,14 @@ func (t *table) AddStringWithLength(name string, length int) {
 	t.table.AddVarchar(name, length, "")
 }
 
+func (t *table) AddText(name string) {
+	t.table.AddText(name)
+}
+
+func (t *table) AddTimestamp(name string, onDefault, onUpdate bool) {
+	t.table.AddTimestamp(name, onDefault, onUpdate)
+}
+
 func (t *table) Build(db *simpleDb.SimpleDB) error {
 	sql := t.table.SqlForCreate()
 

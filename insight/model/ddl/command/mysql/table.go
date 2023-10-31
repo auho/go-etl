@@ -135,6 +135,22 @@ func (t *Table) AddDecimal(name string, m, d int, _default float64) *Field {
 	return f
 }
 
+func (t *Table) AddTimestamp(name string, onDefault, onUpdate bool) *Field {
+	_default := ""
+	if onDefault {
+		_default = defaultCurrentTimestamp
+	}
+
+	extra := ""
+	if onUpdate {
+		extra = extraOnUpdateCurrentTimestamp
+	}
+
+	f := newField(name, typeTimestamp, "", _default, extra)
+	t.AddField(f)
+	return f
+}
+
 func (t *Table) AddKey(field string, size int) *Index {
 	i := newIndex(field, indexTypeKey)
 	i.AddField(field, size)

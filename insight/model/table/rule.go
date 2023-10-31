@@ -30,4 +30,6 @@ func (rt *RuleTable) buildRule() {
 
 	rt.AddUniqueString(rt.rule.KeywordName(), rt.rule.GetLength())
 	rt.AddInt(rt.rule.KeywordLenName())
+	rt.AddTimestamp("ctime", true, true)
+
 }
