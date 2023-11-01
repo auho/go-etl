@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+var _ Dataor = (*Data)(nil)
+
 type Data struct {
 	name   string
 	idName string

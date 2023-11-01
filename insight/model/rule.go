@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+var _ Ruler = (*Rule)(nil)
+
 type Rule struct {
 	name          string
 	length        int

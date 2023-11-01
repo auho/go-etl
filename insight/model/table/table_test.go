@@ -50,15 +50,13 @@ func TestRule(t *testing.T) {
 
 	sql = rt1.GetTable().SqlForCreate()
 	fmt.Println(sql)
-}
 
-func TestDataRule(t *testing.T) {
-	dr := NewDataRuleTable(_dataRule)
+	dr := NewRuleTable(_dataRule)
 
-	sql := dr.GetTable().SqlForCreate()
+	sql = dr.GetTable().SqlForCreate()
 	fmt.Println(sql)
 
-	dr1 := NewDataRuleTable(_dataRule1)
+	dr1 := NewRuleTable(_dataRule1)
 
 	sql = dr1.GetTable().SqlForCreate()
 	fmt.Println(sql)

@@ -4,15 +4,17 @@ import (
 	"fmt"
 )
 
+var _ Ruler = (*Rule)(nil)
+
 type DataRule struct {
+	*Rule
 	data *Data
-	rule *Rule
 }
 
 func NewDataRule(data *Data, rule *Rule) *DataRule {
 	dr := &DataRule{}
 	dr.data = data
-	dr.rule = rule
+	dr.Rule = rule
 
 	return dr
 }
@@ -22,17 +24,9 @@ func (dr *DataRule) GetData() *Data {
 }
 
 func (dr *DataRule) GetRule() *Rule {
-	return dr.rule
+	return dr.Rule
 }
 
 func (dr *DataRule) TableName() string {
-	return fmt.Sprintf("%s_%s_%s", NameRule, dr.data.GetName(), dr.rule.GetName())
-}
-
-func (dr *DataRule) KeywordName() string {
-	return fmt.Sprintf("%s_%s", dr.rule.GetName(), NameKeyword)
-}
-
-func (dr *DataRule) KeywordLenName() string {
-	return fmt.Sprintf("%s_%s", dr.rule.GetName(), NameKeywordLen)
+	return fmt.Sprintf("%s_%s_%s", NameRule, dr.data.GetName(), dr.GetName())
 }

@@ -5,11 +5,11 @@ import (
 )
 
 type Tag struct {
-	data *Data
-	rule *Rule
+	data Dataor
+	rule Ruler
 }
 
-func NewTag(data *Data, rule *Rule) *Tag {
+func NewTag(data Dataor, rule Ruler) *Tag {
 	t := &Tag{}
 	t.data = data
 	t.rule = rule
@@ -17,11 +17,11 @@ func NewTag(data *Data, rule *Rule) *Tag {
 	return t
 }
 
-func (t *Tag) GetData() *Data {
+func (t *Tag) GetData() Dataor {
 	return t.data
 }
 
-func (t *Tag) GetRule() *Rule {
+func (t *Tag) GetRule() Ruler {
 	return t.rule
 }
 

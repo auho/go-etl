@@ -6,10 +6,10 @@ import (
 
 type RuleTable struct {
 	table
-	rule *model.Rule
+	rule model.Ruler
 }
 
-func NewRuleTable(rule *model.Rule) *RuleTable {
+func NewRuleTable(rule model.Ruler) *RuleTable {
 	rt := &RuleTable{}
 	rt.rule = rule
 
