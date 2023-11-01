@@ -22,9 +22,8 @@ func SliceSliceDropDuplicates[T comparator](s [][]T, indexes []int) [][]T {
 			}
 
 			_value := item[index]
-			_valueAny := any(_value)
-			if _, ok := valuesFlag[index][_valueAny]; !ok {
-				valuesFlag[index][_valueAny] = struct{}{}
+			if _, ok := valuesFlag[index][_value]; !ok {
+				valuesFlag[index][_value] = struct{}{}
 				isDuplicates = false
 			}
 		}

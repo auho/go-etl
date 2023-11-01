@@ -17,6 +17,10 @@ type Table struct {
 	indexes     []*Index
 }
 
+func (t *Table) GetName() string {
+	return t.name
+}
+
 func (t *Table) setTable(name, engine, charset, collate string) *Table {
 	return t.SetName(name).SetEngine(engine).SetCharset(charset, collate)
 }

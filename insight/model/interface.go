@@ -1,5 +1,9 @@
 package model
 
+type Rowsor interface {
+	TableName() string
+}
+
 type Ruler interface {
 	GetName() string
 	GetLength() int

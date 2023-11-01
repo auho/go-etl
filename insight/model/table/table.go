@@ -5,6 +5,14 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
+var _ Tabler = (*table)(nil)
+
+type Tabler interface {
+	GetTableName() string
+	GetTable() *mysql.Table
+	Build(db *simpleDb.SimpleDB) error
+}
+
 type table struct {
 	table *mysql.Table
 }
@@ -16,6 +24,10 @@ func (t *table) initTable(name string) {
 
 func (t *table) GetTable() *mysql.Table {
 	return t.table
+}
+
+func (t *table) GetTableName() string {
+	return t.table.GetName()
 }
 
 func (t *table) AddPkBigInt(name string) {

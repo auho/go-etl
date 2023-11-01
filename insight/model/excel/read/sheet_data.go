@@ -4,9 +4,17 @@ import (
 	"fmt"
 )
 
+type SheetDataor interface {
+	ReadData() error
+	HandlerRows(fn func(rows [][]string) ([][]string, error)) error
+	GetRows() [][]string
+	GetRowsWithAny() [][]any
+}
+
 type SheetData struct {
 	xlsxPath  string
 	sheetName string
+	startRow  int
 	rows      [][]string
 }
 
@@ -19,6 +27,10 @@ func (sd *SheetData) readFromSheet() error {
 	sd.rows, err = excel.excelFile.GetRows(sd.sheetName)
 	if err != nil {
 		return fmt.Errorf("GetRows error; %w", err)
+	}
+
+	if sd.startRow > 0 {
+		sd.rows = sd.rows[sd.startRow:]
 	}
 
 	return nil
