@@ -11,6 +11,10 @@ const DriverMysql = "mysql"
 
 var driver = ""
 
+func RegisterDriverMysql() {
+	RegisterDriver(DriverMysql)
+}
+
 func RegisterDriver(d string) {
 	driver = d
 }

@@ -1,4 +1,4 @@
-package _import
+package exporttodb
 
 import (
 	"github.com/auho/go-etl/v2/insight/model/excel/read"

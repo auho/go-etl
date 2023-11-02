@@ -1,9 +1,5 @@
 package slices
 
-type comparator interface {
-	any | string | int
-}
-
 func SliceSliceDropDuplicates[T comparator](s [][]T, indexes []int) [][]T {
 	var newS [][]T
 	_sLen := len(s)

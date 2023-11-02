@@ -1,5 +1,7 @@
 package model
 
+var _ Rowsor = (*Rows)(nil)
+
 type Rows struct {
 	tableName string
 }

@@ -2,6 +2,8 @@ package model
 
 import (
 	"fmt"
+
+	"github.com/auho/go-etl/v2/insight/model/dml"
 )
 
 var _ Dataor = (*Data)(nil)
@@ -29,4 +31,8 @@ func (d *Data) GetIdName() string {
 
 func (d *Data) TableName() string {
 	return fmt.Sprintf("%s_%s", NameData, d.name)
+}
+
+func (d *Data) DmlTable() *dml.Table {
+	return dml.NewTable(d.TableName())
 }

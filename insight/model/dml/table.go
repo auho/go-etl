@@ -4,6 +4,8 @@ import (
 	"github.com/auho/go-etl/v2/insight/model/dml/command"
 )
 
+var _ Tabler = (*Table)(nil)
+
 type Table struct {
 	commander command.TableCommander
 	name      string
@@ -183,6 +185,19 @@ func (t *Table) DeleteSql() string {
 	t.prepare()
 
 	return t.commander.DeleteQuery()
+}
+
+func (t *Table) CreateJoin() *TableJoin {
+	return NewTableJoin().Table(t)
+}
+
+func (t *Table) GetSelectFields() []string {
+	var fields []string
+	for _, entity := range t.fields.Get() {
+		fields = append(fields, entity.GetValue())
+	}
+
+	return fields
 }
 
 func (t *Table) prepare() {

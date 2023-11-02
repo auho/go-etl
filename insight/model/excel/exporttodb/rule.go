@@ -1,4 +1,4 @@
-package _import
+package exporttodb
 
 import (
 	"fmt"
@@ -11,31 +11,27 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ sourceor = (*RuleImport)(nil)
+var _ sourceor = (*RuleExportToDb)(nil)
 
-func RunRuleImport(db *simpleDb.SimpleDB, ri *RuleImport) error {
-	return RunImport(db, ri)
-}
-
-type RuleImport struct {
+type RuleExportToDb struct {
 	Source
 	KeywordIndex int      // keyword 在 sheet 中的列，从 0 开始
 	Titles       []string // save to db 的 columns
 	Rule         model.Ruler
 }
 
-func (ri *RuleImport) GetTable() table.Tabler {
-	return table.NewRuleTable(ri.Rule)
+func (re *RuleExportToDb) GetTable() table.Tabler {
+	return table.NewRuleTable(re.Rule)
 }
 
-func (ri *RuleImport) GetTitles() []string {
-	return ri.Titles
+func (re *RuleExportToDb) GetTitles() []string {
+	return re.Titles
 }
 
-func (ri *RuleImport) GetSheetData() (read.SheetDataor, error) {
-	sheetData, err := read.NewSheetDataNoTitle(ri.XlsxPath, ri.SheetName, ri.StartRow)
+func (re *RuleExportToDb) GetSheetData() (read.SheetDataor, error) {
+	sheetData, err := read.NewSheetDataNoTitle(re.XlsxPath, re.SheetName, re.StartRow)
 	if err != nil {
-		return nil, fmt.Errorf("NewSheetDataNoTitle error; %w", sheetData)
+		return nil, fmt.Errorf("NewSheetDataNoTitle error; %w", err)
 	}
 
 	err = sheetData.ReadData()
@@ -44,19 +40,19 @@ func (ri *RuleImport) GetSheetData() (read.SheetDataor, error) {
 	}
 
 	// drop duplicates TODO add if
-	for i, title := range ri.Titles {
-		if title == ri.Rule.KeywordName() {
-			ri.ColumnDropDuplicates = append(ri.ColumnDropDuplicates, i)
+	for i, title := range re.Titles {
+		if title == re.Rule.KeywordName() {
+			re.ColumnDropDuplicates = append(re.ColumnDropDuplicates, i)
 			break
 		}
 	}
 
 	// keyword len of string
 	err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
-		ri.Titles = append(ri.Titles, ri.Rule.KeywordLenName())
+		re.Titles = append(re.Titles, re.Rule.KeywordLenName())
 
 		for i, row := range rows {
-			row = append(row, strconv.Itoa(utf8.RuneCountInString(row[ri.KeywordIndex])))
+			row = append(row, strconv.Itoa(utf8.RuneCountInString(row[re.KeywordIndex])))
 			rows[i] = row
 		}
 
@@ -68,4 +64,8 @@ func (ri *RuleImport) GetSheetData() (read.SheetDataor, error) {
 	}
 
 	return sheetData, nil
+}
+
+func (re *RuleExportToDb) Export(db *simpleDb.SimpleDB) error {
+	return RunExportToDb(db, re)
 }

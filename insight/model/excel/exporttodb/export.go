@@ -1,4 +1,4 @@
-package _import
+package exporttodb
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-type Import struct {
+type ExportToDb struct {
 	isRecreateTable      bool  // 是否 recreate table
 	isAppendData         bool  // 是否 append data
 	isShowSql            bool  // 是否显示 sql
@@ -18,8 +18,8 @@ type Import struct {
 	db                   *simpleDb.SimpleDB
 }
 
-func RunImport(db *simpleDb.SimpleDB, sr sourceor) error {
-	_i := &Import{
+func RunExportToDb(db *simpleDb.SimpleDB, sr sourceor) error {
+	e := &ExportToDb{
 		isRecreateTable:      sr.GetIsRecreateTable(),
 		isAppendData:         sr.GetIsAppendData(),
 		isShowSql:            sr.GetIsShowSql(),
@@ -28,49 +28,49 @@ func RunImport(db *simpleDb.SimpleDB, sr sourceor) error {
 		db:                   db,
 	}
 
-	return _i.Import()
+	return e.Export()
 }
 
-func (_i *Import) Import() error {
-	_table := _i.sourceor.GetTable()
+func (e *ExportToDb) Export() error {
+	_table := e.sourceor.GetTable()
 
-	err := _i.buildTable(_table)
+	err := e.buildTable(_table)
 	if err != nil {
 		return fmt.Errorf("buildTable error; %w", err)
 	}
 
-	sheetData, err := _i.sourceor.GetSheetData()
+	sheetData, err := e.sourceor.GetSheetData()
 	if err != nil {
 		return fmt.Errorf("GetSheetData error; %w", err)
 	}
 
-	err = _i.importToTable(_table, sheetData)
+	err = e.exportToTable(_table, sheetData)
 	if err != nil {
-		return fmt.Errorf("importToTable error; %w", err)
+		return fmt.Errorf("exportToTable error; %w", err)
 	}
 
 	return nil
 }
 
-func (_i *Import) buildTable(table table.Tabler) error {
-	if _i.isShowSql {
+func (e *ExportToDb) buildTable(table table.Tabler) error {
+	if e.isShowSql {
 		fmt.Println(table.GetTable().SqlForCreate())
 	}
 
-	_, err := _i.db.GetTableColumns(table.GetTableName())
+	_, err := e.db.GetTableColumns(table.GetTableName())
 	if err != nil {
-		_i.isRecreateTable = true
+		e.isRecreateTable = true
 	} else {
-		if _i.isRecreateTable {
-			err = _i.db.Drop(table.GetTableName())
+		if e.isRecreateTable {
+			err = e.db.Drop(table.GetTableName())
 			if err != nil {
 				return fmt.Errorf("drop; %w", err)
 			}
 		}
 	}
 
-	if _i.isRecreateTable {
-		err = table.Build(_i.db)
+	if e.isRecreateTable {
+		err = table.Build(e.db)
 		if err != nil {
 			return fmt.Errorf("build error; %w", err)
 		}
@@ -79,12 +79,12 @@ func (_i *Import) buildTable(table table.Tabler) error {
 	return nil
 }
 
-func (_i *Import) importToTable(table table.Tabler, sheetData read.SheetDataor) error {
+func (e *ExportToDb) exportToTable(table table.Tabler, sheetData read.SheetDataor) error {
 	var err error
 
-	if len(_i.columnDropDuplicates) > 0 {
+	if len(e.columnDropDuplicates) > 0 {
 		err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
-			rows = slices.SliceSliceDropDuplicates(rows, _i.columnDropDuplicates)
+			rows = slices.SliceSliceDropDuplicates(rows, e.columnDropDuplicates)
 
 			return rows, nil
 		})
@@ -93,14 +93,14 @@ func (_i *Import) importToTable(table table.Tabler, sheetData read.SheetDataor) 
 		}
 	}
 
-	if !_i.isAppendData {
-		err = _i.db.Truncate(table.GetTableName())
+	if !e.isAppendData {
+		err = e.db.Truncate(table.GetTableName())
 		if err != nil {
 			return fmt.Errorf("truncate error; %w", err)
 		}
 	}
 
-	err = _i.db.BulkInsertFromSliceSlice(table.GetTableName(), _i.sourceor.GetTitles(), sheetData.GetRowsWithAny(), 1000)
+	err = e.db.BulkInsertFromSliceSlice(table.GetTableName(), e.sourceor.GetTitles(), sheetData.GetRowsWithAny(), 1000)
 	if err != nil {
 		return err
 	}

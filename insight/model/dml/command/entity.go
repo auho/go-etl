@@ -1,7 +1,6 @@
 package command
 
 import (
-	"sort"
 	"strings"
 	"sync"
 )
@@ -68,7 +67,7 @@ func (es *Entities) Add(e *Entity) {
 		es.entries = append(es.entries, e)
 	}
 
-	sort.Sort(sortEntries(es.entries))
+	//sort.Sort(sortEntries(es.entries))
 }
 
 func (es *Entities) Len() int {

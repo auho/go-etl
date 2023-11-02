@@ -4,6 +4,8 @@ import (
 	"github.com/auho/go-etl/v2/insight/model/dml/command"
 )
 
+var _ Tabler = (*TableJoin)(nil)
+
 type TableJoin struct {
 	commander command.TableJoinCommander
 	tables    []*Table
@@ -104,6 +106,15 @@ func (tj *TableJoin) DeleteSql() string {
 	tj.prepare()
 
 	return tj.commander.DeleteQuery()
+}
+
+func (tj *TableJoin) GetSelectFields() []string {
+	var fields []string
+	for _, table := range tj.tables {
+		fields = append(fields, table.GetSelectFields()...)
+	}
+
+	return fields
 }
 
 func (tj *TableJoin) prepare() {

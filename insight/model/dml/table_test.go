@@ -20,9 +20,12 @@ func TestTable(t *testing.T) {
 	s1 := t1.Sql()
 	fmt.Println(s1)
 
-	t2 := NewSqlTable("efg", s1).Select([]string{"a11", "b11"}).Sql()
+	t2 := NewSqlTable("efg", s1).Select([]string{"b11", "a11"})
+	s2 := t2.Sql()
+	fmt.Println(s2)
 
-	fmt.Println(t2)
+	fmt.Println(t1.GetSelectFields())
+	fmt.Println(t2.GetSelectFields())
 }
 
 func TestTableJoin(t *testing.T) {
@@ -30,8 +33,15 @@ func TestTableJoin(t *testing.T) {
 
 	t2 := getTable2()
 
-	s3 := NewTableJoin().Table(t1).LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(1, 11).Sql()
+	t3 := NewTableJoin().Table(t1).LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(1, 11)
+	s3 := t3.Sql()
 	fmt.Println(s3)
+	fmt.Println(t3.GetSelectFields())
+
+	t4 := t1.CreateJoin().LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(2, 22)
+	s4 := t4.Sql()
+	fmt.Println(s4)
+	fmt.Println(t4.GetSelectFields())
 }
 
 func TestInsert(t *testing.T) {
