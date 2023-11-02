@@ -1,6 +1,6 @@
 package slices
 
-func SliceSliceDropDuplicates[T comparator](s [][]T, indexes []int) [][]T {
+func SliceSliceDropDuplicates[T comparatorEntity](s [][]T, indexes []int) [][]T {
 	var newS [][]T
 	_sLen := len(s)
 	valuesFlag := make(map[int]map[any]struct{}, len(indexes))

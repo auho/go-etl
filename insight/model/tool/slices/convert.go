@@ -1,6 +1,6 @@
 package slices
 
-func SliceToAny[T Any](s []T) []any {
+func SliceToAny[T valueEntity](s []T) []any {
 	var newS []any
 	for _, item := range s {
 		newS = append(newS, item)

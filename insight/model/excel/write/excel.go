@@ -42,7 +42,12 @@ func (e *Excel) NewSheetWithData(sheetName string, rows [][]any) (int, error) {
 }
 
 func (e *Excel) SaveAs() error {
-	err := e.excelFile.SaveAs(e.path)
+	err := e.excelFile.DeleteSheet("Sheet1")
+	if err != nil {
+		return fmt.Errorf("DeleteSheet error; %w", err)
+	}
+
+	err = e.excelFile.SaveAs(e.path)
 	if err != nil {
 		return fmt.Errorf("SaveAs error; %w", err)
 	}

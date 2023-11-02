@@ -1,11 +1,7 @@
 package query
 
 import (
-	"fmt"
-
 	"github.com/auho/go-etl/v2/insight/model/dml"
-	"github.com/auho/go-etl/v2/insight/model/tool/maps"
-	"github.com/auho/go-etl/v2/insight/model/tool/slices"
 )
 
 var _ sourcer = (*TableSource)(nil)
@@ -15,17 +11,8 @@ type TableSource struct {
 	Table dml.Tabler
 }
 
-func (tq *TableSource) Rows() ([][]any, error) {
-	var rows []map[string]any
-	err := tq.DB.Raw(tq.Table.Sql()).Scan(&rows).Error
-	if err != nil {
-		return nil, fmt.Errorf("raw error; %w", err)
-	}
+func (ts *TableSource) Rows() ([][]any, error) {
+	sqls := []string{ts.Table.Sql()}
 
-	var rowsAny [][]any
-	fields := tq.Table.GetSelectFields()
-	rowsAny = append(rowsAny, slices.SliceToAny(fields))
-	rowsAny = append(rowsAny, maps.SliceMapStringAnyToSliceSliceAny(rows, fields)...)
-
-	return rowsAny, nil
+	return ts.rowsAppend(sqls, ts.Table.GetSelectFields())
 }

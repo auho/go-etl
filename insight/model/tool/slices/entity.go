@@ -1,9 +1,9 @@
 package slices
 
-type Any interface {
+type valueEntity interface {
 	string | int
 }
 
-type comparator interface {
+type comparatorEntity interface {
 	any | string | int
 }
