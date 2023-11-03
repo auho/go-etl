@@ -1,13 +1,14 @@
-package query
+package source
 
 import (
 	"fmt"
 	"maps"
 
 	"github.com/auho/go-etl/v2/insight/model/dml"
+	"github.com/auho/go-etl/v2/insight/model/query/dataset"
 )
 
-var _ sheets = (*PlaceholderCrossSource)(nil)
+var _ Sourcer = (*PlaceholderCrossSource)(nil)
 
 /*
  a: 1, 2
@@ -25,18 +26,22 @@ type PlaceholderCrossSource struct {
 	Items []map[string][]string // []map[field][][field value]
 }
 
-func (pcs *PlaceholderCrossSource) Sheets() ([]string, map[string][][]any, error) {
+func (pcs *PlaceholderCrossSource) Dataset() (*dataset.Dataset, error) {
 	fields := pcs.Table.GetSelectFields()
-	sql := pcs.Table.Sql()
-
 	items := pcs.expandItems()
-	sqls := pcs.buildPlaceholderItemsSqlList(sql, items)
-	rows, err := pcs.rowsAppend(sqls, fields)
+
+	itemsName, itemsSql := pcs.buildPlaceholderItemsSqlSet(pcs.Table.Sql(), items)
+	itemsSet, err := pcs.queryItemsSet(fields, itemsName, itemsSql)
 	if err != nil {
-		return nil, nil, fmt.Errorf("rowsAppend error; %w", err)
+		return nil, fmt.Errorf("queryItemsSet error; %w", err)
 	}
 
-	return []string{pcs.SheetName}, map[string][][]any{pcs.SheetName: rows}, nil
+	return &dataset.Dataset{
+		Name:      pcs.Name,
+		Titles:    fields,
+		ItemsName: itemsName,
+		ItemsSet:  itemsSet,
+	}, nil
 }
 
 func (pcs *PlaceholderCrossSource) expandItems() []map[string]string {

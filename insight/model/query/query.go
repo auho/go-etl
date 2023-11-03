@@ -4,14 +4,21 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/model/excel/write"
+	"github.com/auho/go-etl/v2/insight/model/query/dataset"
+	"github.com/auho/go-etl/v2/insight/model/query/source"
 )
+
+type subQuery struct {
+	source      source.Sourcer
+	datasetMode dataset.Mode
+}
 
 type Query struct {
 	xlsxPath string
 	xlsxName string
 	excel    *write.Excel
 
-	sources []sheets
+	queries []subQuery
 }
 
 func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
@@ -28,30 +35,50 @@ func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
 	return q, nil
 }
 
-func (q *Query) AddSource(sources ...sheets) {
-	q.sources = append(q.sources, sources...)
+func (q *Query) AddAppend(source source.Sourcer) {
+	q.add(dataset.ModeAppend, source)
 }
 
-func (q *Query) doSources() error {
-	var err error
-	for _, source := range q.sources {
-		err = q.doSource(source)
+func (q *Query) AddSpread(source source.Sourcer) {
+	q.add(dataset.ModeSpread, source)
+}
+
+func (q *Query) add(dm dataset.Mode, s source.Sourcer) {
+	q.queries = append(q.queries, subQuery{
+		source:      s,
+		datasetMode: dm,
+	})
+}
+
+func (q *Query) doQueries() error {
+	for _, sq := range q.queries {
+		err := q.doQuery(sq)
 		if err != nil {
-			return err
+			return fmt.Errorf("doQuery error; %w", err)
 		}
 	}
 
 	return nil
 }
 
-func (q *Query) doSource(source sheets) error {
-	sheetsName, sheetsRows, err := source.Sheets()
+func (q *Query) doQuery(sq subQuery) error {
+	ds, err := sq.source.Dataset()
 	if err != nil {
-		return fmt.Errorf("rows error; %w", err)
+		return fmt.Errorf("dataset error; %w", err)
 	}
 
-	for _, sheetName := range sheetsName {
-		_, err = q.excel.NewSheetWithData(sheetName, sheetsRows[sheetName])
+	dsMode, err := dataset.NewMode(sq.datasetMode, ds)
+	if err != nil {
+		return fmt.Errorf("NewMode error; %w", err)
+	}
+
+	data, err := dsMode.Data()
+	if err != nil {
+		return fmt.Errorf("data error; %w", err)
+	}
+
+	for _, name := range data.Names {
+		_, err = q.excel.NewSheetWithData(name, data.Rows[name])
 		if err != nil {
 			return fmt.Errorf("NewSheetWithData error; %w", err)
 		}
@@ -61,9 +88,10 @@ func (q *Query) doSource(source sheets) error {
 }
 
 func (q *Query) Save() error {
-	err := q.doSources()
+	err := q.doQueries()
 	if err != nil {
-		return fmt.Errorf("doSources error; %w", err)
+		return fmt.Errorf("doQueries error; %w", err)
 	}
+
 	return q.excel.SaveAs()
 }
