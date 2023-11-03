@@ -15,8 +15,9 @@ type Sourcer interface {
 }
 
 type Source struct {
-	Name string
-	DB   *simpleDb.SimpleDB
+	HasNamePrefix bool
+	Name          string
+	DB            *simpleDb.SimpleDB
 }
 
 func (s *Source) buildPlaceholderItemsSqlSet(sql string, items []map[string]string) ([]string, map[string]string) {
@@ -36,6 +37,9 @@ func (s *Source) buildPlaceholderItemsSqlSet(sql string, items []map[string]stri
 		}
 
 		itemName := strings.Join(itemKey, "_")
+		if s.HasNamePrefix {
+			itemName = fmt.Sprintf("%s_%s", s.Name, itemName)
+		}
 
 		itemsName = append(itemsName, itemName)
 		itemsSql[itemName] = s.buildPlaceholderItemSql(sql, item)
