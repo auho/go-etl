@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"sort"
 )
 
 var _ Ruler = (*Rule)(nil)
@@ -39,8 +40,12 @@ func (r *Rule) GetName() string {
 	return r.name
 }
 
-func (r *Rule) GetLength() int {
+func (r *Rule) GetNameLength() int {
 	return r.length
+}
+
+func (r *Rule) GetIdName() string {
+	return "id"
 }
 
 func (r *Rule) GetKeywordLength() int {
@@ -49,6 +54,19 @@ func (r *Rule) GetKeywordLength() int {
 
 func (r *Rule) GetLabels() map[string]int {
 	return r.labels
+}
+
+func (r *Rule) LabelsName() []string {
+	var labels []string
+	for label, _ := range r.labels {
+		labels = append(labels, label)
+	}
+
+	sort.SliceIsSorted(labels, func(i, j int) bool {
+		return labels[i] < labels[j]
+	})
+
+	return labels
 }
 
 func (r *Rule) TableName() string {
@@ -61,4 +79,8 @@ func (r *Rule) KeywordName() string {
 
 func (r *Rule) KeywordLenName() string {
 	return fmt.Sprintf("%s_%s", r.name, NameKeywordLen)
+}
+
+func (r *Rule) KeywordNumName() string {
+	return fmt.Sprintf("%s_%s", r.name, NameKeywordNum)
 }

@@ -23,7 +23,7 @@ func (tt *TagTable) buildTag() {
 	tt.AddPkInt("id")
 
 	tt.AddKeyBigInt(tt.tag.GetData().GetIdName())
-	tt.AddStringWithLength(tt.tag.GetRule().GetName(), tt.tag.GetRule().GetLength())
+	tt.AddStringWithLength(tt.tag.GetRule().GetName(), tt.tag.GetRule().GetNameLength())
 
 	for label, length := range tt.tag.GetRule().GetLabels() {
 		tt.table.AddStringWithLength(label, length)

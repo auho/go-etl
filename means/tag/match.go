@@ -15,13 +15,13 @@ type MatcherOption func(mt *Matcher)
 // 匹配前格式化 keyword 的 funcs
 type MatcherKeyFormatFunc func(string) string
 
-func WithTagMatcherKeyFunc(f MatcherKeyFormatFunc) MatcherOption {
+func WithMatcherKeyFormatFunc(f ...MatcherKeyFormatFunc) MatcherOption {
 	return func(m *Matcher) {
-		m.addKeyFormatFunc(f)
+		m.addKeyFormatFunc(f...)
 	}
 }
 
-var DefaultMatcher = NewMatcher(WithTagMatcherKeyFunc(func(s string) string {
+func defaultMatcherKeyFormatFunc(s string) string {
 	res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 	if err != nil {
 		return s
@@ -32,12 +32,16 @@ var DefaultMatcher = NewMatcher(WithTagMatcherKeyFunc(func(s string) string {
 	} else {
 		return strings.ReplaceAll(s, "_", `.{1,3}`)
 	}
-}))
+}
+
+func DefaultMatcher() *Matcher {
+	return NewMatcher(WithMatcherKeyFormatFunc(defaultMatcherKeyFormatFunc))
+}
 
 // Matcher
 // 从 rule 条目生成 regexp，匹配 content, 得到 keyword, matched text
 type Matcher struct {
-	keyFormatFuncs   []func(string) string        // 在匹配前格式化关键词（使匹配更精确、丰富）
+	keyFormatFuncs   []MatcherKeyFormatFunc       // 在匹配前格式化关键词（使匹配更精确、丰富）
 	regexpItems      map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名称][标签]
 	regexp           *regexp.Regexp               // 所有关键词的 regexp
 	regexpString     string                       // regular expression
@@ -282,8 +286,8 @@ func (m *Matcher) MatchLabelMostText(contents []string) []*LabelResult {
 	return results[0:1]
 }
 
-func (m *Matcher) addKeyFormatFunc(f func(string) string) {
-	m.keyFormatFuncs = append(m.keyFormatFuncs, f)
+func (m *Matcher) addKeyFormatFunc(f ...MatcherKeyFormatFunc) {
+	m.keyFormatFuncs = append(m.keyFormatFuncs, f...)
 }
 
 // correctBadKeyOfGroupName

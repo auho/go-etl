@@ -8,67 +8,94 @@ import (
 // TagMeans
 // tag means
 type TagMeans struct {
-	tagMatcher *ruleMatcher
-	fn         func(*Matcher, []string) []*Result
+	rule    Ruler
+	matcher *Matcher
+	fn      func(*Matcher, []string) []*Result
 }
 
-func NewTagMeans(ruleName string, fn func(*Matcher, []string) []*Result, opts ...RuleMatcherOption) *TagMeans {
-	t := &TagMeans{
-		tagMatcher: newRuleMatcher(ruleName, opts...),
-		fn:         fn,
+func NewTagMeans(rule Ruler, fn func(*Matcher, []string) []*Result) *TagMeans {
+	tm := &TagMeans{
+		rule: rule,
+		fn:   fn,
 	}
 
-	return t
+	return tm
 }
 
 func (t *TagMeans) GetTitle() string {
-	return fmt.Sprintf("Tag:%s{%s}", t.tagMatcher.key, strings.Join(t.tagMatcher.tagsName, ", "))
+	return fmt.Sprintf("Tag:%s{%s}", t.rule.Name(), strings.Join(t.rule.Labels(), ", "))
 }
 
 func (t *TagMeans) GetKeys() []string {
-	return t.tagMatcher.getResultInsertKeys()
+	return append([]string{t.rule.KeywordName(), t.rule.KeywordNumName()}, append(t.rule.Labels(), t.rule.FixedKeys()...)...)
 }
 
 func (t *TagMeans) Close() {}
 
 func (t *TagMeans) Insert(contents []string) []map[string]any {
-	results := t.fn(t.tagMatcher.matcher, contents)
+	results := t.fn(t.matcher, contents)
 	if results == nil {
 		return nil
 	}
 
-	return t.tagMatcher.resultsToSliceMap(results)
+	return t.resultsToSliceMap(results)
 }
 
 func (t *TagMeans) Update(contents []string) map[string]any {
-	results := t.fn(t.tagMatcher.matcher, contents)
+	results := t.fn(t.matcher, contents)
 	if results == nil {
 		return nil
 	}
 
-	return t.tagMatcher.resultToMap(results[0])
+	return t.resultToMap(results[0])
 }
 
-func NewKey(ruleName string, opts ...RuleMatcherOption) *TagMeans {
-	t := NewTagMeans(ruleName, func(m *Matcher, c []string) []*Result {
+func (t *TagMeans) resultsToSliceMap(results []*Result) []map[string]any {
+	items := make([]map[string]any, 0, len(results))
+	for _, result := range results {
+		items = append(items, t.resultToMap(result))
+	}
+
+	return items
+}
+
+func (t *TagMeans) resultToSliceMap(result *Result) []map[string]any {
+	return []map[string]any{t.resultToMap(result)}
+}
+
+func (t *TagMeans) resultToMap(result *Result) map[string]any {
+	item := make(map[string]any)
+	item[t.rule.KeywordName()] = result.Key
+	item[t.rule.KeywordNumName()] = result.Num
+
+	fixed := t.rule.Fixed()
+	for _, key := range t.rule.FixedKeys() {
+		item[key] = fixed[key]
+	}
+
+	return item
+}
+
+func NewKey(rule Ruler) *TagMeans {
+	t := NewTagMeans(rule, func(m *Matcher, c []string) []*Result {
 		return m.MatchKey(c)
-	}, opts...)
+	})
 
 	return t
 }
 
-func NewMostText(ruleName string, opts ...RuleMatcherOption) *TagMeans {
-	t := NewTagMeans(ruleName, func(m *Matcher, c []string) []*Result {
+func NewMostText(rule Ruler) *TagMeans {
+	t := NewTagMeans(rule, func(m *Matcher, c []string) []*Result {
 		return m.MatchMostText(c)
-	}, opts...)
+	})
 
 	return t
 }
 
-func NewMostKey(ruleName string, opts ...RuleMatcherOption) *TagMeans {
-	t := NewTagMeans(ruleName, func(m *Matcher, c []string) []*Result {
+func NewMostKey(rule Ruler) *TagMeans {
+	t := NewTagMeans(rule, func(m *Matcher, c []string) []*Result {
 		return m.MatchMostKey(c)
-	}, opts...)
+	})
 
 	return t
 }

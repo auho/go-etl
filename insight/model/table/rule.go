@@ -20,15 +20,15 @@ func NewRuleTable(rule model.Ruler) *RuleTable {
 
 func (rt *RuleTable) buildRule() {
 	rt.initTable(rt.rule.TableName())
-	rt.AddPkInt("id")
+	rt.AddPkInt(rt.rule.GetIdName())
 
-	rt.AddStringWithLength(rt.rule.GetName(), rt.rule.GetLength())
+	rt.AddStringWithLength(rt.rule.GetName(), rt.rule.GetNameLength())
 
 	for label, length := range rt.rule.GetLabels() {
 		rt.table.AddStringWithLength(label, length)
 	}
 
-	rt.AddUniqueString(rt.rule.KeywordName(), rt.rule.GetLength())
+	rt.AddUniqueString(rt.rule.KeywordName(), rt.rule.GetNameLength())
 	rt.AddInt(rt.rule.KeywordLenName())
 	rt.AddTimestamp("ctime", true, true)
 
