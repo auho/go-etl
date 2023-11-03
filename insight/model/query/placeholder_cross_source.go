@@ -1,12 +1,13 @@
 package query
 
 import (
+	"fmt"
 	"maps"
 
 	"github.com/auho/go-etl/v2/insight/model/dml"
 )
 
-var _ sourcer = (*PlaceholderCrossSource)(nil)
+var _ sheets = (*PlaceholderCrossSource)(nil)
 
 /*
  a: 1, 2
@@ -24,14 +25,18 @@ type PlaceholderCrossSource struct {
 	Items []map[string][]string // []map[field][][field value]
 }
 
-func (pcs *PlaceholderCrossSource) Rows() ([][]any, error) {
+func (pcs *PlaceholderCrossSource) Sheets() ([]string, map[string][][]any, error) {
 	fields := pcs.Table.GetSelectFields()
 	sql := pcs.Table.Sql()
 
 	items := pcs.expandItems()
 	sqls := pcs.buildPlaceholderItemsSqlList(sql, items)
+	rows, err := pcs.rowsAppend(sqls, fields)
+	if err != nil {
+		return nil, nil, fmt.Errorf("rowsAppend error; %w", err)
+	}
 
-	return pcs.rowsAppend(sqls, fields)
+	return []string{pcs.SheetName}, map[string][][]any{pcs.SheetName: rows}, nil
 }
 
 func (pcs *PlaceholderCrossSource) expandItems() []map[string]string {

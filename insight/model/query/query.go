@@ -11,7 +11,7 @@ type Query struct {
 	xlsxName string
 	excel    *write.Excel
 
-	sources []sourcer
+	sources []sheets
 }
 
 func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
@@ -28,7 +28,7 @@ func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
 	return q, nil
 }
 
-func (q *Query) AddSource(sources ...sourcer) {
+func (q *Query) AddSource(sources ...sheets) {
 	q.sources = append(q.sources, sources...)
 }
 
@@ -44,15 +44,17 @@ func (q *Query) doSources() error {
 	return nil
 }
 
-func (q *Query) doSource(source sourcer) error {
-	rows, err := source.Rows()
+func (q *Query) doSource(source sheets) error {
+	sheetsName, sheetsRows, err := source.Sheets()
 	if err != nil {
 		return fmt.Errorf("rows error; %w", err)
 	}
 
-	_, err = q.excel.NewSheetWithData(source.GetSheetName(), rows)
-	if err != nil {
-		return fmt.Errorf("NewSheetWithData error; %w", err)
+	for _, sheetName := range sheetsName {
+		_, err = q.excel.NewSheetWithData(sheetName, sheetsRows[sheetName])
+		if err != nil {
+			return fmt.Errorf("NewSheetWithData error; %w", err)
+		}
 	}
 
 	return nil

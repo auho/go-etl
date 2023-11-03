@@ -9,18 +9,13 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-type sourcer interface {
-	GetSheetName() string
-	Rows() ([][]any, error)
+type sheets interface {
+	Sheets() ([]string, map[string][][]any, error)
 }
 
 type Source struct {
 	SheetName string
 	DB        *simpleDb.SimpleDB
-}
-
-func (s *Source) GetSheetName() string {
-	return s.SheetName
 }
 
 func (s *Source) buildPlaceholderItemsSqlList(sql string, items []map[string]string) []string {
