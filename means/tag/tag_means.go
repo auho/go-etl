@@ -65,11 +65,11 @@ func (t *TagMeans) resultToSliceMap(result *Result) []map[string]any {
 
 func (t *TagMeans) resultToMap(result *Result) map[string]any {
 	item := make(map[string]any)
-	item[t.rule.KeywordName()] = result.Key
-	item[t.rule.KeywordNumName()] = result.Num
+	item[t.rule.KeywordNameAlias()] = result.Key
+	item[t.rule.KeywordNumNameAlias()] = result.Num
 
-	fixed := t.rule.Fixed()
-	for _, key := range t.rule.FixedKeys() {
+	fixed := t.rule.FixedAlias()
+	for _, key := range t.rule.FixedKeysAlias() {
 		item[key] = fixed[key]
 	}
 

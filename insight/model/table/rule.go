@@ -10,26 +10,37 @@ type RuleTable struct {
 }
 
 func NewRuleTable(rule model.Ruler) *RuleTable {
-	rt := &RuleTable{}
-	rt.rule = rule
+	t := &RuleTable{}
+	t.rule = rule
 
-	rt.buildRule()
+	t.buildRule()
 
-	return rt
+	return t
 }
 
-func (rt *RuleTable) buildRule() {
-	rt.initTable(rt.rule.TableName())
-	rt.AddPkInt(rt.rule.GetIdName())
+func (t *RuleTable) buildRule() {
+	t.initCommand(t.rule.TableName())
+	t.command.AddPkInt(t.rule.GetIdName())
 
-	rt.AddStringWithLength(rt.rule.GetName(), rt.rule.GetNameLength())
+	t.command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
 
-	for label, length := range rt.rule.GetLabels() {
-		rt.table.AddStringWithLength(label, length)
+	for label, length := range t.rule.GetLabels() {
+		t.command.AddStringWithLength(label, length)
 	}
 
-	rt.AddUniqueString(rt.rule.KeywordName(), rt.rule.GetNameLength())
-	rt.AddInt(rt.rule.KeywordLenName())
-	rt.AddTimestamp("ctime", true, true)
+	t.command.AddUniqueString(t.rule.KeywordName(), t.rule.GetNameLength())
+	t.command.AddInt(t.rule.KeywordLenName())
+	t.command.AddTimestamp("ctime", true, true)
 
+}
+
+func (t *RuleTable) BuildRuleForTag(command *command) {
+	command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
+
+	for label, length := range t.rule.GetLabels() {
+		command.AddStringWithLength(label, length)
+	}
+
+	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
+	command.AddInt(t.rule.KeywordNumName())
 }

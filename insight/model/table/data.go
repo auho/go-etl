@@ -6,18 +6,22 @@ import (
 
 type DataTable struct {
 	table
-	data *model.Data
+	data model.Dataor
 }
 
-func NewDataTable(data *model.Data) *DataTable {
-	dt := &DataTable{}
-	dt.data = data
+func NewDataTable(data model.Dataor) *DataTable {
+	t := &DataTable{}
+	t.data = data
 
-	dt.buildData()
+	t.buildData()
 
-	return dt
+	return t
 }
 
-func (dt *DataTable) buildData() {
-	dt.initTable(dt.data.TableName())
+func (t *DataTable) buildData() {
+	t.initCommand(t.data.TableName())
+}
+
+func (t *DataTable) BuildDataForTag(command *command) {
+	command.AddKeyBigInt(t.data.GetIdName())
 }

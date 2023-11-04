@@ -1,4 +1,4 @@
-package exporttodb
+package importtodb
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-type ExportToDb struct {
+type ImportToDb struct {
 	isRecreateTable      bool  // 是否 recreate table
 	isAppendData         bool  // 是否 append data
 	isShowSql            bool  // 是否显示 sql
@@ -18,8 +18,8 @@ type ExportToDb struct {
 	db                   *simpleDb.SimpleDB
 }
 
-func RunExportToDb(db *simpleDb.SimpleDB, sr sourceor) error {
-	e := &ExportToDb{
+func RunImportToDb(db *simpleDb.SimpleDB, sr sourceor) error {
+	e := &ImportToDb{
 		isRecreateTable:      sr.GetIsRecreateTable(),
 		isAppendData:         sr.GetIsAppendData(),
 		isShowSql:            sr.GetIsShowSql(),
@@ -28,10 +28,10 @@ func RunExportToDb(db *simpleDb.SimpleDB, sr sourceor) error {
 		db:                   db,
 	}
 
-	return e.Export()
+	return e.Import()
 }
 
-func (e *ExportToDb) Export() error {
+func (e *ImportToDb) Import() error {
 	_table := e.sourceor.GetTable()
 
 	err := e.buildTable(_table)
@@ -44,17 +44,17 @@ func (e *ExportToDb) Export() error {
 		return fmt.Errorf("GetSheetData error; %w", err)
 	}
 
-	err = e.exportToTable(_table, sheetData)
+	err = e.importToTable(_table, sheetData)
 	if err != nil {
-		return fmt.Errorf("exportToTable error; %w", err)
+		return fmt.Errorf("importToTable error; %w", err)
 	}
 
 	return nil
 }
 
-func (e *ExportToDb) buildTable(table table.Tabler) error {
+func (e *ImportToDb) buildTable(table table.Tabler) error {
 	if e.isShowSql {
-		fmt.Println(table.GetTable().SqlForCreate())
+		fmt.Println(table.Sql())
 	}
 
 	_, err := e.db.GetTableColumns(table.GetTableName())
@@ -79,7 +79,7 @@ func (e *ExportToDb) buildTable(table table.Tabler) error {
 	return nil
 }
 
-func (e *ExportToDb) exportToTable(table table.Tabler, sheetData read.SheetDataor) error {
+func (e *ImportToDb) importToTable(table table.Tabler, sheetData read.SheetDataor) error {
 	var err error
 
 	if len(e.columnDropDuplicates) > 0 {

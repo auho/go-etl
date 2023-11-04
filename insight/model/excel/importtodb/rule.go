@@ -1,4 +1,4 @@
-package exporttodb
+package importtodb
 
 import (
 	"fmt"
@@ -11,24 +11,24 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ sourceor = (*RuleExportToDb)(nil)
+var _ sourceor = (*RuleImportToDb)(nil)
 
-type RuleExportToDb struct {
+type RuleImportToDb struct {
 	Source
 	KeywordIndex int      // keyword 在 sheet 中的列，从 0 开始
 	Titles       []string // save to db 的 columns
 	Rule         model.Ruler
 }
 
-func (re *RuleExportToDb) GetTable() table.Tabler {
+func (re *RuleImportToDb) GetTable() table.Tabler {
 	return table.NewRuleTable(re.Rule)
 }
 
-func (re *RuleExportToDb) GetTitles() []string {
+func (re *RuleImportToDb) GetTitles() []string {
 	return re.Titles
 }
 
-func (re *RuleExportToDb) GetSheetData() (read.SheetDataor, error) {
+func (re *RuleImportToDb) GetSheetData() (read.SheetDataor, error) {
 	sheetData, err := read.NewSheetDataNoTitle(re.XlsxPath, re.SheetName, re.StartRow)
 	if err != nil {
 		return nil, fmt.Errorf("NewSheetDataNoTitle error; %w", err)
@@ -66,6 +66,6 @@ func (re *RuleExportToDb) GetSheetData() (read.SheetDataor, error) {
 	return sheetData, nil
 }
 
-func (re *RuleExportToDb) Export(db *simpleDb.SimpleDB) error {
-	return RunExportToDb(db, re)
+func (re *RuleImportToDb) Import(db *simpleDb.SimpleDB) error {
+	return RunImportToDb(db, re)
 }

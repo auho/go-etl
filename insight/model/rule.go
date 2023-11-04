@@ -3,6 +3,8 @@ package model
 import (
 	"fmt"
 	"sort"
+
+	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Ruler = (*Rule)(nil)
@@ -12,6 +14,7 @@ type Rule struct {
 	length        int
 	keywordLength int
 	labels        map[string]int
+	db            *simpleDb.SimpleDB
 }
 
 func NewRuleSimple(name string, labels map[string]int) *Rule {
@@ -34,6 +37,10 @@ func NewRule(name string, length, keywordLength int, labels map[string]int) *Rul
 	}
 
 	return r
+}
+
+func (r *Rule) GetDB() *simpleDb.SimpleDB {
+	return r.db
 }
 
 func (r *Rule) GetName() string {

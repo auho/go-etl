@@ -30,7 +30,7 @@ func NewInsertAndTransfer(db *goSimpleDb.SimpleDB, targetTable string, moder mod
 
 // NewInsert
 // insert
-func NewInsert(db *goSimpleDb.SimpleDB, targetTable string, moder mode.InsertModer, affixFields []string) *Insert {
+func NewInsert(source Source, target Target, keys []string, moder mode.InsertModer, affixFields []string) *Insert {
 	i := &Insert{}
 	i.db = db
 	i.mode = moder

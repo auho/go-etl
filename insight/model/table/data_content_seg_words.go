@@ -10,21 +10,21 @@ type DataContentSegWordsTable struct {
 }
 
 func NewDataContentSegWordsTable(d *model.DataContentSegWords) *DataContentSegWordsTable {
-	swt := &DataContentSegWordsTable{}
-	swt.dataContentSegWords = d
+	t := &DataContentSegWordsTable{}
+	t.dataContentSegWords = d
 
-	swt.buildSegWords()
+	t.buildSegWords()
 
-	return swt
+	return t
 }
 
-func (dcswt *DataContentSegWordsTable) buildSegWords() {
-	dcswt.initTable(dcswt.dataContentSegWords.TableName())
+func (t *DataContentSegWordsTable) buildSegWords() {
+	t.initCommand(t.dataContentSegWords.TableName())
 
-	dcswt.AddPkInt("id")
-	dcswt.AddKeyBigInt(dcswt.dataContentSegWords.GetData().GetIdName())
-	dcswt.AddStringWithLength(dcswt.dataContentSegWords.GetContentName(), dcswt.dataContentSegWords.GetContentLength())
-	dcswt.AddStringWithLength(dcswt.dataContentSegWords.WordName(), 30)
-	dcswt.AddStringWithLength(dcswt.dataContentSegWords.FlagName(), 5)
-	dcswt.AddInt(dcswt.dataContentSegWords.NumName())
+	t.command.AddPkInt("id")
+	t.command.AddKeyBigInt(t.dataContentSegWords.GetData().GetIdName())
+	t.command.AddStringWithLength(t.dataContentSegWords.GetContentName(), t.dataContentSegWords.GetContentLength())
+	t.command.AddStringWithLength(t.dataContentSegWords.WordName(), 30)
+	t.command.AddStringWithLength(t.dataContentSegWords.FlagName(), 5)
+	t.command.AddInt(t.dataContentSegWords.NumName())
 }

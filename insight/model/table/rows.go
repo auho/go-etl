@@ -10,14 +10,14 @@ type RowsTable struct {
 }
 
 func NewRowsTable(rows model.Rowsor) *RowsTable {
-	rt := &RowsTable{}
-	rt.rows = rows
+	t := &RowsTable{}
+	t.rows = rows
 
-	rt.buildData()
+	t.buildData()
 
-	return rt
+	return t
 }
 
-func (dt *RowsTable) buildData() {
-	dt.initTable(dt.rows.TableName())
+func (t *RowsTable) buildData() {
+	t.initCommand(t.rows.TableName())
 }

@@ -10,19 +10,19 @@ type DataContentSpiltWordsTable struct {
 }
 
 func NewDataContentSpiltWordsTable(d *model.DataContentSpiltWords) *DataContentSpiltWordsTable {
-	swt := &DataContentSpiltWordsTable{}
-	swt.dataContentSpiltWords = d
+	t := &DataContentSpiltWordsTable{}
+	t.dataContentSpiltWords = d
 
-	swt.buildSpiltWords()
+	t.buildSpiltWords()
 
-	return swt
+	return t
 }
 
-func (dcswt *DataContentSpiltWordsTable) buildSpiltWords() {
-	dcswt.initTable(dcswt.dataContentSpiltWords.TableName())
+func (t *DataContentSpiltWordsTable) buildSpiltWords() {
+	t.initCommand(t.dataContentSpiltWords.TableName())
 
-	dcswt.AddPkInt("id")
-	dcswt.AddKeyBigInt(dcswt.dataContentSpiltWords.GetData().GetIdName())
-	dcswt.AddStringWithLength(dcswt.dataContentSpiltWords.GetContentName(), dcswt.dataContentSpiltWords.GetContentLength())
-	dcswt.AddStringWithLength(dcswt.dataContentSpiltWords.WordName(), 30)
+	t.command.AddPkInt("id")
+	t.command.AddKeyBigInt(t.dataContentSpiltWords.GetData().GetIdName())
+	t.command.AddStringWithLength(t.dataContentSpiltWords.GetContentName(), t.dataContentSpiltWords.GetContentLength())
+	t.command.AddStringWithLength(t.dataContentSpiltWords.WordName(), 30)
 }

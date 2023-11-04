@@ -1,6 +1,7 @@
 package action
 
 import (
+	simpleDb "github.com/auho/go-simple-db/v2"
 	"github.com/auho/go-toolkit/flow/storage"
 	"github.com/auho/go-toolkit/flow/task"
 )
@@ -14,4 +15,14 @@ type Actor interface {
 
 type action struct {
 	task.Task
+}
+
+type Source interface {
+	TableName() string
+	GetDB() *simpleDb.SimpleDB
+}
+
+type Target interface {
+	TableName() string
+	GetDB() *simpleDb.SimpleDB
 }

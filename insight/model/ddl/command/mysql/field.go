@@ -100,6 +100,7 @@ func (f *Field) statement() string {
 	switch f._type {
 	case typeText:
 		_default = ""
+		null = ""
 	case typeTimestamp:
 		if f._default == "" {
 			_default = "DEFAULT NULL "

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/model/dml"
+	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Dataor = (*Data)(nil)
@@ -11,14 +12,20 @@ var _ Dataor = (*Data)(nil)
 type Data struct {
 	name   string
 	idName string
+	db     *simpleDb.SimpleDB
 }
 
-func NewData(name string, idName string) *Data {
+func NewData(name string, idName string, db *simpleDb.SimpleDB) *Data {
 	d := &Data{}
 	d.name = name
 	d.idName = idName
+	d.db = db
 
 	return d
+}
+
+func (d *Data) GetDB() *simpleDb.SimpleDB {
+	return d.db
 }
 
 func (d *Data) GetName() string {

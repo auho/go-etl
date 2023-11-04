@@ -39,7 +39,7 @@ func (ri *RuleItems) getAlias(s string) (string, bool) {
 	}
 }
 
-func (ri *RuleItems) Items() ([]map[string]string, error) {
+func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 	fields := []string{ri.rule.GetName(), ri.rule.KeywordName()}
 	fields = append(fields, ri.rule.LabelsName()...)
 
@@ -70,6 +70,11 @@ func (ri *RuleItems) Name() string {
 	return ri.rule.GetName()
 }
 
+func (ri *RuleItems) NameAlias() string {
+	s, _ := ri.getAlias(ri.Name())
+	return s
+}
+
 func (ri *RuleItems) TableName() string {
 	return ri.rule.TableName()
 }
@@ -87,20 +92,53 @@ func (ri *RuleItems) Labels() []string {
 	return labels
 }
 
+func (ri *RuleItems) LabelsAlias() []string {
+	var labels []string
+	for _, label := range ri.Labels() {
+		label, _ = ri.getAlias(label)
+
+		labels = append(labels, label)
+	}
+
+	return labels
+}
+
 func (ri *RuleItems) KeywordName() string {
 	return ri.rule.KeywordName()
+}
+
+func (ri *RuleItems) KeywordNameAlias() string {
+	s, _ := ri.getAlias(ri.KeywordName())
+
+	return s
 }
 
 func (ri *RuleItems) KeywordLenName() string {
 	return ri.rule.KeywordLenName()
 }
 
+func (ri *RuleItems) KeywordLenNameAlias() string {
+	s, _ := ri.getAlias(ri.KeywordLenName())
+
+	return s
+}
+
 func (ri *RuleItems) KeywordNumName() string {
 	return ri.rule.KeywordNumName()
 }
 
+func (ri *RuleItems) KeywordNumNameAlias() string {
+	s, _ := ri.getAlias(ri.KeywordNumName())
+
+	return s
+}
+
 func (ri *RuleItems) Fixed() map[string]string {
-	fixed := maps.Clone(ri.fixed)
+	return ri.fixed
+}
+
+func (ri *RuleItems) FixedAlias() map[string]string {
+	fixed := maps.Clone(ri.Fixed())
 
 	for k, v := range fixed {
 		if nk, ok := ri.getAlias(k); ok {
@@ -114,7 +152,20 @@ func (ri *RuleItems) Fixed() map[string]string {
 
 func (ri *RuleItems) FixedKeys() []string {
 	var keys []string
-	for k := range ri.fixed {
+	for k := range ri.Fixed() {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
+
+	return keys
+}
+
+func (ri *RuleItems) FixedKeysAlias() []string {
+	var keys []string
+	for k := range ri.FixedAlias() {
 		keys = append(keys, k)
 	}
 
