@@ -1,4 +1,4 @@
-package mode
+package flow
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ func (r *ruleTest) NameAlias() string {
 }
 
 func (r *ruleTest) TableName() string {
-	return _ruleTableName
+	return _ruleTable
 }
 
 func (r *ruleTest) KeywordName() string {
@@ -65,6 +65,6 @@ func (r *ruleTest) FixedKeysAlias() []string {
 
 func (r *ruleTest) ItemsAlias() ([]map[string]string, error) {
 	var rows []map[string]string
-	err := _db.Raw(fmt.Sprintf("SELECT `a`, `ab`, `a_keyword` FROM %s", _ruleTableName)).Scan(&rows).Error
+	err := _db.Raw(fmt.Sprintf("SELECT `a`, `ab`, `a_keyword` FROM %s", _ruleTable)).Scan(&rows).Error
 	return rows, err
 }

@@ -14,17 +14,17 @@ type ImportToDb struct {
 	isAppendData         bool  // 是否 append data
 	isShowSql            bool  // 是否显示 sql
 	columnDropDuplicates []int // drop duplicates for column
-	sourceor             sourceor
+	resource             resourcer
 	db                   *simpleDb.SimpleDB
 }
 
-func RunImportToDb(db *simpleDb.SimpleDB, sr sourceor) error {
+func RunImportToDb(db *simpleDb.SimpleDB, sr resourcer) error {
 	e := &ImportToDb{
 		isRecreateTable:      sr.GetIsRecreateTable(),
 		isAppendData:         sr.GetIsAppendData(),
 		isShowSql:            sr.GetIsShowSql(),
 		columnDropDuplicates: sr.GetColumnDropDuplicates(),
-		sourceor:             sr,
+		resource:             sr,
 		db:                   db,
 	}
 
@@ -32,14 +32,14 @@ func RunImportToDb(db *simpleDb.SimpleDB, sr sourceor) error {
 }
 
 func (e *ImportToDb) Import() error {
-	_table := e.sourceor.GetTable()
+	_table := e.resource.GetTable()
 
 	err := e.buildTable(_table)
 	if err != nil {
 		return fmt.Errorf("buildTable error; %w", err)
 	}
 
-	sheetData, err := e.sourceor.GetSheetData()
+	sheetData, err := e.resource.GetSheetData()
 	if err != nil {
 		return fmt.Errorf("GetSheetData error; %w", err)
 	}
@@ -100,7 +100,7 @@ func (e *ImportToDb) importToTable(table table.Tabler, sheetData read.SheetDatao
 		}
 	}
 
-	err = e.db.BulkInsertFromSliceSlice(table.GetTableName(), e.sourceor.GetTitles(), sheetData.GetRowsWithAny(), 1000)
+	err = e.db.BulkInsertFromSliceSlice(table.GetTableName(), e.resource.GetTitles(), sheetData.GetRowsWithAny(), 1000)
 	if err != nil {
 		return err
 	}

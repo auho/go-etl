@@ -3,15 +3,14 @@ package flow
 import (
 	"github.com/auho/go-etl/v2/action"
 	"github.com/auho/go-etl/v2/mode"
-	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-func UpdateAndTransferFlow(db *goSimpleDb.SimpleDB, dataTable, idName, transferTable string, modes []mode.UpdateModer) {
-	a := action.NewUpdateAndTransfer(db, dataTable, transferTable, idName, modes)
-	RunFlow(db, dataTable, idName, []action.Actor{a})
+func UpdateAndTransferFlow(source action.Source, target action.Target, modes []mode.UpdateModer) {
+	a := action.NewUpdateAndTransfer(source, target, modes)
+	RunFlow(source, []action.Actor{a})
 }
 
-func UpdateFlow(db *goSimpleDb.SimpleDB, dataTable, idName string, modes []mode.UpdateModer) {
-	a := action.NewUpdate(db, dataTable, idName, modes)
-	RunFlow(db, dataTable, idName, []action.Actor{a})
+func UpdateFlow(source action.Source, modes []mode.UpdateModer) {
+	a := action.NewUpdate(source, modes)
+	RunFlow(source, []action.Actor{a})
 }

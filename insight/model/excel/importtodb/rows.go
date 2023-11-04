@@ -8,23 +8,23 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ sourceor = (*RowsImportToDb)(nil)
+var _ resourcer = (*RowsResource)(nil)
 
-type RowsImportToDb struct {
-	Source
+type RowsResource struct {
+	Resource
 	Titles    []string // save to db 的 columns
 	RowsTable *table.RowsTable
 }
 
-func (ri *RowsImportToDb) GetTable() table.Tabler {
+func (ri *RowsResource) GetTable() table.Tabler {
 	return ri.RowsTable
 }
 
-func (ri *RowsImportToDb) GetTitles() []string {
+func (ri *RowsResource) GetTitles() []string {
 	return ri.Titles
 }
 
-func (ri *RowsImportToDb) GetSheetData() (read.SheetDataor, error) {
+func (ri *RowsResource) GetSheetData() (read.SheetDataor, error) {
 	sheetData, err := read.NewSheetDataNoTitle(ri.XlsxPath, ri.SheetName, ri.StartRow)
 	if err != nil {
 		return nil, fmt.Errorf("NewSheetDataNoTitle error; %w", err)
@@ -38,6 +38,6 @@ func (ri *RowsImportToDb) GetSheetData() (read.SheetDataor, error) {
 	return sheetData, nil
 }
 
-func (ri *RowsImportToDb) Import(db *simpleDb.SimpleDB) error {
+func (ri *RowsResource) Import(db *simpleDb.SimpleDB) error {
 	return RunImportToDb(db, ri)
 }

@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	goSimpleDb "github.com/auho/go-simple-db/v2"
+	simpleDb "github.com/auho/go-simple-db/v2"
 	"github.com/pelletier/go-toml"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -21,8 +21,8 @@ type DbConfig struct {
 	Dsn    string
 }
 
-func (dc *DbConfig) BuildDB() (*goSimpleDb.SimpleDB, error) {
-	var db *goSimpleDb.SimpleDB
+func (dc *DbConfig) BuildDB() (*simpleDb.SimpleDB, error) {
+	var db *simpleDb.SimpleDB
 	var err error
 
 	newLogger := logger.New(
@@ -40,9 +40,9 @@ func (dc *DbConfig) BuildDB() (*goSimpleDb.SimpleDB, error) {
 
 	switch dc.Driver {
 	case "mysql":
-		db, err = goSimpleDb.NewMysql(dc.Dsn, dbc)
+		db, err = simpleDb.NewMysql(dc.Dsn, dbc)
 	case "clickhouse":
-		db, err = goSimpleDb.NewClickhouse(dc.Dsn, dbc)
+		db, err = simpleDb.NewClickhouse(dc.Dsn, dbc)
 	default:
 		err = fmt.Errorf("driver[%s] not found", dc.Driver)
 	}

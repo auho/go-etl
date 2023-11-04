@@ -1,13 +1,12 @@
 package tag
 
 import (
+	"strings"
 	"testing"
-
-	"github.com/auho/go-etl/v2/means/tag/rule"
 )
 
 func TestTagMeans(t *testing.T) {
-	tm := NewTagMeans(ruleName, nil, WithDBRule(db, rule.WithDBRuleDataName("data")))
+	tm := NewTagMeans(_rule, nil)
 
 	keys := tm.GetKeys()
 	if len(keys) < 4 {
@@ -16,16 +15,16 @@ func TestTagMeans(t *testing.T) {
 }
 
 func TestTagKeyMeans(t *testing.T) {
-	tm := NewKey(ruleName, WithDBRule(db))
-	resSlice := tm.Insert(contents)
+	tm := NewKey(_rule)
+	resSlice := tm.Insert(_contents)
 	if len(resSlice) <= 0 {
 		t.Error("error")
 	}
 }
 
 func TestTagMostKeyMeans(t *testing.T) {
-	tm := NewMostKey(ruleName, WithDBRule(db))
-	resSlice := tm.Insert(contents)
+	tm := NewMostKey(_rule)
+	resSlice := tm.Insert(_contents)
 	if len(resSlice) <= 0 {
 		t.Error("error")
 	}
@@ -37,7 +36,7 @@ func TestTagMostKeyMeans(t *testing.T) {
 		}
 	}
 
-	resMap := tm.Update(contents)
+	resMap := tm.Update(_contents)
 	if len(resMap) <= 0 {
 		t.Error("error")
 	}
@@ -50,43 +49,27 @@ func TestTagMostKeyMeans(t *testing.T) {
 }
 
 func TestTagMostTextMeans(t *testing.T) {
-	tm := NewMostText(ruleName,
-		WithAlias(map[string]string{
-			"a":             "a_alias",
-			"ab":            "ab_alias",
-			"a_keyword":     "a_keyword_alias",
-			"a_keyword_num": "a_keyword_num_alias",
-		}),
-		WithFixedTags(map[string]string{
-			"c": "c_fixed",
-			"d": "d_fixed",
-		}),
-		WithDBRule(
-			db,
-			rule.WithDBRuleTagsName([]string{"a"}),
-			rule.WithDBRuleDataName("data"),
-		),
-	)
+	tm := NewMostText(_ruleAliasFixed)
 
-	for _, k := range tm.tagMatcher.tagsName {
-		if k != "a_alias" && k != "ab_alias" {
+	for _, k := range tm.rule.LabelsAlias() {
+		if !strings.HasSuffix(k, "_alias") {
 			t.Error("alias is error")
 		}
 	}
 
-	results := tm.Insert(contents)
+	results := tm.Insert(_contents)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
 
 	keys := tm.GetKeys()
 	for _, k := range keys {
-		if k != "a_alias" && k != "ab_alias" && k != "a_keyword_alias" && k != "a_keyword_num_alias" && k != "c_alias" && k != "d_alias" {
+		if !strings.HasSuffix(k, "_alias") {
 			t.Error("keys error")
 		}
 	}
 
-	resMap := tm.Update(contents)
+	resMap := tm.Update(_contents)
 	if len(resMap) <= 0 {
 		t.Error("error")
 	}

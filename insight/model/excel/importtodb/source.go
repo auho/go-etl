@@ -5,7 +5,7 @@ import (
 	"github.com/auho/go-etl/v2/insight/model/table"
 )
 
-type sourceor interface {
+type resourcer interface {
 	GetIsRecreateTable() bool
 	GetIsAppendData() bool
 	GetIsShowSql() bool
@@ -16,7 +16,7 @@ type sourceor interface {
 	GetSheetData() (read.SheetDataor, error)
 }
 
-type Source struct {
+type Resource struct {
 	XlsxPath             string
 	SheetName            string
 	StartRow             int   // 数据开始的行数， 从 0 开始
@@ -26,18 +26,18 @@ type Source struct {
 	ColumnDropDuplicates []int // drop duplicates for column
 }
 
-func (s *Source) GetIsRecreateTable() bool {
+func (s *Resource) GetIsRecreateTable() bool {
 	return s.IsRecreateTable
 }
 
-func (s *Source) GetIsAppendData() bool {
+func (s *Resource) GetIsAppendData() bool {
 	return s.IsAppendData
 }
 
-func (s *Source) GetIsShowSql() bool {
+func (s *Resource) GetIsShowSql() bool {
 	return s.IsShowSql
 }
 
-func (s *Source) GetColumnDropDuplicates() []int {
+func (s *Resource) GetColumnDropDuplicates() []int {
 	return s.ColumnDropDuplicates
 }

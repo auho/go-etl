@@ -5,11 +5,11 @@ import (
 	"path/filepath"
 
 	"github.com/auho/go-etl/v2/insight/app/conf"
-	goSimpleDb "github.com/auho/go-simple-db/v2"
+	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 type App struct {
-	DB       *goSimpleDb.SimpleDB
+	DB       *simpleDb.SimpleDB
 	WorkDir  string
 	ConfName string
 }

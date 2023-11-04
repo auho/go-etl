@@ -7,14 +7,6 @@ import (
 	"testing"
 )
 
-func TestTagMatcher_GetResultInsertKeys(t *testing.T) {
-	tm := newRuleMatcher(ruleName, WithDBRule(db))
-	keys := tm.getResultInsertKeys()
-	if len(keys) < 4 {
-		t.Error("error")
-	}
-}
-
 func TestMatcher(t *testing.T) {
 	items := make([]map[string]string, 0)
 	items = append(items, map[string]string{"a": "b", "b": "b", "c": "c"})
@@ -44,55 +36,55 @@ func TestMatcher(t *testing.T) {
 	var tagResults []*LabelResult
 
 	fmt.Println("\n Match")
-	results = m.Match(contents)
+	results = m.Match(_contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchText")
-	results = m.MatchText(contents)
+	results = m.MatchText(_contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchKey")
-	results = m.MatchKey(contents)
+	results = m.MatchKey(_contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchFirstText")
-	results = m.MatchFirstText(contents)
+	results = m.MatchFirstText(_contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchLastText")
-	results = m.MatchLastText(contents)
+	results = m.MatchLastText(_contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchMostKey")
-	results = m.MatchMostKey(contents)
+	results = m.MatchMostKey(_contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchMostText")
-	results = m.MatchMostText(contents)
+	results = m.MatchMostText(_contents)
 	for _, result := range results {
 		fmt.Println(result)
 	}
 
 	fmt.Println("\n MatchLabel")
-	tagResults = m.MatchLabel(contents)
+	tagResults = m.MatchLabel(_contents)
 	for _, tagResult := range tagResults {
 		fmt.Println(tagResult)
 	}
 
 	fmt.Println("\n MatchLabelMostText")
-	tagResults = m.MatchLabelMostText(contents)
+	tagResults = m.MatchLabelMostText(_contents)
 	for _, tagResult := range tagResults {
 		fmt.Println(tagResult)
 	}

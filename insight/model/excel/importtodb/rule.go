@@ -11,24 +11,24 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ sourceor = (*RuleImportToDb)(nil)
+var _ resourcer = (*RuleResource)(nil)
 
-type RuleImportToDb struct {
-	Source
+type RuleResource struct {
+	Resource
 	KeywordIndex int      // keyword 在 sheet 中的列，从 0 开始
 	Titles       []string // save to db 的 columns
 	Rule         model.Ruler
 }
 
-func (re *RuleImportToDb) GetTable() table.Tabler {
+func (re *RuleResource) GetTable() table.Tabler {
 	return table.NewRuleTable(re.Rule)
 }
 
-func (re *RuleImportToDb) GetTitles() []string {
+func (re *RuleResource) GetTitles() []string {
 	return re.Titles
 }
 
-func (re *RuleImportToDb) GetSheetData() (read.SheetDataor, error) {
+func (re *RuleResource) GetSheetData() (read.SheetDataor, error) {
 	sheetData, err := read.NewSheetDataNoTitle(re.XlsxPath, re.SheetName, re.StartRow)
 	if err != nil {
 		return nil, fmt.Errorf("NewSheetDataNoTitle error; %w", err)
@@ -66,6 +66,6 @@ func (re *RuleImportToDb) GetSheetData() (read.SheetDataor, error) {
 	return sheetData, nil
 }
 
-func (re *RuleImportToDb) Import(db *simpleDb.SimpleDB) error {
+func (re *RuleResource) Import(db *simpleDb.SimpleDB) error {
 	return RunImportToDb(db, re)
 }
