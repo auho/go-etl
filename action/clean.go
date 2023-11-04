@@ -5,31 +5,23 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v2/mode"
-	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Actor = (*Clean)(nil)
 
+// Clean
+// filter
 type Clean struct {
 	action
-	db          *goSimpleDb.SimpleDB
-	fields      []string
-	modes       []mode.UpdateModer
-	targetTable string
+	target Target
+	modes  []mode.UpdateModer
+	keys   []string
 }
 
-func NewClean(db *goSimpleDb.SimpleDB, targetTable string, modes []mode.UpdateModer) *Clean {
-	var err error
-
+func NewClean(target Target, modes []mode.UpdateModer) *Clean {
 	c := &Clean{}
-	c.db = db
+	c.target = target
 	c.modes = modes
-	c.targetTable = targetTable
-
-	c.fields, err = db.GetTableColumns(c.targetTable)
-	if err != nil {
-		panic(err)
-	}
 
 	c.Init()
 
@@ -37,7 +29,13 @@ func NewClean(db *goSimpleDb.SimpleDB, targetTable string, modes []mode.UpdateMo
 }
 
 func (c *Clean) GetFields() []string {
-	return c.fields
+	var err error
+	c.keys, err = c.target.GetDB().GetTableColumns(c.target.TableName())
+	if err != nil {
+		panic(fmt.Errorf("GetTableColumns error; %w", err))
+	}
+
+	return c.keys
 }
 
 func (c *Clean) Title() string {
@@ -46,7 +44,7 @@ func (c *Clean) Title() string {
 		s = append(s, m.GetTitle())
 	}
 
-	return fmt.Sprintf("Clean[%s] {%s}", c.targetTable, strings.Join(s, ", "))
+	return fmt.Sprintf("Clean[%s] {%s}", c.target.TableName(), strings.Join(s, ", "))
 }
 
 func (c *Clean) Prepare() error {
@@ -71,7 +69,7 @@ func (c *Clean) Do(item map[string]any) ([]map[string]any, bool) {
 }
 
 func (c *Clean) PostBatchDo(items []map[string]any) {
-	err := c.db.BulkInsertFromSliceMap(c.targetTable, items, batchSize)
+	err := c.target.GetDB().BulkInsertFromSliceMap(c.target.TableName(), items, batchSize)
 	if err != nil {
 		panic(err)
 	}

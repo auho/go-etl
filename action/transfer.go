@@ -2,60 +2,72 @@ package action
 
 import (
 	"fmt"
-
-	goSimpleDb "github.com/auho/go-simple-db/v2"
+	"sort"
 )
 
 var _ Actor = (*Transfer)(nil)
 
 type Transfer struct {
 	action
-	db          *goSimpleDb.SimpleDB
-	targetTable string
-	fields      []string
-	alias       map[string]string // alias map[table data name]output name
-	fixedFields []string          // fixed data []key
-	fixedData   map[string]any    // fixed data map[key]value
+	target    Target
+	keys      []string
+	alias     map[string]string // alias map[table data name]output name
+	aliasKeys []string          // alias data []key
+	fixed     map[string]any    // fixed data map[key]value
+	fixedKeys []string          // fixed data []key
 }
 
-func NewTransfer(db *goSimpleDb.SimpleDB, targetTable string, alias map[string]string, fixedData map[string]any) *Transfer {
+func NewTransfer(target Target, keys []string, alias map[string]string, fixed map[string]any) *Transfer {
 	t := &Transfer{}
-	t.db = db
-	t.targetTable = targetTable
+	t.target = target
 
-	if len(alias) >= 0 {
-		for k := range alias {
-			t.fields = append(t.fields, k)
-		}
-
-		t.alias = alias
-	} else {
-		var err error
-		t.fields, err = db.GetTableColumns(targetTable)
+	var err error
+	if len(keys) <= 0 {
+		t.keys, err = target.GetDB().GetTableColumns(target.TableName())
 		if err != nil {
 			panic(err)
 		}
+	} else {
+		t.keys = keys
 	}
 
-	if len(fixedData) > 0 {
-		for k := range fixedData {
-			t.fixedFields = append(t.fixedFields, k)
-		}
-
-		t.fixedData = fixedData
-	}
-
+	t.initAlias(alias)
+	t.initFixed(fixed)
 	t.Init()
 
 	return t
 }
 
+func (t *Transfer) initAlias(alias map[string]string) {
+	for k := range alias {
+		t.aliasKeys = append(t.aliasKeys, k)
+	}
+
+	sort.Slice(t.aliasKeys, func(i, j int) bool {
+		return t.aliasKeys[i] < t.aliasKeys[j]
+	})
+
+	t.alias = alias
+}
+
+func (t *Transfer) initFixed(fixed map[string]any) {
+	for k := range fixed {
+		t.fixedKeys = append(t.fixedKeys, k)
+	}
+
+	sort.Slice(t.fixedKeys, func(i, j int) bool {
+		return t.fixedKeys[i] < t.fixedKeys[j]
+	})
+
+	t.fixed = fixed
+}
+
 func (t *Transfer) GetFields() []string {
-	return t.fields
+	return t.keys
 }
 
 func (t *Transfer) Title() string {
-	return fmt.Sprintf("Transfer[%s]", t.targetTable)
+	return fmt.Sprintf("Transfer[%s]", t.target.TableName())
 }
 
 func (t *Transfer) Prepare() error {
@@ -64,7 +76,7 @@ func (t *Transfer) Prepare() error {
 
 func (t *Transfer) Do(item map[string]any) ([]map[string]any, bool) {
 	newItem := make(map[string]any)
-	for _, field := range t.fields {
+	for _, field := range t.keys {
 		if ka, ok := t.alias[field]; ok {
 			newItem[ka] = item[field]
 		} else {
@@ -72,7 +84,7 @@ func (t *Transfer) Do(item map[string]any) ([]map[string]any, bool) {
 		}
 	}
 
-	for k, v := range t.fixedData {
+	for k, v := range t.fixed {
 		if ka, ok := t.alias[k]; ok {
 			newItem[ka] = v
 		} else {
@@ -84,7 +96,7 @@ func (t *Transfer) Do(item map[string]any) ([]map[string]any, bool) {
 }
 
 func (t *Transfer) PostBatchDo(items []map[string]any) {
-	err := t.db.BulkInsertFromSliceMap(t.targetTable, items, batchSize)
+	err := t.target.GetDB().BulkInsertFromSliceMap(t.target.TableName(), items, batchSize)
 	if err != nil {
 		panic(err)
 	}

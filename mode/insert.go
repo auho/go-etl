@@ -53,15 +53,13 @@ func (m *Insert) Close() {
 // 多个 means merge，使用相同 key 名称
 type InsertMulti struct {
 	Mode
-	meanses   []means.InsertMeans
-	meansKeys []string
+	meanses []means.InsertMeans
 }
 
-func NewInsertMulti(keys []string, meansKeys []string, meanses ...means.InsertMeans) *InsertMulti {
+func NewInsertMulti(keys []string, meanses ...means.InsertMeans) *InsertMulti {
 	m := &InsertMulti{}
 	m.keys = keys
 	m.meanses = meanses
-	m.meansKeys = meansKeys
 
 	return m
 }
@@ -80,7 +78,7 @@ func (m *InsertMulti) GetFields() []string {
 }
 
 func (m *InsertMulti) GetKeys() []string {
-	return m.meansKeys
+	return m.meanses[0].GetKeys()
 }
 
 func (m *InsertMulti) Do(item map[string]any) []map[string]any {

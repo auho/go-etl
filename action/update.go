@@ -6,36 +6,31 @@ import (
 
 	"github.com/auho/go-etl/v2/mode"
 	"github.com/auho/go-etl/v2/tool"
-	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Actor = (*Update)(nil)
 
 type Update struct {
 	action
-	db        *goSimpleDb.SimpleDB
-	modes     []mode.UpdateModer
-	idName    string
-	dataTable string
+	source Source
+	target Target
+	modes  []mode.UpdateModer
 
-	isTransfer    bool
-	transferTable string
+	isTransfer bool
 }
 
-func NewUpdateAndTransfer(db *goSimpleDb.SimpleDB, dataTable string, transferTable string, idName string, modes []mode.UpdateModer) *Update {
-	u := NewUpdate(db, dataTable, idName, modes)
+func NewUpdateAndTransfer(source Source, target Target, modes []mode.UpdateModer) *Update {
+	u := NewUpdate(source, modes)
+	u.target = target
 	u.isTransfer = true
-	u.transferTable = transferTable
 
 	return u
 }
 
-func NewUpdate(db *goSimpleDb.SimpleDB, dataTable string, idName string, modes []mode.UpdateModer) *Update {
+func NewUpdate(source Source, modes []mode.UpdateModer) *Update {
 	u := &Update{}
-	u.db = db
+	u.source = source
 	u.modes = modes
-	u.idName = idName
-	u.dataTable = dataTable
 
 	u.Init()
 
@@ -44,14 +39,14 @@ func NewUpdate(db *goSimpleDb.SimpleDB, dataTable string, idName string, modes [
 
 func (u *Update) GetFields() []string {
 	fields := make([]string, 0)
-	fields = append(fields, u.idName)
+	fields = append(fields, u.source.GetIdName())
 
 	for _, m := range u.modes {
 		fields = append(fields, m.GetFields()...)
 	}
 
 	if u.isTransfer {
-		columns, err := u.db.GetTableColumns(u.transferTable)
+		columns, err := u.target.GetDB().GetTableColumns(u.target.TableName())
 		if err != nil {
 			panic(err)
 		}
@@ -70,7 +65,7 @@ func (u *Update) Title() string {
 		s = append(s, m.GetTitle())
 	}
 
-	return fmt.Sprintf("Update[%s] {%s}", u.dataTable, strings.Join(s, ", "))
+	return fmt.Sprintf("Update[%s] {%s}", u.source.TableName(), strings.Join(s, ", "))
 }
 
 func (u *Update) Prepare() error {
@@ -95,7 +90,7 @@ func (u *Update) Do(item map[string]any) ([]map[string]any, bool) {
 		newItem = item
 	} else {
 		newItem = make(map[string]any)
-		newItem[u.idName] = item[u.idName]
+		newItem[u.source.GetIdName()] = item[u.source.GetIdName()]
 	}
 
 	for k, v := range _does {
@@ -108,9 +103,9 @@ func (u *Update) Do(item map[string]any) ([]map[string]any, bool) {
 func (u *Update) PostBatchDo(items []map[string]any) {
 	var err error
 	if u.isTransfer {
-		err = u.db.BulkInsertFromSliceMap(u.transferTable, items, batchSize)
+		err = u.target.GetDB().BulkInsertFromSliceMap(u.target.TableName(), items, batchSize)
 	} else {
-		err = u.db.BulkUpdateFromSliceMapById(u.dataTable, u.idName, items)
+		err = u.source.GetDB().BulkUpdateFromSliceMapById(u.source.TableName(), u.source.GetIdName(), items)
 	}
 
 	if err != nil {

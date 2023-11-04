@@ -3,10 +3,9 @@ package flow
 import (
 	"github.com/auho/go-etl/v2/action"
 	"github.com/auho/go-etl/v2/mode"
-	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
-func CleanFlow(db *goSimpleDb.SimpleDB, dataTable string, idName string, targetTable string, modes []mode.UpdateModer) {
-	cleanAction := action.NewClean(db, targetTable, modes)
-	RunFlow(db, dataTable, idName, []action.Actor{cleanAction})
+func CleanFlow(source action.Source, target action.Target, modes []mode.UpdateModer) {
+	cleanAction := action.NewClean(target, modes)
+	RunFlow(source, []action.Actor{cleanAction})
 }

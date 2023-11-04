@@ -27,7 +27,12 @@ func (t *TagMeans) GetTitle() string {
 }
 
 func (t *TagMeans) GetKeys() []string {
-	return append([]string{t.rule.KeywordName(), t.rule.KeywordNumName()}, append(t.rule.Labels(), t.rule.FixedKeys()...)...)
+	keys := []string{t.rule.KeywordNameAlias()}
+	keys = append(keys, t.rule.KeywordNumNameAlias())
+	keys = append(keys, t.rule.LabelsAlias()...)
+	keys = append(keys, t.rule.FixedKeysAlias()...)
+
+	return keys
 }
 
 func (t *TagMeans) Close() {}

@@ -18,11 +18,13 @@ type action struct {
 }
 
 type Source interface {
+	GetIdName() string
 	TableName() string
 	GetDB() *simpleDb.SimpleDB
 }
 
 type Target interface {
+	GetIdName() string
 	TableName() string
 	GetDB() *simpleDb.SimpleDB
 }

@@ -4,54 +4,44 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/mode"
-	goSimpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Actor = (*Insert)(nil)
 
 type Insert struct {
 	action
-	db          *goSimpleDb.SimpleDB
-	mode        mode.InsertModer
-	targetTable string
-	affixFields []string
-}
-
-// NewInsertAndTransfer
-// insert and transfer
-func NewInsertAndTransfer(db *goSimpleDb.SimpleDB, targetTable string, moder mode.InsertModer) *Insert {
-	columns, err := db.GetTableColumns(targetTable)
-	if err != nil {
-		panic(err)
-	}
-
-	return NewInsert(db, targetTable, moder, columns)
+	target    Target
+	mode      mode.InsertModer
+	extraKeys []string
 }
 
 // NewInsert
 // insert
-func NewInsert(source Source, target Target, keys []string, moder mode.InsertModer, affixFields []string) *Insert {
+func NewInsert(target Target, moder mode.InsertModer, extraKeys []string) *Insert {
 	i := &Insert{}
-	i.db = db
 	i.mode = moder
-	i.targetTable = targetTable
-	i.affixFields = affixFields
+	i.target = target
+	i.extraKeys = extraKeys
 
 	i.Init()
 
 	return i
 }
 
-func (i *Insert) GetFields() []string {
-	return append(i.mode.GetFields(), i.affixFields...)
-}
+// get Keys
+// target data field
+//func (i *Insert) getKeys() []string {
+//	return append(i.mode.GetKeys(), i.extraKeys...)
+//}
 
-func (i *Insert) getKeys() []string {
-	return append(i.mode.GetKeys(), i.affixFields...)
+// GetFields
+// source data filed
+func (i *Insert) GetFields() []string {
+	return append(i.mode.GetFields(), i.extraKeys...)
 }
 
 func (i *Insert) Title() string {
-	return fmt.Sprintf("Insert[%s] {%s}", i.targetTable, i.mode.GetTitle())
+	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.mode.GetTitle())
 }
 
 func (i *Insert) Prepare() error {
@@ -64,10 +54,10 @@ func (i *Insert) Do(item map[string]any) ([]map[string]any, bool) {
 		return nil, false
 	}
 
-	if len(i.affixFields) > 0 {
+	if len(i.extraKeys) > 0 {
 		for index := range newItems {
-			for _, field := range i.affixFields {
-				newItems[index][field] = item[field]
+			for _, key := range i.extraKeys {
+				newItems[index][key] = item[key]
 			}
 		}
 	}
@@ -76,7 +66,7 @@ func (i *Insert) Do(item map[string]any) ([]map[string]any, bool) {
 }
 
 func (i *Insert) PostBatchDo(items []map[string]any) {
-	err := i.db.BulkInsertFromSliceMap(i.targetTable, items, batchSize)
+	err := i.target.GetDB().BulkInsertFromSliceMap(i.target.TableName(), items, batchSize)
 	if err != nil {
 		panic(err)
 	}
