@@ -8,25 +8,23 @@ import (
 	"github.com/auho/go-etl/v2/insight/model/dml"
 	"github.com/auho/go-etl/v2/insight/model/dml/command"
 	"github.com/auho/go-etl/v2/means/tag"
-	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ tag.Ruler = (*RuleItems)(nil)
 
 type RuleItems struct {
-	rule  Ruler
-	alias map[string]string
-	fixed map[string]string
-
-	db *simpleDb.SimpleDB
+	rule              Ruler
+	alias             map[string]string
+	fixed             map[string]string
+	keywordFormatFunc []func(string) string
 }
 
-func NewRuleItems(db *simpleDb.SimpleDB, rule Ruler, alias, fixed map[string]string) *RuleItems {
+func NewRuleItems(rule Ruler, alias, fixed map[string]string, keywordFormatFunc []func(string) string) *RuleItems {
 	ri := &RuleItems{}
-	ri.db = db
 	ri.rule = rule
 	ri.alias = alias
 	ri.fixed = fixed
+	ri.keywordFormatFunc = keywordFormatFunc
 
 	return ri
 }
@@ -58,9 +56,23 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 	})
 
 	var rows []map[string]string
-	err := ri.db.Raw(table.Sql()).Scan(&rows).Error
+	err := ri.rule.GetDB().Raw(table.Sql()).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("rows error; %w", err)
+	}
+
+	return rows, nil
+}
+
+func (ri *RuleItems) ItemsForRegexp() ([]map[string]string, error) {
+	rows, err := ri.ItemsAlias()
+	if err != nil {
+		return nil, fmt.Errorf("ItemsAlias error; %w", err)
+	}
+	for i := range rows {
+		for _, f := range ri.keywordFormatFunc {
+			rows[i][ri.KeywordNameAlias()] = f(rows[i][ri.KeywordNameAlias()])
+		}
 	}
 
 	return rows, nil

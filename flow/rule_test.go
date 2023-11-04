@@ -68,3 +68,7 @@ func (r *ruleTest) ItemsAlias() ([]map[string]string, error) {
 	err := _db.Raw(fmt.Sprintf("SELECT `a`, `ab`, `a_keyword` FROM %s", _ruleTable)).Scan(&rows).Error
 	return rows, err
 }
+
+func (r *ruleTest) ItemsForRegexp() ([]map[string]string, error) {
+	return r.ItemsAlias()
+}

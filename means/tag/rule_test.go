@@ -72,6 +72,10 @@ func (r *ruleTest) ItemsAlias() ([]map[string]string, error) {
 	return r.Items()
 }
 
+func (r *ruleTest) ItemsForRegexp() ([]map[string]string, error) {
+	return r.ItemsAlias()
+}
+
 type ruleAliasFixedTest struct {
 	ruleTest
 }
@@ -100,13 +104,15 @@ func (r *ruleAliasFixedTest) LabelsAlias() []string {
 func (r *ruleAliasFixedTest) Fixed() map[string]string {
 	return map[string]string{
 		"c": "c_fixed",
-		"d": "d_fixed"}
+		"d": "d_fixed",
+	}
 }
 
 func (r *ruleAliasFixedTest) FixedAlias() map[string]string {
 	return map[string]string{
-		"c":       "c_fixed",
-		"d_alias": "d_fixed"}
+		"c_alias": "c_fixed",
+		"d_alias": "d_fixed",
+	}
 }
 
 func (r *ruleAliasFixedTest) FixedKeys() []string {
@@ -114,7 +120,7 @@ func (r *ruleAliasFixedTest) FixedKeys() []string {
 }
 
 func (r *ruleAliasFixedTest) FixedKeysAlias() []string {
-	return []string{"c", "d_alias"}
+	return []string{"c_alias", "d_alias"}
 }
 
 func (r *ruleAliasFixedTest) ItemsAlias() ([]map[string]string, error) {
@@ -131,4 +137,8 @@ func (r *ruleAliasFixedTest) ItemsAlias() ([]map[string]string, error) {
 	}
 
 	return newItems, nil
+}
+
+func (r *ruleAliasFixedTest) ItemsForRegexp() ([]map[string]string, error) {
+	return r.ItemsAlias()
 }

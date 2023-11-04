@@ -2,7 +2,11 @@ package segword
 
 import (
 	"unicode/utf8"
+
+	"github.com/auho/go-etl/v2/means"
 )
+
+var _ means.InsertMeans = (*SegWordsMeans)(nil)
 
 type SegWordsMeans struct {
 	SegWords

@@ -45,6 +45,11 @@ func (i *Insert) Title() string {
 }
 
 func (i *Insert) Prepare() error {
+	err := i.mode.Prepare()
+	if err != nil {
+		return fmt.Errorf("insert action prepare error; %w", err)
+	}
+
 	return nil
 }
 

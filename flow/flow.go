@@ -24,7 +24,7 @@ func RunFlow(aSource action.Source, actions []action.Actor) {
 			Concurrency: runtime.NumCPU(),
 			PageSize:    2000,
 			TableName:   aSource.TableName(),
-			IdName:      aSource.TableName(),
+			IdName:      aSource.GetIdName(),
 		},
 		Fields: fields,
 	}, func() (*database.DB, error) {

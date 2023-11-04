@@ -67,5 +67,5 @@ func setUp() {
 }
 
 func tearDown() {
-	_ = _db.Drop(_ruleTableName)
+	//_ = _db.Drop(_ruleTableName)
 }

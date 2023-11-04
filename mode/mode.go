@@ -8,23 +8,26 @@ import (
 
 type VoidModer interface {
 	GetTitle() string
+	Prepare() error
 	Do(map[string]any)
-	Close()
+	Close() error
 }
 
 type InsertModer interface {
 	GetTitle() string
 	GetKeys() []string   // 处理后的 key name
 	GetFields() []string // source data 里的 key name
+	Prepare() error
 	Do(map[string]any) []map[string]any
-	Close()
+	Close() error
 }
 
 type UpdateModer interface {
 	GetTitle() string
 	GetFields() []string // source data 里的 key name
+	Prepare() error
 	Do(map[string]any) map[string]any
-	Close()
+	Close() error
 }
 
 type Mode struct {

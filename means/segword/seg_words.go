@@ -38,6 +38,12 @@ func (sw *SegWords) tag(contents []string) [][]string {
 	return results
 }
 
-func (sw *SegWords) Close() {
+func (sw *SegWordsMeans) Prepare() error {
+	return nil
+}
+
+func (sw *SegWords) Close() error {
 	sw.jieBa.Free()
+
+	return nil
 }

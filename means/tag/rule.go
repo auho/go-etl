@@ -15,4 +15,5 @@ type Ruler interface {
 	FixedKeys() []string
 	FixedKeysAlias() []string
 	ItemsAlias() ([]map[string]string, error)
+	ItemsForRegexp() ([]map[string]string, error)
 }

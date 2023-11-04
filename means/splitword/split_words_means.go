@@ -2,9 +2,14 @@ package splitword
 
 import (
 	"strings"
+
+	"github.com/auho/go-etl/v2/means"
 )
 
+var _ means.InsertMeans = (*SplitWordsMeans)(nil)
+
 type SplitWordsMeans struct {
+	SplitWords
 	sep string
 }
 
@@ -38,5 +43,3 @@ func (s *SplitWordsMeans) Insert(contents []string) []map[string]any {
 
 	return items
 }
-
-func (s *SplitWordsMeans) Close() {}

@@ -64,7 +64,21 @@ func (r *ruleTest) FixedKeysAlias() []string {
 }
 
 func (r *ruleTest) ItemsAlias() ([]map[string]string, error) {
-	var rows []map[string]string
+	var rows []map[string]any
 	err := _db.Raw(fmt.Sprintf("SELECT `a`, `ab`, `a_keyword` FROM %s", _ruleTableName)).Scan(&rows).Error
-	return rows, err
+	var _rows []map[string]string
+	for _, row := range rows {
+		_row := make(map[string]string)
+		for k, v := range row {
+			_v := v.(string)
+			_row[k] = _v
+		}
+
+		_rows = append(_rows, _row)
+	}
+	return _rows, err
+}
+
+func (r *ruleTest) ItemsForRegexp() ([]map[string]string, error) {
+	return r.ItemsAlias()
 }

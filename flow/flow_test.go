@@ -10,7 +10,7 @@ import (
 )
 
 func Test_Update(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule))
+	m := mode.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
 	ua := action.NewUpdate(_source, []mode.UpdateModer{m})
 
 	RunFlow(_source, []action.Actor{ua})
@@ -29,7 +29,7 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_UpdateAndTransfer(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule))
+	m := mode.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
 	UpdateAndTransferFlow(_source, _targetUpdateTransfer, []mode.UpdateModer{m})
 
 	dataCount := getAmount(_dataTable, t)
@@ -107,7 +107,7 @@ func Test_Transfer(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule))
+	m := mode.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
 
 	CleanFlow(_source, _targetClean, []mode.UpdateModer{m})
 	dataCount := getAmount(_source.TableName(), t)

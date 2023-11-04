@@ -7,35 +7,48 @@ import (
 	"github.com/auho/go-etl/v2/means"
 )
 
-// Update
+var _ UpdateModer = (*UpdateMode)(nil)
+
+// UpdateMode
 // handle some keys of data for update
-type Update struct {
+type UpdateMode struct {
 	Mode
 	meanses []means.UpdateMeans
 }
 
-func NewUpdate(keys []string, meanses ...means.UpdateMeans) *Update {
-	m := &Update{}
+func NewUpdateMode(keys []string, meanses ...means.UpdateMeans) *UpdateMode {
+	m := &UpdateMode{}
 	m.keys = keys
 	m.meanses = meanses
 
 	return m
 }
 
-func (u *Update) GetTitle() string {
+func (u *UpdateMode) Prepare() error {
+	for _, m := range u.meanses {
+		err := m.Prepare()
+		if err != nil {
+			return fmt.Errorf("update prepare error; %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (u *UpdateMode) GetTitle() string {
 	is := make([]string, 0)
 	for _, i := range u.meanses {
 		is = append(is, i.GetTitle())
 	}
 
-	return fmt.Sprintf("Update %s{%s}", u.Mode.getTitle(), strings.Join(is, ","))
+	return fmt.Sprintf("UpdateMode %s{%s}", u.Mode.getTitle(), strings.Join(is, ","))
 }
 
-func (u *Update) GetFields() []string {
+func (u *UpdateMode) GetFields() []string {
 	return u.keys
 }
 
-func (u *Update) Do(item map[string]any) map[string]any {
+func (u *UpdateMode) Do(item map[string]any) map[string]any {
 	if item == nil {
 		return nil
 	}
@@ -53,8 +66,13 @@ func (u *Update) Do(item map[string]any) map[string]any {
 	return m
 }
 
-func (u *Update) Close() {
+func (u *UpdateMode) Close() error {
 	for k := range u.meanses {
-		u.meanses[k].Close()
+		err := u.meanses[k].Close()
+		if err != nil {
+			return fmt.Errorf("UpdateMode close error; %w", err)
+		}
 	}
+
+	return nil
 }

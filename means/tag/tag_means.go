@@ -3,7 +3,11 @@ package tag
 import (
 	"fmt"
 	"strings"
+
+	"github.com/auho/go-etl/v2/means"
 )
+
+var _ means.InsertMeans = (*TagMeans)(nil)
 
 // TagMeans
 // tag means
@@ -22,6 +26,21 @@ func NewTagMeans(rule Ruler, fn func(*Matcher, []string) []*Result) *TagMeans {
 	return tm
 }
 
+func (t *TagMeans) Prepare() error {
+	if t.matcher == nil {
+		t.matcher = DefaultMatcher()
+	}
+
+	items, err := t.rule.ItemsForRegexp()
+	if err != nil {
+		return fmt.Errorf("ItemsForRegexp error; %w", err)
+	}
+
+	t.matcher.prepare(t.rule.KeywordNameAlias(), items)
+
+	return nil
+}
+
 func (t *TagMeans) GetTitle() string {
 	return fmt.Sprintf("Tag:%s{%s}", t.rule.Name(), strings.Join(t.rule.Labels(), ", "))
 }
@@ -35,7 +54,9 @@ func (t *TagMeans) GetKeys() []string {
 	return keys
 }
 
-func (t *TagMeans) Close() {}
+func (t *TagMeans) Close() error {
+	return nil
+}
 
 func (t *TagMeans) Insert(contents []string) []map[string]any {
 	results := t.fn(t.matcher, contents)
@@ -70,6 +91,11 @@ func (t *TagMeans) resultToSliceMap(result *Result) []map[string]any {
 
 func (t *TagMeans) resultToMap(result *Result) map[string]any {
 	item := make(map[string]any)
+
+	for _k, _v := range result.Tags {
+		item[_k] = _v
+	}
+
 	item[t.rule.KeywordNameAlias()] = result.Key
 	item[t.rule.KeywordNumNameAlias()] = result.Num
 

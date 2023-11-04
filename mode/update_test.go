@@ -9,7 +9,7 @@ import (
 
 func Test_UpdateMode(t *testing.T) {
 	tmtm := tag.NewMostText(_rule)
-	ti2 := NewUpdate([]string{_keyName}, tmtm)
+	ti2 := NewUpdateMode([]string{_keyName}, tmtm)
 	results := ti2.Do(_item)
 	if len(results) <= 0 {
 		t.Error("error")
@@ -17,7 +17,7 @@ func Test_UpdateMode(t *testing.T) {
 	fmt.Println(results)
 
 	tmkm := tag.NewMostKey(_rule)
-	ti3 := NewUpdate([]string{_keyName}, tmkm)
+	ti3 := NewUpdateMode([]string{_keyName}, tmkm)
 	results = ti3.Do(_item)
 	if len(results) <= 0 {
 		t.Error("error")

@@ -7,64 +7,92 @@ import (
 	"github.com/auho/go-etl/v2/means"
 )
 
-// Insert
+var _ InsertModer = (*InsertMode)(nil)
+var _ InsertModer = (*InsertMultiMode)(nil)
+
+// InsertMode
 // single means
-type Insert struct {
+type InsertMode struct {
 	Mode
 	means means.InsertMeans
 }
 
-func NewInsert(keys []string, means means.InsertMeans) *Insert {
-	m := &Insert{}
-	m.keys = keys
-	m.means = means
+func NewInsert(keys []string, means means.InsertMeans) *InsertMode {
+	im := &InsertMode{}
+	im.keys = keys
+	im.means = means
 
-	return m
+	return im
 }
 
-func (m *Insert) GetTitle() string {
-	return "Insert " + m.Mode.getTitle() + " " + m.means.GetTitle()
+func (im *InsertMode) Prepare() error {
+	err := im.means.Prepare()
+	if err != nil {
+		return fmt.Errorf("InsertMode Prepare error; %w", err)
+	}
+
+	return nil
 }
 
-func (m *Insert) GetFields() []string {
-	return m.keys
+func (im *InsertMode) GetTitle() string {
+	return "Insert " + im.Mode.getTitle() + " " + im.means.GetTitle()
 }
 
-func (m *Insert) GetKeys() []string {
-	return m.means.GetKeys()
+func (im *InsertMode) GetFields() []string {
+	return im.keys
 }
 
-func (m *Insert) Do(item map[string]any) []map[string]any {
+func (im *InsertMode) GetKeys() []string {
+	return im.means.GetKeys()
+}
+
+func (im *InsertMode) Do(item map[string]any) []map[string]any {
 	if item == nil {
 		return nil
 	}
 
-	contents := m.GetKeysContent(m.keys, item)
+	contents := im.GetKeysContent(im.keys, item)
 
-	return m.means.Insert(contents)
+	return im.means.Insert(contents)
 }
 
-func (m *Insert) Close() {
-	m.means.Close()
+func (im *InsertMode) Close() error {
+	err := im.means.Close()
+	if err != nil {
+		return fmt.Errorf("InsertMode close error; %w", err)
+	}
+
+	return nil
 }
 
-// InsertMulti
+// InsertMultiMode
 // multi means
 // 多个 means merge，使用相同 key 名称
-type InsertMulti struct {
+type InsertMultiMode struct {
 	Mode
 	meanses []means.InsertMeans
 }
 
-func NewInsertMulti(keys []string, meanses ...means.InsertMeans) *InsertMulti {
-	m := &InsertMulti{}
-	m.keys = keys
-	m.meanses = meanses
+func NewInsertMulti(keys []string, meanses ...means.InsertMeans) *InsertMultiMode {
+	im := &InsertMultiMode{}
+	im.keys = keys
+	im.meanses = meanses
 
-	return m
+	return im
 }
 
-func (m *InsertMulti) GetTitle() string {
+func (im *InsertMultiMode) Prepare() error {
+	for _, m := range im.meanses {
+		err := m.Prepare()
+		if err != nil {
+			return fmt.Errorf("InsertMultiMode prepare error; %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (m *InsertMultiMode) GetTitle() string {
 	is := make([]string, 0)
 	for _, i := range m.meanses {
 		is = append(is, i.GetTitle())
@@ -73,15 +101,15 @@ func (m *InsertMulti) GetTitle() string {
 	return fmt.Sprintf("Insert multi %s{%s}", m.Mode.getTitle(), strings.Join(is, ","))
 }
 
-func (m *InsertMulti) GetFields() []string {
+func (m *InsertMultiMode) GetFields() []string {
 	return m.keys
 }
 
-func (m *InsertMulti) GetKeys() []string {
+func (m *InsertMultiMode) GetKeys() []string {
 	return m.meanses[0].GetKeys()
 }
 
-func (m *InsertMulti) Do(item map[string]any) []map[string]any {
+func (m *InsertMultiMode) Do(item map[string]any) []map[string]any {
 	if item == nil {
 		return nil
 	}
@@ -101,8 +129,13 @@ func (m *InsertMulti) Do(item map[string]any) []map[string]any {
 	return items
 }
 
-func (m *InsertMulti) Close() {
-	for _, i := range m.meanses {
-		i.Close()
+func (m *InsertMultiMode) Close() error {
+	for _, m := range m.meanses {
+		err := m.Close()
+		if err != nil {
+			return fmt.Errorf("InsertMultiMode close error; %w", err)
+		}
 	}
+
+	return nil
 }

@@ -9,39 +9,68 @@ import (
 )
 
 func Test_InsertMode(t *testing.T) {
-	ttm := tag.NewKey(_rule)
-	ti1 := NewInsert([]string{_keyName}, ttm)
-	results := ti1.Do(_item)
+	// key
+	tKey := tag.NewKey(_rule)
+	tin1 := NewInsert([]string{_keyName}, tKey)
+	err := tin1.Prepare()
+	if err != nil {
+		t.Fatal("tin1", err)
+	}
+
+	results := tin1.Do(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
 	fmt.Println(results)
 
-	tmtm := tag.NewMostText(_rule)
-	ti2 := NewInsert([]string{_keyName}, tmtm)
-	results = ti2.Do(_item)
+	// most text
+	tMostText := tag.NewMostText(_rule)
+	tin2 := NewInsert([]string{_keyName}, tMostText)
+	err = tin2.Prepare()
+	if err != nil {
+		t.Fatal("tin2", err)
+	}
+
+	results = tin2.Do(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
 	fmt.Println(results)
 
-	tmkm := tag.NewMostKey(_rule)
-	ti3 := NewInsert([]string{_keyName}, tmkm)
-	results = ti3.Do(_item)
+	// most key
+	tMostKey := tag.NewMostKey(_rule)
+	tin3 := NewInsert([]string{_keyName}, tMostKey)
+	err = tin3.Prepare()
+	if err != nil {
+		t.Fatal("tin3", err)
+	}
+
+	results = tin3.Do(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
 	fmt.Println(results)
 
-	sw := segword.NewSegWordsMeans()
-	ti4 := NewInsert([]string{_keyName}, sw)
-	results = ti4.Do(_item)
+	// seg words
+	tSegWords := segword.NewSegWordsMeans()
+	tin4 := NewInsert([]string{_keyName}, tSegWords)
+	err = tin4.Prepare()
+	if err != nil {
+		t.Fatal("tin4", err)
+	}
+
+	results = tin4.Do(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
 	fmt.Println(results)
 
-	ti5 := NewInsertMulti([]string{_keyName}, sw, sw)
+	ti5 := NewInsertMulti([]string{_keyName}, tSegWords, tSegWords)
+	err = ti5.Prepare()
+	if err != nil {
+		t.Fatal("ti5", err)
+	}
+
 	results2 := ti5.Do(_item)
 	if len(results2) <= 0 {
 		t.Error("error")
@@ -49,7 +78,7 @@ func Test_InsertMode(t *testing.T) {
 
 	for _, v := range ti5.GetKeys() {
 		has := false
-		for _, v1 := range sw.GetKeys() {
+		for _, v1 := range tSegWords.GetKeys() {
 			if v == v1 {
 				has = true
 				break

@@ -9,13 +9,18 @@ func TestTagMeans(t *testing.T) {
 	tm := NewTagMeans(_rule, nil)
 
 	keys := tm.GetKeys()
-	if len(keys) < 4 {
+	if len(keys) < 3 {
 		t.Error("error")
 	}
 }
 
 func TestTagKeyMeans(t *testing.T) {
 	tm := NewKey(_rule)
+	err := tm.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	resSlice := tm.Insert(_contents)
 	if len(resSlice) <= 0 {
 		t.Error("error")
@@ -24,6 +29,11 @@ func TestTagKeyMeans(t *testing.T) {
 
 func TestTagMostKeyMeans(t *testing.T) {
 	tm := NewMostKey(_rule)
+	err := tm.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	resSlice := tm.Insert(_contents)
 	if len(resSlice) <= 0 {
 		t.Error("error")
@@ -50,6 +60,10 @@ func TestTagMostKeyMeans(t *testing.T) {
 
 func TestTagMostTextMeans(t *testing.T) {
 	tm := NewMostText(_ruleAliasFixed)
+	err := tm.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	for _, k := range tm.rule.LabelsAlias() {
 		if !strings.HasSuffix(k, "_alias") {

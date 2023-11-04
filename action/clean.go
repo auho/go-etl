@@ -48,6 +48,13 @@ func (c *Clean) Title() string {
 }
 
 func (c *Clean) Prepare() error {
+	for _, m := range c.modes {
+		err := m.Prepare()
+		if err != nil {
+			return fmt.Errorf("clean action prepare error; %w", err)
+		}
+	}
+
 	return nil
 }
 

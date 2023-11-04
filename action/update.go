@@ -69,6 +69,13 @@ func (u *Update) Title() string {
 }
 
 func (u *Update) Prepare() error {
+	for _, m := range u.modes {
+		err := m.Prepare()
+		if err != nil {
+			return fmt.Errorf("update action prepare error; %w", err)
+		}
+	}
+
 	return nil
 }
 
