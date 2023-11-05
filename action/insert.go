@@ -28,12 +28,6 @@ func NewInsert(target Target, moder mode.InsertModer, extraKeys []string) *Inser
 	return i
 }
 
-// get Keys
-// target data field
-//func (i *Insert) getKeys() []string {
-//	return append(i.mode.GetKeys(), i.extraKeys...)
-//}
-
 // GetFields
 // source data filed
 func (i *Insert) GetFields() []string {
