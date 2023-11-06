@@ -11,7 +11,7 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ resourcer = (*RuleResource)(nil)
+var _ Resourcer = (*RuleResource)(nil)
 
 type RuleResource struct {
 	Resource

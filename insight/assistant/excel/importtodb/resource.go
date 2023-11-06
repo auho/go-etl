@@ -7,7 +7,7 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-type resourcer interface {
+type Resourcer interface {
 	GetIsRecreateTable() bool
 	GetIsAppendData() bool
 	GetIsShowSql() bool
@@ -21,6 +21,7 @@ type resourcer interface {
 	GetSheetData(*read.Excel) (read.SheetDataor, error)
 
 	CommandExec(*tablestructure.Command)
+	PostDo(Resourcer) error
 }
 
 type Resource struct {
@@ -32,6 +33,7 @@ type Resource struct {
 	IsShowSql            bool  // 是否显示 sql
 	ColumnDropDuplicates []int // drop duplicates for column
 	CommandFun           func(*tablestructure.Command)
+	PostFun              func(Resourcer) error
 }
 
 func (s *Resource) buildSheetConfig() read.Config {
@@ -46,6 +48,14 @@ func (s *Resource) CommandExec(command *tablestructure.Command) {
 	if s.CommandFun != nil {
 		s.CommandFun(command)
 	}
+}
+
+func (s *Resource) PostDo(resource Resourcer) error {
+	if s.PostFun != nil {
+		return s.PostFun(resource)
+	}
+
+	return nil
 }
 
 func (s *Resource) GetIsRecreateTable() bool {

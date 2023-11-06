@@ -57,9 +57,11 @@ func (c *Command) AddUniqueInt(name string) {
 	c.Table.AddUniqueKey(name)
 }
 
-func (c *Command) AddUniqueString(name string, length int) {
-	c.Table.AddVarchar(name, length, "")
+func (c *Command) AddUniqueString(name string, length int) *mysql.Field {
+	f := c.Table.AddVarchar(name, length, "")
 	c.Table.AddUniqueKey(name)
+
+	return f
 }
 
 func (c *Command) AddInt(name string) {

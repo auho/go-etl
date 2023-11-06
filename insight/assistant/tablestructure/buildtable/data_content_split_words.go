@@ -13,12 +13,12 @@ func NewDataContentSpiltWordsTable(d *model.DataContentSpiltWords) *DataContentS
 	t := &DataContentSpiltWordsTable{}
 	t.dataContentSpiltWords = d
 
-	t.buildSpiltWords()
+	t.build()
 
 	return t
 }
 
-func (t *DataContentSpiltWordsTable) buildSpiltWords() {
+func (t *DataContentSpiltWordsTable) build() {
 	t.initCommand(t.dataContentSpiltWords.TableName())
 
 	t.Command.AddPkInt("id")

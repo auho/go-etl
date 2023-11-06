@@ -13,15 +13,15 @@ func NewTagDataRuleTable(tag *model.TagDataRule) *TagDataRuleTable {
 	t := &TagDataRuleTable{}
 	t.tag = tag
 
-	t.buildTag()
+	t.build()
 
 	return t
 }
 
-func (t *TagDataRuleTable) buildTag() {
+func (t *TagDataRuleTable) build() {
 	t.initCommand(t.tag.TableName())
 	t.Command.AddPkInt(t.tag.GetIdName())
 
-	NewDataTable(t.tag.GetData()).BuildDataForTag(t.Command)
-	NewRuleTable(t.tag.GetRule()).BuildRuleForTag(t.Command)
+	NewDataTable(t.tag.GetData()).BuildForTag(t.Command)
+	NewRuleTable(t.tag.GetRule()).BuildForTag(t.Command)
 }

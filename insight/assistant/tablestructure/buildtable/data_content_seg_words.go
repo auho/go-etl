@@ -13,12 +13,12 @@ func NewDataContentSegWordsTable(d *model.DataContentSegWords) *DataContentSegWo
 	t := &DataContentSegWordsTable{}
 	t.dataContentSegWords = d
 
-	t.buildSegWords()
+	t.build()
 
 	return t
 }
 
-func (t *DataContentSegWordsTable) buildSegWords() {
+func (t *DataContentSegWordsTable) build() {
 	t.initCommand(t.dataContentSegWords.TableName())
 
 	t.Command.AddPkInt("id")

@@ -14,21 +14,21 @@ func NewDataTable(data assistant.Dataor) *DataTable {
 	t := &DataTable{}
 	t.data = data
 
-	t.buildData()
+	t.build()
 
 	return t
 }
 
-func (t *DataTable) buildData() {
+func (t *DataTable) build() {
 	t.initCommand(t.data.TableName())
 	t.AddPkBigInt(t.data.GetIdName())
 }
 
-func (t *DataTable) BuildDataForTag(command *tablestructure.Command) {
+func (t *DataTable) BuildForTag(command *tablestructure.Command) {
 	command.AddKeyBigInt(t.data.GetIdName())
 }
 
-func (t *DataTable) Exec(fn func(command *tablestructure.Command)) *DataTable {
+func (t *DataTable) ExecCommand(fn func(command *tablestructure.Command)) *DataTable {
 	fn(t.Command)
 
 	return t

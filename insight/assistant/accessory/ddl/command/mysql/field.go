@@ -7,6 +7,7 @@ import (
 type Field struct {
 	name     string
 	_type    string
+	collate  string
 	length   string
 	_default string
 	extra    string
@@ -59,6 +60,16 @@ func (f *Field) SetUnsigned(b bool) *Field {
 	return f
 }
 
+func (f *Field) SetCollate(collate string) *Field {
+	f.collate = collate
+
+	return f
+}
+
+func (f *Field) SetCollateUtf8mb4Bin() *Field {
+	return f.SetCollate(collateUtf8mb4Bin)
+}
+
 func (f *Field) SetAllowNull(b bool) *Field {
 	f.isAllowNull = b
 
@@ -90,6 +101,11 @@ func (f *Field) statement() string {
 
 	flag := fmt.Sprintf("%s", unsigned)
 
+	collate := ""
+	if f.collate != "" {
+		collate = fmt.Sprintf("COLLATE %s ", f.collate)
+	}
+
 	null := "NOT NULL "
 	if f.isAllowNull {
 		null = "NULL "
@@ -115,8 +131,8 @@ func (f *Field) statement() string {
 		_default = ""
 	}
 
-	// name | type | flag | null | default | extra
-	return fmt.Sprintf("%s%s%s%s%s%s", name, _type, flag, null, _default, extra)
+	// name | type | flag | collate | null | default | extra
+	return fmt.Sprintf("%s%s%s%s%s%s%s", name, _type, flag, collate, null, _default, extra)
 }
 
 func (f *Field) SqlForCreateTable() string {

@@ -19,6 +19,8 @@ const extraOnUpdateCurrentTimestamp = "ON UPDATE CURRENT_TIMESTAMP"
 
 const charsetUtf8mb4 = "utf8mb4"
 
+const collateUtf8mb4Bin = "utf8mb4_bin"
+const collateUtf8mb4UnicodeCi = "utf8mb4_unicode_ci"
 const collateUtf8mb4GeneralCi = "utf8mb4_general_ci"
 
 const indexTypeKey = "KEY"

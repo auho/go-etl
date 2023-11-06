@@ -10,11 +10,11 @@ import (
 
 type ImportToDb struct {
 	xlsxPath string
-	resource []resourcer
+	resource []Resourcer
 	excel    *read.Excel
 }
 
-func RunImportToDb(xlsxPath string, sr ...resourcer) error {
+func RunImportToDb(xlsxPath string, sr ...Resourcer) error {
 	e := &ImportToDb{
 		xlsxPath: xlsxPath,
 		resource: sr,
@@ -35,12 +35,17 @@ func (it *ImportToDb) Import() error {
 		if err != nil {
 			return fmt.Errorf("importResource error; %w", err)
 		}
+
+		err = resource.PostDo(resource)
+		if err != nil {
+			return fmt.Errorf("PostDo error; %w", err)
+		}
 	}
 
 	return nil
 }
 
-func (it *ImportToDb) importResource(resource resourcer) error {
+func (it *ImportToDb) importResource(resource Resourcer) error {
 	err := resource.Prepare()
 	if err != nil {
 		return fmt.Errorf("prepare error; %w", err)
@@ -68,7 +73,7 @@ func (it *ImportToDb) importResource(resource resourcer) error {
 	return nil
 }
 
-func (it *ImportToDb) buildResourceTable(resource resourcer, table buildtable.Tabler) error {
+func (it *ImportToDb) buildResourceTable(resource Resourcer, table buildtable.Tabler) error {
 	if resource.GetIsShowSql() {
 		fmt.Println(table.Sql())
 	}
@@ -96,7 +101,7 @@ func (it *ImportToDb) buildResourceTable(resource resourcer, table buildtable.Ta
 	return nil
 }
 
-func (it *ImportToDb) importResourceToTable(resource resourcer, table buildtable.Tabler, sheetData read.SheetDataor) error {
+func (it *ImportToDb) importResourceToTable(resource Resourcer, table buildtable.Tabler, sheetData read.SheetDataor) error {
 	var err error
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {

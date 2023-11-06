@@ -7,7 +7,7 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ resourcer = (*RowsResource)(nil)
+var _ Resourcer = (*RowsResource)(nil)
 
 type RowsResource struct {
 	Resource

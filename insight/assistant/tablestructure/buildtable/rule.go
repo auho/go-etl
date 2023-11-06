@@ -14,34 +14,33 @@ func NewRuleTable(rule assistant.Ruler) *RuleTable {
 	t := &RuleTable{}
 	t.rule = rule
 
-	t.buildRule()
+	t.build()
 
 	return t
 }
 
-func (t *RuleTable) buildRule() {
+func (t *RuleTable) build() {
 	t.initCommand(t.rule.TableName())
 	t.Command.AddPkInt(t.rule.GetIdName())
 
-	t.Command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
+	t.buildRule(t.Command)
 
-	for label, length := range t.rule.GetLabels() {
-		t.Command.AddStringWithLength(label, length)
-	}
-
-	t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetNameLength())
 	t.Command.AddInt(t.rule.KeywordLenName())
 	t.Command.AddTimestamp("ctime", true, true)
-
 }
 
-func (t *RuleTable) BuildRuleForTag(command *tablestructure.Command) {
+func (t *RuleTable) buildRule(command *tablestructure.Command) {
 	command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
 
 	for label, length := range t.rule.GetLabels() {
 		command.AddStringWithLength(label, length)
 	}
 
-	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
+	keywordFiled := t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetNameLength())
+	keywordFiled.SetCollateUtf8mb4Bin()
+}
+
+func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
+	t.buildRule(command)
 	command.AddInt(t.rule.KeywordNumName())
 }

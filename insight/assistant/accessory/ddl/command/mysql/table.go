@@ -61,11 +61,6 @@ func (t *Table) SetEngineInnoDB() *Table {
 }
 
 func (t *Table) SetCharset(charset, collate string) *Table {
-	if charset == "" || collate == "" {
-		charset = charsetUtf8mb4
-		collate = collateUtf8mb4GeneralCi
-	}
-
 	t.charset = charset
 	t.collate = collate
 
@@ -224,7 +219,7 @@ func (t *Table) SqlForCreate() string {
 
 	if t.charset == "" || t.collate == "" {
 		t.charset = charsetUtf8mb4
-		t.collate = collateUtf8mb4GeneralCi
+		t.collate = collateUtf8mb4UnicodeCi
 	}
 
 	sql := fmt.Sprintf("CREATE TABLE `%s`(\n%s\n)ENGINE=%s DEFAULT CHARSET=%s COLLATE=%s",

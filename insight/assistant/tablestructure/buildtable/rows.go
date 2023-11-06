@@ -14,12 +14,12 @@ func NewRowsTable(rows assistant.Rowsor) *RowsTable {
 	t := &RowsTable{}
 	t.rows = rows
 
-	t.buildData()
+	t.build()
 
 	return t
 }
 
-func (t *RowsTable) buildData() {
+func (t *RowsTable) build() {
 	t.initCommand(t.rows.TableName())
 	t.AddPkBigInt(t.rows.GetIdName())
 }
