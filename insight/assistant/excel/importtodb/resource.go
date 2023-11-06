@@ -2,7 +2,9 @@ package importtodb
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
+	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 type resourcer interface {
@@ -10,20 +12,40 @@ type resourcer interface {
 	GetIsAppendData() bool
 	GetIsShowSql() bool
 	GetColumnDropDuplicates() []int
+	GetDB() *simpleDb.SimpleDB
 
+	Prepare() error
 	GetTable() buildtable.Tabler
-	GetTitles() []string
-	GetSheetData() (read.SheetDataor, error)
+	GetTitlesKey() []string
+	GetTitlesIndex() []int
+	GetSheetData(*read.Excel) (read.SheetDataor, error)
+
+	CommandExec(*tablestructure.Command)
 }
 
 type Resource struct {
-	XlsxPath             string
 	SheetName            string
-	StartRow             int   // 数据开始的行数， 从 0 开始
+	SheetIndex           int   // sheet index，从 1 开始
+	StartRow             int   // 数据开始的行数，从 1 开始
 	IsRecreateTable      bool  // 是否 recreate table
 	IsAppendData         bool  // 是否 append data
 	IsShowSql            bool  // 是否显示 sql
 	ColumnDropDuplicates []int // drop duplicates for column
+	CommandFun           func(*tablestructure.Command)
+}
+
+func (s *Resource) buildSheetConfig() read.Config {
+	return read.Config{
+		SheetName:  s.SheetName,
+		SheetIndex: s.SheetIndex,
+		StartRow:   s.StartRow,
+	}
+}
+
+func (s *Resource) CommandExec(command *tablestructure.Command) {
+	if s.CommandFun != nil {
+		s.CommandFun(command)
+	}
 }
 
 func (s *Resource) GetIsRecreateTable() bool {

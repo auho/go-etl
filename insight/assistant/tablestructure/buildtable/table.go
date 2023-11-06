@@ -10,6 +10,7 @@ var _ Tabler = (*table)(nil)
 
 type Tabler interface {
 	GetTableName() string
+	GetCommand() *tablestructure.Command
 	Sql() string
 	Build(db *simpleDb.SimpleDB) error
 }

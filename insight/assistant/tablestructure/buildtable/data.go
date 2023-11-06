@@ -21,6 +21,7 @@ func NewDataTable(data assistant.Dataor) *DataTable {
 
 func (t *DataTable) buildData() {
 	t.initCommand(t.data.TableName())
+	t.AddPkBigInt(t.data.GetIdName())
 }
 
 func (t *DataTable) BuildDataForTag(command *tablestructure.Command) {

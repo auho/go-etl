@@ -98,8 +98,8 @@ func TestDataContent(t *testing.T) {
 
 func init() {
 	_data = model.NewData(_tableName, _tableIdName, nil)
-	_rule = model.NewRule(_ruleName, 20, 20, nil)
-	_rule1 = model.NewRule(_ruleName, 20, 20, map[string]int{"r1": 10, "r2": 30})
+	_rule = model.NewRule(_ruleName, 20, 20, nil, nil)
+	_rule1 = model.NewRule(_ruleName, 20, 20, map[string]int{"r1": 10, "r2": 30}, nil)
 	_dataRule = model.NewDataRule(_data, _rule)
 	_dataRule1 = model.NewDataRule(_data, _rule1)
 	_tagRule = model.NewTagDataRule(_data, _rule, nil)

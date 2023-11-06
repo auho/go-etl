@@ -71,7 +71,7 @@ func (c *Command) AddBigInt(name string) {
 }
 
 func (c *Command) AddString(name string) {
-	c.Table.AddVarchar(name, 100, "")
+	c.Table.AddVarchar(name, 30, "")
 }
 
 func (c *Command) AddStringWithLength(name string, length int) {

@@ -18,16 +18,17 @@ type Rule struct {
 	db            *simpleDb.SimpleDB
 }
 
-func NewRuleSimple(name string, labels map[string]int) *Rule {
-	return NewRule(name, 30, 30, labels)
+func NewRuleSimple(name string, labels map[string]int, db *simpleDb.SimpleDB) *Rule {
+	return NewRule(name, 30, 30, labels, db)
 }
 
-func NewRule(name string, length, keywordLength int, labels map[string]int) *Rule {
+func NewRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) *Rule {
 	r := &Rule{}
 	r.name = name
 	r.length = length
 	r.keywordLength = keywordLength
 	r.labels = labels
+	r.db = db
 
 	if r.length <= 0 {
 		r.length = 30

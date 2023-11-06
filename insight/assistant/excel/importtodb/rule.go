@@ -7,7 +7,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	buildtable2 "github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -15,44 +15,43 @@ var _ resourcer = (*RuleResource)(nil)
 
 type RuleResource struct {
 	Resource
-	KeywordIndex int      // keyword 在 sheet 中的列，从 0 开始
-	Titles       []string // save to db 的 columns
+	Titles
+	KeywordIndex int // keyword 在 sheet 中的列，从 1 开始
 	Rule         assistant.Ruler
 }
 
-func (re *RuleResource) GetTable() buildtable2.Tabler {
-	return buildtable2.NewRuleTable(re.Rule)
+func (rs *RuleResource) Prepare() error {
+	return rs.Titles.prepare()
 }
 
-func (re *RuleResource) GetTitles() []string {
-	return re.Titles
+func (rs *RuleResource) getKeywordIndex() int {
+	return rs.KeywordIndex - 1
 }
 
-func (re *RuleResource) GetSheetData() (read.SheetDataor, error) {
-	sheetData, err := read.NewSheetDataNoTitle(re.XlsxPath, re.SheetName, re.StartRow)
-	if err != nil {
-		return nil, fmt.Errorf("NewSheetDataNoTitle error; %w", err)
-	}
+func (rs *RuleResource) GetTable() buildtable.Tabler {
+	return buildtable.NewRuleTable(rs.Rule)
+}
 
-	err = sheetData.ReadData()
+func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error) {
+	sheetData, err := rs.readSheetData(excel, rs.buildSheetConfig())
 	if err != nil {
-		return nil, fmt.Errorf("ReadData error; %w", err)
+		return nil, fmt.Errorf("readSheetData error; %w", err)
 	}
 
 	// drop duplicates TODO add if
-	for i, title := range re.Titles {
-		if title == re.Rule.KeywordName() {
-			re.ColumnDropDuplicates = append(re.ColumnDropDuplicates, i)
+	for i, title := range rs.titlesKey {
+		if title == rs.Rule.KeywordName() {
+			rs.ColumnDropDuplicates = append(rs.ColumnDropDuplicates, i)
 			break
 		}
 	}
 
 	// keyword len of string
 	err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
-		re.Titles = append(re.Titles, re.Rule.KeywordLenName())
+		rs.titlesKey = append(rs.titlesKey, rs.Rule.KeywordLenName())
 
 		for i, row := range rows {
-			row = append(row, strconv.Itoa(utf8.RuneCountInString(row[re.KeywordIndex])))
+			row = append(row, strconv.Itoa(utf8.RuneCountInString(row[rs.getKeywordIndex()])))
 			rows[i] = row
 		}
 
@@ -66,6 +65,6 @@ func (re *RuleResource) GetSheetData() (read.SheetDataor, error) {
 	return sheetData, nil
 }
 
-func (re *RuleResource) Import(db *simpleDb.SimpleDB) error {
-	return RunImportToDb(db, re)
+func (rs *RuleResource) GetDB() *simpleDb.SimpleDB {
+	return rs.Rule.GetDB()
 }

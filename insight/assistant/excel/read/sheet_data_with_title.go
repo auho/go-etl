@@ -1,18 +1,20 @@
 package read
 
+import (
+	"fmt"
+)
+
 var _ SheetDataor = (*SheetDataWithTitle)(nil)
 
 type SheetDataWithTitle struct {
-	SheetData
+	sheetData
 	titles []string          // []name in sheet
 	alias  map[string]string // map[name in sheet ] name of logic
 }
 
-func NewSheetDataWithTitle(xlsxPath, sheetName string, startRow int, alias map[string]string) (*SheetDataWithTitle, error) {
+func NewSheetDataWithTitle(excel *Excel, config Config, alias map[string]string) (*SheetDataWithTitle, error) {
 	sd := &SheetDataWithTitle{}
-	sd.xlsxPath = xlsxPath
-	sd.sheetName = sheetName
-	sd.startRow = startRow
+	sd.config = config
 	sd.alias = alias
 
 	return sd, nil
@@ -40,9 +42,9 @@ func (sd *SheetDataWithTitle) GetTitlesWithAlias() []string {
 }
 
 func (sd *SheetDataWithTitle) ReadData() error {
-	err := sd.readFromSheet()
+	err := sd.readSheet()
 	if err != nil {
-		return err
+		return fmt.Errorf("readSheet error; %w", err)
 	}
 
 	sd.titles = sd.rows[0]

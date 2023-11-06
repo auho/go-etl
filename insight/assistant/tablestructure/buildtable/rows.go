@@ -21,6 +21,7 @@ func NewRowsTable(rows assistant.Rowsor) *RowsTable {
 
 func (t *RowsTable) buildData() {
 	t.initCommand(t.rows.TableName())
+	t.AddPkBigInt(t.rows.GetIdName())
 }
 
 func (t *RowsTable) Exec(fn func(command *tablestructure.Command)) *RowsTable {

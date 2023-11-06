@@ -6,6 +6,7 @@ import (
 
 type Rowsor interface {
 	GetDB() *go_simple_db.SimpleDB
+	GetIdName() string
 	TableName() string
 }
 

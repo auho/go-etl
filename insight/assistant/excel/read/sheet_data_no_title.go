@@ -3,18 +3,16 @@ package read
 var _ SheetDataor = (*SheetDataNoTitle)(nil)
 
 type SheetDataNoTitle struct {
-	SheetData
+	sheetData
 }
 
-func NewSheetDataNoTitle(xlsxPath, sheetName string, startRow int) (*SheetDataNoTitle, error) {
+func NewSheetDataNoTitle(excel *Excel, config Config) (*SheetDataNoTitle, error) {
 	sd := &SheetDataNoTitle{}
-	sd.xlsxPath = xlsxPath
-	sd.sheetName = sheetName
-	sd.startRow = startRow
+	sd.excel = excel
+	sd.config = config
 
 	return sd, nil
 }
-
 func (sd *SheetDataNoTitle) ReadData() error {
-	return sd.readFromSheet()
+	return sd.readSheet()
 }

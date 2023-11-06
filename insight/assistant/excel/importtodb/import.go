@@ -6,71 +6,88 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
 	"github.com/auho/go-etl/v2/tool/slices"
-	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 type ImportToDb struct {
-	isRecreateTable      bool  // 是否 recreate table
-	isAppendData         bool  // 是否 append data
-	isShowSql            bool  // 是否显示 sql
-	columnDropDuplicates []int // drop duplicates for column
-	resource             resourcer
-	db                   *simpleDb.SimpleDB
+	xlsxPath string
+	resource []resourcer
+	excel    *read.Excel
 }
 
-func RunImportToDb(db *simpleDb.SimpleDB, sr resourcer) error {
+func RunImportToDb(xlsxPath string, sr ...resourcer) error {
 	e := &ImportToDb{
-		isRecreateTable:      sr.GetIsRecreateTable(),
-		isAppendData:         sr.GetIsAppendData(),
-		isShowSql:            sr.GetIsShowSql(),
-		columnDropDuplicates: sr.GetColumnDropDuplicates(),
-		resource:             sr,
-		db:                   db,
+		xlsxPath: xlsxPath,
+		resource: sr,
 	}
 
 	return e.Import()
 }
 
-func (e *ImportToDb) Import() error {
-	_table := e.resource.GetTable()
-
-	err := e.buildTable(_table)
+func (it *ImportToDb) Import() error {
+	var err error
+	it.excel, err = read.NewExcel(it.xlsxPath)
 	if err != nil {
-		return fmt.Errorf("buildTable error; %w", err)
+		return fmt.Errorf("NewExcel error; %w", err)
 	}
 
-	sheetData, err := e.resource.GetSheetData()
-	if err != nil {
-		return fmt.Errorf("GetSheetData error; %w", err)
-	}
-
-	err = e.importToTable(_table, sheetData)
-	if err != nil {
-		return fmt.Errorf("importToTable error; %w", err)
+	for _, resource := range it.resource {
+		err = it.importResource(resource)
+		if err != nil {
+			return fmt.Errorf("importResource error; %w", err)
+		}
 	}
 
 	return nil
 }
 
-func (e *ImportToDb) buildTable(table buildtable.Tabler) error {
-	if e.isShowSql {
+func (it *ImportToDb) importResource(resource resourcer) error {
+	err := resource.Prepare()
+	if err != nil {
+		return fmt.Errorf("prepare error; %w", err)
+	}
+
+	_table := resource.GetTable()
+
+	resource.CommandExec(_table.GetCommand())
+
+	err = it.buildResourceTable(resource, _table)
+	if err != nil {
+		return fmt.Errorf("buildResourceTable error; %w", err)
+	}
+
+	sheetData, err := resource.GetSheetData(it.excel)
+	if err != nil {
+		return fmt.Errorf("GetSheetData error; %w", err)
+	}
+
+	err = it.importResourceToTable(resource, _table, sheetData)
+	if err != nil {
+		return fmt.Errorf("importResourceToTable error; %w", err)
+	}
+
+	return nil
+}
+
+func (it *ImportToDb) buildResourceTable(resource resourcer, table buildtable.Tabler) error {
+	if resource.GetIsShowSql() {
 		fmt.Println(table.Sql())
 	}
 
-	_, err := e.db.GetTableColumns(table.GetTableName())
+	isRecreateTable := resource.GetIsRecreateTable()
+	_, err := resource.GetDB().GetTableColumns(table.GetTableName())
 	if err != nil {
-		e.isRecreateTable = true
+		isRecreateTable = true
 	} else {
-		if e.isRecreateTable {
-			err = e.db.Drop(table.GetTableName())
+		if isRecreateTable {
+			err = resource.GetDB().Drop(table.GetTableName())
 			if err != nil {
 				return fmt.Errorf("drop; %w", err)
 			}
 		}
 	}
 
-	if e.isRecreateTable {
-		err = table.Build(e.db)
+	if isRecreateTable {
+		err = table.Build(resource.GetDB())
 		if err != nil {
 			return fmt.Errorf("build error; %w", err)
 		}
@@ -79,12 +96,12 @@ func (e *ImportToDb) buildTable(table buildtable.Tabler) error {
 	return nil
 }
 
-func (e *ImportToDb) importToTable(table buildtable.Tabler, sheetData read.SheetDataor) error {
+func (it *ImportToDb) importResourceToTable(resource resourcer, table buildtable.Tabler, sheetData read.SheetDataor) error {
 	var err error
 
-	if len(e.columnDropDuplicates) > 0 {
+	if len(resource.GetColumnDropDuplicates()) > 0 {
 		err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
-			rows = slices.SliceSliceDropDuplicates(rows, e.columnDropDuplicates)
+			rows = slices.SliceSliceDropDuplicates(rows, resource.GetColumnDropDuplicates())
 
 			return rows, nil
 		})
@@ -93,14 +110,14 @@ func (e *ImportToDb) importToTable(table buildtable.Tabler, sheetData read.Sheet
 		}
 	}
 
-	if !e.isAppendData {
-		err = e.db.Truncate(table.GetTableName())
+	if !resource.GetIsAppendData() {
+		err = resource.GetDB().Truncate(table.GetTableName())
 		if err != nil {
 			return fmt.Errorf("truncate error; %w", err)
 		}
 	}
 
-	err = e.db.BulkInsertFromSliceSlice(table.GetTableName(), e.resource.GetTitles(), sheetData.GetRowsWithAny(), 1000)
+	err = resource.GetDB().BulkInsertFromSliceSlice(table.GetTableName(), resource.GetTitlesKey(), sheetData.GetRowsWithAny(), 1000)
 	if err != nil {
 		return err
 	}

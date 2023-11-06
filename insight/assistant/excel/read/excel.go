@@ -1,6 +1,7 @@
 package read
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/xuri/excelize/v2"
@@ -22,6 +23,46 @@ func NewExcel(path string) (*Excel, error) {
 	}
 
 	return e, nil
+}
+
+func (e *Excel) readSheet(config Config) ([][]string, error) {
+	if config.SheetName == "" {
+		if config.SheetIndex <= 0 {
+			return nil, errors.New("sheet name or index no exists")
+		}
+
+		sheetList := e.excelFile.GetSheetList()
+		config.SheetName = sheetList[config.SheetIndex-1]
+	}
+
+	if config.SheetName == "" {
+		return nil, errors.New("sheet name or index no exists")
+	}
+
+	rows, err := e.excelFile.GetRows(config.SheetName)
+	if err != nil {
+		return nil, fmt.Errorf("GetRows error; %w", err)
+	}
+
+	if config.StartRow > 1 {
+		rows = rows[config.StartRow-1:]
+	}
+
+	if len(config.ColsIndex) > 0 {
+		var newRows [][]string
+		for _, row := range rows {
+			var newRow []string
+			for _, index := range config.ColsIndex {
+				newRow = append(newRow, row[index])
+			}
+
+			newRows = append(newRows, newRow)
+		}
+
+		rows = newRows
+	}
+
+	return rows, nil
 }
 
 func (e *Excel) Close() error {

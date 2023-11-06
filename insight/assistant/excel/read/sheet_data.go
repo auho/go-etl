@@ -4,43 +4,23 @@ import (
 	"fmt"
 )
 
-type SheetDataor interface {
-	ReadData() error
-	HandlerRows(fn func(rows [][]string) ([][]string, error)) error
-	GetRows() [][]string
-	GetRowsWithAny() [][]any
+type sheetData struct {
+	excel  *Excel
+	config Config
+	rows   [][]string
 }
 
-type SheetData struct {
-	xlsxPath  string
-	sheetName string
-	startRow  int
-	rows      [][]string
+func (sd *sheetData) readSheet() error {
+	var err error
+	sd.rows, err = sd.excel.readSheet(sd.config)
+	return err
 }
 
-func (sd *SheetData) readFromSheet() error {
-	excel, err := NewExcel(sd.xlsxPath)
-	if err != nil {
-		return fmt.Errorf("NewExcel error; %w", err)
-	}
-
-	sd.rows, err = excel.excelFile.GetRows(sd.sheetName)
-	if err != nil {
-		return fmt.Errorf("GetRows error; %w", err)
-	}
-
-	if sd.startRow > 0 {
-		sd.rows = sd.rows[sd.startRow:]
-	}
-
-	return nil
-}
-
-func (sd *SheetData) GetRows() [][]string {
+func (sd *sheetData) GetRows() [][]string {
 	return sd.rows
 }
 
-func (sd *SheetData) GetRowsWithAny() [][]any {
+func (sd *sheetData) GetRowsWithAny() [][]any {
 	var data [][]any
 	for _, row := range sd.rows {
 		var rowAny []any
@@ -54,7 +34,7 @@ func (sd *SheetData) GetRowsWithAny() [][]any {
 	return data
 }
 
-func (sd *SheetData) HandlerRows(fn func(rows [][]string) ([][]string, error)) error {
+func (sd *sheetData) HandlerRows(fn func(rows [][]string) ([][]string, error)) error {
 	var err error
 	sd.rows, err = fn(sd.rows)
 	if err != nil {
