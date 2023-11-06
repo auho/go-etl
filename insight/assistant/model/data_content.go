@@ -2,9 +2,11 @@ package model
 
 import (
 	"fmt"
+
+	"github.com/auho/go-etl/v2/insight/assistant"
 )
 
-var _ Dataor = (*DataContent)(nil)
+var _ assistant.Dataor = (*DataContent)(nil)
 
 type DataContent struct {
 	*Data

@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"unicode/utf8"
 
+	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/model"
-	"github.com/auho/go-etl/v2/insight/assistant/table"
+	buildtable2 "github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -17,11 +17,11 @@ type RuleResource struct {
 	Resource
 	KeywordIndex int      // keyword 在 sheet 中的列，从 0 开始
 	Titles       []string // save to db 的 columns
-	Rule         model.Ruler
+	Rule         assistant.Ruler
 }
 
-func (re *RuleResource) GetTable() table.Tabler {
-	return table.NewRuleTable(re.Rule)
+func (re *RuleResource) GetTable() buildtable2.Tabler {
+	return buildtable2.NewRuleTable(re.Rule)
 }
 
 func (re *RuleResource) GetTitles() []string {

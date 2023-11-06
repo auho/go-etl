@@ -3,17 +3,18 @@ package model
 import (
 	"fmt"
 
+	"github.com/auho/go-etl/v2/insight/assistant"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 type TagDataRules struct {
 	name  string
-	data  Dataor
-	rules []Ruler
+	data  assistant.Dataor
+	rules []assistant.Ruler
 	db    *simpleDb.SimpleDB
 }
 
-func NewTagDataSpreadRules(name string, data Dataor, rules []Ruler, db *simpleDb.SimpleDB) *TagDataRules {
+func NewTagDataSpreadRules(name string, data assistant.Dataor, rules []assistant.Ruler, db *simpleDb.SimpleDB) *TagDataRules {
 	t := &TagDataRules{}
 	t.name = name
 	t.data = data
@@ -23,11 +24,11 @@ func NewTagDataSpreadRules(name string, data Dataor, rules []Ruler, db *simpleDb
 	return t
 }
 
-func (t *TagDataRules) GetData() Dataor {
+func (t *TagDataRules) GetData() assistant.Dataor {
 	return t.data
 }
 
-func (t *TagDataRules) GetRules() []Ruler {
+func (t *TagDataRules) GetRules() []assistant.Ruler {
 	return t.rules
 }
 

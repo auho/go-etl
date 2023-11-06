@@ -3,11 +3,12 @@ package model
 import (
 	"fmt"
 
+	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Dataor = (*Data)(nil)
+var _ assistant.Dataor = (*Data)(nil)
 
 type Data struct {
 	name   string

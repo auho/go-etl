@@ -2,7 +2,7 @@ package importtodb
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/table"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
 )
 
 type resourcer interface {
@@ -11,7 +11,7 @@ type resourcer interface {
 	GetIsShowSql() bool
 	GetColumnDropDuplicates() []int
 
-	GetTable() table.Tabler
+	GetTable() buildtable.Tabler
 	GetTitles() []string
 	GetSheetData() (read.SheetDataor, error)
 }

@@ -1,4 +1,4 @@
-package table
+package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/model"
@@ -20,8 +20,8 @@ func NewTagDataRuleTable(tag *model.TagDataRule) *TagDataRuleTable {
 
 func (t *TagDataRuleTable) buildTag() {
 	t.initCommand(t.tag.TableName())
-	t.command.AddPkInt(t.tag.GetIdName())
+	t.Command.AddPkInt(t.tag.GetIdName())
 
-	NewDataTable(t.tag.GetData()).BuildDataForTag(t.command)
-	NewRuleTable(t.tag.GetRule()).BuildRuleForTag(t.command)
+	NewDataTable(t.tag.GetData()).BuildDataForTag(t.Command)
+	NewRuleTable(t.tag.GetRule()).BuildRuleForTag(t.Command)
 }

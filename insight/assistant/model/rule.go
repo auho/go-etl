@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/auho/go-etl/v2/insight/assistant"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Ruler = (*Rule)(nil)
+var _ assistant.Ruler = (*Rule)(nil)
 
 type Rule struct {
 	name          string

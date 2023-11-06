@@ -2,9 +2,11 @@ package model
 
 import (
 	"fmt"
+
+	"github.com/auho/go-etl/v2/insight/assistant"
 )
 
-var _ Ruler = (*Rule)(nil)
+var _ assistant.Ruler = (*Rule)(nil)
 
 type DataRule struct {
 	*Rule

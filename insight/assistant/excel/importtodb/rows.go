@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/table"
+	buildtable2 "github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -13,10 +13,10 @@ var _ resourcer = (*RowsResource)(nil)
 type RowsResource struct {
 	Resource
 	Titles    []string // save to db 的 columns
-	RowsTable *table.RowsTable
+	RowsTable *buildtable2.RowsTable
 }
 
-func (ri *RowsResource) GetTable() table.Tabler {
+func (ri *RowsResource) GetTable() buildtable2.Tabler {
 	return ri.RowsTable
 }
 

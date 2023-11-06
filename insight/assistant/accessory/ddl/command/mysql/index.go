@@ -37,3 +37,7 @@ func (i *Index) SqlForCreateTable() string {
 
 	return fmt.Sprintf("%s `%s` (%s)", i._type, i.name, strings.Join(ss, ","))
 }
+
+func (i *Index) SqlForAdd(tableName string) string {
+	return fmt.Sprintf("ALTER TABLE `%s` ADD %s", tableName, i.SqlForCreateTable())
+}

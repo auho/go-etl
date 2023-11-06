@@ -1,38 +1,38 @@
-package table
+package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/ddl/command/mysql"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Tabler = (*table)(nil)
 
 type Tabler interface {
-	GetCommand() *command
 	GetTableName() string
 	Sql() string
 	Build(db *simpleDb.SimpleDB) error
 }
 
 type table struct {
-	*command
+	*tablestructure.Command
 }
 
 func (t *table) initCommand(name string) {
-	t.command = &command{table: &mysql.Table{}}
-	t.command.table.SetName(name).SetEngineMyISAM()
+	t.Command = &tablestructure.Command{Table: &mysql.Table{}}
+	t.Command.Table.SetName(name).SetEngineMyISAM()
 }
 
-func (t *table) GetCommand() *command {
-	return t.command
+func (t *table) GetCommand() *tablestructure.Command {
+	return t.Command
 }
 
 func (t *table) GetTableName() string {
-	return t.command.TableName()
+	return t.Command.TableName()
 }
 
 func (t *table) Sql() string {
-	return t.command.Sql()
+	return t.Command.SqlForCreate()
 }
 
 func (t *table) Build(db *simpleDb.SimpleDB) error {

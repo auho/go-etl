@@ -1,4 +1,4 @@
-package table
+package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/model"
@@ -21,8 +21,8 @@ func NewDataContentSpiltWordsTable(d *model.DataContentSpiltWords) *DataContentS
 func (t *DataContentSpiltWordsTable) buildSpiltWords() {
 	t.initCommand(t.dataContentSpiltWords.TableName())
 
-	t.command.AddPkInt("id")
-	t.command.AddKeyBigInt(t.dataContentSpiltWords.GetData().GetIdName())
-	t.command.AddStringWithLength(t.dataContentSpiltWords.GetContentName(), t.dataContentSpiltWords.GetContentLength())
-	t.command.AddStringWithLength(t.dataContentSpiltWords.WordName(), 30)
+	t.Command.AddPkInt("id")
+	t.Command.AddKeyBigInt(t.dataContentSpiltWords.GetData().GetIdName())
+	t.Command.AddStringWithLength(t.dataContentSpiltWords.GetContentName(), t.dataContentSpiltWords.GetContentLength())
+	t.Command.AddStringWithLength(t.dataContentSpiltWords.WordName(), 30)
 }

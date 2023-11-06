@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/table"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
 	"github.com/auho/go-etl/v2/tool/slices"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
@@ -52,7 +52,7 @@ func (e *ImportToDb) Import() error {
 	return nil
 }
 
-func (e *ImportToDb) buildTable(table table.Tabler) error {
+func (e *ImportToDb) buildTable(table buildtable.Tabler) error {
 	if e.isShowSql {
 		fmt.Println(table.Sql())
 	}
@@ -79,7 +79,7 @@ func (e *ImportToDb) buildTable(table table.Tabler) error {
 	return nil
 }
 
-func (e *ImportToDb) importToTable(table table.Tabler, sheetData read.SheetDataor) error {
+func (e *ImportToDb) importToTable(table buildtable.Tabler, sheetData read.SheetDataor) error {
 	var err error
 
 	if len(e.columnDropDuplicates) > 0 {

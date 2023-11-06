@@ -1,16 +1,16 @@
-package model
+package assistant
 
 import (
-	simpleDb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-simple-db/v2"
 )
 
 type Rowsor interface {
-	GetDB() *simpleDb.SimpleDB
+	GetDB() *go_simple_db.SimpleDB
 	TableName() string
 }
 
 type Ruler interface {
-	GetDB() *simpleDb.SimpleDB
+	GetDB() *go_simple_db.SimpleDB
 	GetName() string
 	GetNameLength() int
 	GetIdName() string
@@ -24,7 +24,7 @@ type Ruler interface {
 }
 
 type Dataor interface {
-	GetDB() *simpleDb.SimpleDB
+	GetDB() *go_simple_db.SimpleDB
 	GetName() string
 	GetIdName() string
 	TableName() string

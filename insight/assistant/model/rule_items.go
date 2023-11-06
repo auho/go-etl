@@ -5,6 +5,7 @@ import (
 	"maps"
 	"sort"
 
+	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
 	"github.com/auho/go-etl/v2/job/means/tag"
@@ -17,13 +18,13 @@ var _ tag.Ruler = (*RuleItems)(nil)
 // fixed: [key] => [value]
 // keywordFormatFunc: [data keyword value] => [regexp keyword value]
 type RuleItems struct {
-	rule              Ruler
+	rule              assistant.Ruler
 	alias             map[string]string
 	fixed             map[string]string
 	keywordFormatFunc []func(string) string
 }
 
-func NewRuleItems(rule Ruler, alias, fixed map[string]string, keywordFormatFunc []func(string) string) *RuleItems {
+func NewRuleItems(rule assistant.Ruler, alias, fixed map[string]string, keywordFormatFunc []func(string) string) *RuleItems {
 	ri := &RuleItems{}
 	ri.rule = rule
 	ri.alias = alias

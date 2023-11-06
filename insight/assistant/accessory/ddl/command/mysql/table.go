@@ -17,12 +17,19 @@ type Table struct {
 	indexes     []*Index
 }
 
-func (t *Table) GetName() string {
-	return t.name
+func NewSimpleTable(name string) *Table {
+	t := &Table{}
+	t.setTable(name, engineMyISAM, "", "")
+
+	return t
 }
 
 func (t *Table) setTable(name, engine, charset, collate string) *Table {
 	return t.SetName(name).SetEngine(engine).SetCharset(charset, collate)
+}
+
+func (t *Table) GetName() string {
+	return t.name
 }
 
 func (t *Table) SetName(name string) *Table {
@@ -181,6 +188,19 @@ func (t *Table) AddField(field *Field) *Table {
 	t.fields = append(t.fields, field)
 
 	return t
+}
+
+func (t *Table) SqlForAlterAdd() []string {
+	var as []string
+	for _, field := range t.fields {
+		as = append(as, field.SqlForAdd(t.name))
+	}
+
+	for _, index := range t.indexes {
+		as = append(as, index.SqlForAdd(t.name))
+	}
+
+	return as
 }
 
 func (t *Table) SqlForCreate() string {

@@ -1,9 +1,10 @@
-package table
+package buildtable
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/model"
 )
 
@@ -103,8 +104,8 @@ func init() {
 	_dataRule1 = model.NewDataRule(_data, _rule1)
 	_tagRule = model.NewTagDataRule(_data, _rule, nil)
 	_tagRule1 = model.NewTagDataRule(_data, _rule1, nil)
-	_tagRules = model.NewTagDataSpreadRules("abc", _data, []model.Ruler{_rule, _rule1}, nil)
-	_tagRules1 = model.NewTagDataSpreadRules("abc", _data, []model.Ruler{_rule1, _rule}, nil)
+	_tagRules = model.NewTagDataSpreadRules("abc", _data, []assistant.Ruler{_rule, _rule1}, nil)
+	_tagRules1 = model.NewTagDataSpreadRules("abc", _data, []assistant.Ruler{_rule1, _rule}, nil)
 	_dcSegWords = model.NewDataContentSegWords(_data, "abc", 30)
 	_dcSpiltWords = model.NewDataContentSpiltWords(_data, "abc", 30)
 }
