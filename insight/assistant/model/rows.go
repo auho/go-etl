@@ -26,6 +26,10 @@ func (r *Rows) GetDB() *simpleDb.SimpleDB {
 	return r.db
 }
 
+func (r *Rows) GetName() string {
+	return r.tableName
+}
+
 func (r *Rows) GetIdName() string {
 	return r.idName
 }

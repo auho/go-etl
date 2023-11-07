@@ -33,12 +33,12 @@ func (it *ImportToDb) Import() error {
 	for _, resource := range it.resource {
 		err = it.importResource(resource)
 		if err != nil {
-			return fmt.Errorf("importResource error; %w", err)
+			return fmt.Errorf("resource[%s] error; %w", resource.GetName(), err)
 		}
 
 		err = resource.PostDo(resource)
 		if err != nil {
-			return fmt.Errorf("PostDo error; %w", err)
+			return fmt.Errorf("resource[%s] PostDo error; %w", resource.GetName(), err)
 		}
 	}
 

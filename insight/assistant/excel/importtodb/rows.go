@@ -12,13 +12,15 @@ var _ Resourcer = (*RowsResource)(nil)
 type RowsResource struct {
 	Resource
 	Titles
-	Rows       assistant.Rowsor
-	titlesKey  []string
-	titleIndex []int
+	Rows assistant.Rowsor
 }
 
 func (rs *RowsResource) Prepare() error {
 	return rs.Titles.prepare()
+}
+
+func (rs *RowsResource) GetName() string {
+	return rs.Rows.GetName()
 }
 
 func (rs *RowsResource) GetTable() buildtable.Tabler {

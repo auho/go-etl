@@ -10,6 +10,8 @@ import (
 
 var _ assistant.Ruler = (*Rule)(nil)
 
+const defaultStringLen = 30
+
 type Rule struct {
 	name          string
 	length        int
@@ -18,8 +20,12 @@ type Rule struct {
 	db            *simpleDb.SimpleDB
 }
 
-func NewRuleSimple(name string, labels map[string]int, db *simpleDb.SimpleDB) *Rule {
-	return NewRule(name, 30, 30, labels, db)
+func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
+	_labels := make(map[string]int, len(labels))
+	for _, label := range labels {
+		_labels[label] = defaultStringLen
+	}
+	return NewRule(name, defaultStringLen, defaultStringLen, _labels, db)
 }
 
 func NewRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) *Rule {
@@ -31,11 +37,11 @@ func NewRule(name string, length, keywordLength int, labels map[string]int, db *
 	r.db = db
 
 	if r.length <= 0 {
-		r.length = 30
+		r.length = defaultStringLen
 	}
 
 	if r.keywordLength <= 0 {
-		r.keywordLength = 30
+		r.keywordLength = defaultStringLen
 	}
 
 	return r

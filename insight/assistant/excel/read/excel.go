@@ -51,6 +51,10 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 	if len(config.ColsIndex) > 0 {
 		var newRows [][]string
 		for _, row := range rows {
+			if len(row) <= 0 {
+				continue
+			}
+
 			var newRow []string
 			for _, index := range config.ColsIndex {
 				newRow = append(newRow, row[index])

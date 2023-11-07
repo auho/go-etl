@@ -15,6 +15,7 @@ type Resourcer interface {
 	GetDB() *simpleDb.SimpleDB
 
 	Prepare() error
+	GetName() string
 	GetTable() buildtable.Tabler
 	GetTitlesKey() []string
 	GetTitlesIndex() []int
