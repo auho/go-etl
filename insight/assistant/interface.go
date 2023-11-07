@@ -5,13 +5,23 @@ import (
 	"github.com/auho/go-simple-db/v2"
 )
 
-type Rowsor interface {
+type Moder interface {
 	GetDB() *go_simple_db.SimpleDB
 	GetName() string
 	GetIdName() string
 	TableName() string
 	CommandExec(*tablestructure.Command)
 }
+
+type Rowsor interface {
+	Moder
+}
+
+type Dataor interface {
+	Moder
+}
+
+var _ Moder = Ruler(nil)
 
 type Ruler interface {
 	GetDB() *go_simple_db.SimpleDB
@@ -25,13 +35,5 @@ type Ruler interface {
 	KeywordName() string
 	KeywordLenName() string
 	KeywordNumName() string
-	CommandExec(*tablestructure.Command)
-}
-
-type Dataor interface {
-	GetDB() *go_simple_db.SimpleDB
-	GetName() string
-	GetIdName() string
-	TableName() string
 	CommandExec(*tablestructure.Command)
 }

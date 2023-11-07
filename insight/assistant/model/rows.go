@@ -13,15 +13,15 @@ type Rows struct {
 	model
 	tableName string
 	idName    string
-	db        *simpleDb.SimpleDB
 }
 
 func NewRows(tableName, idName string, db *simpleDb.SimpleDB) *Rows {
-	return &Rows{
-		tableName: tableName,
-		idName:    idName,
-		db:        db,
-	}
+	r := &Rows{}
+	r.tableName = tableName
+	r.idName = idName
+	r.db = db
+
+	return r
 }
 
 func (r *Rows) GetDB() *simpleDb.SimpleDB {

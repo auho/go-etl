@@ -19,7 +19,6 @@ type Rule struct {
 	length        int
 	keywordLength int
 	labels        map[string]int
-	db            *simpleDb.SimpleDB
 }
 
 func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
@@ -27,6 +26,7 @@ func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
 	for _, label := range labels {
 		_labels[label] = defaultStringLen
 	}
+
 	return NewRule(name, defaultStringLen, defaultStringLen, _labels, db)
 }
 

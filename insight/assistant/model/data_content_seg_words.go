@@ -8,7 +8,7 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Rowsor = (*DataContentSegWords)(nil)
+var _ assistant.Moder = (*DataContentSegWords)(nil)
 
 type DataContentSegWords struct {
 	model

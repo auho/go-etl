@@ -26,4 +26,6 @@ func (t *TagDataRulesTable) build() {
 	for _, rule := range t.tag.GetRules() {
 		NewRuleTable(rule).BuildForTag(t.Command)
 	}
+
+	t.execRowsCommand(t.tag)
 }
