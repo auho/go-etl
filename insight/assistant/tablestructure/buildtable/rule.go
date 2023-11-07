@@ -26,6 +26,7 @@ func (t *RuleTable) build() {
 	t.buildRule(t.Command)
 
 	t.Command.AddInt(t.rule.KeywordLenName())
+	t.execRowsCommand(t.rule)
 	t.Command.AddTimestamp("ctime", true, true)
 }
 

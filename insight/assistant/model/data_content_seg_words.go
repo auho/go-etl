@@ -2,47 +2,77 @@ package model
 
 import (
 	"fmt"
+
+	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
+var _ assistant.Rowsor = (*DataContentSegWords)(nil)
+
 type DataContentSegWords struct {
+	model
 	data          *Data
 	contentName   string
 	contentLength int
 }
 
-func NewDataContentSegWords(data *Data, contentName string, contentLength int) *DataContentSegWords {
-	dcsw := &DataContentSegWords{}
-	dcsw.data = data
-	dcsw.contentName = contentName
-	dcsw.contentLength = contentLength
+func NewDataContentSegWords(data *Data, contentName string, contentLength int, db *simpleDb.SimpleDB) *DataContentSegWords {
+	dc := &DataContentSegWords{}
+	dc.data = data
+	dc.contentName = contentName
+	dc.contentLength = contentLength
+	dc.db = db
 
-	return dcsw
+	return dc
 }
 
-func (dcsw *DataContentSegWords) GetData() *Data {
-	return dcsw.data
+func (dc *DataContentSegWords) GetDB() *simpleDb.SimpleDB {
+	return dc.db
 }
 
-func (dcsw *DataContentSegWords) GetContentName() string {
-	return dcsw.contentName
+func (dc *DataContentSegWords) GetName() string {
+	return fmt.Sprintf("%s_%s", dc.data.GetName(), dc.contentName)
 }
 
-func (dcsw *DataContentSegWords) GetContentLength() int {
-	return dcsw.contentLength
+func (dc *DataContentSegWords) GetIdName() string {
+	return "id"
 }
 
-func (dcsw *DataContentSegWords) TableName() string {
-	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dcsw.data.GetName(), dcsw.contentName, NameSegWords)
+func (dc *DataContentSegWords) CommandExec(command *tablestructure.Command) {
+	dc.execCommand(command)
 }
 
-func (dcsw *DataContentSegWords) WordName() string {
+func (dc *DataContentSegWords) GetData() *Data {
+	return dc.data
+}
+
+func (dc *DataContentSegWords) GetContentName() string {
+	return dc.contentName
+}
+
+func (dc *DataContentSegWords) GetContentLength() int {
+	return dc.contentLength
+}
+
+func (dc *DataContentSegWords) TableName() string {
+	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSegWords)
+}
+
+func (dc *DataContentSegWords) WordName() string {
 	return NameWord
 }
 
-func (dcsw *DataContentSegWords) FlagName() string {
+func (dc *DataContentSegWords) FlagName() string {
 	return NameFlag
 }
 
-func (dcsw *DataContentSegWords) NumName() string {
+func (dc *DataContentSegWords) NumName() string {
 	return NameNum
+}
+
+func (dc *DataContentSegWords) WithCommand(fn func(command *tablestructure.Command)) *DataContentSegWords {
+	dc.withCommand(fn)
+
+	return dc
 }

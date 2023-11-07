@@ -21,10 +21,11 @@ func NewDataContentSegWordsTable(d *model.DataContentSegWords) *DataContentSegWo
 func (t *DataContentSegWordsTable) build() {
 	t.initCommand(t.dataContentSegWords.TableName())
 
-	t.Command.AddPkInt("id")
+	t.Command.AddPkInt(t.dataContentSegWords.GetIdName())
 	t.Command.AddKeyBigInt(t.dataContentSegWords.GetData().GetIdName())
 	t.Command.AddStringWithLength(t.dataContentSegWords.GetContentName(), t.dataContentSegWords.GetContentLength())
 	t.Command.AddStringWithLength(t.dataContentSegWords.WordName(), 30)
 	t.Command.AddStringWithLength(t.dataContentSegWords.FlagName(), 5)
 	t.Command.AddInt(t.dataContentSegWords.NumName())
+	t.execRowsCommand(t.dataContentSegWords)
 }

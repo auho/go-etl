@@ -21,8 +21,9 @@ func NewDataContentSpiltWordsTable(d *model.DataContentSpiltWords) *DataContentS
 func (t *DataContentSpiltWordsTable) build() {
 	t.initCommand(t.dataContentSpiltWords.TableName())
 
-	t.Command.AddPkInt("id")
+	t.Command.AddPkInt(t.dataContentSpiltWords.GetIdName())
 	t.Command.AddKeyBigInt(t.dataContentSpiltWords.GetData().GetIdName())
 	t.Command.AddStringWithLength(t.dataContentSpiltWords.GetContentName(), t.dataContentSpiltWords.GetContentLength())
 	t.Command.AddStringWithLength(t.dataContentSpiltWords.WordName(), 30)
+	t.execRowsCommand(t.dataContentSpiltWords)
 }

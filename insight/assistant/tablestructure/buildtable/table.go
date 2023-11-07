@@ -1,6 +1,7 @@
 package buildtable
 
 import (
+	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/ddl/command/mysql"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
@@ -24,6 +25,10 @@ func (t *table) initCommand(name string) {
 	t.Command.Table.SetName(name).SetEngineMyISAM()
 }
 
+func (t *table) ExecCommand(fn func(command *tablestructure.Command)) {
+	fn(t.Command)
+}
+
 func (t *table) GetCommand() *tablestructure.Command {
 	return t.Command
 }
@@ -40,4 +45,8 @@ func (t *table) Build(db *simpleDb.SimpleDB) error {
 	sql := t.Sql()
 
 	return db.Exec(sql).Error
+}
+
+func (t *table) execRowsCommand(r assistant.Rowsor) {
+	r.CommandExec(t.Command)
 }

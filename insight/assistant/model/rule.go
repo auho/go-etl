@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -13,6 +14,7 @@ var _ assistant.Ruler = (*Rule)(nil)
 const defaultStringLen = 30
 
 type Rule struct {
+	model
 	name          string
 	length        int
 	keywordLength int
@@ -98,4 +100,14 @@ func (r *Rule) KeywordLenName() string {
 
 func (r *Rule) KeywordNumName() string {
 	return fmt.Sprintf("%s_%s", r.name, NameKeywordNum)
+}
+
+func (r *Rule) CommandExec(command *tablestructure.Command) {
+	r.execCommand(command)
+}
+
+func (r *Rule) WithCommand(fn func(command *tablestructure.Command)) *Rule {
+	r.withCommand(fn)
+
+	return r
 }

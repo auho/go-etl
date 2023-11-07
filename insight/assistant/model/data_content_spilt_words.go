@@ -2,39 +2,69 @@ package model
 
 import (
 	"fmt"
+
+	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
+var _ assistant.Rowsor = (*DataContentSpiltWords)(nil)
+
 type DataContentSpiltWords struct {
+	model
 	data          *Data
 	contentName   string
 	contentLength int
 }
 
-func NewDataContentSpiltWords(data *Data, contentName string, contentLength int) *DataContentSpiltWords {
-	dcsw := &DataContentSpiltWords{}
-	dcsw.data = data
-	dcsw.contentName = contentName
-	dcsw.contentLength = contentLength
+func NewDataContentSpiltWords(data *Data, contentName string, contentLength int, db *simpleDb.SimpleDB) *DataContentSpiltWords {
+	dc := &DataContentSpiltWords{}
+	dc.data = data
+	dc.contentName = contentName
+	dc.contentLength = contentLength
+	dc.db = db
 
-	return dcsw
+	return dc
 }
 
-func (dcsw *DataContentSpiltWords) GetData() *Data {
-	return dcsw.data
+func (dc *DataContentSpiltWords) GetDB() *simpleDb.SimpleDB {
+	return dc.db
 }
 
-func (dcsw *DataContentSpiltWords) GetContentName() string {
-	return dcsw.contentName
+func (dc *DataContentSpiltWords) GetName() string {
+	return fmt.Sprintf("%s_%s", dc.data.GetName(), dc.contentName)
 }
 
-func (dcsw *DataContentSpiltWords) GetContentLength() int {
-	return dcsw.contentLength
+func (dc *DataContentSpiltWords) GetIdName() string {
+	return "id"
 }
 
-func (dcsw *DataContentSpiltWords) TableName() string {
-	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dcsw.data.GetName(), dcsw.contentName, NameSpiltWords)
+func (dc *DataContentSpiltWords) CommandExec(command *tablestructure.Command) {
+	dc.execCommand(command)
 }
 
-func (dcsw *DataContentSpiltWords) WordName() string {
+func (dc *DataContentSpiltWords) GetData() *Data {
+	return dc.data
+}
+
+func (dc *DataContentSpiltWords) GetContentName() string {
+	return dc.contentName
+}
+
+func (dc *DataContentSpiltWords) GetContentLength() int {
+	return dc.contentLength
+}
+
+func (dc *DataContentSpiltWords) TableName() string {
+	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSpiltWords)
+}
+
+func (dc *DataContentSpiltWords) WordName() string {
 	return NameWord
+}
+
+func (dc *DataContentSpiltWords) WithCommand(fn func(command *tablestructure.Command)) *DataContentSpiltWords {
+	dc.withCommand(fn)
+
+	return dc
 }

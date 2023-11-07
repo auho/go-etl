@@ -1,6 +1,7 @@
 package assistant
 
 import (
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	"github.com/auho/go-simple-db/v2"
 )
 
@@ -9,6 +10,7 @@ type Rowsor interface {
 	GetName() string
 	GetIdName() string
 	TableName() string
+	CommandExec(*tablestructure.Command)
 }
 
 type Ruler interface {
@@ -23,6 +25,7 @@ type Ruler interface {
 	KeywordName() string
 	KeywordLenName() string
 	KeywordNumName() string
+	CommandExec(*tablestructure.Command)
 }
 
 type Dataor interface {
@@ -30,4 +33,5 @@ type Dataor interface {
 	GetName() string
 	GetIdName() string
 	TableName() string
+	CommandExec(*tablestructure.Command)
 }

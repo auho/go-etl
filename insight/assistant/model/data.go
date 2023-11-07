@@ -5,15 +5,16 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Dataor = (*Data)(nil)
 
 type Data struct {
+	model
 	name   string
 	idName string
-	db     *simpleDb.SimpleDB
 }
 
 func NewData(name string, idName string, db *simpleDb.SimpleDB) *Data {
@@ -39,6 +40,16 @@ func (d *Data) GetIdName() string {
 
 func (d *Data) TableName() string {
 	return fmt.Sprintf("%s_%s", NameData, d.name)
+}
+
+func (d *Data) CommandExec(command *tablestructure.Command) {
+	d.execCommand(command)
+}
+
+func (d *Data) WithCommand(fn func(command *tablestructure.Command)) *Data {
+	d.withCommand(fn)
+
+	return d
 }
 
 func (d *Data) DmlTable() *dml.Table {

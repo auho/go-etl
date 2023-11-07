@@ -22,14 +22,10 @@ func NewDataTable(data assistant.Dataor) *DataTable {
 func (t *DataTable) build() {
 	t.initCommand(t.data.TableName())
 	t.AddPkBigInt(t.data.GetIdName())
+
+	t.execRowsCommand(t.data)
 }
 
 func (t *DataTable) BuildForTag(command *tablestructure.Command) {
 	command.AddKeyBigInt(t.data.GetIdName())
-}
-
-func (t *DataTable) ExecCommand(fn func(command *tablestructure.Command)) *DataTable {
-	fn(t.Command)
-
-	return t
 }
