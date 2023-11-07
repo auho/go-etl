@@ -39,10 +39,6 @@ func (dc *DataContentSpiltWords) GetIdName() string {
 	return "id"
 }
 
-func (dc *DataContentSpiltWords) CommandExec(command *tablestructure.Command) {
-	dc.execCommand(command)
-}
-
 func (dc *DataContentSpiltWords) GetData() *Data {
 	return dc.data
 }

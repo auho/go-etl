@@ -10,6 +10,7 @@ import (
 
 type Table struct {
 	*tablestructure.Command
+	commandFun func(*tablestructure.Command)
 }
 
 func NewTable(tableName string) *Table {
@@ -25,11 +26,17 @@ func (t *Table) GetTableName() string {
 }
 
 func (t *Table) Sql() []string {
+	t.execCommand()
 	return t.Command.SqlForAlterAdd()
 }
 
-func (t *Table) Exec(fn func(command *tablestructure.Command)) *Table {
-	fn(t.Command)
+func (t *Table) execCommand() {
+	if t.commandFun != nil {
+		t.commandFun(t.Command)
+	}
+}
+func (t *Table) WithCommand(fn func(command *tablestructure.Command)) *Table {
+	t.commandFun = fn
 
 	return t
 }

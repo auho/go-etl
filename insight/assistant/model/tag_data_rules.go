@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -37,10 +36,6 @@ func (t *TagDataRules) GetRules() []assistant.Ruler {
 
 func (t *TagDataRules) GetName() string {
 	return fmt.Sprintf("%s_%s", t.data.GetName(), t.name)
-}
-
-func (t *TagDataRules) CommandExec(command *tablestructure.Command) {
-	t.execCommand(command)
 }
 
 func (t *TagDataRules) GetDB() *simpleDb.SimpleDB {

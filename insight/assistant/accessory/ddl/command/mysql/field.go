@@ -140,7 +140,12 @@ func (f *Field) SqlForCreateTable() string {
 }
 
 func (f *Field) SqlForAdd(tableName string) string {
-	return fmt.Sprintf("ALTER TABLE `%s` ADD `%s` AFTER `abc`", tableName, f.statement())
+	_after := ""
+	if f.after != "" {
+		_after = fmt.Sprintf(" AFTER `%s`", f.after)
+	}
+
+	return fmt.Sprintf("ALTER TABLE `%s` ADD %s%s", tableName, f.statement(), _after)
 }
 
 func (f *Field) SqlForModify() string {

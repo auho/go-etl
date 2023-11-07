@@ -26,7 +26,10 @@ func (t *RuleTable) build() {
 	t.buildRule(t.Command)
 
 	t.Command.AddInt(t.rule.KeywordLenName())
+
+	t.execCommand()
 	t.execRowsCommand(t.rule)
+
 	t.Command.AddTimestamp("ctime", true, true)
 }
 
@@ -44,4 +47,10 @@ func (t *RuleTable) buildRule(command *tablestructure.Command) {
 func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
 	t.buildRule(command)
 	command.AddInt(t.rule.KeywordNumName())
+}
+
+func (t *RuleTable) WithCommand(fn func(command *tablestructure.Command)) *RuleTable {
+	t.commandFun = fn
+
+	return t
 }

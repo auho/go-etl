@@ -18,15 +18,12 @@ type Tabler interface {
 
 type table struct {
 	*tablestructure.Command
+	commandFun func(*tablestructure.Command)
 }
 
 func (t *table) initCommand(name string) {
 	t.Command = &tablestructure.Command{Table: &mysql.Table{}}
 	t.Command.Table.SetName(name).SetEngineMyISAM()
-}
-
-func (t *table) ExecCommand(fn func(command *tablestructure.Command)) {
-	fn(t.Command)
 }
 
 func (t *table) GetCommand() *tablestructure.Command {
@@ -47,6 +44,12 @@ func (t *table) Build(db *simpleDb.SimpleDB) error {
 	return db.Exec(sql).Error
 }
 
+func (t *table) execCommand() {
+	if t.commandFun != nil {
+		t.commandFun(t.Command)
+	}
+}
+
 func (t *table) execRowsCommand(r assistant.Rowsor) {
-	r.CommandExec(t.Command)
+	r.ExecCommand(t.Command)
 }

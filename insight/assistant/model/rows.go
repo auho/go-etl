@@ -40,10 +40,6 @@ func (r *Rows) TableName() string {
 	return r.tableName
 }
 
-func (r *Rows) CommandExec(command *tablestructure.Command) {
-	r.execCommand(command)
-}
-
 func (r *Rows) WithCommand(fn func(command *tablestructure.Command)) *Rows {
 	r.withCommand(fn)
 

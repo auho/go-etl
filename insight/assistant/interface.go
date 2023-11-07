@@ -10,7 +10,7 @@ type Moder interface {
 	GetName() string
 	GetIdName() string
 	TableName() string
-	CommandExec(*tablestructure.Command)
+	ExecCommand(*tablestructure.Command)
 }
 
 type Rowsor interface {
@@ -35,5 +35,5 @@ type Ruler interface {
 	KeywordName() string
 	KeywordLenName() string
 	KeywordNumName() string
-	CommandExec(*tablestructure.Command)
+	ExecCommand(*tablestructure.Command)
 }

@@ -39,10 +39,6 @@ func (dc *DataContentSegWords) GetIdName() string {
 	return "id"
 }
 
-func (dc *DataContentSegWords) CommandExec(command *tablestructure.Command) {
-	dc.execCommand(command)
-}
-
 func (dc *DataContentSegWords) GetData() *Data {
 	return dc.data
 }

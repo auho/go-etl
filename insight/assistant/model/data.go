@@ -42,10 +42,6 @@ func (d *Data) TableName() string {
 	return fmt.Sprintf("%s_%s", NameData, d.name)
 }
 
-func (d *Data) CommandExec(command *tablestructure.Command) {
-	d.execCommand(command)
-}
-
 func (d *Data) WithCommand(fn func(command *tablestructure.Command)) *Data {
 	d.withCommand(fn)
 
