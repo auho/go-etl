@@ -10,10 +10,12 @@ type DataTable struct {
 	data assistant.Dataor
 }
 
-func NewDataTable(data assistant.Dataor) *DataTable {
+func NewDataTable(data assistant.Dataor, opts ...TableOption) *DataTable {
 	t := &DataTable{}
 	t.data = data
+	t.db = t.data.GetDB()
 
+	t.options(opts)
 	t.build()
 
 	return t
@@ -29,10 +31,4 @@ func (t *DataTable) build() {
 
 func (t *DataTable) BuildForTag(command *tablestructure.Command) {
 	command.AddKeyBigInt(t.data.GetIdName())
-}
-
-func (t *DataTable) WithCommand(fn func(command *tablestructure.Command)) *DataTable {
-	t.commandFun = fn
-
-	return t
 }

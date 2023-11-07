@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"testing"
 
-	action2 "github.com/auho/go-etl/v2/job/action"
+	"github.com/auho/go-etl/v2/job/action"
 	"github.com/auho/go-etl/v2/job/means/tag"
-	mode2 "github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/job/mode"
 )
 
 func Test_Update(t *testing.T) {
-	m := mode2.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
-	ua := action2.NewUpdate(_source, []mode2.UpdateModer{m})
+	m := mode.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
+	ua := action.NewUpdate(_source, []mode.UpdateModer{m})
 
-	RunTask(_source, []action2.Actor{ua})
-	UpdateFlow(_source, []mode2.UpdateModer{m})
+	RunTask(_source, []action.Actor{ua})
+	UpdateTask(_source, []mode.UpdateModer{m})
 
 	var count int64
 	err := _db.Table(_dataTable).Where(fmt.Sprintf("%s != ?", "a"), "").Count(&count).Error
@@ -29,8 +29,8 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_UpdateAndTransfer(t *testing.T) {
-	m := mode2.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
-	UpdateAndTransferFlow(_source, _targetUpdateTransfer, []mode2.UpdateModer{m})
+	m := mode.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
+	UpdateAndTransferTask(_source, _targetUpdateTransfer, []mode.UpdateModer{m})
 
 	dataCount := getAmount(_dataTable, t)
 	transferCount := getAmount(_updateAndTransferTable, t)
@@ -41,8 +41,12 @@ func Test_UpdateAndTransfer(t *testing.T) {
 }
 
 func Test_Insert(t *testing.T) {
-	m := mode2.NewInsert([]string{_keyName}, tag.NewKey(_rule))
-	ia := action2.NewInsert(_targetTagA, m, []string{_source.GetIdName()})
+	insertConfig := action.WithInsertConfig(action.InsertConfig{
+		ExtraKeys: []string{_source.GetIdName()},
+	})
+
+	m := mode.NewInsert([]string{_keyName}, tag.NewKey(_rule))
+	ia := action.NewInsert(_targetTagA, m, insertConfig)
 
 	_ = _db.Drop(_targetTagA1.TableName())
 
@@ -57,13 +61,13 @@ func Test_Insert(t *testing.T) {
 		t.Error(err)
 	}
 
-	ia1 := action2.NewInsert(_targetTagA1, m, []string{_source.GetIdName()})
-	ia2 := action2.NewInsert(_targetTagA2, m, []string{_source.GetIdName()})
+	ia1 := action.NewInsert(_targetTagA1, m, insertConfig)
+	ia2 := action.NewInsert(_targetTagA2, m, insertConfig)
 
-	RunTask(_source, []action2.Actor{ia, ia1, ia2})
-	InsertFlow(_source, _targetTagA, m, []string{_source.GetIdName()})
-	InsertFlow(_source, _targetTagA1, m, []string{_source.GetIdName()})
-	InsertFlow(_source, _targetTagA2, m, []string{_source.GetIdName()})
+	RunTask(_source, []action.Actor{ia, ia1, ia2})
+	InsertTask(_source, _targetTagA, m, insertConfig)
+	InsertTask(_source, _targetTagA1, m, insertConfig)
+	InsertTask(_source, _targetTagA2, m, insertConfig)
 
 	dataCount := getAmount(_source.TableName(), t)
 	tagCount := getAmount(_targetTagA.TableName(), t)
@@ -97,8 +101,8 @@ func Test_Transfer(t *testing.T) {
 		"a_keyword_num": "a_keyword_num",
 	}
 
-	m := mode2.NewTransferMode(nil, alias, map[string]any{"xyz": "xyz1"})
-	TransferFlow(_source, _targetTransfer, m)
+	m := mode.NewTransferMode(nil, alias, map[string]any{"xyz": "xyz1"})
+	TransferTask(_source, _targetTransfer, m)
 	dataCount := getAmount(_source.TableName(), t)
 	tDataCount := getAmount(_targetTransfer.TableName(), t)
 	xDataCount := getFieldAmount(_targetTransfer.TableName(), "xyz", "xyz1", t)
@@ -108,9 +112,9 @@ func Test_Transfer(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	m := mode2.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
+	m := mode.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
 
-	CleanTask(_source, _targetClean, []mode2.UpdateModer{m})
+	CleanTask(_source, _targetClean, []mode.UpdateModer{m})
 	dataCount := getAmount(_source.TableName(), t)
 	cDataCount := getAmount(_targetClean.TableName(), t)
 	if cDataCount == dataCount || dataCount/cDataCount < 3 {

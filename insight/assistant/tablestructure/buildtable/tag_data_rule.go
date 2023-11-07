@@ -2,7 +2,6 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/model"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
 type TagDataRuleTable struct {
@@ -10,10 +9,12 @@ type TagDataRuleTable struct {
 	tag *model.TagDataRule
 }
 
-func NewTagDataRuleTable(tag *model.TagDataRule) *TagDataRuleTable {
+func NewTagDataRuleTable(tag *model.TagDataRule, opts ...TableOption) *TagDataRuleTable {
 	t := &TagDataRuleTable{}
 	t.tag = tag
+	t.db = tag.GetDB()
 
+	t.options(opts)
 	t.build()
 
 	return t
@@ -28,10 +29,4 @@ func (t *TagDataRuleTable) build() {
 
 	t.execCommand()
 	t.execRowsCommand(t.tag)
-}
-
-func (t *TagDataRuleTable) WithCommand(fn func(command *tablestructure.Command)) *TagDataRuleTable {
-	t.commandFun = fn
-
-	return t
 }

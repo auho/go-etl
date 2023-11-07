@@ -10,10 +10,12 @@ type RuleTable struct {
 	rule assistant.Ruler
 }
 
-func NewRuleTable(rule assistant.Ruler) *RuleTable {
+func NewRuleTable(rule assistant.Ruler, opts ...TableOption) *RuleTable {
 	t := &RuleTable{}
 	t.rule = rule
+	t.db = rule.GetDB()
 
+	t.options(opts)
 	t.build()
 
 	return t
@@ -47,10 +49,4 @@ func (t *RuleTable) buildRule(command *tablestructure.Command) {
 func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
 	t.buildRule(command)
 	command.AddInt(t.rule.KeywordNumName())
-}
-
-func (t *RuleTable) WithCommand(fn func(command *tablestructure.Command)) *RuleTable {
-	t.commandFun = fn
-
-	return t
 }

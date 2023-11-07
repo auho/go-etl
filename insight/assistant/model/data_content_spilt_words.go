@@ -12,16 +12,14 @@ var _ assistant.Moder = (*DataContentSpiltWords)(nil)
 
 type DataContentSpiltWords struct {
 	model
-	data          *Data
-	contentName   string
-	contentLength int
+	data        *Data
+	contentName string
 }
 
-func NewDataContentSpiltWords(data *Data, contentName string, contentLength int, db *simpleDb.SimpleDB) *DataContentSpiltWords {
+func NewDataContentSpiltWords(data *Data, contentName string, db *simpleDb.SimpleDB) *DataContentSpiltWords {
 	dc := &DataContentSpiltWords{}
 	dc.data = data
 	dc.contentName = contentName
-	dc.contentLength = contentLength
 	dc.db = db
 
 	return dc
@@ -45,10 +43,6 @@ func (dc *DataContentSpiltWords) GetData() *Data {
 
 func (dc *DataContentSpiltWords) GetContentName() string {
 	return dc.contentName
-}
-
-func (dc *DataContentSpiltWords) GetContentLength() int {
-	return dc.contentLength
 }
 
 func (dc *DataContentSpiltWords) TableName() string {

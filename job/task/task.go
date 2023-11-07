@@ -1,8 +1,6 @@
 package task
 
 import (
-	"runtime"
-
 	"github.com/auho/go-etl/v2/job"
 	"github.com/auho/go-etl/v2/job/action"
 	"github.com/auho/go-etl/v2/tool/slices"
@@ -12,7 +10,14 @@ import (
 	"github.com/auho/go-toolkit/flow/storage/database/source"
 )
 
-func RunTask(aSource job.Source, actions []action.Actor) {
+func RunTask(aSource job.Source, actions []action.Actor, configOpts ...func(config *Config)) {
+	config := &Config{}
+	for _, opt := range configOpts {
+		opt(config)
+	}
+
+	config.Check()
+
 	fields := []string{aSource.GetIdName()}
 	for _, a := range actions {
 		fields = append(fields, a.GetFields()...)
@@ -22,10 +27,11 @@ func RunTask(aSource job.Source, actions []action.Actor) {
 
 	dataSource, err := source.NewSectionSliceMap(&source.QueryConfig{
 		Config: source.Config{
-			Concurrency: runtime.NumCPU(),
-			PageSize:    2000,
+			Concurrency: config.sourceConfig.Concurrency,
+			PageSize:    config.sourceConfig.PageSize,
 			TableName:   aSource.TableName(),
 			IdName:      aSource.GetIdName(),
+			Maximum:     config.sourceConfig.Maximum,
 		},
 		Fields: fields,
 	}, func() (*database.DB, error) {

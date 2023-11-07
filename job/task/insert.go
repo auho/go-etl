@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
-func InsertFlow(source job.Source, target job.Target, moder mode.InsertModer, extraKeys []string) {
-	a := action.NewInsert(target, moder, extraKeys)
+func InsertTask(source job.Source, target job.Target, moder mode.InsertModer, opts ...func(*action.Insert)) {
+	a := action.NewInsert(target, moder, opts...)
 	RunTask(source, []action.Actor{a})
 }

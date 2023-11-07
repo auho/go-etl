@@ -9,20 +9,37 @@ import (
 
 var _ Actor = (*Insert)(nil)
 
+type InsertConfig struct {
+	NotTruncate bool
+	ExtraKeys   []string // 附加写入到 target 的 source 字段
+}
+
 type Insert struct {
 	action
-	target    job.Target
-	mode      mode.InsertModer
-	extraKeys []string
+	target job.Target
+	mode   mode.InsertModer
+
+	truncate  bool
+	extraKeys []string // 附加写入到 target 的 source 字段
+}
+
+func WithInsertConfig(ic InsertConfig) func(*Insert) {
+	return func(i *Insert) {
+		i.truncate = !ic.NotTruncate
+		i.extraKeys = ic.ExtraKeys
+	}
 }
 
 // NewInsert
 // insert
-func NewInsert(target job.Target, moder mode.InsertModer, extraKeys []string) *Insert {
+func NewInsert(target job.Target, moder mode.InsertModer, opts ...func(*Insert)) *Insert {
 	i := &Insert{}
 	i.mode = moder
 	i.target = target
-	i.extraKeys = extraKeys
+
+	for _, opt := range opts {
+		opt(i)
+	}
 
 	i.Init()
 
@@ -42,7 +59,14 @@ func (i *Insert) Title() string {
 func (i *Insert) Prepare() error {
 	err := i.mode.Prepare()
 	if err != nil {
-		return fmt.Errorf("insert action prepare error; %w", err)
+		return fmt.Errorf("insert action mode prepare error; %w", err)
+	}
+
+	if i.truncate {
+		err = i.target.GetDB().Truncate(i.target.TableName())
+		if err != nil {
+			return fmt.Errorf("insert action target truncate error; %w", err)
+		}
 	}
 
 	return nil

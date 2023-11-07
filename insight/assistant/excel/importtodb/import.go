@@ -92,7 +92,7 @@ func (it *ImportToDb) buildResourceTable(resource Resourcer, table buildtable.Ta
 	}
 
 	if isRecreateTable {
-		err = table.Build(resource.GetDB())
+		err = table.Build()
 		if err != nil {
 			return fmt.Errorf("build error; %w", err)
 		}
