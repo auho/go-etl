@@ -162,28 +162,32 @@ func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
 
 	contents := ic.GetKeysContent(ic.keys, item)
 
-	var _allRes [][]map[string]any
+	var _allLabels [][]map[string]any
 	for _, m := range ic.meanses {
-		res := m.Insert(contents)
-		if res == nil {
+		mLabels := m.Insert(contents)
+		if mLabels == nil {
 			continue
 		}
 
-		_allRes = append(_allRes, res)
+		_allLabels = append(_allLabels, mLabels)
 	}
 
 	var isStart = true
 	var newItems []map[string]any
 	var _tItems []map[string]any
-	for _, _res := range _allRes {
+	for _, _mLabels := range _allLabels {
 		newItems = nil
 
 		if isStart {
 			isStart = false
-			newItems = append(newItems, _res...)
+			for _, _labels := range _mLabels {
+				_nLabels := maps.Clone(ic.defaultValue)
+				maps.Copy(_nLabels, _labels)
+				newItems = append(newItems, _nLabels)
+			}
 		} else {
 			for _, _tItem := range _tItems {
-				for _, _resItem := range _res {
+				for _, _resItem := range _mLabels {
 					_newTItem := make(map[string]any)
 					maps.Copy(_newTItem, _tItem)
 					maps.Copy(_newTItem, _resItem)
@@ -218,17 +222,27 @@ func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
 
 	contents := is.GetKeysContent(is.keys, item)
 
-	newItem := make(map[string]any, len(is.insertKeys))
+	_has := false
+	newItem := make(map[string]any, len(is.defaultValue))
 	for _, m := range is.meanses {
 		res := m.Insert(contents)
 		if res == nil {
 			continue
 		}
 
+		_has = true
+
 		maps.Copy(newItem, res[0])
 	}
 
-	return []map[string]any{newItem}
+	if _has {
+		_dv := maps.Clone(is.defaultValue)
+		maps.Copy(_dv, newItem)
+
+		return []map[string]any{_dv}
+	} else {
+		return nil
+	}
 }
 
 // insertHorizontalMode
@@ -237,7 +251,8 @@ type insertHorizontalMode struct {
 	Mode
 	meanses []means.InsertMeans
 
-	insertKeys []string
+	insertKeys   []string
+	defaultValue map[string]any
 }
 
 func newInsertHorizontal(keys []string, meanses ...means.InsertMeans) insertHorizontalMode {
@@ -256,8 +271,12 @@ func (ih *insertHorizontalMode) Prepare() error {
 		}
 	}
 
+	ih.defaultValue = make(map[string]any, len(ih.meanses))
+
 	for _, m := range ih.meanses {
 		ih.insertKeys = append(ih.insertKeys, m.GetKeys()...)
+
+		maps.Copy(ih.defaultValue, m.DefaultValues())
 	}
 
 	return nil

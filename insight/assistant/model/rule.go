@@ -21,8 +21,9 @@ type Rule struct {
 	keywordLength int
 	labels        map[string]int
 
-	nameAlias   string         // alias name
-	labelsAlias map[string]int // alias labels
+	aliasName   string            // alias name
+	aliasLabels map[string]int    // alias labels
+	labelsAlias map[string]string //map[label]label alias
 }
 
 func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
@@ -42,8 +43,8 @@ func NewRule(name string, length, keywordLength int, labels map[string]int, db *
 	r.labels = labels
 	r.db = db
 
-	r.nameAlias = r.name
-	r.labelsAlias = maps.Clone(r.labels)
+	r.aliasName = r.name
+	r.aliasLabels = maps.Clone(r.labels)
 
 	if r.length <= 0 {
 		r.length = defaultStringLen
@@ -61,7 +62,7 @@ func (r *Rule) GetDB() *simpleDb.SimpleDB {
 }
 
 func (r *Rule) GetName() string {
-	return r.nameAlias
+	return r.aliasName
 }
 
 func (r *Rule) GetNameLength() int {
@@ -77,7 +78,7 @@ func (r *Rule) GetKeywordLength() int {
 }
 
 func (r *Rule) GetLabels() map[string]int {
-	return r.labelsAlias
+	return r.aliasLabels
 }
 
 func (r *Rule) LabelsName() []string {
@@ -93,20 +94,24 @@ func (r *Rule) LabelsName() []string {
 	return labels
 }
 
+func (r *Rule) LabelsAlias() map[string]string {
+	return r.labelsAlias
+}
+
 func (r *Rule) TableName() string {
 	return fmt.Sprintf("%s_%s", NameRule, r.name)
 }
 
 func (r *Rule) KeywordName() string {
-	return fmt.Sprintf("%s_%s", r.nameAlias, NameKeyword)
+	return fmt.Sprintf("%s_%s", r.aliasName, NameKeyword)
 }
 
 func (r *Rule) KeywordLenName() string {
-	return fmt.Sprintf("%s_%s", r.nameAlias, NameKeywordLen)
+	return fmt.Sprintf("%s_%s", r.aliasName, NameKeywordLen)
 }
 
 func (r *Rule) KeywordNumName() string {
-	return fmt.Sprintf("%s_%s", r.nameAlias, NameKeywordNum)
+	return fmt.Sprintf("%s_%s", r.aliasName, NameKeywordNum)
 }
 
 func (r *Rule) WithCommand(fn func(command *tablestructure.Command)) *Rule {
@@ -123,21 +128,25 @@ func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 	_rule := NewRule(r.name, r.length, r.keywordLength, maps.Clone(r.labels), r.db)
 
 	if v, ok := alias[_rule.name]; ok {
-		_rule.nameAlias = v
+		_rule.aliasName = v
 	} else {
-		_rule.nameAlias = _rule.name
+		_rule.aliasName = _rule.name
 	}
 
-	_labels := make(map[string]int, len(_rule.labels))
+	_aliasLabels := make(map[string]int, len(_rule.labels))
+	_labelsAlias := make(map[string]string, len(_rule.labels))
 	for label, length := range _rule.labels {
 		if v, ok := alias[label]; ok {
-			_labels[v] = length
+			_labelsAlias[label] = v
+			_aliasLabels[v] = length
 		} else {
-			_labels[label] = length
+			_labelsAlias[label] = label
+			_aliasLabels[label] = length
 		}
 	}
 
-	_rule.labelsAlias = _labels
+	_rule.aliasLabels = _aliasLabels
+	_rule.labelsAlias = _labelsAlias
 
 	return _rule
 }

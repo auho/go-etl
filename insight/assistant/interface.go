@@ -31,6 +31,7 @@ type Ruler interface {
 	GetLabels() map[string]int
 	GetKeywordLength() int
 	LabelsName() []string
+	LabelsAlias() map[string]string
 	TableName() string
 	KeywordName() string
 	KeywordLenName() string

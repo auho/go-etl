@@ -16,7 +16,8 @@ type TagMeans struct {
 	matcher *Matcher
 	fn      func(*Matcher, []string) []*Result
 
-	keys []string
+	keys          []string
+	defaultValues map[string]any
 }
 
 func NewTagMeans(rule Ruler, fn func(*Matcher, []string) []*Result) *TagMeans {
@@ -40,10 +41,25 @@ func (t *TagMeans) Prepare() error {
 
 	t.matcher.prepare(t.rule.KeywordNameAlias(), items)
 
-	t.keys = []string{t.rule.KeywordNameAlias()}
-	t.keys = append(t.keys, t.rule.KeywordNumNameAlias())
+	t.keys = []string{
+		t.rule.NameAlias(),
+		t.rule.KeywordNameAlias(),
+		t.rule.KeywordNumNameAlias(),
+	}
 	t.keys = append(t.keys, t.rule.LabelsAlias()...)
 	t.keys = append(t.keys, t.rule.FixedKeysAlias()...)
+
+	t.defaultValues = map[string]any{
+		t.rule.NameAlias():           "",
+		t.rule.KeywordNameAlias():    "",
+		t.rule.KeywordNumNameAlias(): 0,
+	}
+	for _, _la := range t.rule.LabelsAlias() {
+		t.defaultValues[_la] = ""
+	}
+	for _, _fka := range t.rule.FixedKeysAlias() {
+		t.defaultValues[_fka] = ""
+	}
 
 	return nil
 }
@@ -76,6 +92,10 @@ func (t *TagMeans) Update(contents []string) map[string]any {
 	}
 
 	return t.resultToMap(results[0])
+}
+
+func (t *TagMeans) DefaultValues() map[string]any {
+	return t.defaultValues
 }
 
 func (t *TagMeans) resultsToSliceMap(results []*Result) []map[string]any {

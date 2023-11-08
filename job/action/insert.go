@@ -74,7 +74,7 @@ func (i *Insert) Prepare() error {
 
 func (i *Insert) Do(item map[string]any) ([]map[string]any, bool) {
 	newItems := i.mode.Do(item)
-	if newItems == nil {
+	if len(newItems) <= 0 {
 		return nil, false
 	}
 

@@ -60,27 +60,37 @@ func (ri *RuleItems) getAlias(s string) (string, bool) {
 }
 
 func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
-	_rule := ri.rule.ToOriginRule()
+	_rule := ri.rule
+	_originRule := ri.rule.ToOriginRule()
 
-	fields := []string{_rule.GetName(), _rule.KeywordName()}
-	fields = append(fields, _rule.LabelsName()...)
+	selects := make(map[string]string)
+	selects[_originRule.GetName()] = _rule.GetName()
+
+	for _originLabel, _label := range _rule.LabelsAlias() {
+		selects[_originLabel] = _label
+	}
+
+	selects[_originRule.KeywordName()] = _rule.KeywordName()
 
 	table := dml.NewTable(_rule.TableName())
-	for _, field := range fields {
-		if fieldAlias, ok := ri.getAlias(field); ok {
-			table = table.SelectAlias(map[string]string{field: fieldAlias})
+
+	for _originLabel, _label := range selects {
+		if _labelAlias, _ok := ri.getAlias(_label); _ok {
+			_label = _labelAlias
+		}
+
+		if _originLabel == _label {
+			table = table.Select([]string{_originLabel})
 		} else {
-			table = table.Select([]string{field})
+			table = table.SelectAlias(map[string]string{_originLabel: _label})
 		}
 	}
 
-	table.OrderBy(map[string]string{
-		_rule.KeywordLenName(): command.SortDesc,
-		_rule.GetIdName():      command.SortASC,
-	})
+	table.OrderBy(_originRule.KeywordLenName(), command.SortDesc, _originRule.GetIdName(), command.SortASC)
 
 	var rows []map[string]any
-	err := _rule.GetDB().Raw(table.Sql()).Scan(&rows).Error
+	sql := table.Sql()
+	err := _rule.GetDB().Raw(sql).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("rows error; %w", err)
 	}

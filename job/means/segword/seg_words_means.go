@@ -47,3 +47,7 @@ func (sw *SegWordsMeans) Insert(contents []string) []map[string]any {
 
 	return items
 }
+
+func (sw *SegWordsMeans) DefaultValues() map[string]any {
+	return map[string]any{"word": "", "flag": ""}
+}

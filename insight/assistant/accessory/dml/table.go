@@ -100,9 +100,10 @@ func (t *Table) GroupByAlias(g map[string]string) *Table {
 	return t
 }
 
-func (t *Table) OrderBy(o map[string]string) *Table {
-	for k, v := range o {
-		t.orderBy.AddEntry(k, v)
+func (t *Table) OrderBy(v ...string) *Table {
+	v = v[0 : len(v)/2*2]
+	for i := 0; i < len(v); i += 2 {
+		t.orderBy.AddEntry(v[i], v[i+1])
 	}
 
 	return t

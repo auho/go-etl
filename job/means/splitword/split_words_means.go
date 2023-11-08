@@ -20,18 +20,18 @@ func NewSplitWordsMeans(sep string) *SplitWordsMeans {
 	return s
 }
 
-func (s *SplitWordsMeans) GetTitle() string {
+func (sw *SplitWordsMeans) GetTitle() string {
 	return "SplitWords"
 }
 
-func (s *SplitWordsMeans) GetKeys() []string {
+func (sw *SplitWordsMeans) GetKeys() []string {
 	return []string{"word"}
 }
 
-func (s *SplitWordsMeans) Insert(contents []string) []map[string]any {
+func (sw *SplitWordsMeans) Insert(contents []string) []map[string]any {
 	items := make([]map[string]any, 0)
 	for _, c := range contents {
-		results := strings.Split(c, s.sep)
+		results := strings.Split(c, sw.sep)
 		for _, result := range results {
 			items = append(items, map[string]any{"word": result})
 		}
@@ -42,4 +42,8 @@ func (s *SplitWordsMeans) Insert(contents []string) []map[string]any {
 	}
 
 	return items
+}
+
+func (sw *SplitWordsMeans) DefaultValues() map[string]any {
+	return map[string]any{"word": ""}
 }
