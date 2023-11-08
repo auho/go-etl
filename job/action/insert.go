@@ -16,8 +16,8 @@ type InsertConfig struct {
 
 type Insert struct {
 	action
-	target job.Target
-	mode   mode.InsertModer
+
+	mode mode.InsertModer
 
 	truncate  bool
 	extraKeys []string // 附加写入到 target 的 source 字段

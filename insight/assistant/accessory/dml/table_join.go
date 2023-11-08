@@ -13,14 +13,18 @@ type TableJoin struct {
 	set       []*command2.Set
 }
 
-func NewTableJoin() *TableJoin {
+func newTableJoin(driver string) *TableJoin {
 	tj := &TableJoin{}
-	tj.commander = newTableJoinCommand()
+	tj.commander = newTableJoinCommand(driver)
 	tj.tables = make([]*Table, 0)
 	tj.limit = make([]int, 0)
 	tj.set = make([]*command2.Set, 0)
 
 	return tj
+}
+
+func NewTableJoin() *TableJoin {
+	return newTableJoin("")
 }
 
 func (tj *TableJoin) Table(t *Table) *TableJoin {

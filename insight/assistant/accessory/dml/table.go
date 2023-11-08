@@ -19,29 +19,33 @@ type Table struct {
 	asSql     string
 }
 
+func newTable(name, driver string) *Table {
+	t := &Table{}
+
+	t.init(name, driver)
+
+	return t
+}
+
 // NewTable
 // new sql from table. table as data source
 func NewTable(name string) *Table {
-	t := &Table{}
-
-	t.init(name)
-
-	return t
+	return newTable(name, "")
 }
 
 // NewSqlTable
 // new sql from sql. Sql result set as data source
 // name as the table alias of the result set
-func NewSqlTable(name string, sql string) *Table {
+func NewSqlTable(name, sql string) *Table {
 	t := NewTable(name)
 	t.asSql = sql
 
-	t.init(name)
+	t.init(name, "")
 
 	return t
 }
 
-func (t *Table) init(name string) {
+func (t *Table) init(name string, driver string) {
 	t.name = name
 	t.fields = command2.NewEntries()
 	t.groupBy = command2.NewEntries()
@@ -49,7 +53,7 @@ func (t *Table) init(name string) {
 	t.limit = make([]int, 0)
 	t.set = make([]*command2.Set, 0)
 
-	t.commander = newTableCommand()
+	t.commander = newTableCommand(driver)
 }
 
 func (t *Table) GetName() string {
@@ -188,7 +192,7 @@ func (t *Table) DeleteSql() string {
 }
 
 func (t *Table) CreateJoin() *TableJoin {
-	return NewTableJoin().Table(t)
+	return newTableJoin(t.commander.DriverName()).Table(t)
 }
 
 func (t *Table) GetSelectFields() []string {

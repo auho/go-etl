@@ -14,9 +14,9 @@ var _ Actor = (*Clean)(nil)
 // filter
 type Clean struct {
 	action
-	target job.Target
-	modes  []mode.UpdateModer
-	keys   []string
+
+	modes []mode.UpdateModer
+	keys  []string
 }
 
 func NewClean(target job.Target, modes []mode.UpdateModer) *Clean {

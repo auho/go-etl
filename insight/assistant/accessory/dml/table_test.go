@@ -9,7 +9,6 @@ import (
 )
 
 func TestMain(t *testing.M) {
-	RegisterDriver(DriverMysql)
 	code := t.Run()
 
 	os.Exit(code)

@@ -13,6 +13,20 @@ import (
 
 var _ tag.Ruler = (*RuleItems)(nil)
 
+type RuleItemsConfig struct {
+	Alias             map[string]string
+	Fixed             map[string]string
+	KeywordFormatFunc []func(string) string
+}
+
+func WithRuleItemsConfig(config RuleItemsConfig) func(*RuleItems) {
+	return func(ri *RuleItems) {
+		ri.alias = config.Alias
+		ri.fixed = config.Fixed
+		ri.keywordFormatFunc = config.KeywordFormatFunc
+	}
+}
+
 // RuleItems
 // alias: [data name] => [output name]
 // fixed: [key] => [value]
@@ -24,12 +38,13 @@ type RuleItems struct {
 	keywordFormatFunc []func(string) string
 }
 
-func NewRuleItems(rule assistant.Ruler, alias, fixed map[string]string, keywordFormatFunc []func(string) string) *RuleItems {
+func NewRuleItems(rule assistant.Ruler, opts ...func(items *RuleItems)) *RuleItems {
 	ri := &RuleItems{}
 	ri.rule = rule
-	ri.alias = alias
-	ri.fixed = fixed
-	ri.keywordFormatFunc = keywordFormatFunc
+
+	for _, opt := range opts {
+		opt(ri)
+	}
 
 	return ri
 }
@@ -47,11 +62,11 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 	fields = append(fields, ri.rule.LabelsName()...)
 
 	table := dml.NewTable(ri.TableName())
-	for label, _ := range ri.rule.GetLabels() {
-		if labelAlias, ok := ri.getAlias(label); ok {
-			table = table.SelectAlias(map[string]string{label: labelAlias})
+	for _, field := range fields {
+		if fieldAlias, ok := ri.getAlias(field); ok {
+			table = table.SelectAlias(map[string]string{field: fieldAlias})
 		} else {
-			table = table.Select([]string{label})
+			table = table.Select([]string{field})
 		}
 	}
 
@@ -60,13 +75,23 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 		ri.rule.GetIdName():      command.SortASC,
 	})
 
-	var rows []map[string]string
+	var rows []map[string]any
 	err := ri.rule.GetDB().Raw(table.Sql()).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("rows error; %w", err)
 	}
 
-	return rows, nil
+	var _newRows []map[string]string
+	for _, row := range rows {
+		_nRow := make(map[string]string, len(row))
+		for _k, _v := range row {
+			_nRow[_k] = _v.(string)
+		}
+
+		_newRows = append(_newRows, _nRow)
+	}
+
+	return _newRows, nil
 }
 
 func (ri *RuleItems) ItemsForRegexp() ([]map[string]string, error) {

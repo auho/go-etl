@@ -13,8 +13,8 @@ var _ Actor = (*Update)(nil)
 
 type Update struct {
 	action
+
 	source job.Source
-	target job.Target
 	modes  []mode.UpdateModer
 
 	isTransfer bool

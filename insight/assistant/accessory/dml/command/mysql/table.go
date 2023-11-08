@@ -6,12 +6,13 @@ import (
 	"strings"
 
 	command2 "github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
+	"github.com/auho/go-simple-db/v2/driver/driver"
 )
 
-var _ command2.TableCommander = (*tableCommand)(nil)
-var _ command2.Query = (*tableCommand)(nil)
+var _ command2.TableCommander = (*TableCommand)(nil)
+var _ command2.Query = (*TableCommand)(nil)
 
-type tableCommand struct {
+type TableCommand struct {
 	mysql
 	name          string
 	nameBackQuote string
@@ -25,15 +26,19 @@ type tableCommand struct {
 	asSql         string
 }
 
-func NewTableCommand() *tableCommand {
-	return &tableCommand{}
+func NewTableCommand() *TableCommand {
+	return &TableCommand{}
 }
 
-func (c *tableCommand) Name() string {
+func (c *TableCommand) DriverName() string {
+	return driver.Mysql
+}
+
+func (c *TableCommand) Name() string {
 	return c.name
 }
 
-func (c *tableCommand) BuildFieldsForInsert() []string {
+func (c *TableCommand) BuildFieldsForInsert() []string {
 	s := make([]string, 0)
 	for _, field := range c.fields.Get() {
 		s = append(s, field.GetValue())
@@ -42,23 +47,23 @@ func (c *tableCommand) BuildFieldsForInsert() []string {
 	return s
 }
 
-func (c *tableCommand) SetTable(name string, sql string) {
+func (c *TableCommand) SetTable(name string, sql string) {
 	c.name = name
 	c.asSql = sql
 	c.nameBackQuote = c.addBackQuote(c.name)
 }
 
-func (c *tableCommand) SetSelect(f *command2.Entities) {
+func (c *TableCommand) SetSelect(f *command2.Entities) {
 	c.fields = f
 }
 
-func (c *tableCommand) Select() string {
+func (c *TableCommand) Select() string {
 	fs := c.BuildSelect()
 
 	return c.SelectToString(fs)
 }
 
-func (c *tableCommand) BuildSelect() []string {
+func (c *TableCommand) BuildSelect() []string {
 	fields := make([]string, 0)
 
 	for _, v := range c.fields.Get() {
@@ -85,17 +90,17 @@ func (c *tableCommand) BuildSelect() []string {
 	return fields
 }
 
-func (c *tableCommand) SetFrom(j *command2.Join) {
+func (c *TableCommand) SetFrom(j *command2.Join) {
 	c.join = j
 }
 
-func (c *tableCommand) From() string {
+func (c *TableCommand) From() string {
 	fs := c.BuildFrom()
 
 	return c.FromToString(fs)
 }
 
-func (c *tableCommand) BuildFrom() []string {
+func (c *TableCommand) BuildFrom() []string {
 	f := ""
 	from := ""
 	if c.asSql == "" {
@@ -125,17 +130,17 @@ func (c *tableCommand) BuildFrom() []string {
 	return []string{f}
 }
 
-func (c *tableCommand) SetWhere(s string) {
+func (c *TableCommand) SetWhere(s string) {
 	c.where = s
 }
 
-func (c *tableCommand) Where() string {
+func (c *TableCommand) Where() string {
 	w := c.BuildWhere()
 
 	return c.WhereToString(w)
 }
 
-func (c *tableCommand) BuildWhere() []string {
+func (c *TableCommand) BuildWhere() []string {
 	if c.where == "" {
 		return nil
 	}
@@ -143,17 +148,17 @@ func (c *tableCommand) BuildWhere() []string {
 	return []string{c.addSelfTablePrefix(c.where)}
 }
 
-func (c *tableCommand) SetGroupBy(g *command2.Entities) {
+func (c *TableCommand) SetGroupBy(g *command2.Entities) {
 	c.groupBy = g
 }
 
-func (c *tableCommand) GroupBy() string {
+func (c *TableCommand) GroupBy() string {
 	gs := c.BuildGroupBy()
 
 	return c.GroupByToString(gs)
 }
 
-func (c *tableCommand) BuildGroupBy() []string {
+func (c *TableCommand) BuildGroupBy() []string {
 	if c.groupBy.Len() == 0 {
 		return nil
 	}
@@ -167,17 +172,17 @@ func (c *tableCommand) BuildGroupBy() []string {
 	return gs
 }
 
-func (c *tableCommand) SetOrderBy(o *command2.Entities) {
+func (c *TableCommand) SetOrderBy(o *command2.Entities) {
 	c.orderBy = o
 }
 
-func (c *tableCommand) OrderBy() string {
+func (c *TableCommand) OrderBy() string {
 	os := c.BuildOrderBy()
 
 	return c.OrderByToString(os)
 }
 
-func (c *tableCommand) BuildOrderBy() []string {
+func (c *TableCommand) BuildOrderBy() []string {
 	if c.orderBy.Len() == 0 {
 		return nil
 	}
@@ -190,25 +195,25 @@ func (c *tableCommand) BuildOrderBy() []string {
 	return os
 }
 
-func (c *tableCommand) SetLimit(l []int) {
+func (c *TableCommand) SetLimit(l []int) {
 	c.limit = l
 }
 
-func (c *tableCommand) Limit() string {
+func (c *TableCommand) Limit() string {
 	return c.LimitToString(c.limit)
 }
 
-func (c *tableCommand) SetSet(s []*command2.Set) {
+func (c *TableCommand) SetSet(s []*command2.Set) {
 	c.set = s
 }
 
-func (c *tableCommand) Set() string {
+func (c *TableCommand) Set() string {
 	ss := c.BuildSet()
 
 	return c.SetToString(ss)
 }
 
-func (c *tableCommand) BuildSet() []string {
+func (c *TableCommand) BuildSet() []string {
 	ss := make([]string, 0)
 
 	for _, set := range c.set {
@@ -233,7 +238,7 @@ func (c *tableCommand) BuildSet() []string {
 	return ss
 }
 
-func (c *tableCommand) Query() string {
+func (c *TableCommand) Query() string {
 	return fmt.Sprintf("%s%s%s%s%s%s",
 		c.Select(),
 		c.From(),
@@ -244,27 +249,27 @@ func (c *tableCommand) Query() string {
 	)
 }
 
-func (c *tableCommand) InsertQuery(name string) string {
+func (c *TableCommand) InsertQuery(name string) string {
 	return c.mysql.insert(name, c)
 }
 
-func (c *tableCommand) InsertWithFieldsQuery(name string, fields []string) string {
+func (c *TableCommand) InsertWithFieldsQuery(name string, fields []string) string {
 	return c.mysql.insertWithFields(name, fields, c)
 }
 
-func (c *tableCommand) UpdateQuery() string {
+func (c *TableCommand) UpdateQuery() string {
 	return fmt.Sprintf("UPDATE %s %s%s%s%s", c.nameBackQuote, c.Set(), c.Where(), c.OrderBy(), c.Limit())
 }
 
-func (c *tableCommand) DeleteQuery() string {
+func (c *TableCommand) DeleteQuery() string {
 	return fmt.Sprintf("DELETE %s%s%s%s", c.From(), c.Where(), c.OrderBy(), c.Limit())
 }
 
-func (c *tableCommand) addSelfTablePrefix(s string) string {
+func (c *TableCommand) addSelfTablePrefix(s string) string {
 	return c.addTablePrefix(s, c.name)
 }
 
-func (c *tableCommand) addTablePrefix(s string, name string) string {
+func (c *TableCommand) addTablePrefix(s string, name string) string {
 	name = c.addBackQuote(name)
 
 	re := regexp.MustCompile("([^.])(`[^`.]+`)([^.])")

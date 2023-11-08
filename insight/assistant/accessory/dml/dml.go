@@ -4,35 +4,32 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
-	mysql2 "github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command/mysql"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command/mysql"
+	"github.com/auho/go-simple-db/v2/driver/driver"
 )
 
-const DriverMysql = "mysql"
+func newTableJoinCommand(_driver string) command.TableJoinCommander {
+	if _driver == "" {
+		_driver = driver.Mysql
+	}
 
-var driver = ""
-
-func RegisterDriverMysql() {
-	RegisterDriver(DriverMysql)
-}
-
-func RegisterDriver(d string) {
-	driver = d
-}
-
-func newTableJoinCommand() command.TableJoinCommander {
-	switch driver {
-	case DriverMysql:
-		return mysql2.NewTableJoinCommand()
+	switch _driver {
+	case driver.Mysql:
+		return mysql.NewTableJoinCommand()
 	default:
-		panic(fmt.Sprintf("driver[%s] is not exists", driver))
+		panic(fmt.Sprintf("_driver[%s] is not exists", _driver))
 	}
 }
 
-func newTableCommand() command.TableCommander {
-	switch driver {
-	case DriverMysql:
-		return mysql2.NewTableCommand()
+func newTableCommand(_driver string) command.TableCommander {
+	if _driver == "" {
+		_driver = driver.Mysql
+	}
+
+	switch _driver {
+	case driver.Mysql:
+		return mysql.NewTableCommand()
 	default:
-		panic(fmt.Sprintf("driver[%s] is not exists", driver))
+		panic(fmt.Sprintf("driver[%s] is not exists", _driver))
 	}
 }

@@ -16,6 +16,7 @@ type TableJoinCommander interface {
 }
 
 type TableCommander interface {
+	DriverName() string
 	BuildFieldsForInsert() []string
 	Name() string
 	SetTable(string, string)

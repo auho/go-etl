@@ -25,8 +25,9 @@ func (t *RuleTable) build() {
 	t.initCommand(t.rule.TableName())
 	t.Command.AddPkInt(t.rule.GetIdName())
 
-	t.buildRule(t.Command)
-
+	t.buildRuleLabels(t.Command)
+	keywordFiled := t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetNameLength())
+	keywordFiled.SetCollateUtf8mb4Bin()
 	t.Command.AddInt(t.rule.KeywordLenName())
 
 	t.execCommand()
@@ -35,18 +36,16 @@ func (t *RuleTable) build() {
 	t.Command.AddTimestamp("ctime", true, true)
 }
 
-func (t *RuleTable) buildRule(command *tablestructure.Command) {
+func (t *RuleTable) buildRuleLabels(command *tablestructure.Command) {
 	command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
 
 	for label, length := range t.rule.GetLabels() {
 		command.AddStringWithLength(label, length)
 	}
-
-	keywordFiled := t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetNameLength())
-	keywordFiled.SetCollateUtf8mb4Bin()
 }
 
 func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
-	t.buildRule(command)
+	t.buildRuleLabels(command)
+	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetNameLength())
 	command.AddInt(t.rule.KeywordNumName())
 }

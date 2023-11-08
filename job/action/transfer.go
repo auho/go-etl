@@ -11,8 +11,8 @@ var _ Actor = (*Transfer)(nil)
 
 type Transfer struct {
 	action
-	target job.Target
-	mode   mode.TransferModer
+
+	mode mode.TransferModer
 }
 
 func NewTransfer(target job.Target, moder mode.TransferModer) *Transfer {
