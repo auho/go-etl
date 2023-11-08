@@ -15,6 +15,8 @@ type TagMeans struct {
 	rule    Ruler
 	matcher *Matcher
 	fn      func(*Matcher, []string) []*Result
+
+	keys []string
 }
 
 func NewTagMeans(rule Ruler, fn func(*Matcher, []string) []*Result) *TagMeans {
@@ -38,6 +40,11 @@ func (t *TagMeans) Prepare() error {
 
 	t.matcher.prepare(t.rule.KeywordNameAlias(), items)
 
+	t.keys = []string{t.rule.KeywordNameAlias()}
+	t.keys = append(t.keys, t.rule.KeywordNumNameAlias())
+	t.keys = append(t.keys, t.rule.LabelsAlias()...)
+	t.keys = append(t.keys, t.rule.FixedKeysAlias()...)
+
 	return nil
 }
 
@@ -46,12 +53,7 @@ func (t *TagMeans) GetTitle() string {
 }
 
 func (t *TagMeans) GetKeys() []string {
-	keys := []string{t.rule.KeywordNameAlias()}
-	keys = append(keys, t.rule.KeywordNumNameAlias())
-	keys = append(keys, t.rule.LabelsAlias()...)
-	keys = append(keys, t.rule.FixedKeysAlias()...)
-
-	return keys
+	return t.keys
 }
 
 func (t *TagMeans) Close() error {

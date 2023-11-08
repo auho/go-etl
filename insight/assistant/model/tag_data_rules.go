@@ -16,7 +16,7 @@ type TagDataRules struct {
 	rules []assistant.Ruler
 }
 
-func NewTagDataSpreadRules(name string, data assistant.Dataor, rules []assistant.Ruler, db *simpleDb.SimpleDB) *TagDataRules {
+func NewTagDataRules(name string, data assistant.Dataor, rules []assistant.Ruler, db *simpleDb.SimpleDB) *TagDataRules {
 	t := &TagDataRules{}
 	t.name = name
 	t.data = data

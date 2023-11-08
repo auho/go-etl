@@ -104,8 +104,8 @@ func init() {
 	_dataRule1 = model.NewDataRule(_data, _rule1)
 	_tagRule = model.NewTagDataRule(_data, _rule, nil)
 	_tagRule1 = model.NewTagDataRule(_data, _rule1, nil)
-	_tagRules = model.NewTagDataSpreadRules("abc", _data, []assistant.Ruler{_rule, _rule1}, nil)
-	_tagRules1 = model.NewTagDataSpreadRules("abc", _data, []assistant.Ruler{_rule1, _rule}, nil)
+	_tagRules = model.NewTagDataRules("abc", _data, []assistant.Ruler{_rule, _rule1}, nil)
+	_tagRules1 = model.NewTagDataRules("abc", _data, []assistant.Ruler{_rule1, _rule}, nil)
 	_dcSegWords = model.NewDataContentSegWords(_data, "abc", nil)
 	_dcSpiltWords = model.NewDataContentSpiltWords(_data, "abc", nil)
 }

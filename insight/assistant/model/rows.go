@@ -11,13 +11,13 @@ var _ assistant.Rowsor = (*Rows)(nil)
 
 type Rows struct {
 	model
-	tableName string
-	idName    string
+	name   string
+	idName string
 }
 
-func NewRows(tableName, idName string, db *simpleDb.SimpleDB) *Rows {
+func NewRows(name, idName string, db *simpleDb.SimpleDB) *Rows {
 	r := &Rows{}
-	r.tableName = tableName
+	r.name = name
 	r.idName = idName
 	r.db = db
 
@@ -29,7 +29,7 @@ func (r *Rows) GetDB() *simpleDb.SimpleDB {
 }
 
 func (r *Rows) GetName() string {
-	return r.tableName
+	return r.name
 }
 
 func (r *Rows) GetIdName() string {
@@ -37,7 +37,7 @@ func (r *Rows) GetIdName() string {
 }
 
 func (r *Rows) TableName() string {
-	return r.tableName
+	return r.name
 }
 
 func (r *Rows) WithCommand(fn func(command *tablestructure.Command)) *Rows {

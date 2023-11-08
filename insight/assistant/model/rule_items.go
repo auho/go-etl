@@ -13,10 +13,12 @@ import (
 
 var _ tag.Ruler = (*RuleItems)(nil)
 
+// RuleItemsConfig
+// rule items config
 type RuleItemsConfig struct {
-	Alias             map[string]string
-	Fixed             map[string]string
-	KeywordFormatFunc []func(string) string
+	Alias             map[string]string     // map[data name]output name
+	Fixed             map[string]string     // map[key]value
+	KeywordFormatFunc []func(string) string // []func(data keyword value)regexp keyword value
 }
 
 func WithRuleItemsConfig(config RuleItemsConfig) func(*RuleItems) {
@@ -58,10 +60,12 @@ func (ri *RuleItems) getAlias(s string) (string, bool) {
 }
 
 func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
-	fields := []string{ri.rule.GetName(), ri.rule.KeywordName()}
-	fields = append(fields, ri.rule.LabelsName()...)
+	_rule := ri.rule.ToOriginRule()
 
-	table := dml.NewTable(ri.TableName())
+	fields := []string{_rule.GetName(), _rule.KeywordName()}
+	fields = append(fields, _rule.LabelsName()...)
+
+	table := dml.NewTable(_rule.TableName())
 	for _, field := range fields {
 		if fieldAlias, ok := ri.getAlias(field); ok {
 			table = table.SelectAlias(map[string]string{field: fieldAlias})
@@ -71,12 +75,12 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 	}
 
 	table.OrderBy(map[string]string{
-		ri.rule.KeywordLenName(): command.SortDesc,
-		ri.rule.GetIdName():      command.SortASC,
+		_rule.KeywordLenName(): command.SortDesc,
+		_rule.GetIdName():      command.SortASC,
 	})
 
 	var rows []map[string]any
-	err := ri.rule.GetDB().Raw(table.Sql()).Scan(&rows).Error
+	err := _rule.GetDB().Raw(table.Sql()).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("rows error; %w", err)
 	}

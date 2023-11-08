@@ -51,3 +51,7 @@ func (d *Data) WithCommand(fn func(command *tablestructure.Command)) *Data {
 func (d *Data) DmlTable() *dml.Table {
 	return dml.NewTable(d.TableName())
 }
+
+func (d *Data) ToRows() *Rows {
+	return NewRows(d.name, d.idName, d.db)
+}

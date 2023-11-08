@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"maps"
 	"sort"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
@@ -15,10 +16,13 @@ const defaultStringLen = 30
 
 type Rule struct {
 	model
-	name          string
-	length        int
+	name          string // origin name
+	length        int    // origin name length
 	keywordLength int
 	labels        map[string]int
+
+	nameAlias   string         // alias name
+	labelsAlias map[string]int // alias labels
 }
 
 func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
@@ -38,6 +42,9 @@ func NewRule(name string, length, keywordLength int, labels map[string]int, db *
 	r.labels = labels
 	r.db = db
 
+	r.nameAlias = r.name
+	r.labelsAlias = maps.Clone(r.labels)
+
 	if r.length <= 0 {
 		r.length = defaultStringLen
 	}
@@ -54,7 +61,7 @@ func (r *Rule) GetDB() *simpleDb.SimpleDB {
 }
 
 func (r *Rule) GetName() string {
-	return r.name
+	return r.nameAlias
 }
 
 func (r *Rule) GetNameLength() int {
@@ -70,12 +77,12 @@ func (r *Rule) GetKeywordLength() int {
 }
 
 func (r *Rule) GetLabels() map[string]int {
-	return r.labels
+	return r.labelsAlias
 }
 
 func (r *Rule) LabelsName() []string {
 	var labels []string
-	for label, _ := range r.labels {
+	for label, _ := range r.GetLabels() {
 		labels = append(labels, label)
 	}
 
@@ -91,19 +98,50 @@ func (r *Rule) TableName() string {
 }
 
 func (r *Rule) KeywordName() string {
-	return fmt.Sprintf("%s_%s", r.name, NameKeyword)
+	return fmt.Sprintf("%s_%s", r.nameAlias, NameKeyword)
 }
 
 func (r *Rule) KeywordLenName() string {
-	return fmt.Sprintf("%s_%s", r.name, NameKeywordLen)
+	return fmt.Sprintf("%s_%s", r.nameAlias, NameKeywordLen)
 }
 
 func (r *Rule) KeywordNumName() string {
-	return fmt.Sprintf("%s_%s", r.name, NameKeywordNum)
+	return fmt.Sprintf("%s_%s", r.nameAlias, NameKeywordNum)
 }
 
 func (r *Rule) WithCommand(fn func(command *tablestructure.Command)) *Rule {
 	r.withCommand(fn)
 
 	return r
+}
+
+func (r *Rule) ToOriginRule() assistant.Ruler {
+	return NewRule(r.name, r.length, r.keywordLength, maps.Clone(r.labels), r.db)
+}
+
+func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
+	_rule := NewRule(r.name, r.length, r.keywordLength, maps.Clone(r.labels), r.db)
+
+	if v, ok := alias[_rule.name]; ok {
+		_rule.nameAlias = v
+	} else {
+		_rule.nameAlias = _rule.name
+	}
+
+	_labels := make(map[string]int, len(_rule.labels))
+	for label, length := range _rule.labels {
+		if v, ok := alias[label]; ok {
+			_labels[v] = length
+		} else {
+			_labels[label] = length
+		}
+	}
+
+	_rule.labelsAlias = _labels
+
+	return _rule
+}
+
+func (r *Rule) ToItems(opts ...func(items *RuleItems)) *RuleItems {
+	return NewRuleItems(r, opts...)
 }

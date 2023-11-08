@@ -36,4 +36,5 @@ type Ruler interface {
 	KeywordLenName() string
 	KeywordNumName() string
 	ExecCommand(*tablestructure.Command)
+	ToOriginRule() Ruler
 }
