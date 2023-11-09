@@ -12,7 +12,7 @@ import (
 var _ Actor = (*Update)(nil)
 
 type Update struct {
-	action
+	targetAction
 
 	source job.Source
 	modes  []mode.UpdateModer
@@ -121,4 +121,6 @@ func (u *Update) PostBatchDo(items []map[string]any) {
 	}
 }
 
-func (u *Update) PostDo() {}
+func (u *Update) PreDo() error  { return nil }
+func (u *Update) PostDo() error { return nil }
+func (u *Update) Close() error  { return nil }

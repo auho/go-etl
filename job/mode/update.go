@@ -25,6 +25,10 @@ func NewUpdateMode(keys []string, meanses ...means.UpdateMeans) *UpdateMode {
 }
 
 func (um *UpdateMode) Prepare() error {
+	if len(um.keys) <= 0 {
+		return fmt.Errorf("update prepare keys is not exists error")
+	}
+
 	for _, m := range um.meanses {
 		err := m.Prepare()
 		if err != nil {
@@ -54,6 +58,10 @@ func (um *UpdateMode) Do(item map[string]any) map[string]any {
 	}
 
 	contents := um.GetKeysContent(um.keys, item)
+
+	if len(contents) <= 0 {
+		return nil
+	}
 
 	m := make(map[string]any)
 	for _, uMeans := range um.meanses {

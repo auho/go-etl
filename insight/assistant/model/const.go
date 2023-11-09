@@ -3,6 +3,7 @@ package model
 const NameData = "data"
 const NameTag = "tag"
 const NameRule = "rule"
+const NameDeleted = "deleted"
 const NameSegWords = "seg_words"
 const NameSpiltWords = "spilt_words"
 const NameKeyword = "keyword"

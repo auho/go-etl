@@ -121,21 +121,34 @@ func (r *Rule) WithCommand(fn func(command *tablestructure.Command)) *Rule {
 }
 
 func (r *Rule) ToOriginRule() assistant.Ruler {
-	return NewRule(r.name, r.length, r.keywordLength, maps.Clone(r.labels), r.db)
+	return r.handlerOrigin()
 }
 
 func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
-	_rule := NewRule(r.name, r.length, r.keywordLength, maps.Clone(r.labels), r.db)
+	_rule := r.handlerOrigin()
+	_rule.handlerAlias(alias)
 
-	if v, ok := alias[_rule.name]; ok {
-		_rule.aliasName = v
+	return _rule
+}
+
+func (r *Rule) ToItems(opts ...func(items *RuleItems)) *RuleItems {
+	return NewRuleItems(r, opts...)
+}
+
+func (r *Rule) handlerOrigin() *Rule {
+	return NewRule(r.name, r.length, r.keywordLength, maps.Clone(r.labels), r.db)
+}
+
+func (r *Rule) handlerAlias(alias map[string]string) {
+	if v, ok := alias[r.name]; ok {
+		r.aliasName = v
 	} else {
-		_rule.aliasName = _rule.name
+		r.aliasName = r.name
 	}
 
-	_aliasLabels := make(map[string]int, len(_rule.labels))
-	_labelsAlias := make(map[string]string, len(_rule.labels))
-	for label, length := range _rule.labels {
+	_aliasLabels := make(map[string]int, len(r.labels))
+	_labelsAlias := make(map[string]string, len(r.labels))
+	for label, length := range r.labels {
 		if v, ok := alias[label]; ok {
 			_labelsAlias[label] = v
 			_aliasLabels[v] = length
@@ -145,12 +158,6 @@ func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 		}
 	}
 
-	_rule.aliasLabels = _aliasLabels
-	_rule.labelsAlias = _labelsAlias
-
-	return _rule
-}
-
-func (r *Rule) ToItems(opts ...func(items *RuleItems)) *RuleItems {
-	return NewRuleItems(r, opts...)
+	r.aliasLabels = _aliasLabels
+	r.labelsAlias = _labelsAlias
 }

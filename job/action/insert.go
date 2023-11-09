@@ -2,6 +2,7 @@ package action
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/auho/go-etl/v2/job"
 	"github.com/auho/go-etl/v2/job/mode"
@@ -12,22 +13,33 @@ var _ Actor = (*Insert)(nil)
 type InsertConfig struct {
 	NotTruncate bool
 	ExtraKeys   []string // 附加写入到 target 的 source 字段
+
+	BatchSize   int
+	Concurrency int
 }
 
-type Insert struct {
-	action
+func (ic *InsertConfig) check() {
+	if ic.BatchSize <= 0 {
+		ic.BatchSize = batchSize
+	}
 
-	mode mode.InsertModer
-
-	truncate  bool
-	extraKeys []string // 附加写入到 target 的 source 字段
+	if ic.Concurrency <= 0 {
+		ic.Concurrency = runtime.NumCPU()
+	}
 }
 
 func WithInsertConfig(ic InsertConfig) func(*Insert) {
 	return func(i *Insert) {
-		i.truncate = !ic.NotTruncate
-		i.extraKeys = ic.ExtraKeys
+		i.config = ic
 	}
+}
+
+type Insert struct {
+	targetAction
+
+	mode mode.InsertModer
+
+	config InsertConfig
 }
 
 // NewInsert
@@ -43,13 +55,15 @@ func NewInsert(target job.Target, moder mode.InsertModer, opts ...func(*Insert))
 
 	i.Init()
 
+	i.config.check()
+
 	return i
 }
 
 // GetFields
 // source data filed
 func (i *Insert) GetFields() []string {
-	return append(i.mode.GetFields(), i.extraKeys...)
+	return append(i.mode.GetFields(), i.config.ExtraKeys...)
 }
 
 func (i *Insert) Title() string {
@@ -62,8 +76,12 @@ func (i *Insert) Prepare() error {
 		return fmt.Errorf("insert action mode prepare error; %w", err)
 	}
 
-	if i.truncate {
-		err = i.target.GetDB().Truncate(i.target.TableName())
+	return nil
+}
+
+func (i *Insert) PreDo() error {
+	if !i.config.NotTruncate {
+		err := i.target.GetDB().Truncate(i.target.TableName())
 		if err != nil {
 			return fmt.Errorf("insert action target truncate error; %w", err)
 		}
@@ -78,9 +96,9 @@ func (i *Insert) Do(item map[string]any) ([]map[string]any, bool) {
 		return nil, false
 	}
 
-	if len(i.extraKeys) > 0 {
+	if len(i.config.ExtraKeys) > 0 {
 		for index := range newItems {
-			for _, key := range i.extraKeys {
+			for _, key := range i.config.ExtraKeys {
 				newItems[index][key] = item[key]
 			}
 		}
@@ -96,4 +114,5 @@ func (i *Insert) PostBatchDo(items []map[string]any) {
 	}
 }
 
-func (i *Insert) PostDo() {}
+func (i *Insert) PostDo() error { return nil }
+func (i *Insert) Close() error  { return nil }

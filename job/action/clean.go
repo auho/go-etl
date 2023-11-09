@@ -2,38 +2,91 @@ package action
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/auho/go-etl/v2/job"
 	"github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/tool/slices"
+	"github.com/auho/go-toolkit/flow/storage"
+	"github.com/auho/go-toolkit/flow/storage/database"
+	"github.com/auho/go-toolkit/flow/storage/database/destination"
 )
 
 var _ Actor = (*Clean)(nil)
+
+type CleanConfig struct {
+	NotTruncate bool
+	BatchSize   int
+	Concurrency int
+	Keys        []string
+}
+
+func (cc *CleanConfig) check() {
+	if cc.BatchSize <= 0 {
+		cc.BatchSize = batchSize
+	}
+
+	if cc.Concurrency <= 0 {
+		cc.Concurrency = runtime.NumCPU()
+	}
+}
+
+func WithCleanConfig(cc CleanConfig) func(*Clean) {
+	return func(c *Clean) {
+		c.config = cc
+	}
+}
 
 // Clean
 // filter
 type Clean struct {
 	action
 
-	modes []mode.UpdateModer
-	keys  []string
+	cleanTarget job.CleanResource
+	keys        []string
+	modes       []mode.UpdateModer
+
+	config CleanConfig
+
+	dataDst    *destination.Destination[storage.MapEntry]
+	deletedDst *destination.Destination[storage.MapEntry]
+
+	dataDstLine    int
+	deletedDstLine int
 }
 
-func NewClean(target job.Target, modes []mode.UpdateModer) *Clean {
+func NewClean(cr job.CleanResource, modes []mode.UpdateModer, opts ...func(*Clean)) *Clean {
 	c := &Clean{}
-	c.target = target
+	c.cleanTarget = cr
 	c.modes = modes
 
+	for _, opt := range opts {
+		opt(c)
+	}
+
 	c.Init()
+
+	c.config.check()
 
 	return c
 }
 
 func (c *Clean) GetFields() []string {
-	var err error
-	c.keys, err = c.target.GetDB().GetTableColumns(c.target.TableName())
-	if err != nil {
-		panic(fmt.Errorf("GetTableColumns error; %w", err))
+	if len(c.config.Keys) > 0 {
+		c.keys = append(c.keys, c.config.Keys...)
+		for _, m := range c.modes {
+			c.keys = append(c.keys, m.GetFields()...)
+		}
+
+		c.keys = slices.SliceDropDuplicates(c.keys)
+
+	} else {
+		var err error
+		c.keys, err = c.cleanTarget.DeletedTarget().GetDB().GetTableColumns(c.cleanTarget.DeletedTarget().TableName())
+		if err != nil {
+			panic(fmt.Errorf("GetTableColumns error; %w", err))
+		}
 	}
 
 	return c.keys
@@ -45,42 +98,106 @@ func (c *Clean) Title() string {
 		s = append(s, m.GetTitle())
 	}
 
-	return fmt.Sprintf("Clean[%s] {%s}", c.target.TableName(), strings.Join(s, ", "))
+	return fmt.Sprintf("Clean[%s, %s] {%s}",
+		c.cleanTarget.DataTarget().TableName(),
+		c.cleanTarget.DeletedTarget().TableName(),
+		strings.Join(s, ", "),
+	)
 }
 
 func (c *Clean) Prepare() error {
+	var err error
 	for _, m := range c.modes {
-		err := m.Prepare()
+		err = m.Prepare()
 		if err != nil {
 			return fmt.Errorf("clean action prepare error; %w", err)
 		}
 	}
 
+	c.dataDst, err = newInsertToDB(c, c.cleanTarget.DataTarget())
+	if err != nil {
+		return fmt.Errorf("newInsertToDB data error; %w", err)
+	}
+
+	c.deletedDst, err = newInsertToDB(c, c.cleanTarget.DeletedTarget())
+	if err != nil {
+		return fmt.Errorf("newInsertToDB deleted error; %w", err)
+	}
+
+	return nil
+}
+
+func (c *Clean) PreDo() error {
+	err := c.dataDst.Accept()
+	if err != nil {
+		return fmt.Errorf("data accept error;%w", err)
+	}
+
+	err = c.deletedDst.Accept()
+	if err != nil {
+		return fmt.Errorf("deleted accept error;%w", err)
+	}
+
+	c.dataDstLine = c.AddState(fmt.Sprintf("data: %s", strings.Join(c.dataDst.State(), "\n")))
+	c.deletedDstLine = c.AddState(fmt.Sprintf("deleted: %s", strings.Join(c.deletedDst.State(), "\n")))
+
 	return nil
 }
 
 func (c *Clean) Do(item map[string]any) ([]map[string]any, bool) {
-	isClean := false
+	_needDeleted := false
 	for _, m := range c.modes {
 		_res := m.Do(item)
 		if len(_res) > 0 {
-			isClean = true
+			_needDeleted = true
 			break
 		}
 	}
 
-	if isClean == true {
-		return nil, false
+	if _needDeleted {
+		c.deletedDst.Receive([]map[string]any{item})
+	} else {
+		c.dataDst.Receive([]map[string]any{item})
 	}
 
-	return []map[string]any{item}, true
+	return nil, true
 }
 
 func (c *Clean) PostBatchDo(items []map[string]any) {
-	err := c.target.GetDB().BulkInsertFromSliceMap(c.target.TableName(), items, batchSize)
-	if err != nil {
-		panic(err)
-	}
+	c.SetState(c.dataDstLine, fmt.Sprintf("data: %s", strings.Join(c.dataDst.State(), "\n")))
+	c.SetState(c.deletedDstLine, fmt.Sprintf("deleted: %s", strings.Join(c.deletedDst.State(), "\n")))
 }
 
-func (c *Clean) PostDo() {}
+func (c *Clean) PostDo() error {
+	c.dataDst.Done()
+	c.deletedDst.Done()
+
+	return nil
+}
+
+func (c *Clean) Close() error {
+	c.dataDst.Finish()
+	c.deletedDst.Finish()
+
+	return nil
+}
+
+var _ destination.Destinationer[storage.MapEntry] = (*insertToDB)(nil)
+
+type insertToDB struct {
+}
+
+func (i *insertToDB) Exec(d *destination.Destination[storage.MapEntry], items storage.MapEntries) error {
+	return d.DB().BulkInsertFromSliceMap(d.TableName(), items, int(d.PageSize()))
+}
+
+func newInsertToDB(c *Clean, target job.Target) (*destination.Destination[storage.MapEntry], error) {
+	return destination.NewDestination[storage.MapEntry](&destination.Config{
+		IsTruncate:  !c.config.NotTruncate,
+		Concurrency: c.config.Concurrency,
+		PageSize:    int64(c.config.BatchSize),
+		TableName:   target.TableName(),
+	}, &insertToDB{}, func() (*database.DB, error) {
+		return database.NewFromSimpleDb(target.GetDB()), nil
+	})
+}

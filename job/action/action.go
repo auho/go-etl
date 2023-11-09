@@ -15,6 +15,9 @@ type Actor interface {
 
 type action struct {
 	task.Task
+}
 
+type targetAction struct {
+	action
 	target job.Target
 }

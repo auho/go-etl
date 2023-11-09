@@ -114,11 +114,16 @@ func Test_Transfer(t *testing.T) {
 func Test_Clean(t *testing.T) {
 	m := mode.NewUpdateMode([]string{_keyName}, tag.NewMostKey(_rule))
 
-	CleanTask(_source, _targetClean, []mode.UpdateModer{m})
+	CleanTask(_targetClean, []mode.UpdateModer{m})
 	dataCount := getAmount(_source.TableName(), t)
-	cDataCount := getAmount(_targetClean.TableName(), t)
-	if cDataCount == dataCount || dataCount/cDataCount < 3 {
+	cDataCount := getAmount(_targetClean.DataTarget().TableName(), t)
+	cDeletedCount := getAmount(_targetClean.DeletedTarget().TableName(), t)
+	if cDeletedCount == dataCount || dataCount/cDeletedCount < 3 {
 		t.Error("cData != data")
+	}
+
+	if cDataCount+cDeletedCount != dataCount {
+		t.Error("cData + cDeleted != data")
 	}
 }
 

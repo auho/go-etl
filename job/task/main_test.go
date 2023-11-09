@@ -16,7 +16,8 @@ var _ruleTable = "rule_" + _ruleName
 var _dataTable = "data"                              // data source
 var _updateAndTransferTable = "data_update_transfer" // for update and transfer
 var _transferTable = "data_transfer"                 // for transfer
-var _cleanTable = "data_clean"                       // for clean
+var _cleanDataTable = "data_data"                    // for clean data
+var _cleanDeletedTable = "data_deleted"              // for clean deleted
 var _tagATable = "tag_data_a"
 var _pkName = "did"
 var _keyName = "name"
@@ -131,12 +132,22 @@ func setUp() {
 		panic(err)
 	}
 
-	err = _db.Drop(_cleanTable)
+	err = _db.Drop(_cleanDataTable)
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Copy(_dataTable, _cleanTable)
+	err = _db.Copy(_dataTable, _cleanDataTable)
+	if err != nil {
+		panic(err)
+	}
+
+	err = _db.Drop(_cleanDeletedTable)
+	if err != nil {
+		panic(err)
+	}
+
+	err = _db.Copy(_dataTable, _cleanDeletedTable)
 	if err != nil {
 		panic(err)
 	}
@@ -198,6 +209,6 @@ func tearDown() {
 	_ = _db.Drop(_dataTable)
 	_ = _db.Drop(_updateAndTransferTable)
 	_ = _db.Drop(_transferTable)
-	_ = _db.Drop(_cleanTable)
+	_ = _db.Drop(_cleanDeletedTable)
 	_ = _db.Drop(_tagATable)
 }

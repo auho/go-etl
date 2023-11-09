@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
@@ -38,6 +40,14 @@ func (r *Rows) GetIdName() string {
 
 func (r *Rows) TableName() string {
 	return r.name
+}
+
+func (r *Rows) ToData() *Data {
+	return NewData(r.name, r.idName, r.db)
+}
+
+func (r *Rows) ToDeletedRows() *Rows {
+	return NewRows(fmt.Sprintf("%s_%s", NameDeleted, r.name), r.idName, r.db)
 }
 
 func (r *Rows) WithCommand(fn func(command *tablestructure.Command)) *Rows {

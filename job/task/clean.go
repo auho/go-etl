@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
-func CleanTask(source job.Source, target job.Target, modes []mode.UpdateModer) {
-	cleanAction := action.NewClean(target, modes)
-	RunTask(source, []action.Actor{cleanAction})
+func CleanTask(resource job.CleanResource, modes []mode.UpdateModer, opts ...func(clean *action.Clean)) {
+	cleanAction := action.NewClean(resource, modes, opts...)
+	RunTask(resource.SourceTarget(), []action.Actor{cleanAction})
 }

@@ -63,6 +63,8 @@ func (t *Mode) KeyValueToString(key string, item map[string]any) string {
 		keyValue = string(item[key].([]uint8))
 	case int64:
 		keyValue = strconv.FormatInt(item[key].(int64), 10)
+	case nil:
+
 	default:
 		panic(fmt.Sprintf("type is not string %T", item[key]))
 	}

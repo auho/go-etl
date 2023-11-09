@@ -29,6 +29,10 @@ func NewInsert(keys []string, means means.InsertMeans) *InsertMode {
 }
 
 func (im *InsertMode) Prepare() error {
+	if len(im.keys) <= 0 {
+		return fmt.Errorf("InsertMode Prepare kyes not exists error")
+	}
+
 	err := im.means.Prepare()
 	if err != nil {
 		return fmt.Errorf("InsertMode Prepare error; %w", err)
@@ -55,6 +59,9 @@ func (im *InsertMode) Do(item map[string]any) []map[string]any {
 	}
 
 	contents := im.GetKeysContent(im.keys, item)
+	if len(contents) <= 0 {
+		return nil
+	}
 
 	return im.means.Insert(contents)
 }
@@ -85,6 +92,10 @@ func NewInsertMulti(keys []string, meanses ...means.InsertMeans) *InsertMultiMod
 }
 
 func (im *InsertMultiMode) Prepare() error {
+	if len(im.keys) <= 0 {
+		return fmt.Errorf("InsertMultiMode Prepare kyes not exists error")
+	}
+
 	for _, m := range im.meanses {
 		err := m.Prepare()
 		if err != nil {
@@ -118,6 +129,9 @@ func (im *InsertMultiMode) Do(item map[string]any) []map[string]any {
 	}
 
 	contents := im.GetKeysContent(im.keys, item)
+	if len(contents) <= 0 {
+		return nil
+	}
 
 	items := make([]map[string]any, 0)
 	for _, m := range im.meanses {
@@ -161,6 +175,9 @@ func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
 	}
 
 	contents := ic.GetKeysContent(ic.keys, item)
+	if len(contents) <= 0 {
+		return nil
+	}
 
 	var _allLabels [][]map[string]any
 	for _, m := range ic.meanses {
@@ -221,6 +238,9 @@ func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
 	}
 
 	contents := is.GetKeysContent(is.keys, item)
+	if len(contents) <= 0 {
+		return nil
+	}
 
 	_has := false
 	newItem := make(map[string]any, len(is.defaultValue))
@@ -264,6 +284,10 @@ func newInsertHorizontal(keys []string, meanses ...means.InsertMeans) insertHori
 }
 
 func (ih *insertHorizontalMode) Prepare() error {
+	if len(ih.keys) <= 0 {
+		return fmt.Errorf("insertHorizontalMode Prepare kyes not exists error")
+	}
+
 	for _, m := range ih.meanses {
 		err := m.Prepare()
 		if err != nil {

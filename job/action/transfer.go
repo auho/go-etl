@@ -10,7 +10,7 @@ import (
 var _ Actor = (*Transfer)(nil)
 
 type Transfer struct {
-	action
+	targetAction
 
 	mode mode.TransferModer
 }
@@ -48,4 +48,6 @@ func (t *Transfer) PostBatchDo(items []map[string]any) {
 	}
 }
 
-func (t *Transfer) PostDo() {}
+func (t *Transfer) PreDo() error  { return nil }
+func (t *Transfer) PostDo() error { return nil }
+func (t *Transfer) Close() error  { return nil }

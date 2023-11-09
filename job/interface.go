@@ -15,3 +15,9 @@ type Target interface {
 	TableName() string
 	GetDB() *go_simple_db.SimpleDB
 }
+
+type CleanResource interface {
+	DataTarget() Target
+	DeletedTarget() Target
+	SourceTarget() Target
+}

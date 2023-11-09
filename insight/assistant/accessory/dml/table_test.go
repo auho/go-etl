@@ -91,7 +91,7 @@ func getTable1() *Table {
 		Where("`a` = 1").
 		GroupBy([]string{"c", "d"}).
 		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
-		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
+		OrderBy("a", command.SortDesc, "b", command.SortASC).
 		Limit(0, 11)
 }
 
@@ -102,7 +102,7 @@ func getTable2() *Table {
 		Where("`a` = 1").
 		GroupBy([]string{"c", "d"}).
 		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
-		OrderBy(map[string]string{"a": command.SortDesc, "b": command.SortASC}).
+		OrderBy("b", command.SortASC, "a", command.SortDesc).
 		Limit(0, 11)
 }
 
