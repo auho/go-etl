@@ -26,15 +26,14 @@ func (ps *PlaceholderSource) Dataset() (*dataset.Dataset, error) {
 	fields := ps.Table.GetSelectFields()
 
 	itemsName, itemsSql := ps.buildPlaceholderItemsSqlSet(ps.Table.Sql(), ps.Items)
-	itemsSet, err := ps.queryItemsSet(fields, itemsName, itemsSql)
+	sets, err := ps.queryItemsSet(fields, itemsName, itemsSql)
 	if err != nil {
 		return nil, fmt.Errorf("queryItemsSet error; %w", err)
 	}
 
 	return &dataset.Dataset{
-		Name:      ps.Name,
-		Titles:    fields,
-		ItemsName: itemsName,
-		ItemsSet:  itemsSet,
+		Name:   ps.Name,
+		Titles: fields,
+		Sets:   sets,
 	}, nil
 }

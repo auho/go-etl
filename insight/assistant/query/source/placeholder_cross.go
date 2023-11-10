@@ -31,16 +31,15 @@ func (pcs *PlaceholderCrossSource) Dataset() (*dataset.Dataset, error) {
 	items := pcs.expandItems()
 
 	itemsName, itemsSql := pcs.buildPlaceholderItemsSqlSet(pcs.Table.Sql(), items)
-	itemsSet, err := pcs.queryItemsSet(fields, itemsName, itemsSql)
+	sets, err := pcs.queryItemsSet(fields, itemsName, itemsSql)
 	if err != nil {
 		return nil, fmt.Errorf("queryItemsSet error; %w", err)
 	}
 
 	return &dataset.Dataset{
-		Name:      pcs.Name,
-		Titles:    fields,
-		ItemsName: itemsName,
-		ItemsSet:  itemsSet,
+		Name:   pcs.Name,
+		Titles: fields,
+		Sets:   sets,
 	}, nil
 }
 

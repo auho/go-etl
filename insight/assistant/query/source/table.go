@@ -17,20 +17,20 @@ type TableSource struct {
 func (ts *TableSource) Dataset() (*dataset.Dataset, error) {
 	fields := ts.Table.GetSelectFields()
 	itemsName := []string{ts.Name}
+	itemsSql := map[string]string{ts.Name: ts.Table.Sql()}
 
-	itemsSet, err := ts.queryItemsSet(
+	sets, err := ts.queryItemsSet(
 		fields,
 		itemsName,
-		map[string]string{ts.Name: ts.Table.Sql()},
+		itemsSql,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("queryItemsSet error; %w", err)
 	}
 
 	return &dataset.Dataset{
-		Name:      ts.Name,
-		Titles:    fields,
-		ItemsName: itemsName,
-		ItemsSet:  itemsSet,
+		Name:   ts.Name,
+		Titles: fields,
+		Sets:   sets,
 	}, nil
 }

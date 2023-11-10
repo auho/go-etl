@@ -4,6 +4,10 @@ import (
 	"github.com/auho/go-etl/v2/tool/slices"
 )
 
+var _ Moder = (*AppendMode)(nil)
+
+// AppendMode
+// append dataset
 type AppendMode struct {
 	dataset *Dataset
 }
@@ -12,15 +16,23 @@ func NewAppendMode(ds *Dataset) *AppendMode {
 	return &AppendMode{dataset: ds}
 }
 
-func (af *AppendMode) Data() (*Data, error) {
-	rows := [][]any{slices.SliceToAny(af.dataset.Titles)}
+func (am *AppendMode) Data() (*Data, error) {
+	rows := [][]any{slices.SliceToAny(am.dataset.Titles)}
 
-	for _, iRows := range af.dataset.ItemsSet {
-		rows = append(rows, iRows...)
+	for _, set := range am.dataset.Sets {
+		rows = append(rows, set.Rows...)
 	}
 
 	data := &Data{}
-	data.Add(af.dataset.Name, rows)
+	data.Add(am.dataset.Name, rows)
 
 	return data, nil
+}
+
+func (am *AppendMode) Name() string {
+	return am.dataset.Name
+}
+
+func (am *AppendMode) Sets() []Set {
+	return am.dataset.Sets
 }

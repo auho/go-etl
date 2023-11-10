@@ -2,13 +2,21 @@ package dataset
 
 import (
 	"fmt"
+	"time"
 )
 
+type Set struct {
+	ItemName string
+	Sql      string
+	Amount   int
+	Rows     [][]any
+	Duration time.Duration
+}
+
 type Dataset struct {
-	Name      string
-	Titles    []string
-	ItemsName []string
-	ItemsSet  map[string][][]any
+	Name   string   // dataset name
+	Titles []string // dataset item data title
+	Sets   []Set
 }
 
 type Mode string
@@ -18,6 +26,8 @@ const ModeSpread Mode = "spread"
 
 type Moder interface {
 	Data() (*Data, error)
+	Name() string
+	Sets() []Set
 }
 
 type Data struct {
