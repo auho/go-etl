@@ -42,6 +42,10 @@ func (t *Mode) getTitle() string {
 	return "keys[" + strings.Join(t.keys, ", ") + "]"
 }
 
+func (t *Mode) GetKeyContent(key string, item map[string]any) string {
+	return t.KeyValueToString(key, item)
+}
+
 func (t *Mode) GetKeysContent(keys []string, item map[string]any) []string {
 	contents := make([]string, 0)
 	for _, key := range keys {

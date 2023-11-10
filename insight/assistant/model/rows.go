@@ -13,17 +13,23 @@ var _ assistant.Rowsor = (*Rows)(nil)
 
 type Rows struct {
 	model
-	name   string
-	idName string
+	name      string
+	idName    string
+	tableName string
 }
 
-func NewRows(name, idName string, db *simpleDb.SimpleDB) *Rows {
+func NewRowsFake(name, tableName, idName string, db *simpleDb.SimpleDB) *Rows {
 	r := &Rows{}
 	r.name = name
 	r.idName = idName
+	r.tableName = tableName
 	r.db = db
 
 	return r
+}
+
+func NewRows(name, idName string, db *simpleDb.SimpleDB) *Rows {
+	return NewRowsFake(name, name, idName, db)
 }
 
 func (r *Rows) GetDB() *simpleDb.SimpleDB {
@@ -39,7 +45,7 @@ func (r *Rows) GetIdName() string {
 }
 
 func (r *Rows) TableName() string {
-	return r.name
+	return r.tableName
 }
 
 func (r *Rows) ToData() *Data {

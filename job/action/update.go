@@ -121,6 +121,7 @@ func (u *Update) PostBatchDo(items []map[string]any) {
 	}
 }
 
+func (u *Update) Blink()        {}
 func (u *Update) PreDo() error  { return nil }
 func (u *Update) PostDo() error { return nil }
 func (u *Update) Close() error  { return nil }

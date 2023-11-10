@@ -48,6 +48,7 @@ func (t *Transfer) PostBatchDo(items []map[string]any) {
 	}
 }
 
+func (t *Transfer) Blink()        {}
 func (t *Transfer) PreDo() error  { return nil }
 func (t *Transfer) PostDo() error { return nil }
 func (t *Transfer) Close() error  { return nil }

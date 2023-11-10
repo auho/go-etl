@@ -114,5 +114,6 @@ func (i *Insert) PostBatchDo(items []map[string]any) {
 	}
 }
 
+func (i *Insert) Blink()        {}
 func (i *Insert) PostDo() error { return nil }
 func (i *Insert) Close() error  { return nil }

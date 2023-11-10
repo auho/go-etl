@@ -163,7 +163,9 @@ func (c *Clean) Do(item map[string]any) ([]map[string]any, bool) {
 	return nil, true
 }
 
-func (c *Clean) PostBatchDo(items []map[string]any) {
+func (c *Clean) PostBatchDo(items []map[string]any) {}
+
+func (c *Clean) Blink() {
 	c.SetState(c.dataDstLine, fmt.Sprintf("data: %s", strings.Join(c.dataDst.State(), "\n")))
 	c.SetState(c.deletedDstLine, fmt.Sprintf("deleted: %s", strings.Join(c.deletedDst.State(), "\n")))
 }
@@ -172,12 +174,13 @@ func (c *Clean) PostDo() error {
 	c.dataDst.Done()
 	c.deletedDst.Done()
 
+	c.dataDst.Finish()
+	c.deletedDst.Finish()
+
 	return nil
 }
 
 func (c *Clean) Close() error {
-	c.dataDst.Finish()
-	c.deletedDst.Finish()
 
 	return nil
 }
