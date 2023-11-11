@@ -22,7 +22,7 @@ func (sm *SpreadMode) Data() (*Data, error) {
 	for _, set := range sm.dataset.Sets {
 		rows := [][]any{slices.SliceToAny(sm.dataset.Titles)}
 
-		data.Add(set.ItemName, append(rows, set.Rows...))
+		data.add(set.Name, append(rows, set.Rows...))
 	}
 
 	return data, nil

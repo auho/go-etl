@@ -9,6 +9,8 @@ import (
 
 var _ Sourcer = (*TableSource)(nil)
 
+// TableSource
+// general queries
 type TableSource struct {
 	Source
 	Table dml.Tabler

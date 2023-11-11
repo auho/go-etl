@@ -24,7 +24,7 @@ func (am *AppendMode) Data() (*Data, error) {
 	}
 
 	data := &Data{}
-	data.Add(am.dataset.Name, rows)
+	data.add(am.dataset.Name, rows)
 
 	return data, nil
 }

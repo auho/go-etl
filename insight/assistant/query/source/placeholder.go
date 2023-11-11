@@ -18,6 +18,7 @@ var _ Sourcer = (*PlaceholderSource)(nil)
 
 type PlaceholderSource struct {
 	Source
+	basePlaceHolder
 	Table dml.Tabler
 	Items []map[string]string // []map[field][field value]
 }
@@ -25,7 +26,7 @@ type PlaceholderSource struct {
 func (ps *PlaceholderSource) Dataset() (*dataset.Dataset, error) {
 	fields := ps.Table.GetSelectFields()
 
-	itemsName, itemsSql := ps.buildPlaceholderItemsSqlSet(ps.Table.Sql(), ps.Items)
+	itemsName, itemsSql := ps.buildPlaceholderItemsSqlSet(&ps.Source, ps.Table.Sql(), ps.Items)
 	sets, err := ps.queryItemsSet(fields, itemsName, itemsSql)
 	if err != nil {
 		return nil, fmt.Errorf("queryItemsSet error; %w", err)

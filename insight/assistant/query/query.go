@@ -112,9 +112,12 @@ func (q *Query) doQuery(sq subQuery) error {
 	q.state.add(sq.state)
 
 	fmt.Println(fmt.Sprintf(" 《%s》; %s", dsMode.Name(), sq.state.overview()))
-	for _, set := range dsMode.Sets() {
-		fmt.Println(fmt.Sprintf("    <%s> => amount: %d, duration %s", set.ItemName, set.Amount, timing.PrettyDuration(set.Duration)))
-		fmt.Println(fmt.Sprintf("    %s", set.Sql))
+	for _, _set := range dsMode.Sets() {
+		fmt.Println(fmt.Sprintf("  <%s> => amount: %d, duration %s", _set.Name, _set.Amount, timing.PrettyDuration(_set.Duration)))
+		for _, _query := range _set.Queries {
+			fmt.Println(fmt.Sprintf("    %s => amount: %d, duration %s", _query.Name, _query.Amount, timing.PrettyDuration(_query.Duration)))
+			fmt.Println(fmt.Sprintf("    %s", _query.Sql))
+		}
 		fmt.Println()
 	}
 
