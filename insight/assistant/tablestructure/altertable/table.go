@@ -21,6 +21,12 @@ func NewTable(tableName string) *Table {
 	return t
 }
 
+func (t *Table) execCommand() {
+	if t.commandFun != nil {
+		t.commandFun(t.Command)
+	}
+}
+
 func (t *Table) GetTableName() string {
 	return t.Command.TableName()
 }
@@ -30,11 +36,6 @@ func (t *Table) Sql() []string {
 	return t.Command.SqlForAlterAdd()
 }
 
-func (t *Table) execCommand() {
-	if t.commandFun != nil {
-		t.commandFun(t.Command)
-	}
-}
 func (t *Table) WithCommand(fn func(command *tablestructure.Command)) *Table {
 	t.commandFun = fn
 

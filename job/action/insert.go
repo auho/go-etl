@@ -12,10 +12,9 @@ var _ Actor = (*Insert)(nil)
 
 type InsertConfig struct {
 	NotTruncate bool
-	ExtraKeys   []string // 附加写入到 target 的 source 字段
-
 	BatchSize   int
 	Concurrency int
+	ExtraKeys   []string // 附加写入到 target 的 source 字段
 }
 
 func (ic *InsertConfig) check() {

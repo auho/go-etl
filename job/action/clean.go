@@ -2,6 +2,7 @@ package action
 
 import (
 	"fmt"
+	"maps"
 	"runtime"
 	"strings"
 
@@ -16,10 +17,11 @@ import (
 var _ Actor = (*Clean)(nil)
 
 type CleanConfig struct {
-	NotTruncate bool
-	BatchSize   int
-	Concurrency int
-	Keys        []string
+	NotTruncate  bool
+	AddExtraTags bool // tags to deleted data
+	BatchSize    int
+	Concurrency  int
+	Keys         []string // source columns name
 }
 
 func (cc *CleanConfig) check() {
@@ -150,6 +152,11 @@ func (c *Clean) Do(item map[string]any) ([]map[string]any, bool) {
 		_res := m.Do(item)
 		if len(_res) > 0 {
 			_needDeleted = true
+
+			if c.config.AddExtraTags {
+				maps.Copy(item, _res)
+			}
+
 			break
 		}
 	}
@@ -180,17 +187,13 @@ func (c *Clean) PostDo() error {
 	return nil
 }
 
-func (c *Clean) Close() error {
+func (c *Clean) Close() error { return nil }
 
-	return nil
-}
+var _ destination.Destinationer[storage.MapEntry] = (*cleanToDB)(nil)
 
-var _ destination.Destinationer[storage.MapEntry] = (*insertToDB)(nil)
+type cleanToDB struct{}
 
-type insertToDB struct {
-}
-
-func (i *insertToDB) Exec(d *destination.Destination[storage.MapEntry], items storage.MapEntries) error {
+func (i *cleanToDB) Exec(d *destination.Destination[storage.MapEntry], items storage.MapEntries) error {
 	return d.DB().BulkInsertFromSliceMap(d.TableName(), items, int(d.PageSize()))
 }
 
@@ -200,7 +203,7 @@ func newInsertToDB(c *Clean, target job.Target) (*destination.Destination[storag
 		Concurrency: c.config.Concurrency,
 		PageSize:    int64(c.config.BatchSize),
 		TableName:   target.TableName(),
-	}, &insertToDB{}, func() (*database.DB, error) {
+	}, &cleanToDB{}, func() (*database.DB, error) {
 		return database.NewFromSimpleDb(target.GetDB()), nil
 	})
 }
