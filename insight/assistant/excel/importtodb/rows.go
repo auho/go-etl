@@ -11,8 +11,8 @@ var _ Resourcer = (*RowsResource)(nil)
 
 type RowsResource struct {
 	Resource
-	Titles
-	Rows assistant.Rowsor
+	Titles // column title of save to db
+	Rows   assistant.Rowsor
 }
 
 func (rs *RowsResource) Prepare() error {

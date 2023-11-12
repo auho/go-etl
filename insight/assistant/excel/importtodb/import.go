@@ -53,8 +53,6 @@ func (it *ImportToDb) importResource(resource Resourcer) error {
 
 	_table := resource.GetTable()
 
-	resource.CommandExec(_table.GetCommand())
-
 	err = it.buildResourceTable(resource, _table)
 	if err != nil {
 		return fmt.Errorf("buildResourceTable error; %w", err)
@@ -92,6 +90,8 @@ func (it *ImportToDb) buildResourceTable(resource Resourcer, table buildtable.Ta
 	}
 
 	if isRecreateTable {
+		resource.CommandExec(table.GetCommand())
+
 		err = table.Build()
 		if err != nil {
 			return fmt.Errorf("build error; %w", err)

@@ -27,14 +27,14 @@ type Resourcer interface {
 
 type Resource struct {
 	SheetName            string
-	SheetIndex           int   // sheet index，从 1 开始
-	StartRow             int   // 数据开始的行数，从 1 开始
-	IsRecreateTable      bool  // 是否 recreate table
-	IsAppendData         bool  // 是否 append data
-	IsShowSql            bool  // 是否显示 sql
-	ColumnDropDuplicates []int // drop duplicates for column
-	CommandFun           func(*tablestructure.Command)
-	PostFun              func(Resourcer) error
+	SheetIndex           int                           // sheet index，从 1 开始
+	StartRow             int                           // 数据开始的行数，从 1 开始
+	IsRecreateTable      bool                          // 是否 recreate table
+	IsAppendData         bool                          // 是否 append data
+	IsShowSql            bool                          // 是否显示 sql
+	ColumnDropDuplicates []int                         // drop duplicates for column
+	CommandFun           func(*tablestructure.Command) // recreate table 时执行的 func
+	PostFun              func(Resourcer) error         // 导入后的执行的 func
 }
 
 func (s *Resource) buildSheetConfig() read.Config {

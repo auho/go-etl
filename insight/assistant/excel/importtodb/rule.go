@@ -15,8 +15,8 @@ var _ Resourcer = (*RuleResource)(nil)
 
 type RuleResource struct {
 	Resource
-	Titles
-	Rule assistant.Ruler
+	Titles // column title of save to db
+	Rule   assistant.Ruler
 }
 
 func (rs *RuleResource) Prepare() error {
