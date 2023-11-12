@@ -100,7 +100,7 @@ type targetCleanDeletedTest struct {
 }
 
 func (t targetCleanDeletedTest) TableName() string {
-	return _cleanDeletedTable
+	return _deletedDataTable
 }
 
 // targetCleanTest

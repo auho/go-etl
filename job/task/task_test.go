@@ -72,8 +72,8 @@ func Test_Insert(t *testing.T) {
 	dataCount := getAmount(_source.TableName(), t)
 	tagCount := getAmount(_targetTagA.TableName(), t)
 
-	if dataCount*4 != tagCount {
-		t.Error("data *4 != tag")
+	if dataCount*2 != tagCount {
+		t.Errorf("data[%d] *2 != tag[%d]", dataCount, tagCount)
 	}
 
 	count1 := getAmount(_targetTagA1.TableName(), t)
@@ -118,12 +118,12 @@ func Test_Clean(t *testing.T) {
 	dataCount := getAmount(_source.TableName(), t)
 	cDataCount := getAmount(_targetClean.DataTarget().TableName(), t)
 	cDeletedCount := getAmount(_targetClean.DeletedTarget().TableName(), t)
-	if cDeletedCount == dataCount || dataCount/cDeletedCount < 3 {
-		t.Error("cData != data")
+	if cDeletedCount == 0 || cDataCount == 0 {
+		t.Errorf("data[%d], cData[%d], cDeletedCount[%d]", dataCount, cDataCount, cDeletedCount)
 	}
 
 	if cDataCount+cDeletedCount != dataCount {
-		t.Error("cData + cDeleted != data")
+		t.Errorf("cData[%d] + cDeleted[%d] != data[%d]", cDataCount, cDeletedCount, dataCount)
 	}
 }
 

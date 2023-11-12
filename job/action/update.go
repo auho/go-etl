@@ -68,6 +68,8 @@ func NewUpdate(source job.Source, modes []mode.UpdateModer, opts ...func(*Update
 
 	u.Init()
 
+	u.config.check()
+
 	return u
 }
 
@@ -111,21 +113,25 @@ func (u *Update) Prepare() error {
 		}
 	}
 
-	u.dst, err = newUpdateToDB(u, u.target)
-	if err != nil {
-		return fmt.Errorf("newUpdateToDB dst error; %w", err)
+	if u.isTransfer {
+		u.dst, err = newUpdateToDB(u, u.target)
+		if err != nil {
+			return fmt.Errorf("newUpdateToDB dst error; %w", err)
+		}
 	}
 
 	return nil
 }
 
 func (u *Update) PreDo() error {
-	err := u.dst.Accept()
-	if err != nil {
-		return fmt.Errorf("dst accept error;%w", err)
-	}
+	if u.isTransfer {
+		err := u.dst.Accept()
+		if err != nil {
+			return fmt.Errorf("dst accept error;%w", err)
+		}
 
-	u.dstLine = u.AddState(fmt.Sprintf("data: %s", strings.Join(u.dst.State(), "\n")))
+		u.dstLine = u.AddState(fmt.Sprintf("data: %s", strings.Join(u.dst.State(), "\n")))
+	}
 
 	return nil
 }
@@ -172,12 +178,16 @@ func (u *Update) PostBatchDo(items []map[string]any) {
 }
 
 func (u *Update) Blink() {
-	u.SetState(u.dstLine, fmt.Sprintf("data: %s", strings.Join(u.dst.State(), "\n")))
+	if u.isTransfer {
+		u.SetState(u.dstLine, fmt.Sprintf("data: %s", strings.Join(u.dst.State(), "\n")))
+	}
 }
 
 func (u *Update) PostDo() error {
-	u.dst.Done()
-	u.dst.Finish()
+	if u.isTransfer {
+		u.dst.Done()
+		u.dst.Finish()
+	}
 
 	return nil
 }
