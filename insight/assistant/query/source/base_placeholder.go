@@ -9,30 +9,43 @@ import (
 type basePlaceHolder struct {
 }
 
-// []string []item name
-// map[string]string map[item name]sql
-func (bph *basePlaceHolder) buildPlaceholderItemsSqlSet(s *Source, sql string, items []map[string]any) ([]string, map[string]string) {
-	var itemsName []string
-	itemsSql := make(map[string]string, len(items))
-
+func (bph *basePlaceHolder) buildKeys(sql string) []string {
 	re := regexp.MustCompile(`##[^#]+##`)
 	keys := re.FindAllString(sql, -1)
 	for i, key := range keys {
 		keys[i] = strings.ReplaceAll(key, "#", "")
 	}
 
+	return keys
+}
+
+// []string []item id
+// map[string]string map[item id]sql
+func (bph *basePlaceHolder) buildPlaceholderItemsSqlSet(s Source, sql string, keys []string, items []map[string]any) ([]string, map[string]string) {
+	var itemsId []string
+	itemsSql := make(map[string]string, len(items))
+
+	// remove duplicates
+	_itemsIdMap := make(map[string]struct{})
+
 	for _, item := range items {
-		var itemsKey []string
+		var itemValues []string
 		for _, key := range keys {
-			itemsKey = append(itemsKey, fmt.Sprintf("%v", item[key]))
+			itemValues = append(itemValues, fmt.Sprintf("%v", item[key]))
 		}
 
-		itemNameId := s.itemsNameToIdentification(itemsKey)
-		itemsName = append(itemsName, itemNameId)
-		itemsSql[itemNameId] = bph.buildPlaceholderItemSql(sql, item)
+		itemId := s.itemValuesToIdentification(itemValues)
+		if _, ok := _itemsIdMap[itemId]; ok {
+			continue
+		}
+
+		_itemsIdMap[itemId] = struct{}{}
+
+		itemsId = append(itemsId, itemId)
+		itemsSql[itemId] = bph.buildPlaceholderItemSql(sql, item)
 	}
 
-	return itemsName, itemsSql
+	return itemsId, itemsSql
 }
 
 // []string sql

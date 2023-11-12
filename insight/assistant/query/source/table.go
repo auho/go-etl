@@ -20,12 +20,12 @@ func NewTable(s Source) *TableSource {
 
 func (ts *TableSource) Dataset() (*dataset.Dataset, error) {
 	fields := ts.Table.GetSelectFields()
-	itemsName := []string{ts.Name}
+	itemsId := []string{ts.Name}
 	itemsSql := map[string]string{ts.Name: ts.Table.Sql()}
 
 	sets, err := ts.queryItemsSet(
 		fields,
-		itemsName,
+		itemsId,
 		itemsSql,
 	)
 	if err != nil {

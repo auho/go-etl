@@ -20,9 +20,11 @@ type Query struct {
 	xlsxName string
 	excel    *write.Excel
 
-	queries  []subQuery
+	queries  []*subQuery
 	state    state
 	duration *timing.Duration
+
+	summary []string
 }
 
 func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
@@ -55,7 +57,7 @@ func (q *Query) AddSpread(source source.Sourcer) {
 }
 
 func (q *Query) add(dm dataset.Mode, s source.Sourcer) {
-	q.queries = append(q.queries, subQuery{
+	q.queries = append(q.queries, &subQuery{
 		source:      s,
 		datasetMode: dm,
 	})
@@ -75,49 +77,58 @@ func (q *Query) doQueries() error {
 	return nil
 }
 
-func (q *Query) doQuery(sq subQuery) error {
+func (q *Query) doQuery(sq *subQuery) error {
 	_d := timing.NewDuration()
 	_d.Start()
 
 	_d.Begin()
-	ds, err := sq.source.Dataset()
+	_dataset, err := sq.source.Dataset()
 	sq.state.sourceDuration = _d.SubBegin()
 	if err != nil {
 		return fmt.Errorf("dataset error; %w", err)
 	}
 
 	_d.Begin()
-	dsMode, err := dataset.NewMode(sq.datasetMode, ds)
+	_datasetMode, err := dataset.NewMode(sq.datasetMode, _dataset)
 	if err != nil {
 		return fmt.Errorf("NewMode error; %w", err)
 	}
 
-	data, err := dsMode.Data()
+	_data, err := _datasetMode.Data()
 	sq.state.datasetDuration = _d.SubBegin()
 	if err != nil {
 		return fmt.Errorf("data error; %w", err)
 	}
 
 	_d.Begin()
-	for _, name := range data.Names {
-		_, err = q.excel.NewSheetWithData(name, data.Rows[name])
+	for _, name := range _data.Names {
+		_, err = q.excel.NewSheetWithData(name, _data.Rows[name])
 		sq.state.toSheetDuration = _d.SubBegin()
 		if err != nil {
 			return fmt.Errorf("NewSheetWithData error; %w", err)
 		}
+
+		sq.state.amount += _data.RowsAmount[name]
 	}
 
 	_d.Stop()
 	sq.state.totalDuration = _d.SubStart()
 	q.state.add(sq.state)
 
-	fmt.Println(fmt.Sprintf(" 《%s》; %s", dsMode.Name(), sq.state.overview()))
-	for _, _set := range dsMode.Sets() {
-		fmt.Println(fmt.Sprintf("  <%s> => amount: %d, duration %s", _set.Name, _set.Amount, timing.PrettyDuration(_set.Duration)))
+	_querySummary := fmt.Sprintf("《%s》[%s]: %s", _datasetMode.Name(), sq.datasetMode, sq.state.overview())
+	q.summary = append(q.summary, _querySummary)
+	fmt.Println(_querySummary)
+
+	for _, _set := range _datasetMode.Sets() {
+		_setSummary := fmt.Sprintf("  <%s> => amount: %d, duration %s", _set.Name, _set.Amount, timing.PrettyDuration(_set.Duration))
+		q.summary = append(q.summary, _setSummary)
+		fmt.Println(_setSummary)
+
 		for _, _query := range _set.Queries {
-			fmt.Println(fmt.Sprintf("    %s => amount: %d, duration %s", _query.Name, _query.Amount, timing.PrettyDuration(_query.Duration)))
+			fmt.Println(fmt.Sprintf("    %s => amount: %d, duration %s:", _query.Name, _query.Amount, timing.PrettyDuration(_query.Duration)))
 			fmt.Println(fmt.Sprintf("    %s", _query.Sql))
 		}
+
 		fmt.Println()
 	}
 
@@ -137,6 +148,11 @@ func (q *Query) Save() error {
 	q.state.saveDuration = q.duration.SubBegin()
 	q.duration.Stop()
 	q.state.totalDuration = q.duration.SubStart()
+
+	fmt.Println("SUMMARY =>")
+	for _, _s := range q.summary {
+		fmt.Println(_s)
+	}
 
 	fmt.Println("QUERY =>")
 	fmt.Println(q.state.overview())

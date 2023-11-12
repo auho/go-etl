@@ -31,6 +31,7 @@ c: 6
 
 type PlaceholderStackSource struct {
 	baseCross
+	basePlaceHolder
 	Source
 	categories []map[string]any // []map[field][field value]
 	stacks     []map[string]any // []map[field][field value]
@@ -42,75 +43,100 @@ func NewPlaceholderStack(s Source) *PlaceholderStackSource {
 	}
 }
 
-func (pc *PlaceholderStackSource) WithCategories(categories []map[string]any) *PlaceholderStackSource {
-	pc.categories = categories
+func (pss *PlaceholderStackSource) WithCategories(categories []map[string]any) *PlaceholderStackSource {
+	pss.categories = categories
 
-	return pc
+	return pss
 }
 
-func (pc *PlaceholderStackSource) WithStacks(stacks []map[string]any) *PlaceholderStackSource {
-	pc.stacks = stacks
+func (pss *PlaceholderStackSource) WithStacks(stacks []map[string]any) *PlaceholderStackSource {
+	pss.stacks = stacks
 
-	return pc
+	return pss
 }
 
-func (pc *PlaceholderStackSource) WithCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
-	return pc.WithCategories(pc.expandItemsCross(categories))
+func (pss *PlaceholderStackSource) WithCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
+	return pss.WithCategories(pss.expandItemsCross(categories))
 }
 
-func (pc *PlaceholderStackSource) WithStacksCross(stacks map[string][]any) *PlaceholderStackSource {
-	return pc.WithStacks(pc.expandItemsCross(stacks))
+func (pss *PlaceholderStackSource) WithStacksCross(stacks map[string][]any) *PlaceholderStackSource {
+	return pss.WithStacks(pss.expandItemsCross(stacks))
 }
 
-func (pc *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
-	if len(pc.categories) <= 0 {
-		return nil, fmt.Errorf("PlaceholderStackSource[%s] categories len is error", pc.Name)
+func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
+	if len(pss.categories) <= 0 {
+		return nil, fmt.Errorf("PlaceholderStackSource[%s] categories len is error", pss.Name)
 	}
 
-	if len(pc.stacks) <= 0 {
-		return nil, fmt.Errorf("PlaceholderStackSource[%s] stacks len is error", pc.Name)
+	if len(pss.stacks) <= 0 {
+		return nil, fmt.Errorf("PlaceholderStackSource[%s] stacks len is error", pss.Name)
 	}
 
-	fields := pc.Table.GetSelectFields()
+	fields := pss.Table.GetSelectFields()
+	keys := pss.buildKeys(pss.Table.Sql())
 
+	// remove duplicates
+	_categoryIdMap := make(map[string]struct{})
 	var _sets []dataset.Set
 
-	for _, _category := range pc.categories {
+	for _, _category := range pss.categories {
 		var _items []map[string]any
 
-		for _, _stack := range pc.stacks {
+		_categoryId := pss.categoryToId(_category, keys)
+		if _, ok := _categoryIdMap[_categoryId]; ok {
+			continue
+		}
+
+		_categoryIdMap[_categoryId] = struct{}{}
+
+		for _, _stack := range pss.stacks {
 			_item := make(map[string]any)
 			maps.Copy(_item, _category)
 			maps.Copy(_item, _stack)
 
-			_items = append(_items, _item)
+			_newItem := make(map[string]any, len(keys))
+			for _, _k := range keys {
+				_newItem[_k] = _item[_k]
+			}
+
+			_items = append(_items, _newItem)
 		}
 
-		_categoryPs := NewPlaceholder(pc.Source).WithItems(_items)
+		_categoryPs := NewPlaceholder(pss.Source).WithItems(_items)
 		_psDs, err := _categoryPs.Dataset()
 		if err != nil {
 			return nil, fmt.Errorf("dataset error; %w", err)
 		}
 
-		_sets = append(_sets, dataset.NewSetWithSets(pc.categoryToId(_category), _psDs.Sets))
+		_sets = append(_sets, dataset.NewSetWithSets(pss.categoryToId(_category, _psDs.Keys), _psDs.Sets))
 	}
 
 	return &dataset.Dataset{
-		Name:   pc.Name,
+		Name:   pss.Name,
 		Titles: fields,
 		Sets:   _sets,
 	}, nil
 }
 
-func (pc *PlaceholderStackSource) categoryToId(category map[string]any) string {
-	var keys []string
-	for _, v := range category {
-		keys = append(keys, fmt.Sprintf("%v", v))
+func (pss *PlaceholderStackSource) categoryToId(category map[string]any, keys []string) string {
+	var values []string
+
+	_keysMap := make(map[string]struct{}, len(keys))
+	for _, _k := range keys {
+		_keysMap[_k] = struct{}{}
 	}
 
-	sort.Slice(keys, func(i, j int) bool {
-		return keys[i] < keys[j]
+	for _ck, _cv := range category {
+		if _, ok := _keysMap[_ck]; ok {
+			values = append(values, fmt.Sprintf("%v", _cv))
+		} else {
+			//panic(fmt.Sprintf("categoryToId category[%s] value not found", _ck))
+		}
+	}
+
+	sort.Slice(values, func(i, j int) bool {
+		return values[i] < values[j]
 	})
 
-	return pc.itemsNameToIdentification(keys)
+	return pss.itemValuesToIdentification(values)
 }

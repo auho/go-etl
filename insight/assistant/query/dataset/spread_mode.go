@@ -19,10 +19,10 @@ func NewSpreadMode(ds *Dataset) *SpreadMode {
 func (sm *SpreadMode) Data() (*Data, error) {
 	data := &Data{}
 
+	titles := slices.SliceToAny(sm.dataset.Titles)
 	for _, set := range sm.dataset.Sets {
-		rows := [][]any{slices.SliceToAny(sm.dataset.Titles)}
-
-		data.add(set.Name, append(rows, set.Rows...))
+		var rows [][]any
+		data.addRowsWithTitles(set.Name, titles, append(rows, set.Rows...))
 	}
 
 	return data, nil

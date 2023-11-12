@@ -24,8 +24,8 @@ type Source struct {
 	DB            *simpleDb.SimpleDB
 }
 
-func (s *Source) itemsNameToIdentification(itemsName []string) string {
-	id := s.keysToIdentification(itemsName)
+func (s *Source) itemValuesToIdentification(itemValues []string) string {
+	id := s.keysToIdentification(itemValues)
 	if s.HasNamePrefix {
 		id = fmt.Sprintf("%s_%s", s.Name, id)
 	}
@@ -37,16 +37,16 @@ func (s *Source) keysToIdentification(keys []string) string {
 	return strings.Join(keys, "_")
 }
 
-func (s *Source) queryItemsSet(fields, itemsName []string, itemsSql map[string]string) ([]dataset.Set, error) {
+func (s *Source) queryItemsSet(fields, itemsId []string, itemsSql map[string]string) ([]dataset.Set, error) {
 	var sets []dataset.Set
 
-	for _, itemName := range itemsName {
-		rows, _d, err := s.querySql(itemsSql[itemName], fields)
+	for _, itemId := range itemsId {
+		rows, _d, err := s.querySql(itemsSql[itemId], fields)
 		if err != nil {
 			return nil, fmt.Errorf("querySql error; %w", err)
 		}
 
-		sets = append(sets, dataset.NewSetWithQuery(itemName, itemsSql[itemName], _d, rows))
+		sets = append(sets, dataset.NewSetWithQuery(itemId, itemsSql[itemId], _d, rows))
 	}
 
 	return sets, nil

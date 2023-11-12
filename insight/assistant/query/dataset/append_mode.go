@@ -17,14 +17,14 @@ func NewAppendMode(ds *Dataset) *AppendMode {
 }
 
 func (am *AppendMode) Data() (*Data, error) {
-	rows := [][]any{slices.SliceToAny(am.dataset.Titles)}
+	var rows [][]any
 
 	for _, set := range am.dataset.Sets {
 		rows = append(rows, set.Rows...)
 	}
 
 	data := &Data{}
-	data.add(am.dataset.Name, rows)
+	data.addRowsWithTitles(am.dataset.Name, slices.SliceToAny(am.dataset.Titles), rows)
 
 	return data, nil
 }
