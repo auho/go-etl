@@ -25,7 +25,7 @@ func ExampleNewPlaceholder() {
 			Select([]string{"field1", "field2"}).
 			Where("`field1` = '##two##' AND `field2` = '##one##'"),
 	}).WithItems(
-		[]map[string]string{
+		[]map[string]any{
 			{"one": "1", "two": "2"},
 			{"one": "1", "two": "21"},
 			{"one": "11", "two": "2"},
@@ -40,11 +40,10 @@ func ExampleNewPlaceholder() {
 		Table: dml.NewTable("table_name").
 			Select([]string{"field1", "field2"}).
 			Where("`field1` = '##two##' AND `field2` = '##one##' AND `field3` = ##three##"),
-	}).WithItemsCross(
-		[]map[string][]string{
-			{"one": []string{"1", "11"}},
-			{"two": []string{"2", "21"}},
-		},
+	}).WithItemsCross(map[string][]any{
+		"one": {"1", "11"},
+		"two": {"2", "21"},
+	},
 	)
 }
 
@@ -59,10 +58,10 @@ func ExampleNewPlaceholderStack() {
 		Table: dml.NewTable("table_name").
 			Select([]string{"field1", "field2"}).
 			Where("`field1` = '##two##' AND `field2` = '##one##' AND `field3` = ##three##"),
-	}).WithCategories([]map[string]string{
-		{"three": "1"},
-		{"three": "2"},
-	}).WithStacks([]map[string]string{
+	}).WithCategories([]map[string]any{
+		{"three": 1},
+		{"three": 2},
+	}).WithStacks([]map[string]any{
 		{"one": "1", "two": "2"},
 		{"one": "1", "two": "21"},
 		{"one": "11", "two": "2"},
@@ -76,13 +75,13 @@ func ExampleNewPlaceholderStack() {
 		DB:   nil,
 		Table: dml.NewTable("table_name").
 			Select([]string{"field1", "field2"}).
-			Where("`field1` = '##two##' AND `field2` = '##one##' AND `field3` = ##three##"),
-	}).WithCategoriesCross([]map[string][]string{
-		{"three": []string{"1", "2"}},
-	}).WithStacksCross(
-		[]map[string][]string{
-			{"one": []string{"1", "11"}},
-			{"two": []string{"2", "21"}},
-		},
+			Where("`field1` = '##two##' AND `field2` = '##one##' AND `field3` = ##three## AND `field4`= ##four##"),
+	}).WithCategoriesCross(map[string][]any{
+		"three": {1, 2},
+		"four":  {3, 4},
+	}).WithStacksCross(map[string][]any{
+		"one": {"1", "11"},
+		"two": {"2", "21"},
+	},
 	)
 }

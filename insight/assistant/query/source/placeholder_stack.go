@@ -32,8 +32,8 @@ c: 6
 type PlaceholderStackSource struct {
 	baseCross
 	Source
-	categories []map[string]string // []map[field][field value]
-	stacks     []map[string]string // []map[field][field value]
+	categories []map[string]any // []map[field][field value]
+	stacks     []map[string]any // []map[field][field value]
 }
 
 func NewPlaceholderStack(s Source) *PlaceholderStackSource {
@@ -42,23 +42,23 @@ func NewPlaceholderStack(s Source) *PlaceholderStackSource {
 	}
 }
 
-func (pc *PlaceholderStackSource) WithCategories(categories []map[string]string) *PlaceholderStackSource {
+func (pc *PlaceholderStackSource) WithCategories(categories []map[string]any) *PlaceholderStackSource {
 	pc.categories = categories
 
 	return pc
 }
 
-func (pc *PlaceholderStackSource) WithStacks(stacks []map[string]string) *PlaceholderStackSource {
+func (pc *PlaceholderStackSource) WithStacks(stacks []map[string]any) *PlaceholderStackSource {
 	pc.stacks = stacks
 
 	return pc
 }
 
-func (pc *PlaceholderStackSource) WithCategoriesCross(categories []map[string][]string) *PlaceholderStackSource {
+func (pc *PlaceholderStackSource) WithCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
 	return pc.WithCategories(pc.expandItemsCross(categories))
 }
 
-func (pc *PlaceholderStackSource) WithStacksCross(stacks []map[string][]string) *PlaceholderStackSource {
+func (pc *PlaceholderStackSource) WithStacksCross(stacks map[string][]any) *PlaceholderStackSource {
 	return pc.WithStacks(pc.expandItemsCross(stacks))
 }
 
@@ -76,12 +76,12 @@ func (pc *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 	var _sets []dataset.Set
 
 	for _, _category := range pc.categories {
-		var _items []map[string]string
+		var _items []map[string]any
 
-		for _, stack := range pc.stacks {
-			_item := make(map[string]string)
+		for _, _stack := range pc.stacks {
+			_item := make(map[string]any)
 			maps.Copy(_item, _category)
-			maps.Copy(_item, stack)
+			maps.Copy(_item, _stack)
 
 			_items = append(_items, _item)
 		}
@@ -102,10 +102,10 @@ func (pc *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 	}, nil
 }
 
-func (pc *PlaceholderStackSource) categoryToId(category map[string]string) string {
+func (pc *PlaceholderStackSource) categoryToId(category map[string]any) string {
 	var keys []string
 	for _, v := range category {
-		keys = append(keys, v)
+		keys = append(keys, fmt.Sprintf("%v", v))
 	}
 
 	sort.Slice(keys, func(i, j int) bool {

@@ -12,7 +12,7 @@ type PlaceholderSource struct {
 	Source
 	baseCross
 	basePlaceHolder
-	items []map[string]string // []map[field][field value]
+	items []map[string]any // []map[field][field value]
 }
 
 func NewPlaceholder(s Source) *PlaceholderSource {
@@ -37,7 +37,7 @@ func NewPlaceholder(s Source) *PlaceholderSource {
  a: 2 b: 4
 */
 
-func (ps *PlaceholderSource) WithItems(items []map[string]string) *PlaceholderSource {
+func (ps *PlaceholderSource) WithItems(items []map[string]any) *PlaceholderSource {
 	ps.items = items
 
 	return ps
@@ -59,7 +59,7 @@ func (ps *PlaceholderSource) WithItems(items []map[string]string) *PlaceholderSo
  a: 2 b: 4
  a: 2 b: 4
 */
-func (ps *PlaceholderSource) WithItemsCross(items []map[string][]string) *PlaceholderSource {
+func (ps *PlaceholderSource) WithItemsCross(items map[string][]any) *PlaceholderSource {
 	ps.items = ps.expandItemsCross(items)
 
 	return ps
