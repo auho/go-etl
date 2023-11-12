@@ -3,7 +3,6 @@ package source
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 )
 
@@ -13,7 +12,10 @@ var _ Sourcer = (*TableSource)(nil)
 // general queries
 type TableSource struct {
 	Source
-	Table dml.Tabler
+}
+
+func NewTable(s Source) *TableSource {
+	return &TableSource{Source: s}
 }
 
 func (ts *TableSource) Dataset() (*dataset.Dataset, error) {

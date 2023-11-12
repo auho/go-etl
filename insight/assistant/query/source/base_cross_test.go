@@ -12,7 +12,7 @@ func Test_baseCross_expandItems(t *testing.T) {
 		{"tow": []string{"1", "2", "3"}},
 	}
 
-	_items := bc.expandItems(items)
+	_items := bc.expandItemsCross(items)
 	for _, item := range _items {
 		fmt.Println(item)
 	}

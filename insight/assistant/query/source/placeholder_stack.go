@@ -5,7 +5,6 @@ import (
 	"maps"
 	"sort"
 
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 )
 
@@ -31,23 +30,55 @@ c: 6
 */
 
 type PlaceholderStackSource struct {
-	basePlaceHolder
 	baseCross
 	Source
-	Table      dml.Tabler
-	Categories []map[string]string // []map[field][field value]
-	Stacks     []map[string]string // []map[field][field value]
+	categories []map[string]string // []map[field][field value]
+	stacks     []map[string]string // []map[field][field value]
+}
+
+func NewPlaceholderStack(s Source) *PlaceholderStackSource {
+	return &PlaceholderStackSource{
+		Source: s,
+	}
+}
+
+func (pc *PlaceholderStackSource) WithCategories(categories []map[string]string) *PlaceholderStackSource {
+	pc.categories = categories
+
+	return pc
+}
+
+func (pc *PlaceholderStackSource) WithStacks(stacks []map[string]string) *PlaceholderStackSource {
+	pc.stacks = stacks
+
+	return pc
+}
+
+func (pc *PlaceholderStackSource) WithCategoriesCross(categories []map[string][]string) *PlaceholderStackSource {
+	return pc.WithCategories(pc.expandItemsCross(categories))
+}
+
+func (pc *PlaceholderStackSource) WithStacksCross(stacks []map[string][]string) *PlaceholderStackSource {
+	return pc.WithStacks(pc.expandItemsCross(stacks))
 }
 
 func (pc *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
+	if len(pc.categories) <= 0 {
+		return nil, fmt.Errorf("PlaceholderStackSource[%s] categories len is error", pc.Name)
+	}
+
+	if len(pc.stacks) <= 0 {
+		return nil, fmt.Errorf("PlaceholderStackSource[%s] stacks len is error", pc.Name)
+	}
+
 	fields := pc.Table.GetSelectFields()
 
 	var _sets []dataset.Set
 
-	for _, _category := range pc.Categories {
+	for _, _category := range pc.categories {
 		var _items []map[string]string
 
-		for _, stack := range pc.Stacks {
+		for _, stack := range pc.stacks {
 			_item := make(map[string]string)
 			maps.Copy(_item, _category)
 			maps.Copy(_item, stack)
@@ -55,12 +86,7 @@ func (pc *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 			_items = append(_items, _item)
 		}
 
-		_categoryPs := &PlaceholderSource{
-			Source: pc.Source,
-			Table:  pc.Table,
-			Items:  _items,
-		}
-
+		_categoryPs := NewPlaceholder(pc.Source).WithItems(_items)
 		_psDs, err := _categoryPs.Dataset()
 		if err != nil {
 			return nil, fmt.Errorf("dataset error; %w", err)

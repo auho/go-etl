@@ -10,7 +10,7 @@ type baseCross struct {
 // []map[string][]string => []map[field][][field value]
 //
 // []map[string]string => []map[field]field value
-func (bc *baseCross) expandItems(items []map[string][]string) []map[string]string {
+func (bc *baseCross) expandItemsCross(items []map[string][]string) []map[string]string {
 	/*
 		a: 1, 2
 		b: 3, 4

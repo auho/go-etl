@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 	"github.com/auho/go-etl/v2/tool/maps"
 	simpleDb "github.com/auho/go-simple-db/v2"
@@ -19,6 +20,7 @@ type Sourcer interface {
 type Source struct {
 	HasNamePrefix bool // Add the name prefix before the item
 	Name          string
+	Table         dml.Tabler
 	DB            *simpleDb.SimpleDB
 }
 
