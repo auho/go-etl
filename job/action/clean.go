@@ -21,7 +21,7 @@ type CleanConfig struct {
 	AddExtraTags bool // tags to deleted data
 	BatchSize    int
 	Concurrency  int
-	Keys         []string // source columns name
+	Keys         []string // source columns name，priority of use this keys
 }
 
 func (cc *CleanConfig) check() {

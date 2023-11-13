@@ -29,7 +29,7 @@ func (sc *SourceConfig) check() {
 	}
 
 	if sc.PageSize <= 0 {
-		sc.PageSize = 1000
+		sc.PageSize = 2000
 	}
 }
 

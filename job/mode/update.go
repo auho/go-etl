@@ -16,7 +16,7 @@ type UpdateMode struct {
 	meanses []means.UpdateMeans
 }
 
-func NewUpdateMode(keys []string, meanses ...means.UpdateMeans) *UpdateMode {
+func NewUpdate(keys []string, meanses ...means.UpdateMeans) *UpdateMode {
 	um := &UpdateMode{}
 	um.keys = keys
 	um.meanses = meanses
@@ -27,6 +27,10 @@ func NewUpdateMode(keys []string, meanses ...means.UpdateMeans) *UpdateMode {
 func (um *UpdateMode) Prepare() error {
 	if len(um.keys) <= 0 {
 		return fmt.Errorf("update prepare keys is not exists error")
+	}
+
+	if len(um.meanses) <= 0 {
+		return fmt.Errorf("update prepare meanses error")
 	}
 
 	for _, m := range um.meanses {

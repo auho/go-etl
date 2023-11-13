@@ -9,7 +9,7 @@ import (
 
 func Test_UpdateMode(t *testing.T) {
 	tMostText := tag.NewMostText(_rule)
-	tin1 := NewUpdateMode([]string{_keyName}, tMostText)
+	tin1 := NewUpdate([]string{_keyName}, tMostText)
 	err := tin1.Prepare()
 	if err != nil {
 		t.Fatal("tin1", err)
@@ -22,7 +22,7 @@ func Test_UpdateMode(t *testing.T) {
 	fmt.Println(results)
 
 	tMostKey := tag.NewMostKey(_rule)
-	tin2 := NewUpdateMode([]string{_keyName}, tMostKey)
+	tin2 := NewUpdate([]string{_keyName}, tMostKey)
 	err = tin2.Prepare()
 	if err != nil {
 		t.Fatal("tin1", err)

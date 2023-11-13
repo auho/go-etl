@@ -16,9 +16,9 @@ import (
 var _ Actor = (*Update)(nil)
 
 type UpdateConfig struct {
-	NotTruncate bool
-	BatchSize   int
-	Concurrency int
+	NotTruncate bool // for update and transfer
+	BatchSize   int  // for update and transfer
+	Concurrency int  // for update and transfer
 }
 
 func (uc *UpdateConfig) check() {

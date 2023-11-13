@@ -14,7 +14,7 @@ type TransferMode struct {
 	fixedKeys []string          // fixed data []key
 }
 
-func NewTransferMode(keys []string, alias map[string]string, fixed map[string]any) *TransferMode {
+func NewTransfer(keys []string, alias map[string]string, fixed map[string]any) *TransferMode {
 	tm := &TransferMode{}
 	tm.keys = keys
 	tm.alias = alias
