@@ -10,8 +10,8 @@ type Ruler interface {
 	KeywordNumNameAlias() string
 	Labels() []string
 	LabelsAlias() []string
-	Fixed() map[string]string
-	FixedAlias() map[string]string
+	Fixed() map[string]any
+	FixedAlias() map[string]any
 	FixedKeys() []string
 	FixedKeysAlias() []string
 	ItemsAlias() ([]map[string]string, error)

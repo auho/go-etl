@@ -16,9 +16,9 @@ var _ tag.Ruler = (*RuleItems)(nil)
 // RuleItemsConfig
 // rule items config
 type RuleItemsConfig struct {
-	Alias             map[string]string     // map[data name]output name
-	Fixed             map[string]string     // map[key]value
-	KeywordFormatFunc []func(string) string // []func(data keyword value)regexp keyword value
+	Alias             map[string]string   // map[data name]output name
+	Fixed             map[string]any      // map[key]value
+	KeywordFormatFunc func(string) string // []func(data keyword value)regexp keyword value
 }
 
 func WithRuleItemsConfig(config RuleItemsConfig) func(*RuleItems) {
@@ -36,8 +36,8 @@ func WithRuleItemsConfig(config RuleItemsConfig) func(*RuleItems) {
 type RuleItems struct {
 	rule              assistant.Ruler
 	alias             map[string]string
-	fixed             map[string]string
-	keywordFormatFunc []func(string) string
+	fixed             map[string]any
+	keywordFormatFunc func(string) string
 }
 
 func NewRuleItems(rule assistant.Ruler, opts ...func(items *RuleItems)) *RuleItems {
@@ -114,9 +114,7 @@ func (ri *RuleItems) ItemsForRegexp() ([]map[string]string, error) {
 		return nil, fmt.Errorf("ItemsAlias error; %w", err)
 	}
 	for i := range rows {
-		for _, f := range ri.keywordFormatFunc {
-			rows[i][ri.KeywordNameAlias()] = f(rows[i][ri.KeywordNameAlias()])
-		}
+		rows[i][ri.KeywordNameAlias()] = ri.keywordFormatFunc(rows[i][ri.KeywordNameAlias()])
 	}
 
 	return rows, nil
@@ -189,11 +187,11 @@ func (ri *RuleItems) KeywordNumNameAlias() string {
 	return s
 }
 
-func (ri *RuleItems) Fixed() map[string]string {
+func (ri *RuleItems) Fixed() map[string]any {
 	return ri.fixed
 }
 
-func (ri *RuleItems) FixedAlias() map[string]string {
+func (ri *RuleItems) FixedAlias() map[string]any {
 	fixed := maps.Clone(ri.Fixed())
 
 	for k, v := range fixed {

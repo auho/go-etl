@@ -2,10 +2,8 @@ package tag
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"testing"
-	"time"
 
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
@@ -31,8 +29,6 @@ func TestMain(m *testing.M) {
 }
 
 func setUp() {
-	rand.Seed(time.Now().UnixNano())
-
 	var err error
 	_db, err = simpleDb.NewMysql(_dsn)
 	if err != nil {

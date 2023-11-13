@@ -47,11 +47,11 @@ func (r *ruleTest) LabelsAlias() []string {
 	return r.Labels()
 }
 
-func (r *ruleTest) Fixed() map[string]string {
+func (r *ruleTest) Fixed() map[string]any {
 	return nil
 }
 
-func (r *ruleTest) FixedAlias() map[string]string {
+func (r *ruleTest) FixedAlias() map[string]any {
 	return nil
 }
 

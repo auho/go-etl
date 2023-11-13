@@ -42,11 +42,11 @@ func (r *ruleTest) LabelsAlias() []string {
 	return r.Labels()
 }
 
-func (r *ruleTest) Fixed() map[string]string {
+func (r *ruleTest) Fixed() map[string]any {
 	return nil
 }
 
-func (r *ruleTest) FixedAlias() map[string]string {
+func (r *ruleTest) FixedAlias() map[string]any {
 	return nil
 }
 
@@ -101,15 +101,15 @@ func (r *ruleAliasFixedTest) LabelsAlias() []string {
 	return labels
 }
 
-func (r *ruleAliasFixedTest) Fixed() map[string]string {
-	return map[string]string{
+func (r *ruleAliasFixedTest) Fixed() map[string]any {
+	return map[string]any{
 		"c": "c_fixed",
 		"d": "d_fixed",
 	}
 }
 
-func (r *ruleAliasFixedTest) FixedAlias() map[string]string {
-	return map[string]string{
+func (r *ruleAliasFixedTest) FixedAlias() map[string]any {
+	return map[string]any{
 		"c_alias": "c_fixed",
 		"d_alias": "d_fixed",
 	}
