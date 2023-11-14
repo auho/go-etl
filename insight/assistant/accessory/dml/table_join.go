@@ -38,9 +38,9 @@ func (tj *TableJoin) Table(t *Table) *TableJoin {
 // left table 为 nil，默认取上一个设定的 table, table fields
 //
 // t => right table
-// keys => right table join keys
+// fields => right table join fields
 // leftTable => left table
-// leftKeys => left table join keys
+// leftFields => left table join fields
 func (tj *TableJoin) LeftJoin(rightTable *Table, rightFields []string, leftTable *Table, leftFields []string) *TableJoin {
 	if leftTable == nil {
 		leftTable = tj.tables[len(tj.tables)-1]

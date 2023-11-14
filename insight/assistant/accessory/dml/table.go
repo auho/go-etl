@@ -124,8 +124,8 @@ func (t *Table) Aggregation(a map[string]string) *Table {
 	return t
 }
 
-func (t *Table) LeftJoin(fields []string, rightTable *Table, rightKeys []string) *Table {
-	t.join = command.NewLeftJoin(t.GetName(), fields, rightTable.GetName(), rightKeys)
+func (t *Table) LeftJoin(fields []string, rightTable *Table, rightFields []string) *Table {
+	t.join = command.NewLeftJoin(t.GetName(), fields, rightTable.GetName(), rightFields)
 
 	return t
 }

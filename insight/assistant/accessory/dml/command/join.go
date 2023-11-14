@@ -9,30 +9,30 @@ const symbolFrom = "FROM"
 const symbolLeft = "LEFT"
 
 type Join struct {
-	symbol string
-	LTable string
-	RTable string
-	LKeys  []string
-	RKeys  []string
+	symbol  string
+	LTable  string
+	RTable  string
+	LFields []string
+	RFields []string
 }
 
-func NewJoin(lt string, ltKeys []string, rt string, rtKeys []string) *Join {
+func NewJoin(l string, lFields []string, r string, rFields []string) *Join {
 	j := &Join{}
 	j.symbol = symbolFrom
-	j.LTable = lt
-	j.RTable = rt
-	j.LKeys = ltKeys
-	j.RKeys = rtKeys
+	j.LTable = l
+	j.RTable = r
+	j.LFields = lFields
+	j.RFields = rFields
 
-	if len(j.LKeys) != len(j.RKeys) {
-		panic(fmt.Sprintf("keys of left[%s] and right[%s] is unequal", strings.Join(j.LKeys, ", "), strings.Join(j.RKeys, ", ")))
+	if len(j.LFields) != len(j.RFields) {
+		panic(fmt.Sprintf("fields of left[%s] and right[%s] is unequal", strings.Join(j.LFields, ", "), strings.Join(j.RFields, ", ")))
 	}
 
 	return j
 }
 
-func NewLeftJoin(lt string, ltKeys []string, rt string, rtKeys []string) *Join {
-	j := NewJoin(lt, ltKeys, rt, rtKeys)
+func NewLeftJoin(l string, lFields []string, r string, rFields []string) *Join {
+	j := NewJoin(l, lFields, r, rFields)
 	j.symbol = symbolLeft
 
 	return j

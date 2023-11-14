@@ -115,12 +115,12 @@ func (c *TableCommand) BuildFrom() []string {
 		f = fmt.Sprintf("LEFT JOIN %s ON ", from)
 
 		ons := make([]string, 0)
-		for k := range c.join.LKeys {
+		for k := range c.join.LFields {
 			ons = append(ons, fmt.Sprintf("%s.%s = %s.%s",
 				c.addBackQuote(c.join.LTable),
-				c.addBackQuote(c.join.LKeys[k]),
+				c.addBackQuote(c.join.LFields[k]),
 				c.addBackQuote(c.join.RTable),
-				c.addBackQuote(c.join.RKeys[k]),
+				c.addBackQuote(c.join.RFields[k]),
 			))
 		}
 
@@ -219,7 +219,7 @@ func (c *TableCommand) BuildSet() []string {
 	for _, set := range c.set {
 		lValue := ""
 		rValue := ""
-		for k, v := range set.LKeys {
+		for k, v := range set.LFields {
 			lValue = c.addTablePrefix(c.addBackQuote(v), set.LTable)
 			rValueAny := set.RValues[k]
 			if set.IsExpression() {

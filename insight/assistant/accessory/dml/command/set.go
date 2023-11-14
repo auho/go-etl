@@ -11,25 +11,25 @@ type Set struct {
 	flag    string   // = 后的参数值类型标识 key ｜ expression ｜ value
 	LTable  string   // = 前的 table name
 	RTable  string   // = 后的 table name
-	LKeys   []string // = 前的 field name
+	LFields []string // = 前的 field name
 	RValues []any    // = 后的 field name | expression | value
 }
 
-func newSet(lt string, ltKeys []string, rt string, rtValue []any, flag string) *Set {
+func newSet(l string, fields []string, r string, values []any, flag string) *Set {
 	s := &Set{}
-	s.LTable = lt
-	s.RTable = rt
-	s.LKeys = ltKeys
-	s.RValues = rtValue
+	s.LTable = l
+	s.RTable = r
+	s.LFields = fields
+	s.RValues = values
 	s.flag = flag
 
-	if len(s.LKeys) != len(s.RValues) {
+	if len(s.LFields) != len(s.RValues) {
 		var _rvs []string
 		for _, _rv := range s.RValues {
 			_rvs = append(_rvs, fmt.Sprintf("%v", _rv))
 		}
 
-		panic(fmt.Sprintf("keys of left[%s] and right[%s] is unequal", strings.Join(s.LKeys, ", "), strings.Join(_rvs, ", ")))
+		panic(fmt.Sprintf("fields of left[%s] and right[%s] is unequal", strings.Join(s.LFields, ", "), strings.Join(_rvs, ", ")))
 	}
 
 	return s
