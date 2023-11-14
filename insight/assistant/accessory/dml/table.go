@@ -1,21 +1,21 @@
 package dml
 
 import (
-	command2 "github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
 )
 
 var _ Tabler = (*Table)(nil)
 
 type Table struct {
-	commander command2.TableCommander
+	commander command.TableCommander
 	name      string
-	fields    *command2.Entities
+	fields    *command.Entities
 	where     string
-	groupBy   *command2.Entities
-	orderBy   *command2.Entities
+	groupBy   *command.Entities
+	orderBy   *command.Entities
 	limit     []int
-	join      *command2.Join
-	set       []*command2.Set
+	join      *command.Join
+	set       []*command.Set
 	asSql     string
 }
 
@@ -47,11 +47,11 @@ func NewSqlTable(name, sql string) *Table {
 
 func (t *Table) init(name string, driver string) {
 	t.name = name
-	t.fields = command2.NewEntries()
-	t.groupBy = command2.NewEntries()
-	t.orderBy = command2.NewEntries()
+	t.fields = command.NewEntries()
+	t.groupBy = command.NewEntries()
+	t.orderBy = command.NewEntries()
 	t.limit = make([]int, 0)
-	t.set = make([]*command2.Set, 0)
+	t.set = make([]*command.Set, 0)
 
 	t.commander = newTableCommand(driver)
 }
@@ -117,48 +117,65 @@ func (t *Table) Limit(start int, offset int) *Table {
 
 func (t *Table) Aggregation(a map[string]string) *Table {
 	for k, v := range a {
-		e := command2.NewExpressionEntity(k, v)
+		e := command.NewExpressionEntity(k, v)
 		t.fields.Add(e)
 	}
 
 	return t
 }
 
-func (t *Table) LeftJoin(keys []string, joinTable *Table, joinKeys []string) *Table {
-	t.join = command2.NewLeftJoin(joinTable.GetName(), joinKeys, t.GetName(), keys)
+func (t *Table) LeftJoin(fields []string, rightTable *Table, rightKeys []string) *Table {
+	t.join = command.NewLeftJoin(t.GetName(), fields, rightTable.GetName(), rightKeys)
 
 	return t
 }
 
-func (t *Table) Set(s map[string]string) *Table {
-	keys := make([]string, 0)
+// SetField
+// update statement set syntax
+// map[string]string => map[left table fields]right table fields
+func (t *Table) SetField(s map[string]string) *Table {
+	fields := make([]string, 0)
 	values := make([]string, 0)
 
 	for k, v := range s {
-		keys = append(keys, k)
+		fields = append(fields, k)
 		values = append(values, v)
 	}
 
-	t.set = append(t.set, command2.NewSet(t.name, keys, t.name, values))
+	t.set = append(t.set, command.NewSetField(t.name, fields, t.name, values))
 
 	return t
 }
 
 func (t *Table) SetExpression(s map[string]string) *Table {
-	keys := make([]string, 0)
+	fields := make([]string, 0)
 	values := make([]string, 0)
 
 	for k, v := range s {
-		keys = append(keys, k)
+		fields = append(fields, k)
 		values = append(values, v)
 	}
 
-	t.set = append(t.set, command2.NewExpressionSet(t.name, keys, t.name, values))
+	t.set = append(t.set, command.NewSetExpression(t.name, fields, t.name, values))
 
 	return t
 }
 
-func (t *Table) SetSet(s *command2.Set) {
+func (t *Table) SetValue(s map[string]any) *Table {
+	fields := make([]string, 0)
+	values := make([]any, 0)
+
+	for k, v := range s {
+		fields = append(fields, k)
+		values = append(values, v)
+	}
+
+	t.set = append(t.set, command.NewSetValue(t.name, fields, t.name, values))
+
+	return t
+}
+
+func (t *Table) SetSet(s *command.Set) {
 	t.set = append(t.set, s)
 }
 

@@ -1,16 +1,16 @@
 package dml
 
 import (
-	command2 "github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
 )
 
 var _ Tabler = (*TableJoin)(nil)
 
 type TableJoin struct {
-	commander command2.TableJoinCommander
+	commander command.TableJoinCommander
 	tables    []*Table
 	limit     []int
-	set       []*command2.Set
+	set       []*command.Set
 }
 
 func newTableJoin(driver string) *TableJoin {
@@ -18,7 +18,7 @@ func newTableJoin(driver string) *TableJoin {
 	tj.commander = newTableJoinCommand(driver)
 	tj.tables = make([]*Table, 0)
 	tj.limit = make([]int, 0)
-	tj.set = make([]*command2.Set, 0)
+	tj.set = make([]*command.Set, 0)
 
 	return tj
 }
@@ -33,45 +33,71 @@ func (tj *TableJoin) Table(t *Table) *TableJoin {
 	return tj
 }
 
-func (tj *TableJoin) LeftJoin(t *Table, keys []string, joinTable *Table, joinTableKeys []string) *TableJoin {
-	if joinTable == nil {
-		joinTable = tj.tables[len(tj.tables)-1]
+// LeftJoin
+//
+// left table 为 nil，默认取上一个设定的 table, table fields
+//
+// t => right table
+// keys => right table join keys
+// leftTable => left table
+// leftKeys => left table join keys
+func (tj *TableJoin) LeftJoin(rightTable *Table, rightFields []string, leftTable *Table, leftFields []string) *TableJoin {
+	if leftTable == nil {
+		leftTable = tj.tables[len(tj.tables)-1]
 	}
 
-	if joinTableKeys == nil {
-		joinTableKeys = keys
+	if leftFields == nil {
+		leftFields = rightFields
 	}
 
-	t.LeftJoin(keys, joinTable, joinTableKeys)
-	tj.addTable(t)
+	if len(rightFields) <= 0 || len(leftFields) <= 0 {
+		panic("left join fields not found")
+	}
+
+	rightTable.LeftJoin(rightFields, leftTable, leftFields)
+	tj.addTable(rightTable)
 
 	return tj
 }
 
-func (tj *TableJoin) Set(t *Table, keys []string, setTable *Table, setKeys []string) *TableJoin {
+func (tj *TableJoin) SetField(t *Table, fields []string, setTable *Table, setFields []string) *TableJoin {
 	if setTable == nil {
 		setTable = tj.tables[len(tj.tables)-1]
 	}
 
-	if setKeys == nil {
-		setKeys = keys
+	if setFields == nil {
+		setFields = fields
 	}
 
-	t.SetSet(command2.NewSet(t.name, keys, setTable.name, setKeys))
+	t.SetSet(command.NewSetField(t.name, fields, setTable.name, setFields))
 
 	return tj
 }
 
-func (tj *TableJoin) SetExpression(t *Table, keys []string, setTable *Table, setKeys []string) *TableJoin {
+func (tj *TableJoin) SetExpression(t *Table, fields []string, setTable *Table, expression []string) *TableJoin {
 	if setTable == nil {
 		setTable = tj.tables[len(tj.tables)-1]
 	}
 
-	if setKeys == nil {
-		setKeys = keys
+	if expression == nil {
+		panic("set expression not found")
 	}
 
-	t.SetSet(command2.NewExpressionSet(t.name, keys, setTable.name, setKeys))
+	t.SetSet(command.NewSetExpression(t.name, fields, setTable.name, expression))
+
+	return tj
+}
+
+func (tj *TableJoin) SetValue(t *Table, fields []string, setTable *Table, values []any) *TableJoin {
+	if setTable == nil {
+		setTable = tj.tables[len(tj.tables)-1]
+	}
+
+	if values == nil {
+		panic("set values not found")
+	}
+
+	t.SetSet(command.NewSetValue(t.name, fields, setTable.name, values))
 
 	return tj
 }
@@ -122,7 +148,7 @@ func (tj *TableJoin) GetSelectFields() []string {
 }
 
 func (tj *TableJoin) prepare() {
-	commands := make([]command2.TableCommander, 0)
+	commands := make([]command.TableCommander, 0)
 	for _, t := range tj.tables {
 		t.prepare()
 

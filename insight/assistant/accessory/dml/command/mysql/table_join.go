@@ -3,15 +3,15 @@ package mysql
 import (
 	"fmt"
 
-	command2 "github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
 )
 
-var _ command2.TableJoinCommander = (*tableJoinCommand)(nil)
+var _ command.TableJoinCommander = (*tableJoinCommand)(nil)
 
 type tableJoinCommand struct {
 	mysql
 	toStringFuncs map[string]func() string
-	commands      []command2.TableCommander
+	commands      []command.TableCommander
 	limit         []int
 }
 
@@ -22,7 +22,7 @@ func NewTableJoinCommand() *tableJoinCommand {
 	return c
 }
 
-func (c *tableJoinCommand) SetCommands(cs []command2.TableCommander) {
+func (c *tableJoinCommand) SetCommands(cs []command.TableCommander) {
 	c.commands = cs
 }
 
@@ -31,19 +31,19 @@ func (c *tableJoinCommand) SetLimit(l []int) {
 }
 
 func (c *tableJoinCommand) BuildFieldsForInsert() []string {
-	return c.mergeCommand(c.commands, func(tc command2.TableCommander) []string {
+	return c.mergeCommand(c.commands, func(tc command.TableCommander) []string {
 		return tc.BuildFieldsForInsert()
 	})
 }
 
 func (c *tableJoinCommand) Query() string {
 	ss := c.runToStringFuncs([]string{
-		command2.ReservedSelect,
-		command2.ReservedFrom,
-		command2.ReservedWhere,
-		command2.ReservedGroupBy,
-		command2.ReservedOrderBy,
-		command2.ReservedLimit,
+		command.ReservedSelect,
+		command.ReservedFrom,
+		command.ReservedWhere,
+		command.ReservedGroupBy,
+		command.ReservedOrderBy,
+		command.ReservedLimit,
 	})
 
 	return fmt.Sprintf("%s%s%s%s%s%s", ss...)
@@ -61,11 +61,11 @@ func (c *tableJoinCommand) UpdateQuery() string {
 	ss := append([]any{
 		c.addBackQuote(c.commands[0].Name())},
 		c.runToStringFuncs([]string{
-			command2.ReservedFrom,
-			command2.ReservedSet,
-			command2.ReservedWhere,
-			command2.ReservedOrderBy,
-			command2.ReservedLimit,
+			command.ReservedFrom,
+			command.ReservedSet,
+			command.ReservedWhere,
+			command.ReservedOrderBy,
+			command.ReservedLimit,
 		})...,
 	)
 
@@ -76,10 +76,10 @@ func (c *tableJoinCommand) DeleteQuery() string {
 	ss := append([]any{
 		c.addBackQuote(c.commands[0].Name())},
 		c.runToStringFuncs([]string{
-			command2.ReservedFrom,
-			command2.ReservedWhere,
-			command2.ReservedOrderBy,
-			command2.ReservedLimit,
+			command.ReservedFrom,
+			command.ReservedWhere,
+			command.ReservedOrderBy,
+			command.ReservedLimit,
 		})...,
 	)
 
@@ -89,48 +89,48 @@ func (c *tableJoinCommand) DeleteQuery() string {
 func (c *tableJoinCommand) init() {
 	c.toStringFuncs = make(map[string]func() string)
 
-	c.toStringFuncs[command2.ReservedSelect] = func() string {
-		return c.SelectToString(c.mergeCommand(c.commands, func(tc command2.TableCommander) []string {
+	c.toStringFuncs[command.ReservedSelect] = func() string {
+		return c.SelectToString(c.mergeCommand(c.commands, func(tc command.TableCommander) []string {
 			return tc.BuildSelect()
 		}))
 	}
 
-	c.toStringFuncs[command2.ReservedFrom] = func() string {
-		return c.FromToString(c.mergeCommand(c.commands, func(tc command2.TableCommander) []string {
+	c.toStringFuncs[command.ReservedFrom] = func() string {
+		return c.FromToString(c.mergeCommand(c.commands, func(tc command.TableCommander) []string {
 			return tc.BuildFrom()
 		}))
 	}
 
-	c.toStringFuncs[command2.ReservedWhere] = func() string {
-		return c.WhereToString(c.mergeCommand(c.commands, func(tc command2.TableCommander) []string {
+	c.toStringFuncs[command.ReservedWhere] = func() string {
+		return c.WhereToString(c.mergeCommand(c.commands, func(tc command.TableCommander) []string {
 			return tc.BuildWhere()
 		}))
 	}
 
-	c.toStringFuncs[command2.ReservedGroupBy] = func() string {
-		return c.GroupByToString(c.mergeCommand(c.commands, func(tc command2.TableCommander) []string {
+	c.toStringFuncs[command.ReservedGroupBy] = func() string {
+		return c.GroupByToString(c.mergeCommand(c.commands, func(tc command.TableCommander) []string {
 			return tc.BuildGroupBy()
 		}))
 	}
 
-	c.toStringFuncs[command2.ReservedOrderBy] = func() string {
-		return c.OrderByToString(c.mergeCommand(c.commands, func(tc command2.TableCommander) []string {
+	c.toStringFuncs[command.ReservedOrderBy] = func() string {
+		return c.OrderByToString(c.mergeCommand(c.commands, func(tc command.TableCommander) []string {
 			return tc.BuildOrderBy()
 		}))
 	}
 
-	c.toStringFuncs[command2.ReservedLimit] = func() string {
+	c.toStringFuncs[command.ReservedLimit] = func() string {
 		return c.LimitToString(c.limit)
 	}
 
-	c.toStringFuncs[command2.ReservedSet] = func() string {
-		return c.SetToString(c.mergeCommand(c.commands, func(tc command2.TableCommander) []string {
+	c.toStringFuncs[command.ReservedSet] = func() string {
+		return c.SetToString(c.mergeCommand(c.commands, func(tc command.TableCommander) []string {
 			return tc.BuildSet()
 		}))
 	}
 }
 
-func (c *tableJoinCommand) mergeCommand(ts []command2.TableCommander, f func(table command2.TableCommander) []string) []string {
+func (c *tableJoinCommand) mergeCommand(ts []command.TableCommander, f func(table command.TableCommander) []string) []string {
 	s := make([]string, 0)
 	for _, t := range ts {
 		s = append(s, f(t)...)

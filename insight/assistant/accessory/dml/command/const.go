@@ -11,4 +11,5 @@ const ReservedSet = "set"
 const SortDesc = "DESC"
 const SortASC = "ASC"
 
+const flagValue = "value"
 const flagExpression = "expression"

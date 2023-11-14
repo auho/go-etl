@@ -62,15 +62,17 @@ func TestInsert(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	t1 := getTable1()
-	t1.Set(map[string]string{"a": "b", "c": "d"})
-	t1.SetExpression(map[string]string{"a": "`b` + 1 ", "c": "`d` * 2"})
+	t1 := getTable1().
+		SetField(map[string]string{"a": "b", "c": "d"}).
+		SetExpression(map[string]string{"a": "`b` + 1 ", "c": "`d` * 2"}).
+		SetValue(map[string]any{"e": "abc", "f": 1, "g": 1.11})
 	fmt.Println(t1.UpdateSql())
 
 	t2 := getTable2()
-	t3 := NewTableJoin().Table(t1).LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(1, 11)
-	t3.Set(t1, []string{"a", "b"}, t2, []string{"c", "d"})
-	t3.SetExpression(t1, []string{"a", "b"}, t2, []string{"`c` * 3", "`d` + 4 "})
+	t3 := NewTableJoin().Table(t1).LeftJoin(t2, []string{"a", "c"}, nil, nil).Limit(1, 11).
+		SetField(t1, []string{"a", "b"}, t2, []string{"c", "d"}).
+		SetExpression(t1, []string{"a", "b"}, t2, []string{"`c` * 3", "`d` + 4 "}).
+		SetValue(t1, []string{"a", "b"}, t2, []any{"abc", 1})
 	fmt.Println(t3.UpdateSql())
 }
 

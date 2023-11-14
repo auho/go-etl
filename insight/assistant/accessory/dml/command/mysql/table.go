@@ -5,24 +5,24 @@ import (
 	"regexp"
 	"strings"
 
-	command2 "github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
 	"github.com/auho/go-simple-db/v2/driver/driver"
 )
 
-var _ command2.TableCommander = (*TableCommand)(nil)
-var _ command2.Query = (*TableCommand)(nil)
+var _ command.TableCommander = (*TableCommand)(nil)
+var _ command.Query = (*TableCommand)(nil)
 
 type TableCommand struct {
 	mysql
 	name          string
 	nameBackQuote string
-	fields        *command2.Entities
+	fields        *command.Entities
 	where         string
-	groupBy       *command2.Entities
-	orderBy       *command2.Entities
+	groupBy       *command.Entities
+	orderBy       *command.Entities
 	limit         []int
-	join          *command2.Join
-	set           []*command2.Set
+	join          *command.Join
+	set           []*command.Set
 	asSql         string
 }
 
@@ -53,7 +53,7 @@ func (c *TableCommand) SetTable(name string, sql string) {
 	c.nameBackQuote = c.addBackQuote(c.name)
 }
 
-func (c *TableCommand) SetSelect(f *command2.Entities) {
+func (c *TableCommand) SetSelect(f *command.Entities) {
 	c.fields = f
 }
 
@@ -90,7 +90,7 @@ func (c *TableCommand) BuildSelect() []string {
 	return fields
 }
 
-func (c *TableCommand) SetFrom(j *command2.Join) {
+func (c *TableCommand) SetFrom(j *command.Join) {
 	c.join = j
 }
 
@@ -148,7 +148,7 @@ func (c *TableCommand) BuildWhere() []string {
 	return []string{c.addSelfTablePrefix(c.where)}
 }
 
-func (c *TableCommand) SetGroupBy(g *command2.Entities) {
+func (c *TableCommand) SetGroupBy(g *command.Entities) {
 	c.groupBy = g
 }
 
@@ -172,7 +172,7 @@ func (c *TableCommand) BuildGroupBy() []string {
 	return gs
 }
 
-func (c *TableCommand) SetOrderBy(o *command2.Entities) {
+func (c *TableCommand) SetOrderBy(o *command.Entities) {
 	c.orderBy = o
 }
 
@@ -203,7 +203,7 @@ func (c *TableCommand) Limit() string {
 	return c.LimitToString(c.limit)
 }
 
-func (c *TableCommand) SetSet(s []*command2.Set) {
+func (c *TableCommand) SetSet(s []*command.Set) {
 	c.set = s
 }
 
@@ -221,17 +221,29 @@ func (c *TableCommand) BuildSet() []string {
 		rValue := ""
 		for k, v := range set.LKeys {
 			lValue = c.addTablePrefix(c.addBackQuote(v), set.LTable)
-			rValue = set.RKeys[k]
+			rValueAny := set.RValues[k]
 			if set.IsExpression() {
-				rValue = c.addTablePrefix(rValue, set.RTable)
+				if _rValue, ok := rValueAny.(string); ok {
+					rValue = c.addTablePrefix(_rValue, set.RTable)
+				} else {
+					panic(fmt.Sprintf("field[%s] set expression is not string, expression[%v]", v, rValueAny))
+				}
+			} else if set.IsValue() {
+				switch _rValue := rValueAny.(type) {
+				case string:
+					rValue = fmt.Sprintf("'%s'", _rValue)
+				default:
+					rValue = fmt.Sprintf("%v", _rValue)
+				}
 			} else {
-				rValue = c.addTablePrefix(c.addBackQuote(rValue), set.RTable)
+				if _rValue, ok := rValueAny.(string); ok {
+					rValue = c.addTablePrefix(c.addBackQuote(_rValue), set.RTable)
+				} else {
+					panic(fmt.Sprintf("field[%s] set is not string, expression[%v]", v, rValueAny))
+				}
 			}
 
-			ss = append(ss, fmt.Sprintf("%s = %s",
-				lValue,
-				rValue,
-			))
+			ss = append(ss, fmt.Sprintf("%s = %s", lValue, rValue))
 		}
 	}
 
