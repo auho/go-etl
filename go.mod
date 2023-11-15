@@ -1,10 +1,11 @@
 module github.com/auho/go-etl/v2
 
-go 1.18
+go 1.21
 
 require (
 	github.com/auho/go-simple-db/v2 v2.0.1
 	github.com/auho/go-toolkit/flow v0.0.0-20230314142833-3cc0a19e9a0d
+	github.com/auho/go-toolkit/time v0.0.0-20230302113404-7671f9e04b95
 	github.com/pelletier/go-toml v1.9.3
 	github.com/spf13/cobra v1.7.0
 	github.com/xuri/excelize/v2 v2.8.0
@@ -17,7 +18,6 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.6.5 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/auho/go-toolkit/console v0.0.0-20230302113404-7671f9e04b95 // indirect
-	github.com/auho/go-toolkit/time v0.0.0-20230302113404-7671f9e04b95 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.6.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect

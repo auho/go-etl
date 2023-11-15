@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"time"
 
 	simpleDb "github.com/auho/go-simple-db/v2"
@@ -54,8 +55,8 @@ func (dc *DbConfig) BuildDB() (*simpleDb.SimpleDB, error) {
 	return db, err
 }
 
-func LoadConfig(name string) (*Config, error) {
-	filePath := fmt.Sprintf("conf/%s.toml", name)
+func LoadConfig(dir string, name string) (*Config, error) {
+	filePath := path.Join(dir, fmt.Sprintf("%s.toml", name))
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err

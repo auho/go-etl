@@ -1,42 +1,36 @@
 package app
 
 import (
+	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/auho/go-etl/v2/insight/app/conf"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
-type App struct {
+type Application struct {
 	DB       *simpleDb.SimpleDB
-	WorkDir  string
 	ConfName string
+	WorkDir  string
+	DataDir  string
+	XlsxDir  string
+	ConfDir  string
 }
 
-func NewApp(cn string) *App {
-	a := &App{}
+func NewApplication(cn string) *Application {
+	a := &Application{}
 	a.ConfName = cn
 
-	a.workDir()
-	a.db()
+	a.buildWorkDir()
+	a.checkDir()
+	a.buildDb()
 
 	return a
 }
 
-func (a *App) db() {
-	config, err := conf.LoadConfig(a.ConfName)
-	if err != nil {
-		panic(err)
-	}
-
-	a.DB, err = config.Db.BuildDB()
-	if err != nil {
-		panic(err)
-	}
-}
-
-func (a *App) workDir() {
+func (a *Application) buildWorkDir() {
 	workDir, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -48,11 +42,39 @@ func (a *App) workDir() {
 	}
 
 	a.WorkDir = workDir
+	a.DataDir = path.Join(a.WorkDir, "data")
+	a.XlsxDir = path.Join(a.WorkDir, "xlsx")
+	a.ConfDir = path.Join(a.WorkDir, "conf")
 }
 
-func (a *App) state() []string {
+func (a *Application) buildDb() {
+	config, err := conf.LoadConfig(a.ConfDir, a.ConfName)
+	if err != nil {
+		panic(err)
+	}
+
+	a.DB, err = config.Db.BuildDB()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (a *Application) checkDir() {
+	for _, _dir := range []string{a.DataDir, a.XlsxDir} {
+		_, err := os.Stat(_dir)
+		if os.IsNotExist(err) {
+			err = os.Mkdir(_dir, 0744)
+			if err != nil {
+				panic(fmt.Errorf("dir[%s]; %w", _dir, err))
+			}
+		}
+	}
+}
+
+func (a *Application) State() []string {
 	return []string{
 		"conf name: " + a.ConfName,
-		"work dir:" + a.WorkDir,
+		"data dir: " + a.DataDir,
+		"xlsx dir: " + a.XlsxDir,
 	}
 }

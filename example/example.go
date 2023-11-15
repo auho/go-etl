@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/auho/go-etl/v2/insight/example/cmd"
+	"github.com/auho/go-etl/v2/example/app/cmd"
 )
 
 func main() {
