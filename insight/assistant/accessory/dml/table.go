@@ -109,6 +109,18 @@ func (t *Table) OrderBy(v ...string) *Table {
 	return t
 }
 
+func (t *Table) OrderByAsc(k string) *Table {
+	t.OrderBy(k, command.SortAsc)
+
+	return t
+}
+
+func (t *Table) OrderByDesc(k string) *Table {
+	t.OrderBy(k, command.SortDesc)
+
+	return t
+}
+
 func (t *Table) Limit(start int, offset int) *Table {
 	t.limit = []int{start, offset}
 

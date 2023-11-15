@@ -41,8 +41,16 @@ func ExampleTable_GroupByAlias() {
 func ExampleTable_OrderBy() {
 	_ = NewTable("one").OrderBy(
 		"a", command.SortDesc,
-		"b", command.SortASC,
+		"b", command.SortAsc,
 	)
+}
+
+func ExampleTable_OrderByAsc() {
+	_ = NewTable("one").OrderByAsc("a").OrderByAsc("b")
+}
+
+func ExampleTable_OrderByDesc() {
+	_ = NewTable("one").OrderByDesc("a").OrderByDesc("b")
 }
 
 func ExampleTable_Limit() {
@@ -88,9 +96,14 @@ func ExampleTableJoin_LeftJoin() {
 	_t1 := NewTable("one")
 	_t2 := NewTable("two")
 
+	// 省略 table fields
 	_ = NewTableJoin().Table(_t1).LeftJoin(_t2, []string{"a", "b"}, nil, nil)
 
+	// 省略 fields
+	// 两者结果相同
+	_ = NewTableJoin().Table(_t1).LeftJoin(_t2, []string{"a", "b"}, _t1, nil)
 	_ = NewTableJoin().Table(_t1).LeftJoin(_t2, []string{"a", "b"}, _t1, []string{"a", "b"})
 
+	// 不同的 fields
 	_ = NewTableJoin().Table(_t1).LeftJoin(_t2, []string{"a", "b"}, _t1, []string{"c", "d"})
 }

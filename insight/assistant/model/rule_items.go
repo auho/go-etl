@@ -86,7 +86,7 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 		}
 	}
 
-	table.OrderBy(_originRule.KeywordLenName(), command.SortDesc, _originRule.GetIdName(), command.SortASC)
+	table.OrderBy(_originRule.KeywordLenName(), command.SortDesc, _originRule.GetIdName(), command.SortAsc)
 
 	var rows []map[string]any
 	sql := table.Sql()
