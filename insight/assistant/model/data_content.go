@@ -24,3 +24,7 @@ func NewDataContent(data *Data, contentName string) *DataContent {
 func (d *DataContent) GetName() string {
 	return fmt.Sprintf("%s_%s", d.name, d.contentName)
 }
+
+func (d *DataContent) TableName() string {
+	return fmt.Sprintf("%s_%s", NameData, d.GetName())
+}

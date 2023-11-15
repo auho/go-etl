@@ -4,6 +4,7 @@ import (
 	"maps"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -44,6 +45,10 @@ func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 
 func (r *Rule) ToItems(opts ...func(items *RuleItems)) *RuleItems {
 	return NewRuleItems(r, opts...)
+}
+
+func (r *Rule) DmlTable() *dml.Table {
+	return dml.NewTable(r.TableName())
 }
 
 func (r *Rule) handlerOrigin() *Rule {
