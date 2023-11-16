@@ -52,7 +52,7 @@ func Test_InsertMode(t *testing.T) {
 	fmt.Println(results)
 
 	// seg words
-	tSegWords := segword.NewSegWordsMeans()
+	tSegWords := segword.NewMeans()
 	tin4 := NewInsert([]string{_keyName}, tSegWords)
 	err = tin4.Prepare()
 	if err != nil {

@@ -6,32 +6,32 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ means.InsertMeans = (*SplitWordsMeans)(nil)
+var _ means.InsertMeans = (*Means)(nil)
 
-type SplitWordsMeans struct {
+type Means struct {
 	SplitWords
 	sep string
 }
 
-func NewSplitWordsMeans(sep string) *SplitWordsMeans {
-	s := &SplitWordsMeans{}
+func NewMeans(sep string) *Means {
+	s := &Means{}
 	s.sep = sep
 
 	return s
 }
 
-func (sw *SplitWordsMeans) GetTitle() string {
+func (m *Means) GetTitle() string {
 	return "SplitWords"
 }
 
-func (sw *SplitWordsMeans) GetKeys() []string {
+func (m *Means) GetKeys() []string {
 	return []string{"word"}
 }
 
-func (sw *SplitWordsMeans) Insert(contents []string) []map[string]any {
+func (m *Means) Insert(contents []string) []map[string]any {
 	items := make([]map[string]any, 0)
 	for _, c := range contents {
-		results := strings.Split(c, sw.sep)
+		results := strings.Split(c, m.sep)
 		for _, result := range results {
 			items = append(items, map[string]any{"word": result})
 		}
@@ -44,6 +44,6 @@ func (sw *SplitWordsMeans) Insert(contents []string) []map[string]any {
 	return items
 }
 
-func (sw *SplitWordsMeans) DefaultValues() map[string]any {
+func (m *Means) DefaultValues() map[string]any {
 	return map[string]any{"word": ""}
 }

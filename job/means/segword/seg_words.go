@@ -38,7 +38,7 @@ func (sw *SegWords) tag(contents []string) [][]string {
 	return results
 }
 
-func (sw *SegWordsMeans) Prepare() error {
+func (m *Means) Prepare() error {
 	return nil
 }
 

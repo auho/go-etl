@@ -6,29 +6,29 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ means.InsertMeans = (*SegWordsMeans)(nil)
+var _ means.InsertMeans = (*Means)(nil)
 
-type SegWordsMeans struct {
+type Means struct {
 	SegWords
 }
 
-func NewSegWordsMeans() *SegWordsMeans {
-	sw := &SegWordsMeans{}
+func NewMeans() *Means {
+	sw := &Means{}
 	sw.prepare()
 
 	return sw
 }
 
-func (sw *SegWordsMeans) GetTitle() string {
+func (m *Means) GetTitle() string {
 	return "SegWords"
 }
 
-func (sw *SegWordsMeans) GetKeys() []string {
+func (m *Means) GetKeys() []string {
 	return []string{"word", "flag"}
 }
 
-func (sw *SegWordsMeans) Insert(contents []string) []map[string]any {
-	results := sw.tag(contents)
+func (m *Means) Insert(contents []string) []map[string]any {
+	results := m.tag(contents)
 	if results == nil {
 		return nil
 	}
@@ -48,6 +48,6 @@ func (sw *SegWordsMeans) Insert(contents []string) []map[string]any {
 	return items
 }
 
-func (sw *SegWordsMeans) DefaultValues() map[string]any {
+func (m *Means) DefaultValues() map[string]any {
 	return map[string]any{"word": "", "flag": ""}
 }
