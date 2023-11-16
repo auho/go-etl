@@ -1,5 +1,10 @@
 package tag
 
+import (
+	"fmt"
+	"strings"
+)
+
 // #TODO 重命名（key keyword  label=>tag） SQL use orm or interface
 
 // Result
@@ -20,14 +25,32 @@ func NewResult() *Result {
 	return m
 }
 
+func (r *Result) toMapAny(rule Ruler) map[string]any {
+	item := make(map[string]any)
+
+	for _k, _v := range r.Tags {
+		item[_k] = _v
+	}
+
+	item[rule.KeywordNameAlias()] = r.Key
+	item[rule.KeywordNumNameAlias()] = r.Num
+
+	fixed := rule.FixedAlias()
+	for _, key := range rule.FixedKeysAlias() {
+		item[key] = fixed[key]
+	}
+
+	return item
+}
+
 // LabelResult
 // label result
 type LabelResult struct {
-	Identity string
-	Labels   map[string]string         // tags map[tag name]tag
-	Match    map[string]map[string]int // keyword and match text map[keyword]map[matched text]num
-	KeyNum   int64                     // keyword num
-	TextNum  int64                     // all text word num
+	Identity    string
+	Labels      map[string]string         // tags map[tag name]tag
+	Match       map[string]map[string]int // keyword and match text map[keyword]map[matched text]num
+	Keys        []string                  // []keyword
+	MatchAmount int                       // match amount
 }
 
 func NewLabelResult() *LabelResult {
@@ -38,34 +61,80 @@ func NewLabelResult() *LabelResult {
 	return l
 }
 
+func (lr *LabelResult) toMapAny(rule Ruler) map[string]any {
+	item := make(map[string]any)
+
+	for _name, _value := range lr.Labels {
+		item[_name] = _value
+	}
+
+	var _keywords []string
+	for _, _key := range lr.Keys {
+		_textNum := 0
+		for _, _num := range lr.Match[_key] {
+			_textNum += _num
+		}
+
+		_keywords = append(_keywords, fmt.Sprintf("%s %d", _key, _textNum))
+	}
+
+	item[rule.KeywordNameAlias()] = strings.Join(_keywords, ",")
+	item[rule.KeywordNumNameAlias()] = lr.MatchAmount
+
+	fixed := rule.FixedAlias()
+	for _, key := range rule.FixedKeysAlias() {
+		item[key] = fixed[key]
+	}
+
+	return item
+}
+
 // Results
-// results
+// result
 type Results []*Result
 
-func (r Results) Len() int {
-	return len(r)
+func (rs Results) Len() int {
+	return len(rs)
 }
 
-func (r Results) Less(i, j int) bool {
-	return r[i].Num > r[j].Num
+func (rs Results) Less(i, j int) bool {
+	return rs[i].Num > rs[j].Num
 }
 
-func (r Results) Swap(i, j int) {
-	r[i], r[j] = r[j], r[i]
+func (rs Results) Swap(i, j int) {
+	rs[i], rs[j] = rs[j], rs[i]
+}
+
+func (rs Results) toSliceMapAny(rule Ruler) []map[string]any {
+	items := make([]map[string]any, 0, rs.Len())
+	for _, _r := range rs {
+		items = append(items, _r.toMapAny(rule))
+	}
+
+	return items
 }
 
 // LabelResults
 // label results
 type LabelResults []*LabelResult
 
-func (l LabelResults) Len() int {
-	return len(l)
+func (lrs LabelResults) Len() int {
+	return len(lrs)
 }
 
-func (l LabelResults) Less(i, j int) bool {
-	return l[i].TextNum > l[j].TextNum
+func (lrs LabelResults) Less(i, j int) bool {
+	return lrs[i].MatchAmount > lrs[j].MatchAmount
 }
 
-func (l LabelResults) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
+func (lrs LabelResults) Swap(i, j int) {
+	lrs[i], lrs[j] = lrs[j], lrs[i]
+}
+
+func (lrs LabelResults) toSliceMapAny(rule Ruler) []map[string]any {
+	items := make([]map[string]any, 0, lrs.Len())
+	for _, _r := range lrs {
+		items = append(items, _r.toMapAny(rule))
+	}
+
+	return items
 }

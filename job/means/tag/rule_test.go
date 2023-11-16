@@ -1,8 +1,10 @@
 package tag
 
 var _ Ruler = (*ruleTest)(nil)
+var _ Ruler = (*ruleAliasFixedTest)(nil)
 
 // ruleTest
+// rule
 type ruleTest struct {
 }
 
@@ -76,12 +78,14 @@ func (r *ruleTest) ItemsForRegexp() ([]map[string]string, error) {
 	return r.ItemsAlias()
 }
 
+// ruleAliasFixedTest
+// rule alias fixed
 type ruleAliasFixedTest struct {
 	ruleTest
 }
 
 func (r *ruleAliasFixedTest) NameAlias() string {
-	return r.Name()
+	return r.Name() + "_alias"
 }
 
 func (r *ruleAliasFixedTest) KeywordNameAlias() string {

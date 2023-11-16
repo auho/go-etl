@@ -12,7 +12,7 @@ import (
 type MatcherOption func(mt *Matcher)
 
 // MatcherKeyFormatFunc
-// 匹配前格式化 keyword 的 funcs
+// 匹配前格式化 keyword 的 func list
 type MatcherKeyFormatFunc func(string) string
 
 func WithMatcherKeyFormatFunc(f ...MatcherKeyFormatFunc) MatcherOption {
@@ -40,8 +40,12 @@ func DefaultMatcher() *Matcher {
 
 // Matcher
 // 从 rule 条目生成 regexp，匹配 content, 得到 keyword, matched text
+//
+// key 表示 keyword
+// text 表示 被匹配到的 text
+// label 表示 tags
 type Matcher struct {
-	keyFormatFuncs   []MatcherKeyFormatFunc       // 在匹配前格式化关键词（使匹配更精确、丰富）
+	keyFormatFunc    []MatcherKeyFormatFunc       // 在匹配前格式化关键词（使匹配更精确、丰富）
 	regexpItems      map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名称][标签]
 	regexp           *regexp.Regexp               // 所有关键词的 regexp
 	regexpString     string                       // regular expression
@@ -84,7 +88,7 @@ func (m *Matcher) prepare(keyName string, items []map[string]string) {
 		m.regexpItems[keyValue] = items[itemK]
 
 		newKeyValue := regexp.QuoteMeta(keyValue)
-		for _, keyFormatFun := range m.keyFormatFuncs {
+		for _, keyFormatFun := range m.keyFormatFunc {
 			newKeyValue = keyFormatFun(newKeyValue)
 		}
 
@@ -106,8 +110,8 @@ func (m *Matcher) prepare(keyName string, items []map[string]string) {
 }
 
 // Match
-// 重复结果不合并
-func (m *Matcher) Match(contents []string) []*Result {
+// 匹配所有结果，重复结果不合并
+func (m *Matcher) Match(contents []string) Results {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
@@ -118,7 +122,7 @@ func (m *Matcher) Match(contents []string) []*Result {
 
 // MatchText
 // match text 合并相同的 matched text
-func (m *Matcher) MatchText(contents []string) []*Result {
+func (m *Matcher) MatchText(contents []string) Results {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
@@ -144,7 +148,7 @@ func (m *Matcher) MatchText(contents []string) []*Result {
 
 // MatchKey
 // match key 合并相同的 keyword（同时也合并 matched text）
-func (m *Matcher) MatchKey(contents []string) []*Result {
+func (m *Matcher) MatchKey(contents []string) Results {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
@@ -176,7 +180,7 @@ func (m *Matcher) MatchKey(contents []string) []*Result {
 
 // MatchFirstText
 // match first text 匹配第一个被匹配的 text
-func (m *Matcher) MatchFirstText(contents []string) []*Result {
+func (m *Matcher) MatchFirstText(contents []string) Results {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
@@ -187,7 +191,7 @@ func (m *Matcher) MatchFirstText(contents []string) []*Result {
 
 // MatchLastText
 // match first text 最后一个被匹配的 text
-func (m *Matcher) MatchLastText(contents []string) []*Result {
+func (m *Matcher) MatchLastText(contents []string) Results {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
@@ -198,33 +202,33 @@ func (m *Matcher) MatchLastText(contents []string) []*Result {
 
 // MatchMostKey
 // match most key 被匹配次数最多的 keyword
-func (m *Matcher) MatchMostKey(contents []string) []*Result {
+func (m *Matcher) MatchMostKey(contents []string) Results {
 	results := m.MatchKey(contents)
 	if results == nil {
 		return nil
 	}
 
-	sort.Sort(Results(results))
+	sort.Sort(results)
 
 	return results[0:1]
 }
 
 // MatchMostText
 // match most text 被匹配次数最多的 matched text
-func (m *Matcher) MatchMostText(contents []string) []*Result {
+func (m *Matcher) MatchMostText(contents []string) Results {
 	results := m.MatchText(contents)
 	if results == nil {
 		return nil
 	}
 
-	sort.Sort(Results(results))
+	sort.Sort(results)
 
 	return results[0:1]
 }
 
 // MatchLabel
 // match label 合并重复的 tags 组合
-func (m *Matcher) MatchLabel(contents []string) []*LabelResult {
+func (m *Matcher) MatchLabel(contents []string) LabelResults {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
 		return nil
@@ -254,16 +258,16 @@ func (m *Matcher) MatchLabel(contents []string) []*LabelResult {
 				}
 			} else {
 				result.Match[key] = map[string]int{text: 1}
-				result.KeyNum += 1
+				result.Keys = append(result.Keys, key)
 			}
 
-			result.TextNum += 1
+			result.MatchAmount += 1
 		} else {
 			result := NewLabelResult()
 			result.Labels = tags
 			result.Match[key] = map[string]int{text: 1}
-			result.KeyNum += 1
-			result.TextNum += 1
+			result.Keys = append(result.Keys, key)
+			result.MatchAmount += 1
 
 			results = append(results, result)
 			resultIndex[tagsIdentity] = len(results) - 1
@@ -275,19 +279,19 @@ func (m *Matcher) MatchLabel(contents []string) []*LabelResult {
 
 // MatchLabelMostText
 // match label most text 合并重复的 tags 组合中，text 最多次数
-func (m *Matcher) MatchLabelMostText(contents []string) []*LabelResult {
+func (m *Matcher) MatchLabelMostText(contents []string) LabelResults {
 	results := m.MatchLabel(contents)
 	if results == nil {
 		return nil
 	}
 
-	sort.Sort(LabelResults(results))
+	sort.Sort(results)
 
 	return results[0:1]
 }
 
 func (m *Matcher) addKeyFormatFunc(f ...MatcherKeyFormatFunc) {
-	m.keyFormatFuncs = append(m.keyFormatFuncs, f...)
+	m.keyFormatFunc = append(m.keyFormatFunc, f...)
 }
 
 // correctBadKeyOfGroupName

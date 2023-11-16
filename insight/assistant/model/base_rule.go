@@ -67,6 +67,14 @@ func (br *baseRule) GetLabels() map[string]int {
 	return br.aliasLabels
 }
 
+func (br *baseRule) TagsName() []string {
+	var tagsName []string
+	tagsName = append(tagsName, br.name)
+	tagsName = append(tagsName, br.LabelsName()...)
+
+	return tagsName
+}
+
 func (br *baseRule) LabelsName() []string {
 	var labels []string
 	for label, _ := range br.GetLabels() {

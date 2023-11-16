@@ -1,12 +1,13 @@
 package tag
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
 
-func TestTagMeans(t *testing.T) {
-	tm := NewTagMeans(_rule, nil)
+func TestMeans(t *testing.T) {
+	tm := NewMeans(_rule, nil)
 
 	keys := tm.GetKeys()
 	if len(keys) < 3 {
@@ -14,7 +15,7 @@ func TestTagMeans(t *testing.T) {
 	}
 }
 
-func TestTagKeyMeans(t *testing.T) {
+func TestKey(t *testing.T) {
 	tm := NewKey(_rule)
 	err := tm.Prepare()
 	if err != nil {
@@ -25,9 +26,26 @@ func TestTagKeyMeans(t *testing.T) {
 	if len(resSlice) <= 0 {
 		t.Error("error")
 	}
+
+	fmt.Println(resSlice)
 }
 
-func TestTagMostKeyMeans(t *testing.T) {
+func TestLabel(t *testing.T) {
+	tm := NewLabel(_rule)
+	err := tm.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resSlice := tm.Insert(_contents)
+	if len(resSlice) <= 0 {
+		t.Error("error")
+	}
+
+	fmt.Println(resSlice)
+}
+
+func TestMostKey(t *testing.T) {
 	tm := NewMostKey(_rule)
 	err := tm.Prepare()
 	if err != nil {
@@ -38,6 +56,8 @@ func TestTagMostKeyMeans(t *testing.T) {
 	if len(resSlice) <= 0 {
 		t.Error("error")
 	}
+
+	fmt.Println(resSlice)
 
 	keys := tm.GetKeys()
 	for _, k := range keys {
@@ -51,6 +71,8 @@ func TestTagMostKeyMeans(t *testing.T) {
 		t.Error("error")
 	}
 
+	fmt.Println(resMap)
+
 	for _, k := range keys {
 		if _, ok := resMap[k]; !ok {
 			t.Error("update error")
@@ -58,7 +80,7 @@ func TestTagMostKeyMeans(t *testing.T) {
 	}
 }
 
-func TestTagMostTextMeans(t *testing.T) {
+func TestMostText(t *testing.T) {
 	tm := NewMostText(_ruleAliasFixed)
 	err := tm.Prepare()
 	if err != nil {
@@ -71,10 +93,12 @@ func TestTagMostTextMeans(t *testing.T) {
 		}
 	}
 
-	results := tm.Insert(_contents)
-	if len(results) <= 0 {
+	resSlice := tm.Insert(_contents)
+	if len(resSlice) <= 0 {
 		t.Error("error")
 	}
+
+	fmt.Println(resSlice)
 
 	keys := tm.GetKeys()
 	for _, k := range keys {
@@ -88,9 +112,12 @@ func TestTagMostTextMeans(t *testing.T) {
 		t.Error("error")
 	}
 
+	fmt.Println(resMap)
+
 	for _, k := range keys {
 		if _, ok := resMap[k]; !ok {
 			t.Error("update error")
 		}
 	}
+
 }
