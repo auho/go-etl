@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"maps"
 	"sort"
 
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
@@ -14,11 +13,11 @@ type baseRule struct {
 	name          string // origin name
 	length        int    // origin name length
 	keywordLength int
-	labels        map[string]int
+	labels        map[string]int // map[label]label length
 
 	aliasName   string            // alias name
-	aliasLabels map[string]int    // alias labels
-	labelsAlias map[string]string //map[label]label alias
+	aliasLabels map[string]int    // map[label alias]label alias length, alias labels
+	labelsAlias map[string]string // map[label]label alias
 }
 
 func newBaseRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) baseRule {
@@ -29,8 +28,7 @@ func newBaseRule(name string, length, keywordLength int, labels map[string]int, 
 	br.labels = labels
 	br.db = db
 
-	br.aliasName = br.name
-	br.aliasLabels = maps.Clone(br.labels)
+	br.handlerAlias(nil)
 
 	if br.length <= 0 {
 		br.length = defaultStringLen
@@ -69,7 +67,7 @@ func (br *baseRule) GetLabels() map[string]int {
 
 func (br *baseRule) TagsName() []string {
 	var tagsName []string
-	tagsName = append(tagsName, br.name)
+	tagsName = append(tagsName, br.GetName())
 	tagsName = append(tagsName, br.LabelsName()...)
 
 	return tagsName

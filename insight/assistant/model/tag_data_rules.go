@@ -12,11 +12,11 @@ var _ assistant.Moder = (*TagDataRules)(nil)
 type TagDataRules struct {
 	model
 	name  string
-	data  assistant.Dataor
+	data  assistant.Rowsor
 	rules []assistant.Ruler
 }
 
-func NewTagDataRules(name string, data assistant.Dataor, rules []assistant.Ruler, db *simpleDb.SimpleDB) *TagDataRules {
+func NewTagDataRules(name string, data assistant.Rowsor, rules []assistant.Ruler, db *simpleDb.SimpleDB) *TagDataRules {
 	t := &TagDataRules{}
 	t.name = name
 	t.data = data
@@ -26,7 +26,7 @@ func NewTagDataRules(name string, data assistant.Dataor, rules []assistant.Ruler
 	return t
 }
 
-func (t *TagDataRules) GetData() assistant.Dataor {
+func (t *TagDataRules) GetData() assistant.Rowsor {
 	return t.data
 }
 
@@ -48,4 +48,8 @@ func (t *TagDataRules) GetIdName() string {
 
 func (t *TagDataRules) TableName() string {
 	return fmt.Sprintf("%s_%s_%s", NameTag, t.data.GetName(), t.name)
+}
+
+func (t *TagDataRules) Clone(name string) *TagDataRules {
+	return NewTagDataRules(name, t.data, t.rules, t.db)
 }

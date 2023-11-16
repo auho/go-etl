@@ -22,6 +22,7 @@ func WithMatcherKeyFormatFunc(f ...MatcherKeyFormatFunc) MatcherOption {
 }
 
 func defaultMatcherKeyFormatFunc(s string) string {
+	s = strings.TrimSpace(s)
 	res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 	if err != nil {
 		return s

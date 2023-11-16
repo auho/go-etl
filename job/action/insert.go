@@ -109,7 +109,12 @@ func (i *Insert) Do(item map[string]any) ([]map[string]any, bool) {
 func (i *Insert) PostBatchDo(items []map[string]any) {
 	err := i.target.GetDB().BulkInsertFromSliceMap(i.target.TableName(), items, batchSize)
 	if err != nil {
-		panic(err)
+		s := err.Error()
+		if len(s) > 300 {
+			s = s[0:300]
+		}
+
+		panic(fmt.Errorf("%s; %s", i.Title(), s))
 	}
 }
 

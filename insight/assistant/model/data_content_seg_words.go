@@ -12,11 +12,11 @@ var _ assistant.Moder = (*DataContentSegWords)(nil)
 
 type DataContentSegWords struct {
 	model
-	data        *Data
+	data        assistant.Rowsor
 	contentName string
 }
 
-func NewDataContentSegWords(data *Data, contentName string, db *simpleDb.SimpleDB) *DataContentSegWords {
+func NewDataContentSegWords(data assistant.Rowsor, contentName string, db *simpleDb.SimpleDB) *DataContentSegWords {
 	dc := &DataContentSegWords{}
 	dc.data = data
 	dc.contentName = contentName
@@ -37,7 +37,7 @@ func (dc *DataContentSegWords) GetIdName() string {
 	return "id"
 }
 
-func (dc *DataContentSegWords) GetData() *Data {
+func (dc *DataContentSegWords) GetData() assistant.Rowsor {
 	return dc.data
 }
 

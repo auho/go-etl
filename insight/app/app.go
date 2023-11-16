@@ -10,7 +10,14 @@ import (
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
+var APP *Application
+
+func NewApp(cn string) {
+	APP = NewApplication(cn)
+}
+
 type Application struct {
+	Run
 	DB       *simpleDb.SimpleDB
 	ConfName string
 	WorkDir  string

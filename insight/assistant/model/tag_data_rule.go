@@ -11,11 +11,11 @@ var _ assistant.Moder = (*TagDataRule)(nil)
 
 type TagDataRule struct {
 	model
-	data assistant.Dataor
+	data assistant.Rowsor
 	rule assistant.Ruler
 }
 
-func NewTagDataRule(data assistant.Dataor, rule assistant.Ruler, db *simpleDb.SimpleDB) *TagDataRule {
+func NewTagDataRule(data assistant.Rowsor, rule assistant.Ruler, db *simpleDb.SimpleDB) *TagDataRule {
 	t := &TagDataRule{}
 	t.data = data
 	t.rule = rule
@@ -24,7 +24,7 @@ func NewTagDataRule(data assistant.Dataor, rule assistant.Ruler, db *simpleDb.Si
 	return t
 }
 
-func (t *TagDataRule) GetData() assistant.Dataor {
+func (t *TagDataRule) GetData() assistant.Rowsor {
 	return t.data
 }
 

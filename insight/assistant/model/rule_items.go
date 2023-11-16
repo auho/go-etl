@@ -48,6 +48,12 @@ func NewRuleItems(rule assistant.Ruler, opts ...func(items *RuleItems)) *RuleIte
 		opt(ri)
 	}
 
+	if ri.keywordFormatFunc == nil {
+		ri.keywordFormatFunc = func(s string) string {
+			return s
+		}
+	}
+
 	return ri
 }
 

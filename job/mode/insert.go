@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v2/job/means"
+	"github.com/auho/go-etl/v2/tool/slices"
 )
 
 var _ InsertModer = (*InsertMode)(nil)
@@ -77,10 +78,13 @@ func (im *InsertMode) Close() error {
 
 // InsertMultiMode
 // multi means
-// 多个 means merge，使用相同 key 名称，使用 第一个 means 的 config
+// 多个 means append(上下拼接)，使用相同 column name
 type InsertMultiMode struct {
 	Mode
 	meanses []means.InsertMeans
+
+	insertKeys    []string
+	defaultValues map[string]any
 }
 
 func NewInsertMulti(keys []string, meanses ...means.InsertMeans) *InsertMultiMode {
@@ -103,6 +107,16 @@ func (im *InsertMultiMode) Prepare() error {
 		}
 	}
 
+	im.defaultValues = make(map[string]any)
+
+	for _, m := range im.meanses {
+		im.insertKeys = append(im.insertKeys, m.GetKeys()...)
+
+		maps.Copy(im.defaultValues, m.DefaultValues())
+	}
+
+	im.insertKeys = slices.SliceDropDuplicates(im.insertKeys)
+
 	return nil
 }
 
@@ -120,7 +134,7 @@ func (im *InsertMultiMode) GetFields() []string {
 }
 
 func (im *InsertMultiMode) GetKeys() []string {
-	return im.meanses[0].GetKeys()
+	return im.insertKeys
 }
 
 func (im *InsertMultiMode) Do(item map[string]any) []map[string]any {
@@ -140,7 +154,12 @@ func (im *InsertMultiMode) Do(item map[string]any) []map[string]any {
 			continue
 		}
 
-		items = append(items, res...)
+		for _, _r := range res {
+			_nr := make(map[string]any)
+			maps.Copy(_nr, im.defaultValues)
+			maps.Copy(_nr, _r)
+			items = append(items, _nr)
+		}
 	}
 
 	return items
@@ -158,7 +177,15 @@ func (im *InsertMultiMode) Close() error {
 }
 
 // InsertCrossMode
-// cross means
+// cross means 交叉
+//
+// 1，2
+// 3，4
+// =>
+// 1，3
+// 1，4
+// 2，3
+// 2，4
 type InsertCrossMode struct {
 	insertHorizontalMode
 }
@@ -198,7 +225,7 @@ func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
 		if isStart {
 			isStart = false
 			for _, _labels := range _mLabels {
-				_nLabels := maps.Clone(ic.defaultValue)
+				_nLabels := maps.Clone(ic.defaultValues)
 				maps.Copy(_nLabels, _labels)
 				newItems = append(newItems, _nLabels)
 			}
@@ -222,6 +249,7 @@ func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
 
 // InsertSpreadMode
 // spread means
+// 取每个 mean 结果的第一个，spread
 type InsertSpreadMode struct {
 	insertHorizontalMode
 }
@@ -243,7 +271,7 @@ func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
 	}
 
 	_has := false
-	newItem := make(map[string]any, len(is.defaultValue))
+	newItem := make(map[string]any, len(is.defaultValues))
 	for _, m := range is.meanses {
 		res := m.Insert(contents)
 		if res == nil {
@@ -256,7 +284,7 @@ func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
 	}
 
 	if _has {
-		_dv := maps.Clone(is.defaultValue)
+		_dv := maps.Clone(is.defaultValues)
 		maps.Copy(_dv, newItem)
 
 		return []map[string]any{_dv}
@@ -271,8 +299,8 @@ type insertHorizontalMode struct {
 	Mode
 	meanses []means.InsertMeans
 
-	insertKeys   []string
-	defaultValue map[string]any
+	insertKeys    []string
+	defaultValues map[string]any
 }
 
 func newInsertHorizontal(keys []string, meanses ...means.InsertMeans) insertHorizontalMode {
@@ -295,12 +323,12 @@ func (ih *insertHorizontalMode) Prepare() error {
 		}
 	}
 
-	ih.defaultValue = make(map[string]any, len(ih.meanses))
+	ih.defaultValues = make(map[string]any)
 
 	for _, m := range ih.meanses {
 		ih.insertKeys = append(ih.insertKeys, m.GetKeys()...)
 
-		maps.Copy(ih.defaultValue, m.DefaultValues())
+		maps.Copy(ih.defaultValues, m.DefaultValues())
 	}
 
 	return nil
