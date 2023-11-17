@@ -44,7 +44,7 @@ func (s *Schema) WithFuncTitle(fn func(string) string) *Schema {
 	return s
 }
 
-func (s *Schema) BuildTable() (buildtable.Tabler, error) {
+func (s *Schema) BuildTable() (*buildtable.RawTable, error) {
 	if s.config.EndRow <= 0 {
 		s.config.EndRow = 100
 	}

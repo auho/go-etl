@@ -2,6 +2,7 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
 type RawTable struct {
@@ -20,9 +21,15 @@ func NewRawTable(raw assistant.Rawer, opts ...TableOption) *RawTable {
 	return t
 }
 
-func (r *RawTable) build() {
-	r.initCommand(r.raw.TableName())
+func (t *RawTable) build() {
+	t.initCommand(t.raw.TableName())
 
-	r.execCommandFunc()
-	r.execRawCommandFunc(r.raw)
+	t.execCommandFunc()
+	t.execRawCommandFunc(t.raw)
+}
+
+func (t *RawTable) WithCommand(fn func(*tablestructure.Command)) *RawTable {
+	fn(t.Command)
+
+	return t
 }

@@ -14,17 +14,10 @@ var _ Tabler = (*table)(nil)
 type Tabler interface {
 	GetTableName() string
 	GetCommand() *tablestructure.Command
-	ExecCommand(func(*tablestructure.Command))
 	Sql() string
 	Build() error
 
-	withCommandFunc(func(*tablestructure.Command))
 	withConfig(Config)
-}
-
-type Config struct {
-	Recreate bool
-	Truncate bool
 }
 
 type table struct {
@@ -100,8 +93,4 @@ func (t *table) execCommandFunc() {
 // exec model command
 func (t *table) execRawCommandFunc(r assistant.Rawer) {
 	r.ExecCommand(t.Command)
-}
-
-func (t *table) ExecCommand(fn func(*tablestructure.Command)) {
-	fn(t.Command)
 }

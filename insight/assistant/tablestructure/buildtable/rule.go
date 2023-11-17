@@ -49,3 +49,9 @@ func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
 	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetNameLength())
 	command.AddInt(t.rule.KeywordNumName())
 }
+
+func (t *RuleTable) WithCommand(fn func(*tablestructure.Command)) *RuleTable {
+	fn(t.Command)
+
+	return t
+}

@@ -7,27 +7,28 @@ import (
 func ExampleNewTagDataRuleTable() {
 	_ = NewTagDataRuleTable(
 		nil,
+		WithConfig(Config{
+			Recreate: true,
+			Truncate: true,
+		})).
 		WithCommand(func(command *tablestructure.Command) {
 			// add columns
 			command.AddString("a")
 			command.AddString("b")
-		}),
-		WithConfig(Config{
-			Recreate: true,
-			Truncate: true,
-		})).Build()
+		}).Build()
 }
 
 func ExampleNewTagDataRulesTable() {
 	_ = NewTagDataRulesTable(
 		nil,
+		WithConfig(Config{
+			Recreate: true,
+			Truncate: true,
+		})).
 		WithCommand(func(command *tablestructure.Command) {
 			// add columns
 			command.AddString("a")
 			command.AddString("b")
-		}),
-		WithConfig(Config{
-			Recreate: true,
-			Truncate: true,
-		})).Build()
+		}).
+		Build()
 }

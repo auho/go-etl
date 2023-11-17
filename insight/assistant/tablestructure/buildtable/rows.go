@@ -2,6 +2,7 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
 type RowsTable struct {
@@ -26,4 +27,10 @@ func (t *RowsTable) build() {
 
 	t.execCommandFunc()
 	t.execRawCommandFunc(t.rows)
+}
+
+func (t *RowsTable) WithCommand(fn func(*tablestructure.Command)) *RowsTable {
+	fn(t.Command)
+
+	return t
 }

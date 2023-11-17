@@ -6,11 +6,13 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/model"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
 var _tableName = "table1"
 var _tableIdName = "tid"
 var _ruleName = "rule1"
+var _raw *model.Raw
 var _data *model.Data
 var _rule *model.Rule
 var _rule1 *model.Rule
@@ -23,9 +25,19 @@ var _tagRules1 *model.TagDataRules
 var _dcSegWords *model.DataContentSegWords
 var _dcSpiltWords *model.DataContentSpiltWords
 
+func TestRaw(t *testing.T) {
+	rt := NewRawTable(_raw)
+	rt.AddPkBigInt("id")
+	rt.WithCommand(func(command *tablestructure.Command) {
+		command.AddString("with")
+	})
+
+	sql := rt.Sql()
+	fmt.Println(sql)
+}
+
 func TestData(t *testing.T) {
 	dt := NewDataTable(_data)
-	dt.AddPkBigInt("id")
 	dt.AddInt("int1")
 	dt.AddKeyInt("int2")
 	dt.AddUniqueInt("int3")
@@ -38,13 +50,19 @@ func TestData(t *testing.T) {
 	dt.AddTimestamp("ts3", true, false)
 	dt.AddTimestamp("ts4", true, true)
 	dt.AddText("t1")
+	dt.WithCommand(func(command *tablestructure.Command) {
+		command.AddString("with")
+	})
 
 	sql := dt.Sql()
 	fmt.Println(sql)
 }
 
 func TestRule(t *testing.T) {
-	rt := NewRuleTable(_rule)
+	rt := NewRuleTable(_rule).
+		WithCommand(func(command *tablestructure.Command) {
+			command.AddString("with")
+		})
 
 	sql := rt.Sql()
 	fmt.Println(sql)
@@ -66,7 +84,10 @@ func TestRule(t *testing.T) {
 }
 
 func TestTag(t *testing.T) {
-	tr := NewTagDataRuleTable(_tagRule)
+	tr := NewTagDataRuleTable(_tagRule).
+		WithCommand(func(command *tablestructure.Command) {
+			command.AddString("with")
+		})
 
 	sql := tr.Sql()
 	fmt.Println(sql)
@@ -75,7 +96,11 @@ func TestTag(t *testing.T) {
 	sql = tr1.Sql()
 	fmt.Println(sql)
 
-	trs := NewTagDataRulesTable(_tagRules)
+	trs := NewTagDataRulesTable(_tagRules).
+		WithCommand(func(command *tablestructure.Command) {
+			command.AddString("with")
+		})
+
 	sql = trs.Sql()
 	fmt.Println(sql)
 
@@ -85,18 +110,25 @@ func TestTag(t *testing.T) {
 }
 
 func TestDataContent(t *testing.T) {
-	dcSeg := NewDataContentSegWordsTable(_dcSegWords)
+	dcSeg := NewDataContentSegWordsTable(_dcSegWords).
+		WithCommand(func(command *tablestructure.Command) {
+			command.AddString("with")
+		})
 
 	sql := dcSeg.Sql()
 	fmt.Println(sql)
 
-	dcSplit := NewDataContentSpiltWordsTable(_dcSpiltWords)
+	dcSplit := NewDataContentSpiltWordsTable(_dcSpiltWords).
+		WithCommand(func(command *tablestructure.Command) {
+			command.AddString("with")
+		})
 
 	sql = dcSplit.Sql()
 	fmt.Println(sql)
 }
 
 func init() {
+	_raw = model.NewRaw(_tableName, nil)
 	_data = model.NewData(_tableName, _tableIdName, nil)
 	_rule = model.NewRule(_ruleName, 20, 20, nil, nil)
 	_rule1 = model.NewRule(_ruleName, 20, 20, map[string]int{"r1": 10, "r2": 30}, nil)

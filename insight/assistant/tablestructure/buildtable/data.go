@@ -32,3 +32,9 @@ func (t *DataTable) build() {
 func (t *DataTable) BuildForTag(command *tablestructure.Command) {
 	command.AddKeyBigInt(t.data.GetIdName())
 }
+
+func (t *DataTable) WithCommand(fn func(*tablestructure.Command)) *DataTable {
+	fn(t.Command)
+
+	return t
+}
