@@ -14,6 +14,8 @@ func (m *model) withCommand(fn func(command *tablestructure.Command)) {
 	m.commandFun = fn
 }
 
+// ExecCommand
+// exec model table command
 func (m *model) ExecCommand(command *tablestructure.Command) {
 	if m.commandFun != nil {
 		m.commandFun(command)

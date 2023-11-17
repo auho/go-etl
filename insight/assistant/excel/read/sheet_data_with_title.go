@@ -12,8 +12,18 @@ type SheetDataWithTitle struct {
 	alias  map[string]string // map[name in sheet ] name of logic
 }
 
+func NewSheetDataWithTitleWithPath(xlsxPath string, config Config, alias map[string]string) (*SheetDataWithTitle, error) {
+	excel, err := NewExcel(xlsxPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewSheetDataWithTitle(excel, config, alias)
+}
+
 func NewSheetDataWithTitle(excel *Excel, config Config, alias map[string]string) (*SheetDataWithTitle, error) {
 	sd := &SheetDataWithTitle{}
+	sd.excel = excel
 	sd.config = config
 	sd.alias = alias
 
@@ -28,7 +38,7 @@ func (sd *SheetDataWithTitle) GetAlias() map[string]string {
 	return sd.alias
 }
 
-func (sd *SheetDataWithTitle) GetTitlesWithAlias() []string {
+func (sd *SheetDataWithTitle) genTitlesWithAlias() {
 	var titles []string
 	for _, title := range sd.titles {
 		if alias, ok := sd.alias[title]; ok {
@@ -38,7 +48,7 @@ func (sd *SheetDataWithTitle) GetTitlesWithAlias() []string {
 		titles = append(titles, title)
 	}
 
-	return titles
+	sd.titles = titles
 }
 
 func (sd *SheetDataWithTitle) ReadData() error {
@@ -59,6 +69,8 @@ func (sd *SheetDataWithTitle) ReadData() error {
 
 		sd.rows[i] = row
 	}
+
+	sd.genTitlesWithAlias()
 
 	return nil
 }

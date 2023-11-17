@@ -10,6 +10,7 @@ func Initial(parentCmd *cobra.Command) {
 	layout.Initial()
 
 	parentCmd.AddCommand(_stateCmd)
+	parentCmd.AddCommand(buildCmd)
 	parentCmd.AddCommand(queryCmd)
 	parentCmd.AddCommand(tagCmd)
 }

@@ -80,6 +80,14 @@ func (a *Application) checkDir() {
 	}
 }
 
+func (a *Application) DataFilePath(name string) string {
+	return path.Join(a.DataDir, name)
+}
+
+func (a *Application) XlsxFilePath(name string) string {
+	return path.Join(a.XlsxDir, name)
+}
+
 func (a *Application) State() []string {
 	return []string{
 		"name: " + a.Name,

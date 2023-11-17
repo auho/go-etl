@@ -22,7 +22,7 @@ func (t *Titles) prepare() error {
 	return t.check()
 }
 
-func (t *Titles) GetTitlesKey() []string {
+func (t *Titles) GetTitlesName() []string {
 	return t.titlesKey
 }
 

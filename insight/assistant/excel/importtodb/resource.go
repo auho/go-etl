@@ -17,7 +17,7 @@ type Resourcer interface {
 	Prepare() error
 	GetName() string
 	GetTable() buildtable.Tabler
-	GetTitlesKey() []string
+	GetTitlesName() []string
 	GetTitlesIndex() []int
 	GetSheetData(*read.Excel) (read.SheetDataor, error)
 
@@ -29,10 +29,11 @@ type Resource struct {
 	SheetName            string
 	SheetIndex           int                           // sheet index，从 1 开始
 	StartRow             int                           // 数据开始的行数，从 1 开始
+	EndRow               int                           // 数据结束的行数，从 1 开始
 	IsRecreateTable      bool                          // 是否 recreate table
 	IsAppendData         bool                          // 是否 append data
 	IsShowSql            bool                          // 是否显示 sql
-	ColumnDropDuplicates []int                         // drop duplicates for column
+	ColumnDropDuplicates []int                         // [column index] drop duplicates for column
 	CommandFun           func(*tablestructure.Command) // recreate table 时执行的 func
 	PostFun              func(Resourcer) error         // 导入后的执行的 func
 }
@@ -42,6 +43,7 @@ func (s *Resource) buildSheetConfig() read.Config {
 		SheetName:  s.SheetName,
 		SheetIndex: s.SheetIndex,
 		StartRow:   s.StartRow,
+		EndRow:     s.EndRow,
 	}
 }
 

@@ -122,7 +122,7 @@ func (it *ImportToDb) importResourceToTable(resource Resourcer, table buildtable
 		}
 	}
 
-	err = resource.GetDB().BulkInsertFromSliceSlice(table.GetTableName(), resource.GetTitlesKey(), sheetData.GetRowsWithAny(), 1000)
+	err = resource.GetDB().BulkInsertFromSliceSlice(table.GetTableName(), resource.GetTitlesName(), sheetData.GetRowsWithAny(), 1000)
 	if err != nil {
 		return err
 	}

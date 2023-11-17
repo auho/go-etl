@@ -1,5 +1,10 @@
 package slices
 
+import (
+	"fmt"
+	"strings"
+)
+
 func SliceDropDuplicates[T comparatorEntity](s []T) []T {
 	result := make([]T, 0)
 	tempMap := make(map[any]bool, len(s))
@@ -18,28 +23,17 @@ func SliceDropDuplicates[T comparatorEntity](s []T) []T {
 func SliceSliceDropDuplicates[T comparatorEntity](s [][]T, indexes []int) [][]T {
 	var newS [][]T
 	_sLen := len(s)
-	valuesFlag := make(map[int]map[any]struct{}, len(indexes))
+	valuesFlag := make(map[string]struct{}, _sLen)
 
-	for _, index := range indexes {
-		valuesFlag[index] = make(map[any]struct{}, _sLen)
-	}
-
-	//var _valueAny any
 	for _, item := range s {
-		isDuplicates := true
-		for _, index := range indexes {
-			if !isDuplicates {
-				break
-			}
-
-			_value := item[index]
-			if _, ok := valuesFlag[index][_value]; !ok {
-				valuesFlag[index][_value] = struct{}{}
-				isDuplicates = false
-			}
+		var _flags []string
+		for _, _i := range indexes {
+			_flags = append(_flags, fmt.Sprintf("%v", item[_i]))
 		}
 
-		if !isDuplicates {
+		_flag := strings.Join(_flags, "_")
+		if _, ok := valuesFlag[_flag]; !ok {
+			valuesFlag[_flag] = struct{}{}
 			newS = append(newS, item)
 		}
 	}

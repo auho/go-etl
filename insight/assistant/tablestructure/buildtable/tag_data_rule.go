@@ -28,5 +28,5 @@ func (t *TagDataRuleTable) build() {
 	NewRuleTable(t.tag.GetRule()).BuildForTag(t.Command)
 
 	t.execCommand()
-	t.execRowsCommand(t.tag)
+	t.execRawCommand(t.tag)
 }

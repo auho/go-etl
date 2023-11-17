@@ -39,13 +39,33 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 		return nil, errors.New("sheet name or index no exists")
 	}
 
-	rows, err := e.excelFile.GetRows(config.SheetName)
+	rowsScan, err := e.excelFile.Rows(config.SheetName)
 	if err != nil {
-		return nil, fmt.Errorf("GetRows error; %w", err)
+		return nil, fmt.Errorf("rows error; %w", err)
 	}
 
-	if config.StartRow > 1 {
-		rows = rows[config.StartRow-1:]
+	var _i = 0
+	var rows [][]string
+	for rowsScan.Next() {
+		_i += 1
+		if _i < config.StartRow {
+			continue
+		}
+
+		if _i > 0 && _i > config.EndRow {
+			break
+		}
+
+		row, err1 := rowsScan.Columns()
+		if err1 != nil {
+			return nil, fmt.Errorf("rows scan columns error; %w", err)
+		}
+
+		rows = append(rows, row)
+	}
+
+	if err = rowsScan.Close(); err != nil {
+		return nil, fmt.Errorf("rows scan close error; %w", err)
 	}
 
 	if len(config.ColsIndex) > 0 {

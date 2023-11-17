@@ -5,12 +5,16 @@ import (
 	"github.com/auho/go-simple-db/v2"
 )
 
-type Moder interface {
+type Rawer interface {
 	GetDB() *go_simple_db.SimpleDB
 	GetName() string
-	GetIdName() string
 	TableName() string
 	ExecCommand(*tablestructure.Command)
+}
+
+type Moder interface {
+	Rawer
+	GetIdName() string
 }
 
 type Rowsor interface {

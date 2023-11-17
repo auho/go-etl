@@ -26,7 +26,7 @@ func (t *DataTable) build() {
 	t.AddPkBigInt(t.data.GetIdName())
 
 	t.execCommand()
-	t.execRowsCommand(t.data)
+	t.execRawCommand(t.data)
 }
 
 func (t *DataTable) BuildForTag(command *tablestructure.Command) {

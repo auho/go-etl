@@ -25,5 +25,5 @@ func (t *RowsTable) build() {
 	t.AddPkBigInt(t.rows.GetIdName())
 
 	t.execCommand()
-	t.execRowsCommand(t.rows)
+	t.execRawCommand(t.rows)
 }

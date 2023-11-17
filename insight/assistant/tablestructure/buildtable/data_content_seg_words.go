@@ -30,5 +30,5 @@ func (t *DataContentSegWordsTable) build() {
 	t.Command.AddInt(t.dataContentSegWords.NumName())
 
 	t.execCommand()
-	t.execRowsCommand(t.dataContentSegWords)
+	t.execRawCommand(t.dataContentSegWords)
 }

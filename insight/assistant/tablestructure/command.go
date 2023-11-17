@@ -87,3 +87,7 @@ func (c *Command) AddText(name string) {
 func (c *Command) AddTimestamp(name string, onDefault, onUpdate bool) {
 	c.Table.AddTimestamp(name, onDefault, onUpdate)
 }
+
+func (c *Command) AddDecimal(name string, m, d int) {
+	c.Table.AddDecimal(name, m, d, 0)
+}

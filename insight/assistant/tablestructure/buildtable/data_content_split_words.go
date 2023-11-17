@@ -28,5 +28,5 @@ func (t *DataContentSpiltWordsTable) build() {
 	t.Command.AddStringWithLength(t.dataContentSpiltWords.WordName(), 30)
 
 	t.execCommand()
-	t.execRowsCommand(t.dataContentSpiltWords)
+	t.execRawCommand(t.dataContentSpiltWords)
 }

@@ -30,5 +30,5 @@ func (t *TagDataRulesTable) build() {
 	}
 
 	t.execCommand()
-	t.execRowsCommand(t.tag)
+	t.execRawCommand(t.tag)
 }

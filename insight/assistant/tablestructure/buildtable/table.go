@@ -79,6 +79,7 @@ func (t *table) withConfig(config Config) {
 	t.config = config
 }
 
+// 无法直接返回 sub struct，通过 option 注入
 func (t *table) withCommand(fn func(command *tablestructure.Command)) {
 	t.commandFun = fn
 }
@@ -89,12 +90,14 @@ func (t *table) options(opts []TableOption) {
 	}
 }
 
+// exec table command
 func (t *table) execCommand() {
 	if t.commandFun != nil {
 		t.commandFun(t.Command)
 	}
 }
 
-func (t *table) execRowsCommand(r assistant.Rowsor) {
+// exec model command
+func (t *table) execRawCommand(r assistant.Rawer) {
 	r.ExecCommand(t.Command)
 }
