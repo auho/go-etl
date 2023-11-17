@@ -22,9 +22,9 @@ func NewPlaceholder(s Source) *PlaceholderSource {
 }
 
 // WithItems
-// []map[string]string => []map[field][field value]
+// []map[string]any => []map[field][field value]
 //
-//	[]map[string]string{
+//	[]map[string]any{
 //		{"one": "a", "two": "c"},
 //		{"one": "a", "two": "d"},
 //		{"one": "b", "two": "c"},
@@ -44,11 +44,11 @@ func (ps *PlaceholderSource) WithItems(items []map[string]any) *PlaceholderSourc
 }
 
 // WithItemsCross
-// []map[string][]string => []map[field][][field value]
+// []map[string][]any => []map[field][][field value]
 //
-//	[]map[string][]string{
-//		"one": []string{"a", "b"}
-//		"two": []string{"c", "d"}
+//	[]map[string][]any{
+//		"one": []any{"a", "b"}
+//		"two": []any{"c", "d"}
 //	}
 /*
  a: 1, 2

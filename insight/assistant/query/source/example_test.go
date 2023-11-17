@@ -4,8 +4,8 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 )
 
-func ExampleNewTable() {
-	_ = NewTable(Source{
+func ExampleNewRows() {
+	_ = NewRows(Source{
 		Name:  "name",
 		DB:    nil,
 		Table: dml.NewTable("table_name").Select([]string{"field1", "field2"}),

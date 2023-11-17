@@ -43,22 +43,84 @@ func NewPlaceholderStack(s Source) *PlaceholderStackSource {
 	}
 }
 
+// WithCategories
+// []map[string]any => []map[category][category value]
+//
+//	[]map[string]any{
+//		{"one": "a", "two": "c"},
+//		{"one": "a", "two": "d"},
+//		{"one": "b", "two": "c"},
+//		{"one": "b", "two": "d"},
+//	}
+/*
+ a: 1 b: 3
+ a: 1 b: 3
+ a: 2 b: 4
+ a: 2 b: 4
+*/
 func (pss *PlaceholderStackSource) WithCategories(categories []map[string]any) *PlaceholderStackSource {
 	pss.categories = categories
 
 	return pss
 }
 
+// WithStacks
+// []map[string]any => []map[field][field value]
+//
+//	[]map[string]any{
+//		{"one": "a", "two": "c"},
+//		{"one": "a", "two": "d"},
+//		{"one": "b", "two": "c"},
+//		{"one": "b", "two": "d"},
+//	}
+/*
+ a: 1 b: 3
+ a: 1 b: 3
+ a: 2 b: 4
+ a: 2 b: 4
+*/
 func (pss *PlaceholderStackSource) WithStacks(stacks []map[string]any) *PlaceholderStackSource {
 	pss.stacks = stacks
 
 	return pss
 }
 
+// WithCategoriesCross
+// []map[string][]any => []map[category][][category value]
+//
+//	[]map[string][]any{
+//		"one": []string{"a", "b"}
+//		"two": []string{"c", "d"}
+//	}
+/*
+ a: 1, 2
+ b: 3, 4
+=>
+ a: 1 b: 3
+ a: 1 b: 3
+ a: 2 b: 4
+ a: 2 b: 4
+*/
 func (pss *PlaceholderStackSource) WithCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
 	return pss.WithCategories(pss.expandItemsCross(categories))
 }
 
+// WithStacksCross
+// []map[string][]any => []map[field][][field value]
+//
+//	[]map[string][]any{
+//		"one": []string{"a", "b"}
+//		"two": []string{"c", "d"}
+//	}
+/*
+ a: 1, 2
+ b: 3, 4
+=>
+ a: 1 b: 3
+ a: 1 b: 3
+ a: 2 b: 4
+ a: 2 b: 4
+*/
 func (pss *PlaceholderStackSource) WithStacksCross(stacks map[string][]any) *PlaceholderStackSource {
 	return pss.WithStacks(pss.expandItemsCross(stacks))
 }

@@ -6,19 +6,19 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 )
 
-var _ Sourcer = (*TableSource)(nil)
+var _ Sourcer = (*RowsSource)(nil)
 
-// TableSource
+// RowsSource
 // general queries
-type TableSource struct {
+type RowsSource struct {
 	Source
 }
 
-func NewTable(s Source) *TableSource {
-	return &TableSource{Source: s}
+func NewRows(s Source) *RowsSource {
+	return &RowsSource{Source: s}
 }
 
-func (ts *TableSource) Dataset() (*dataset.Dataset, error) {
+func (ts *RowsSource) Dataset() (*dataset.Dataset, error) {
 	fields := ts.Table.GetSelectFields()
 	itemsId := []string{ts.Name}
 	itemsSql := map[string]string{ts.Name: ts.Table.Sql()}
