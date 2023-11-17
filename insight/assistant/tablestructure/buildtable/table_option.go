@@ -8,7 +8,7 @@ type TableOption func(Tabler)
 
 func WithCommand(fn func(command *tablestructure.Command)) func(Tabler) {
 	return func(t Tabler) {
-		t.withCommand(fn)
+		t.withCommandFunc(fn)
 	}
 }
 

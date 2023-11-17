@@ -48,6 +48,12 @@ func (f *Field) SetExtra(extra string) *Field {
 	return f
 }
 
+func (f *Field) SetExtraAutoIncrement() *Field {
+	f.extra = extraAutoIncrement
+
+	return f
+}
+
 func (f *Field) SetDefault(_default string) *Field {
 	f._default = _default
 
@@ -153,7 +159,6 @@ func (f *Field) SqlForModify() string {
 	return ""
 }
 
-func (f *Field) SqlForChange() string {
-	// TODO
-	return ""
+func (f *Field) SqlForChange(tableName string) string {
+	return fmt.Sprintf("ALTER TABLE `%s` MODIFY COLUMN `%s`", tableName, f.statement())
 }

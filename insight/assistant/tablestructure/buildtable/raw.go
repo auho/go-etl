@@ -23,6 +23,6 @@ func NewRawTable(raw assistant.Rawer, opts ...TableOption) *RawTable {
 func (r *RawTable) build() {
 	r.initCommand(r.raw.TableName())
 
-	r.execCommand()
-	r.execRawCommand(r.raw)
+	r.execCommandFunc()
+	r.execRawCommandFunc(r.raw)
 }

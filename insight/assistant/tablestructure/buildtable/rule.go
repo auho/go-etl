@@ -30,8 +30,8 @@ func (t *RuleTable) build() {
 	keywordFiled.SetCollateUtf8mb4Bin()
 	t.Command.AddInt(t.rule.KeywordLenName())
 
-	t.execCommand()
-	t.execRawCommand(t.rule)
+	t.execCommandFunc()
+	t.execRawCommandFunc(t.rule)
 
 	t.Command.AddTimestamp("ctime", true, true)
 }

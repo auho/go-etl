@@ -15,7 +15,7 @@ type Table struct {
 
 func NewTable(tableName string) *Table {
 	t := &Table{}
-	t.Command = &tablestructure.Command{Table: &mysql.Table{}}
+	t.Command = &tablestructure.Command{Table: mysql.NewTable()}
 	t.Command.Table.SetName(tableName)
 
 	return t
@@ -36,6 +36,11 @@ func (t *Table) Sql() []string {
 	return t.Command.SqlForAlterAdd()
 }
 
+func (t *Table) SqlForChange() []string {
+	t.execCommand()
+	return t.Command.SqlForAlterChange()
+}
+
 func (t *Table) WithCommand(fn func(command *tablestructure.Command)) *Table {
 	t.commandFun = fn
 
@@ -43,10 +48,18 @@ func (t *Table) WithCommand(fn func(command *tablestructure.Command)) *Table {
 }
 
 func (t *Table) Build(db *simpleDb.SimpleDB) error {
-	for _, sql := range t.Sql() {
+	return t.build(t.Sql(), db)
+}
+
+func (t *Table) BuildChange(db *simpleDb.SimpleDB) error {
+	return t.build(t.SqlForAlterChange(), db)
+}
+
+func (t *Table) build(sqls []string, db *simpleDb.SimpleDB) error {
+	for _, sql := range sqls {
 		err := db.Exec(sql).Error
 		if err != nil {
-			return fmt.Errorf("exec error; %w", err)
+			return fmt.Errorf("build exec error; %w", err)
 		}
 	}
 

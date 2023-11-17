@@ -12,12 +12,20 @@ func (c *Command) TableName() string {
 	return c.Table.GetName()
 }
 
+func (c *Command) SqlForCreate() string {
+	return c.Table.SqlForCreate()
+}
+
 func (c *Command) SqlForAlterAdd() []string {
 	return c.Table.SqlForAlterAdd()
 }
 
-func (c *Command) SqlForCreate() string {
-	return c.Table.SqlForCreate()
+func (c *Command) SqlForAlterChange() []string {
+	return c.Table.SqlForAlterChange()
+}
+
+func (c *Command) AddPk(name string) {
+	c.Table.AddPk(name)
 }
 
 func (c *Command) AddPkBigInt(name string) {

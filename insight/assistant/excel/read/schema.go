@@ -11,10 +11,14 @@ import (
 	"github.com/auho/go-toolkit/farmtools/sort/maps"
 )
 
+// Schema
+// sheet to table schema
 type Schema struct {
 	excel  *Excel
 	data   assistant.Rowsor
 	config Config
+
+	titleFunc func(string) string
 }
 
 func NewSchemaWithPath(xlsxPath string, data assistant.Rowsor, config Config) (*Schema, error) {
@@ -32,6 +36,12 @@ func NewSchema(excel *Excel, data assistant.Rowsor, config Config) (*Schema, err
 		data:   data,
 		config: config,
 	}, nil
+}
+
+func (s *Schema) WithFuncTitle(fn func(string) string) *Schema {
+	s.titleFunc = fn
+
+	return s
 }
 
 func (s *Schema) BuildTable() (buildtable.Tabler, error) {
@@ -55,6 +65,9 @@ func (s *Schema) buildTable(table *buildtable.RawTable, rows [][]string) {
 	rows = rows[1:]
 
 	for i, title := range titles {
+		if s.titleFunc != nil {
+			title = s.titleFunc(title)
+		}
 
 		_type, _len1, _ := s.detectColumnType(i, rows)
 		switch _type {

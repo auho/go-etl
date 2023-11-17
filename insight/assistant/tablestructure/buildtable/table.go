@@ -14,10 +14,11 @@ var _ Tabler = (*table)(nil)
 type Tabler interface {
 	GetTableName() string
 	GetCommand() *tablestructure.Command
+	ExecCommand(func(*tablestructure.Command))
 	Sql() string
 	Build() error
 
-	withCommand(func(*tablestructure.Command))
+	withCommandFunc(func(*tablestructure.Command))
 	withConfig(Config)
 }
 
@@ -34,8 +35,7 @@ type table struct {
 }
 
 func (t *table) initCommand(name string) {
-	t.Command = &tablestructure.Command{Table: &mysql.Table{}}
-	t.Command.Table.SetName(name).SetEngineMyISAM()
+	t.Command = &tablestructure.Command{Table: mysql.NewTableSimple(name)}
 }
 
 func (t *table) GetCommand() *tablestructure.Command {
@@ -80,7 +80,7 @@ func (t *table) withConfig(config Config) {
 }
 
 // 无法直接返回 sub struct，通过 option 注入
-func (t *table) withCommand(fn func(command *tablestructure.Command)) {
+func (t *table) withCommandFunc(fn func(*tablestructure.Command)) {
 	t.commandFun = fn
 }
 
@@ -91,13 +91,17 @@ func (t *table) options(opts []TableOption) {
 }
 
 // exec table command
-func (t *table) execCommand() {
+func (t *table) execCommandFunc() {
 	if t.commandFun != nil {
 		t.commandFun(t.Command)
 	}
 }
 
 // exec model command
-func (t *table) execRawCommand(r assistant.Rawer) {
+func (t *table) execRawCommandFunc(r assistant.Rawer) {
 	r.ExecCommand(t.Command)
+}
+
+func (t *table) ExecCommand(fn func(*tablestructure.Command)) {
+	fn(t.Command)
 }

@@ -12,14 +12,22 @@ type Table struct {
 	charset string
 	collate string
 
+	fieldsIndex map[string]int
 	fields      []*Field
 	primaryKeys []string
 	indexes     []*Index
 }
 
-func NewSimpleTable(name string) *Table {
-	t := &Table{}
+func NewTableSimple(name string) *Table {
+	t := NewTable()
 	t.setTable(name, engineMyISAM, "", "")
+
+	return t
+}
+
+func NewTable() *Table {
+	t := &Table{}
+	t.fieldsIndex = make(map[string]int)
 
 	return t
 }
@@ -157,6 +165,10 @@ func (t *Table) AddTimestamp(name string, onDefault, onUpdate bool) *Field {
 	return f
 }
 
+func (t *Table) AddPk(name string) {
+	t.primaryKeys = append(t.primaryKeys, name)
+}
+
 func (t *Table) AddKey(field string, size int) *Index {
 	i := newIndex(field, indexTypeKey)
 	i.AddField(field, size)
@@ -181,6 +193,25 @@ func (t *Table) AddIndex(index *Index) *Index {
 
 func (t *Table) AddField(field *Field) *Table {
 	t.fields = append(t.fields, field)
+	t.fieldsIndex[field.name] = len(t.fields) - 1
+
+	return t
+}
+
+func (t *Table) GetFieldByName(name string) *Field {
+	if fi, ok := t.fieldsIndex[name]; ok {
+		return t.fields[fi]
+	} else {
+		return nil
+	}
+}
+
+func (t *Table) SetFiled(filed *Field) *Table {
+	if fi, ok := t.fieldsIndex[filed.name]; ok {
+		t.fields[fi] = filed
+	} else {
+		t.AddField(filed)
+	}
 
 	return t
 }
@@ -193,6 +224,15 @@ func (t *Table) SqlForAlterAdd() []string {
 
 	for _, index := range t.indexes {
 		as = append(as, index.SqlForAdd(t.name))
+	}
+
+	return as
+}
+
+func (t *Table) SqlForAlterChange() []string {
+	var as []string
+	for _, field := range t.fields {
+		as = append(as, field.SqlForChange(t.name))
 	}
 
 	return as
