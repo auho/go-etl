@@ -19,6 +19,7 @@ func NewApp(cn string) {
 type Application struct {
 	Run
 	DB       *simpleDb.SimpleDB
+	Name     string
 	ConfName string
 	WorkDir  string
 	DataDir  string
@@ -48,6 +49,7 @@ func (a *Application) buildWorkDir() {
 		panic(err)
 	}
 
+	a.Name = filepath.Base(workDir)
 	a.WorkDir = workDir
 	a.DataDir = path.Join(a.WorkDir, "data")
 	a.XlsxDir = path.Join(a.WorkDir, "xlsx")
@@ -80,8 +82,18 @@ func (a *Application) checkDir() {
 
 func (a *Application) State() []string {
 	return []string{
+		"name: " + a.Name,
 		"conf name: " + a.ConfName,
 		"data dir: " + a.DataDir,
 		"xlsx dir: " + a.XlsxDir,
 	}
+}
+
+func (a *Application) PrintlnState() {
+	ss := a.State()
+	for _, _s := range ss {
+		fmt.Println(_s)
+	}
+
+	fmt.Println()
 }
