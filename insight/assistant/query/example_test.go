@@ -12,6 +12,7 @@ func ExampleNewQuery() {
 		log.Fatalln(err)
 	}
 
+	// append mode
 	_q.AddAppend(source.NewRows(source.Source{
 		HasNamePrefix: false,
 		Name:          "one",
@@ -19,6 +20,7 @@ func ExampleNewQuery() {
 		DB:            nil,
 	}))
 
+	// spread mode
 	_q.AddSpread(source.NewPlaceholder(source.Source{
 		HasNamePrefix: false,
 		Name:          "",
@@ -26,6 +28,7 @@ func ExampleNewQuery() {
 		DB:            nil,
 	}).WithItems(nil))
 
+	// save
 	err = _q.Save()
 	if err != nil {
 		log.Fatalln(err)

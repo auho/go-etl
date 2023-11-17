@@ -38,7 +38,7 @@ func NewPlaceholder(s Source) *PlaceholderSource {
 */
 
 func (ps *PlaceholderSource) WithItems(items []map[string]any) *PlaceholderSource {
-	ps.items = items
+	ps.items = append(ps.items, items...)
 
 	return ps
 }
@@ -60,7 +60,7 @@ func (ps *PlaceholderSource) WithItems(items []map[string]any) *PlaceholderSourc
  a: 2 b: 4
 */
 func (ps *PlaceholderSource) WithItemsCross(items map[string][]any) *PlaceholderSource {
-	ps.items = ps.expandItemsCross(items)
+	ps.WithItems(ps.expandItemsCross(items))
 
 	return ps
 }

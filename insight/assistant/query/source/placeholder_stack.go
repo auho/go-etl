@@ -59,7 +59,7 @@ func NewPlaceholderStack(s Source) *PlaceholderStackSource {
  a: 2 b: 4
 */
 func (pss *PlaceholderStackSource) WithCategories(categories []map[string]any) *PlaceholderStackSource {
-	pss.categories = categories
+	pss.categories = append(pss.categories, categories...)
 
 	return pss
 }
@@ -80,7 +80,7 @@ func (pss *PlaceholderStackSource) WithCategories(categories []map[string]any) *
  a: 2 b: 4
 */
 func (pss *PlaceholderStackSource) WithStacks(stacks []map[string]any) *PlaceholderStackSource {
-	pss.stacks = stacks
+	pss.stacks = append(pss.stacks, stacks...)
 
 	return pss
 }

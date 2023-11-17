@@ -15,13 +15,13 @@ import (
 // sheet to table schema
 type Schema struct {
 	excel  *Excel
-	data   assistant.Rowsor
+	data   assistant.Rawer
 	config Config
 
 	titleFunc func(string) string
 }
 
-func NewSchemaWithPath(xlsxPath string, data assistant.Rowsor, config Config) (*Schema, error) {
+func NewSchemaWithPath(xlsxPath string, data assistant.Rawer, config Config) (*Schema, error) {
 	excel, err := NewExcel(xlsxPath)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func NewSchemaWithPath(xlsxPath string, data assistant.Rowsor, config Config) (*
 	return NewSchema(excel, data, config)
 }
 
-func NewSchema(excel *Excel, data assistant.Rowsor, config Config) (*Schema, error) {
+func NewSchema(excel *Excel, data assistant.Rawer, config Config) (*Schema, error) {
 	return &Schema{
 		excel:  excel,
 		data:   data,

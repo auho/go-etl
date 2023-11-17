@@ -5,6 +5,9 @@ import (
 )
 
 func ExampleNewRows() {
+	_, _ = NewRows(Source{}).
+		Dataset()
+
 	_ = NewRows(Source{
 		Name:  "name",
 		DB:    nil,
@@ -13,6 +16,11 @@ func ExampleNewRows() {
 }
 
 func ExampleNewPlaceholder() {
+	_, _ = NewPlaceholder(Source{}).
+		WithItems(nil).
+		WithItemsCross(nil).
+		Dataset()
+
 	// one two
 
 	// WithItems
@@ -43,6 +51,13 @@ func ExampleNewPlaceholder() {
 }
 
 func ExampleNewPlaceholderStack() {
+	_, _ = NewPlaceholderStack(Source{}).
+		WithCategories(nil).
+		WithCategoriesCross(nil).
+		WithStacks(nil).
+		WithStacksCross(nil).
+		Dataset()
+
 	// one two three
 
 	// WithCategories

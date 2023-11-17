@@ -11,6 +11,8 @@ var _ job.Source = (*_source)(nil)
 var _ job.Target = (*_target)(nil)
 var _ job.CleanResource = (*_cleanResource)(nil)
 
+var _ruler tag.Ruler
+
 type _source struct{}
 
 func (_ _source) GetIdName() string         { return "id" }
@@ -30,7 +32,7 @@ func (_ _cleanResource) DataTarget() job.Target    { return &_target{} }
 func (_ _cleanResource) DeletedTarget() job.Target { return &_target{} }
 
 func ExampleNewClean() {
-	_mode := mode.NewUpdate([]string{"key1", "key2"}, tag.NewKey(nil))
+	_mode := mode.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler))
 	_ = NewClean(
 		&_cleanResource{},
 		[]mode.UpdateModer{_mode},
@@ -45,10 +47,11 @@ func ExampleNewClean() {
 }
 
 func ExampleNewInsert() {
-	_mode := mode.NewInsert([]string{"key1", "key2"}, tag.NewKey(nil))
-	_modeMulti := mode.NewInsertMulti([]string{"key1", "key2"}, tag.NewKey(nil), tag.NewMostKey(nil))
-	_modeCross := mode.NewInsertCross([]string{"key1", "key2"}, tag.NewKey(nil), tag.NewMostKey(nil))
-	_modeSpread := mode.NewInsertSpread([]string{"key1", "key2"}, tag.NewKey(nil), tag.NewMostKey(nil))
+
+	_mode := mode.NewInsert([]string{"key1", "key2"}, tag.NewKey(_ruler))
+	_modeMulti := mode.NewInsertMulti([]string{"key1", "key2"}, tag.NewKey(_ruler), tag.NewLabel(_ruler))
+	_modeCross := mode.NewInsertCross([]string{"key1", "key2"}, tag.NewMostKey(_ruler), tag.NewMostText(_ruler))
+	_modeSpread := mode.NewInsertSpread([]string{"key1", "key2"}, tag.NewKey(_ruler), tag.NewKey(_ruler))
 
 	_ = NewInsert(&_target{}, _mode, WithInsertConfig(InsertConfig{
 		NotTruncate: false,
@@ -73,7 +76,7 @@ func ExampleNewTransfer() {
 }
 
 func ExampleNewUpdate() {
-	_mode := mode.NewUpdate([]string{"key1", "key2"}, tag.NewKey(nil), tag.NewMostKey(nil))
+	_mode := mode.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler), tag.NewLabel(_ruler))
 
 	_ = NewUpdate(&_source{}, []mode.UpdateModer{_mode})
 
