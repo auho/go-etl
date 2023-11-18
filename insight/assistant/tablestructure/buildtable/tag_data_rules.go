@@ -30,7 +30,6 @@ func (t *TagDataRulesTable) build() {
 		NewRuleTable(rule).BuildForTag(t.Command)
 	}
 
-	t.execCommandFunc()
 	t.execRawCommandFunc(t.tag)
 }
 

@@ -24,7 +24,6 @@ func NewRawTable(raw assistant.Rawer, opts ...TableOption) *RawTable {
 func (t *RawTable) build() {
 	t.initCommand(t.raw.TableName())
 
-	t.execCommandFunc()
 	t.execRawCommandFunc(t.raw)
 }
 

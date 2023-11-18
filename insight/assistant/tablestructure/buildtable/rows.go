@@ -25,7 +25,6 @@ func (t *RowsTable) build() {
 	t.initCommand(t.rows.TableName())
 	t.AddPkBigInt(t.rows.GetIdName())
 
-	t.execCommandFunc()
 	t.execRawCommandFunc(t.rows)
 }
 

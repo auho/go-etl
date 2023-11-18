@@ -22,9 +22,8 @@ type Tabler interface {
 
 type table struct {
 	*tablestructure.Command
-	config     Config
-	db         *simpleDb.SimpleDB
-	commandFun func(*tablestructure.Command)
+	config Config
+	db     *simpleDb.SimpleDB
 }
 
 func (t *table) initCommand(name string) {
@@ -72,21 +71,9 @@ func (t *table) withConfig(config Config) {
 	t.config = config
 }
 
-// 无法直接返回 sub struct，通过 option 注入
-func (t *table) withCommandFunc(fn func(*tablestructure.Command)) {
-	t.commandFun = fn
-}
-
 func (t *table) options(opts []TableOption) {
 	for _, opt := range opts {
 		opt(t)
-	}
-}
-
-// exec table command
-func (t *table) execCommandFunc() {
-	if t.commandFun != nil {
-		t.commandFun(t.Command)
 	}
 }
 

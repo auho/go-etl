@@ -28,7 +28,6 @@ func (t *DataContentSpiltWordsTable) build() {
 	t.Command.AddKeyBigInt(t.dataContentSpiltWords.GetData().GetIdName())
 	t.Command.AddStringWithLength(t.dataContentSpiltWords.WordName(), 30)
 
-	t.execCommandFunc()
 	t.execRawCommandFunc(t.dataContentSpiltWords)
 }
 

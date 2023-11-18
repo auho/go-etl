@@ -30,7 +30,6 @@ func (t *DataContentSegWordsTable) build() {
 	t.Command.AddStringWithLength(t.dataContentSegWords.FlagName(), 5)
 	t.Command.AddInt(t.dataContentSegWords.NumName())
 
-	t.execCommandFunc()
 	t.execRawCommandFunc(t.dataContentSegWords)
 }
 

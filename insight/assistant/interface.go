@@ -9,7 +9,7 @@ type Rawer interface {
 	GetDB() *go_simple_db.SimpleDB
 	GetName() string
 	TableName() string
-	ExecCommand(*tablestructure.Command)
+	ExecCommand(*tablestructure.Command) // exec command func
 }
 
 type Moder interface {
@@ -28,18 +28,14 @@ type Dataor interface {
 var _ Moder = Ruler(nil)
 
 type Ruler interface {
-	GetDB() *go_simple_db.SimpleDB
-	GetName() string
+	Moder
 	GetNameLength() int
-	GetIdName() string
 	GetLabels() map[string]int
 	GetKeywordLength() int
 	LabelsName() []string
 	LabelsAlias() map[string]string
-	TableName() string
 	KeywordName() string
 	KeywordLenName() string
 	KeywordNumName() string
-	ExecCommand(*tablestructure.Command)
 	ToOriginRule() Ruler
 }

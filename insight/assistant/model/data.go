@@ -55,3 +55,7 @@ func (d *Data) DmlTable() *dml.Table {
 func (d *Data) ToRows() *Rows {
 	return NewRows(d.name, d.idName, d.db)
 }
+
+func (d *Data) ToRaw() *Raw {
+	return NewRaw(d.name, d.db)
+}

@@ -48,14 +48,6 @@ func (r *Rows) TableName() string {
 	return r.tableName
 }
 
-func (r *Rows) ToData() *Data {
-	return NewData(r.name, r.idName, r.db)
-}
-
-func (r *Rows) ToDeletedRows() *Rows {
-	return NewRows(fmt.Sprintf("%s_%s", NameDeleted, r.name), r.idName, r.db)
-}
-
 func (r *Rows) WithCommand(fn func(command *tablestructure.Command)) *Rows {
 	r.withCommand(fn)
 
@@ -64,4 +56,16 @@ func (r *Rows) WithCommand(fn func(command *tablestructure.Command)) *Rows {
 
 func (r *Rows) DmlTable() *dml.Table {
 	return dml.NewTable(r.TableName())
+}
+
+func (r *Rows) ToData() *Data {
+	return NewData(r.name, r.idName, r.db)
+}
+
+func (r *Rows) ToRaw() *Raw {
+	return NewRaw(r.name, r.db)
+}
+
+func (r *Rows) ToDeletedRows() *Rows {
+	return NewRows(fmt.Sprintf("%s_%s", NameDeleted, r.name), r.idName, r.db)
 }

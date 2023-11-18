@@ -28,7 +28,6 @@ func (t *TagDataRuleTable) build() {
 	NewDataTable(t.tag.GetData()).BuildForTag(t.Command)
 	NewRuleTable(t.tag.GetRule()).BuildForTag(t.Command)
 
-	t.execCommandFunc()
 	t.execRawCommandFunc(t.tag)
 }
 

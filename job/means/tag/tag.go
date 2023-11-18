@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-// #TODO 重命名（key keyword  label=>tag） SQL use orm or interface
-
 // Result
 // result 匹配结果
 type Result struct {
