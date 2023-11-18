@@ -5,7 +5,7 @@ import (
 )
 
 func Test_App(t *testing.T) {
-	app = NewApp("develop")
+	app = NewApplication("develop")
 	if app.ConfName != "develop" {
 		t.Error("app error")
 	}

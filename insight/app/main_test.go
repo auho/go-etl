@@ -1,7 +1,6 @@
 package app
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -10,7 +9,7 @@ var testConfigContent = `[db]
 dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 driver = "mysql"
 `
-var app *App
+var app *Application
 
 func TestMain(m *testing.M) {
 	setup()
@@ -28,12 +27,12 @@ func setup() {
 		}
 	}
 
-	err = ioutil.WriteFile("conf/office.toml", []byte(testConfigContent), 0600)
+	err = os.WriteFile("conf/office.toml", []byte(testConfigContent), 0600)
 	if err != nil {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile("conf/test.toml", []byte(testConfigContent), 0600)
+	err = os.WriteFile("conf/test.toml", []byte(testConfigContent), 0600)
 	if err != nil {
 		panic(err)
 	}
