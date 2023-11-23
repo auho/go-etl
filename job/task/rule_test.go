@@ -3,10 +3,10 @@ package task
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/job/means/tag"
+	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ tag.Ruler = (*ruleTest)(nil)
+var _ means.Ruler = (*ruleTest)(nil)
 
 type ruleTest struct {
 }

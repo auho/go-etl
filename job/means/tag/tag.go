@@ -3,6 +3,8 @@ package tag
 import (
 	"fmt"
 	"strings"
+
+	"github.com/auho/go-etl/v2/job/means"
 )
 
 // Result
@@ -23,7 +25,7 @@ func NewResult() *Result {
 	return m
 }
 
-func (r *Result) toMapAny(rule Ruler) map[string]any {
+func (r *Result) toMapAny(rule means.Ruler) map[string]any {
 	item := make(map[string]any)
 
 	for _k, _v := range r.Tags {
@@ -59,7 +61,7 @@ func NewLabelResult() *LabelResult {
 	return l
 }
 
-func (lr *LabelResult) toMapAny(rule Ruler) map[string]any {
+func (lr *LabelResult) toMapAny(rule means.Ruler) map[string]any {
 	item := make(map[string]any)
 
 	for _name, _value := range lr.Labels {
@@ -103,7 +105,7 @@ func (rs Results) Swap(i, j int) {
 	rs[i], rs[j] = rs[j], rs[i]
 }
 
-func (rs Results) toSliceMapAny(rule Ruler) []map[string]any {
+func (rs Results) toSliceMapAny(rule means.Ruler) []map[string]any {
 	items := make([]map[string]any, 0, rs.Len())
 	for _, _r := range rs {
 		items = append(items, _r.toMapAny(rule))
@@ -128,7 +130,7 @@ func (lrs LabelResults) Swap(i, j int) {
 	lrs[i], lrs[j] = lrs[j], lrs[i]
 }
 
-func (lrs LabelResults) toSliceMapAny(rule Ruler) []map[string]any {
+func (lrs LabelResults) toSliceMapAny(rule means.Ruler) []map[string]any {
 	items := make([]map[string]any, 0, lrs.Len())
 	for _, _r := range lrs {
 		items = append(items, _r.toMapAny(rule))

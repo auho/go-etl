@@ -1,7 +1,11 @@
 package tag
 
-var _ Ruler = (*ruleTest)(nil)
-var _ Ruler = (*ruleAliasFixedTest)(nil)
+import (
+	"github.com/auho/go-etl/v2/job/means"
+)
+
+var _ means.Ruler = (*ruleTest)(nil)
+var _ means.Ruler = (*ruleAliasFixedTest)(nil)
 
 // ruleTest
 // rule

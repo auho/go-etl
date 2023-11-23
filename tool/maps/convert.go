@@ -14,3 +14,12 @@ func SliceMapStringAnyToSliceSliceAny(sm []map[string]any, keys []string) [][]an
 
 	return ss
 }
+
+func MapToMapAny[T valueEntity](m map[string]T) map[string]any {
+	nm := make(map[string]any, len(m))
+	for k, v := range m {
+		nm[k] = v
+	}
+
+	return nm
+}

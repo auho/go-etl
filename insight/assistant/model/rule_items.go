@@ -8,10 +8,10 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
-	"github.com/auho/go-etl/v2/job/means/tag"
+	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ tag.Ruler = (*RuleItems)(nil)
+var _ means.Ruler = (*RuleItems)(nil)
 
 // RuleItemsConfig
 // rule items config

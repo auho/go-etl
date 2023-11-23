@@ -2,6 +2,7 @@ package action
 
 import (
 	"github.com/auho/go-etl/v2/job"
+	"github.com/auho/go-etl/v2/job/means"
 	"github.com/auho/go-etl/v2/job/means/tag"
 	"github.com/auho/go-etl/v2/job/mode"
 	simpleDb "github.com/auho/go-simple-db/v2"
@@ -11,7 +12,7 @@ var _ job.Source = (*_source)(nil)
 var _ job.Target = (*_target)(nil)
 var _ job.CleanResource = (*_cleanResource)(nil)
 
-var _ruler tag.Ruler
+var _ruler means.Ruler
 
 type _source struct{}
 

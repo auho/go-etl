@@ -8,19 +8,20 @@ import (
 )
 
 var _ means.InsertMeans = (*Means)(nil)
+var _ means.UpdateMeans = (*Means)(nil)
 
 // Means
 // tag means
 type Means struct {
-	rule    Ruler
+	rule    means.Ruler
 	matcher *Matcher
-	fn      func(Ruler, *Matcher, []string) []map[string]any
+	fn      func(means.Ruler, *Matcher, []string) []map[string]any
 
 	keys          []string       // output name
 	defaultValues map[string]any // output default values
 }
 
-func NewMeans(rule Ruler, fn func(Ruler, *Matcher, []string) []map[string]any) *Means {
+func NewMeans(rule means.Ruler, fn func(means.Ruler, *Matcher, []string) []map[string]any) *Means {
 	m := &Means{
 		rule: rule,
 		fn:   fn,
@@ -39,6 +40,7 @@ func (m *Means) Prepare() error {
 
 	m.matcher.prepare(m.rule.KeywordNameAlias(), items)
 
+	// TODO extract func
 	m.keys = []string{
 		m.rule.NameAlias(),
 		m.rule.KeywordNameAlias(),
@@ -47,6 +49,7 @@ func (m *Means) Prepare() error {
 	m.keys = append(m.keys, m.rule.LabelsAlias()...)
 	m.keys = append(m.keys, m.rule.FixedKeysAlias()...)
 
+	// TODO extract func
 	m.defaultValues = map[string]any{
 		m.rule.NameAlias():           "",
 		m.rule.KeywordNameAlias():    "",
@@ -93,8 +96,8 @@ func (m *Means) DefaultValues() map[string]any {
 
 // NewKey
 // keyword
-func NewKey(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
+func NewKey(rule means.Ruler) *Means {
+	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchKey(c)
 		if rs == nil {
 			return nil
@@ -108,8 +111,8 @@ func NewKey(rule Ruler) *Means {
 
 // NewLabel
 // label tags
-func NewLabel(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
+func NewLabel(rule means.Ruler) *Means {
+	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchLabel(c)
 		if rs == nil {
 			return nil
@@ -121,8 +124,8 @@ func NewLabel(rule Ruler) *Means {
 	return t
 }
 
-func NewMostText(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
+func NewMostText(rule means.Ruler) *Means {
+	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchMostText(c)
 		if rs == nil {
 			return nil
@@ -134,8 +137,8 @@ func NewMostText(rule Ruler) *Means {
 	return t
 }
 
-func NewMostKey(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
+func NewMostKey(rule means.Ruler) *Means {
+	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchMostKey(c)
 		if rs == nil {
 			return nil
@@ -147,8 +150,8 @@ func NewMostKey(rule Ruler) *Means {
 	return t
 }
 
-func NewFirst(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
+func NewFirst(rule means.Ruler) *Means {
+	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchFirstText(c)
 		if rs == nil {
 			return nil
