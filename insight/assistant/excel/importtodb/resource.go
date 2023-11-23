@@ -11,6 +11,7 @@ type Resourcer interface {
 	GetIsRecreateTable() bool
 	GetIsAppendData() bool
 	GetIsShowSql() bool
+	GetBatchInsertSize() int
 	GetColumnDropDuplicates() []int
 	GetDB() *simpleDb.SimpleDB
 
@@ -30,8 +31,9 @@ type Resource struct {
 	SheetIndex           int                           // sheet index，从 1 开始
 	StartRow             int                           // 数据开始的行数，从 1 开始
 	EndRow               int                           // 数据结束的行数，从 1 开始
-	IsRecreateTable      bool                          // 是否 recreate table
-	IsAppendData         bool                          // 是否 append data
+	BatchInsertSize      int                           // 数据批量插入 size
+	IsRecreateTable      bool                          // true: recreate table; false: not recreate table;
+	IsAppendData         bool                          // true: append data; false truncate table
 	IsShowSql            bool                          // 是否显示 sql
 	ColumnDropDuplicates []int                         // [column index] drop duplicates for column
 	CommandFun           func(*tablestructure.Command) // recreate table 时执行的 func
@@ -71,6 +73,14 @@ func (s *Resource) GetIsAppendData() bool {
 
 func (s *Resource) GetIsShowSql() bool {
 	return s.IsShowSql
+}
+
+func (s *Resource) GetBatchInsertSize() int {
+	if s.BatchInsertSize <= 0 {
+		s.BatchInsertSize = 2000
+	}
+
+	return s.BatchInsertSize
 }
 
 func (s *Resource) GetColumnDropDuplicates() []int {

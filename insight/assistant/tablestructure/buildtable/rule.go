@@ -26,7 +26,7 @@ func (t *RuleTable) build() {
 	t.Command.AddPkInt(t.rule.GetIdName())
 
 	t.buildRuleLabels(t.Command)
-	keywordFiled := t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetNameLength())
+	keywordFiled := t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetKeywordLength())
 	keywordFiled.SetCollateUtf8mb4Bin()
 	t.Command.AddInt(t.rule.KeywordLenName())
 
@@ -45,7 +45,7 @@ func (t *RuleTable) buildRuleLabels(command *tablestructure.Command) {
 
 func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
 	t.buildRuleLabels(command)
-	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetNameLength())
+	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
 	command.AddInt(t.rule.KeywordNumName())
 }
 

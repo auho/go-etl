@@ -16,6 +16,7 @@ type Tabler interface {
 	GetCommand() *tablestructure.Command
 	Sql() string
 	Build() error
+	ExecCommand(func(*tablestructure.Command))
 
 	withConfig(Config)
 }
@@ -65,6 +66,10 @@ func (t *table) Build() error {
 	}
 
 	return t.db.Exec(sql).Error
+}
+
+func (t *table) ExecCommand(fn func(*tablestructure.Command)) {
+	fn(t.Command)
 }
 
 func (t *table) withConfig(config Config) {

@@ -52,7 +52,8 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 			continue
 		}
 
-		if _i > 0 && _i > config.EndRow {
+		// end row > 0 AND current > end row
+		if config.EndRow > 0 && _i > config.EndRow {
 			break
 		}
 

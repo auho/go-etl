@@ -10,10 +10,10 @@ var _ assistant.Ruler = (*Rule)(nil)
 
 type DataRule struct {
 	*Rule
-	data *Data
+	data assistant.Dataor
 }
 
-func NewDataRule(data *Data, rule *Rule) *DataRule {
+func NewDataRule(data assistant.Dataor, rule *Rule) *DataRule {
 	dr := &DataRule{}
 	dr.data = data
 	dr.Rule = rule
@@ -21,7 +21,7 @@ func NewDataRule(data *Data, rule *Rule) *DataRule {
 	return dr
 }
 
-func (dr *DataRule) GetData() *Data {
+func (dr *DataRule) GetData() assistant.Dataor {
 	return dr.data
 }
 

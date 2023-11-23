@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
 	"github.com/auho/go-toolkit/farmtools/sort/maps"
 )
@@ -15,25 +14,25 @@ import (
 // sheet to table schema
 type Schema struct {
 	excel  *Excel
-	data   assistant.Rawer
+	table  buildtable.Tabler
 	config Config
 
 	titleFunc func(string) string
 }
 
-func NewSchemaWithPath(xlsxPath string, data assistant.Rawer, config Config) (*Schema, error) {
+func NewSchemaWithPath(xlsxPath string, table buildtable.Tabler, config Config) (*Schema, error) {
 	excel, err := NewExcel(xlsxPath)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewSchema(excel, data, config)
+	return NewSchema(excel, table, config)
 }
 
-func NewSchema(excel *Excel, data assistant.Rawer, config Config) (*Schema, error) {
+func NewSchema(excel *Excel, table buildtable.Tabler, config Config) (*Schema, error) {
 	return &Schema{
 		excel:  excel,
-		data:   data,
+		table:  table,
 		config: config,
 	}, nil
 }
@@ -44,7 +43,7 @@ func (s *Schema) WithFuncTitle(fn func(string) string) *Schema {
 	return s
 }
 
-func (s *Schema) BuildTable() (*buildtable.RawTable, error) {
+func (s *Schema) BuildTable() (buildtable.Tabler, error) {
 	if s.config.EndRow <= 0 {
 		s.config.EndRow = 100
 	}
@@ -54,15 +53,16 @@ func (s *Schema) BuildTable() (*buildtable.RawTable, error) {
 		return nil, fmt.Errorf("readSheet error; %w", err)
 	}
 
-	_table := buildtable.NewRawTable(s.data)
-	s.buildTable(_table, rows)
+	s.buildTable(rows)
 
-	return _table, err
+	return s.table, err
 }
 
-func (s *Schema) buildTable(table *buildtable.RawTable, rows [][]string) {
+func (s *Schema) buildTable(rows [][]string) {
 	titles := rows[0]
 	rows = rows[1:]
+
+	_command := s.table.GetCommand()
 
 	for i, title := range titles {
 		if s.titleFunc != nil {
@@ -73,20 +73,20 @@ func (s *Schema) buildTable(table *buildtable.RawTable, rows [][]string) {
 		switch _type {
 		case reflect.String:
 			if _len1 <= 30 {
-				table.AddString(title)
+				_command.AddString(title)
 			} else if _len1 <= 255 {
-				table.AddStringWithLength(title, 255)
+				_command.AddStringWithLength(title, 255)
 			} else if _len1 <= 2000 {
-				table.AddStringWithLength(title, 2000)
+				_command.AddStringWithLength(title, 2000)
 			} else {
-				table.AddText(title)
+				_command.AddText(title)
 			}
 		case reflect.Int:
-			table.AddInt(title)
+			_command.AddInt(title)
 		case reflect.Int64:
-			table.AddBigInt(title)
+			_command.AddBigInt(title)
 		case reflect.Float64:
-			table.AddDecimal(title, 11, 2)
+			_command.AddDecimal(title, 11, 2)
 		default:
 			panic("type not found")
 		}

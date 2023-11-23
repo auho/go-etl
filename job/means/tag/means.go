@@ -146,3 +146,16 @@ func NewMostKey(rule Ruler) *Means {
 
 	return t
 }
+
+func NewFirst(rule Ruler) *Means {
+	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
+		rs := m.MatchFirstText(c)
+		if rs == nil {
+			return nil
+		}
+
+		return rs.toSliceMapAny(rule)
+	})
+
+	return t
+}

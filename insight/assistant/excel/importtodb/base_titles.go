@@ -11,7 +11,7 @@ import (
 // column title of save to db
 type Titles struct {
 	TitlesWithIndex map[int]string // map[sheet column index ]save to db 的 columns；index 从 1 开始
-	Titles          []string       // []save to db 的 columns; 从第一个 column 开始，连续不间断；此选择优先
+	Titles          []string       // []string, save to db 的 columns; 从第一个 column 开始，连续不间断；此选择优先
 	titlesKey       []string
 	titlesIndex     []int // column index in sheet；从 0 开始
 }

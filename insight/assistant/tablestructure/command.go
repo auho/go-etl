@@ -24,6 +24,10 @@ func (c *Command) SqlForAlterChange() []string {
 	return c.Table.SqlForAlterChange()
 }
 
+func (c *Command) AddKey(name string, size int) {
+	c.Table.AddKey(name, size)
+}
+
 func (c *Command) AddPk(name string) {
 	c.Table.AddPk(name)
 }
