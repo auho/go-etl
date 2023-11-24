@@ -138,3 +138,21 @@ func TestMostText(t *testing.T) {
 		}
 	}
 }
+
+func TestFirst(t *testing.T) {
+	tm := NewFirst(_rule)
+	err := tm.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resSlice := tm.Insert(_contents)
+	fmt.Println(resSlice)
+	if len(resSlice) != 1 {
+		t.Fatal("error")
+	}
+
+	if resSlice[0][_rule.KeywordName()] != "b" {
+		t.Fatal("error")
+	}
+}

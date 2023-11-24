@@ -11,6 +11,37 @@ var _ means.Ruler = (*ruleTest)(nil)
 type ruleTest struct {
 }
 
+func (r *ruleTest) MeansKeys() []string {
+	var keys []string
+	keys = []string{
+		r.NameAlias(),
+		r.KeywordNameAlias(),
+		r.KeywordNumNameAlias(),
+	}
+	keys = append(keys, r.LabelsAlias()...)
+	keys = append(keys, r.FixedKeysAlias()...)
+
+	return keys
+}
+
+func (r *ruleTest) MeansDefaultValues() map[string]any {
+	defaultValues := map[string]any{
+		r.NameAlias():           "",
+		r.KeywordNameAlias():    "",
+		r.KeywordNumNameAlias(): 0,
+	}
+
+	for _, _la := range r.LabelsAlias() {
+		defaultValues[_la] = ""
+	}
+
+	for _, _fka := range r.FixedKeysAlias() {
+		defaultValues[_fka] = ""
+	}
+
+	return defaultValues
+}
+
 func (r *ruleTest) Name() string {
 	return "a"
 }

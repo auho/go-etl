@@ -76,7 +76,7 @@ func (m *Means) DefaultValues() map[string]any {
 }
 
 func NewWholeLabels(rule means.Ruler) *Means {
-	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
+	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchLabel(c)
 		if rs == nil {
 			return nil
@@ -105,14 +105,12 @@ func NewWholeLabels(rule means.Ruler) *Means {
 
 		return []map[string]any{_rt}
 	})
-
-	return t
 }
 
 // NewKey
 // keyword
 func NewKey(rule means.Ruler) *Means {
-	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
+	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchKey(c)
 		if rs == nil {
 			return nil
@@ -120,14 +118,12 @@ func NewKey(rule means.Ruler) *Means {
 
 		return rs.toSliceMapAny(rule)
 	})
-
-	return t
 }
 
 // NewLabel
 // label tags
 func NewLabel(rule means.Ruler) *Means {
-	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
+	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchLabel(c)
 		if rs == nil {
 			return nil
@@ -135,12 +131,10 @@ func NewLabel(rule means.Ruler) *Means {
 
 		return rs.toSliceMapAny(rule)
 	})
-
-	return t
 }
 
 func NewMostText(rule means.Ruler) *Means {
-	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
+	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchMostText(c)
 		if rs == nil {
 			return nil
@@ -148,12 +142,10 @@ func NewMostText(rule means.Ruler) *Means {
 
 		return rs.toSliceMapAny(rule)
 	})
-
-	return t
 }
 
 func NewMostKey(rule means.Ruler) *Means {
-	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
+	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchMostKey(c)
 		if rs == nil {
 			return nil
@@ -161,12 +153,10 @@ func NewMostKey(rule means.Ruler) *Means {
 
 		return rs.toSliceMapAny(rule)
 	})
-
-	return t
 }
 
 func NewFirst(rule means.Ruler) *Means {
-	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
+	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchFirstText(c)
 		if rs == nil {
 			return nil
@@ -174,6 +164,4 @@ func NewFirst(rule means.Ruler) *Means {
 
 		return rs.toSliceMapAny(rule)
 	})
-
-	return t
 }

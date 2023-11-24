@@ -28,6 +28,11 @@ func (r *Run) RunCommandE(args []string) error {
 		}
 	}
 
+	fmt.Println()
+	for _, _cmd := range r.commands {
+		fmt.Println(_cmd.Use)
+	}
+
 	r.commands = nil
 
 	return nil
