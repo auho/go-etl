@@ -4,29 +4,24 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 )
 
-var _ assistant.Ruler = (*Rule)(nil)
+var _ assistant.Ruler = (*DataRule)(nil)
 
 type DataRule struct {
-	*Rule
+	baseRule
 	data assistant.Dataor
+	rule *Rule
 }
 
 func NewDataRule(data assistant.Dataor, rule *Rule) *DataRule {
 	dr := &DataRule{}
 	dr.data = data
-	dr.Rule = rule
+	dr.baseRule = rule.baseRule
+	dr.rule = rule
 
 	return dr
-}
-
-func (dr *DataRule) GetData() assistant.Dataor {
-	return dr.data
-}
-
-func (dr *DataRule) GetRule() *Rule {
-	return dr.Rule
 }
 
 func (dr *DataRule) TableName() string {
@@ -37,6 +32,14 @@ func (dr *DataRule) ToOriginRule() assistant.Ruler {
 	return dr.handlerOrigin()
 }
 
+func (dr *DataRule) DmlTable() *dml.Table {
+	return dml.NewTable(dr.TableName())
+}
+
+func (dr *DataRule) ToItems(opts ...func(items *assistant.RuleItems)) *assistant.RuleItems {
+	return assistant.NewRuleItems(dr, opts...)
+}
+
 func (dr *DataRule) ToAliasRule(alias map[string]string) *DataRule {
 	_rule := dr.handlerOrigin()
 	_rule.handlerAlias(alias)
@@ -44,10 +47,14 @@ func (dr *DataRule) ToAliasRule(alias map[string]string) *DataRule {
 	return _rule
 }
 
-func (dr *DataRule) ToItems(opts ...func(items *RuleItems)) *RuleItems {
-	return NewRuleItems(dr, opts...)
+func (dr *DataRule) GetData() assistant.Dataor {
+	return dr.data
+}
+
+func (dr *DataRule) GetRule() *Rule {
+	return dr.rule
 }
 
 func (dr *DataRule) handlerOrigin() *DataRule {
-	return NewDataRule(dr.data, dr.Rule.handlerOrigin())
+	return NewDataRule(dr.data, dr.rule.handlerOrigin())
 }

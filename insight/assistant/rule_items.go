@@ -1,11 +1,10 @@
-package model
+package assistant
 
 import (
 	"fmt"
 	"maps"
 	"sort"
 
-	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
 	"github.com/auho/go-etl/v2/job/means"
@@ -34,13 +33,13 @@ func WithRuleItemsConfig(config RuleItemsConfig) func(*RuleItems) {
 // fixed: [key] => [value]
 // keywordFormatFunc: [data keyword value] => [regexp keyword value]
 type RuleItems struct {
-	rule              assistant.Ruler
+	rule              Ruler
 	alias             map[string]string
 	fixed             map[string]any
 	keywordFormatFunc func(string) string
 }
 
-func NewRuleItems(rule assistant.Ruler, opts ...func(items *RuleItems)) *RuleItems {
+func NewRuleItems(rule Ruler, opts ...func(items *RuleItems)) *RuleItems {
 	ri := &RuleItems{}
 	ri.rule = rule
 

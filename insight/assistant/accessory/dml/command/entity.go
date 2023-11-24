@@ -17,7 +17,7 @@ func NewEntity(k string, v string) *Entity {
 
 func NewExpressionEntity(k string, v string) *Entity {
 	e := NewEntity(k, v)
-	e.flag = flagExpression
+	e.flag = FlagExpression
 
 	return e
 }
@@ -35,11 +35,11 @@ func (e *Entity) GetValue() string {
 }
 
 func (e *Entity) IsExpression() bool {
-	return e.flag == flagExpression
+	return e.flag == FlagExpression
 }
 
 type Entities struct {
-	keys    map[string]int
+	keys    map[string]int // map[entity name]index
 	entries []*Entity
 }
 
@@ -59,9 +59,15 @@ func (es *Entities) AddEntry(k string, v string) {
 	es.Add(NewEntity(k, v))
 }
 
+func (es *Entities) AddEntryExpression(k string, v string) {
+	es.Add(NewExpressionEntity(k, v))
+}
+
 func (es *Entities) Add(e *Entity) {
+	// 前面 add 覆盖后面 add 的
+	// 已存在的值，不会被覆盖
 	if k, ok := es.keys[e.key]; ok {
-		es.entries[k] = e
+		_ = k
 	} else {
 		es.keys[e.key] = len(es.entries)
 		es.entries = append(es.entries, e)

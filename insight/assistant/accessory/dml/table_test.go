@@ -101,7 +101,7 @@ func getTable1() *Table {
 
 func getTable2() *Table {
 	return NewTable("efg").Select([]string{"a", "b"}).
-		SelectAlias(map[string]string{"a1": "a11", "b1": "b11"}).
+		SelectAlias(map[string]string{"a1": "a11", "b1": "b11", "c": "cc"}).
 		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
 		Where("`a` = 1").
 		GroupBy([]string{"c", "d"}).

@@ -190,7 +190,11 @@ func (c *TableCommand) BuildOrderBy() []string {
 
 	os := make([]string, 0)
 	for _, v := range c.orderBy.Get() {
-		os = append(os, fmt.Sprintf("%s %s", c.addSelfTablePrefix(c.addBackQuote(v.GetKey())), v.GetValue()))
+		if v.IsExpression() {
+			os = append(os, fmt.Sprintf("%s %s", c.addBackQuote(v.GetKey()), v.GetValue()))
+		} else {
+			os = append(os, fmt.Sprintf("%s %s", c.addSelfTablePrefix(c.addBackQuote(v.GetKey())), v.GetValue()))
+		}
 	}
 
 	return os

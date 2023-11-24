@@ -1,6 +1,7 @@
 package assistant
 
 import (
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	"github.com/auho/go-simple-db/v2"
 )
@@ -10,6 +11,7 @@ type Rawer interface {
 	GetName() string
 	TableName() string
 	ExecCommand(*tablestructure.Command) // exec command func
+	DmlTable() *dml.Table
 }
 
 type Moder interface {
@@ -22,7 +24,7 @@ type Rowsor interface {
 }
 
 type Dataor interface {
-	Moder
+	Rowsor
 }
 
 var _ Moder = Ruler(nil)
@@ -38,4 +40,5 @@ type Ruler interface {
 	KeywordLenName() string
 	KeywordNumName() string
 	ToOriginRule() Ruler
+	ToItems(opts ...func(items *RuleItems)) *RuleItems
 }

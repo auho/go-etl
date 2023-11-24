@@ -36,19 +36,19 @@ func (r *Rule) ToOriginRule() assistant.Ruler {
 	return r.handlerOrigin()
 }
 
+func (r *Rule) DmlTable() *dml.Table {
+	return dml.NewTable(r.TableName())
+}
+
+func (r *Rule) ToItems(opts ...func(items *assistant.RuleItems)) *assistant.RuleItems {
+	return assistant.NewRuleItems(r, opts...)
+}
+
 func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 	_rule := r.handlerOrigin()
 	_rule.handlerAlias(alias)
 
 	return _rule
-}
-
-func (r *Rule) ToItems(opts ...func(items *RuleItems)) *RuleItems {
-	return NewRuleItems(r, opts...)
-}
-
-func (r *Rule) DmlTable() *dml.Table {
-	return dml.NewTable(r.TableName())
 }
 
 func (r *Rule) handlerOrigin() *Rule {

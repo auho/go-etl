@@ -101,11 +101,27 @@ func (t *Table) GroupByAlias(g map[string]string) *Table {
 	return t
 }
 
-func (t *Table) OrderBy(v ...string) *Table {
+func (t *Table) addOrderBy(flag string, v ...string) *Table {
 	v = v[0 : len(v)/2*2]
 	for i := 0; i < len(v); i += 2 {
-		t.orderBy.AddEntry(v[i], v[i+1])
+		if flag == command.FlagExpression {
+			t.orderBy.AddEntryExpression(v[i], v[i+1])
+		} else {
+			t.orderBy.AddEntry(v[i], v[i+1])
+		}
 	}
+
+	return t
+}
+
+func (t *Table) OrderBy(v ...string) *Table {
+	t.addOrderBy(command.FlagField, v...)
+
+	return t
+}
+
+func (t *Table) OrderByExpression(v ...string) *Table {
+	t.addOrderBy(command.FlagExpression, v...)
 
 	return t
 }
@@ -116,8 +132,20 @@ func (t *Table) OrderByAsc(k string) *Table {
 	return t
 }
 
+func (t *Table) OrderByAscExpression(k string) *Table {
+	t.OrderByExpression(k, command.SortAsc)
+
+	return t
+}
+
 func (t *Table) OrderByDesc(k string) *Table {
 	t.OrderBy(k, command.SortDesc)
+
+	return t
+}
+
+func (t *Table) OrderByDescExpression(k string) *Table {
+	t.OrderByExpression(k, command.SortDesc)
 
 	return t
 }
