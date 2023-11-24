@@ -52,7 +52,7 @@ func (t *Table) Build(db *simpleDb.SimpleDB) error {
 }
 
 func (t *Table) BuildChange(db *simpleDb.SimpleDB) error {
-	return t.build(t.SqlForAlterChange(), db)
+	return t.build(t.SqlForChange(), db)
 }
 
 func (t *Table) build(sqls []string, db *simpleDb.SimpleDB) error {

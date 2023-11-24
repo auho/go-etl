@@ -14,6 +14,7 @@ type Table struct {
 	groupBy   *command.Entities
 	orderBy   *command.Entities
 	limit     []int
+	having    string
 	join      *command.Join
 	set       []*command.Set
 	asSql     string
@@ -121,6 +122,12 @@ func (t *Table) OrderByDesc(k string) *Table {
 	return t
 }
 
+func (t *Table) Having(s string) *Table {
+	t.having = s
+
+	return t
+}
+
 func (t *Table) Limit(start int, offset int) *Table {
 	t.limit = []int{start, offset}
 
@@ -136,7 +143,7 @@ func (t *Table) Aggregation(a map[string]string) *Table {
 	return t
 }
 
-func (t *Table) LeftJoin(fields []string, rightTable *Table, rightFields []string) *Table {
+func (t *Table) addLeftJoin(fields []string, rightTable *Table, rightFields []string) *Table {
 	t.join = command.NewLeftJoin(t.GetName(), fields, rightTable.GetName(), rightFields)
 
 	return t
@@ -241,6 +248,7 @@ func (t *Table) prepare() {
 	t.commander.SetWhere(t.where)
 	t.commander.SetGroupBy(t.groupBy)
 	t.commander.SetOrderBy(t.orderBy)
+	t.commander.SetHaving(t.having)
 	t.commander.SetLimit(t.limit)
 	t.commander.SetSet(t.set)
 }

@@ -34,7 +34,7 @@ func WithInsertConfig(ic InsertConfig) func(*Insert) {
 }
 
 type Insert struct {
-	targetAction
+	TargetAction
 
 	mode mode.InsertModer
 

@@ -21,6 +21,7 @@ type TableCommand struct {
 	groupBy       *command.Entities
 	orderBy       *command.Entities
 	limit         []int
+	having        string
 	join          *command.Join
 	set           []*command.Set
 	asSql         string
@@ -203,6 +204,24 @@ func (c *TableCommand) Limit() string {
 	return c.LimitToString(c.limit)
 }
 
+func (c *TableCommand) SetHaving(s string) {
+	c.having = s
+}
+
+func (c *TableCommand) Having() string {
+	h := c.BuildHaving()
+
+	return c.HavingToString(h)
+}
+
+func (c *TableCommand) BuildHaving() []string {
+	if c.having == "" {
+		return nil
+	}
+
+	return []string{c.having}
+}
+
 func (c *TableCommand) SetSet(s []*command.Set) {
 	c.set = s
 }
@@ -251,12 +270,13 @@ func (c *TableCommand) BuildSet() []string {
 }
 
 func (c *TableCommand) Query() string {
-	return fmt.Sprintf("%s%s%s%s%s%s",
+	return fmt.Sprintf("%s%s%s%s%s%s%s",
 		c.Select(),
 		c.From(),
 		c.Where(),
 		c.GroupBy(),
 		c.OrderBy(),
+		c.Having(),
 		c.Limit(),
 	)
 }

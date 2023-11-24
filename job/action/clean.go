@@ -43,7 +43,7 @@ func WithCleanConfig(cc CleanConfig) func(*Clean) {
 // Clean
 // filter
 type Clean struct {
-	action
+	Action
 
 	cleanTarget job.CleanResource
 	keys        []string

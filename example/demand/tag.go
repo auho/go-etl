@@ -21,6 +21,6 @@ var _tagAllCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		app.APP.AddCommand(tag.Tag001Cmd)
 
-		return app.APP.RunCommandE()
+		return app.APP.RunCommandE(args)
 	},
 }

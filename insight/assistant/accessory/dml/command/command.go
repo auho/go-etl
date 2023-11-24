@@ -37,6 +37,8 @@ type TableCommander interface {
 	BuildOrderBy() []string
 	SetLimit([]int)
 	Limit() string
+	SetHaving(string)
+	Having() string
 	SetSet([]*Set)
 	Set() string
 	BuildSet() []string

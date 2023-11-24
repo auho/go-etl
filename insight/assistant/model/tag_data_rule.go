@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -46,4 +47,8 @@ func (t *TagDataRule) GetIdName() string {
 
 func (t *TagDataRule) TableName() string {
 	return fmt.Sprintf("%s_%s_%s", NameTag, t.data.GetName(), t.rule.GetName())
+}
+
+func (t *TagDataRule) DmlTable() *dml.Table {
+	return dml.NewTable(t.TableName())
 }

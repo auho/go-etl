@@ -13,14 +13,16 @@ type Run struct {
 	commands []*cobra.Command
 }
 
-func (r *Run) AddCommand(cmd *cobra.Command) {
-	r.commands = append(r.commands, cmd)
+func (r *Run) AddCommand(cs ...*cobra.Command) {
+	for _, cmd := range cs {
+		r.commands = append(r.commands, cmd)
+	}
 }
 
-func (r *Run) RunCommandE() error {
+func (r *Run) RunCommandE(args []string) error {
 	var err error
 	for _, _cmd := range r.commands {
-		err = _cmd.Execute()
+		err = _cmd.RunE(_cmd, args)
 		if err != nil {
 			return err
 		}

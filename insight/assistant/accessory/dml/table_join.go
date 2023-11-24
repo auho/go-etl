@@ -54,7 +54,7 @@ func (tj *TableJoin) LeftJoin(rightTable *Table, rightFields []string, leftTable
 		panic("left join fields not found")
 	}
 
-	rightTable.LeftJoin(rightFields, leftTable, leftFields)
+	rightTable.addLeftJoin(rightFields, leftTable, leftFields)
 	tj.addTable(rightTable)
 
 	return tj

@@ -38,7 +38,7 @@ func WithUpdateConfig(cc UpdateConfig) func(update *Update) {
 }
 
 type Update struct {
-	targetAction
+	TargetAction
 
 	source     job.Source
 	modes      []mode.UpdateModer

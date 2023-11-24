@@ -94,6 +94,40 @@ func (m *Means) DefaultValues() map[string]any {
 	return m.defaultValues
 }
 
+func NewWholeLabels(rule means.Ruler) *Means {
+	t := NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
+		rs := m.MatchLabel(c)
+		if rs == nil {
+			return nil
+		}
+
+		_rts := make(map[string][]string)
+		_amount := 0
+		for _, _r := range rs {
+			for _labelKey, _labelValue := range _r.Labels {
+				_rts[_labelKey] = append(_rts[_labelKey], _labelValue)
+			}
+
+			for _, _key := range _r.Keys {
+				_rts[rule.KeywordNameAlias()] = append(_rts[rule.KeywordNameAlias()], _key)
+			}
+
+			_amount += 1
+		}
+
+		_rt := make(map[string]any)
+		for _rk, _rv := range _rts {
+			_rt[_rk] = strings.Join(_rv, "|")
+		}
+
+		_rt[rule.KeywordNumNameAlias()] = _amount
+
+		return []map[string]any{_rt}
+	})
+
+	return t
+}
+
 // NewKey
 // keyword
 func NewKey(rule means.Ruler) *Means {

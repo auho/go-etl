@@ -57,10 +57,6 @@ func ExampleTable_Limit() {
 	_ = NewTable("one").Limit(0, 11)
 }
 
-func ExampleTable_LeftJoin() {
-	_ = NewTable("one").LeftJoin([]string{"a"}, NewTable("two"), []string{"two_a"})
-}
-
 func ExampleTable_SetField() {
 	_ = NewTable("one").SetField(map[string]string{
 		"a": "b",

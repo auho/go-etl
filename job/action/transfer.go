@@ -10,7 +10,7 @@ import (
 var _ Actor = (*Transfer)(nil)
 
 type Transfer struct {
-	targetAction
+	TargetAction
 
 	mode mode.TransferModer
 }
