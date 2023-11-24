@@ -40,27 +40,8 @@ func (m *Means) Prepare() error {
 
 	m.matcher.prepare(m.rule.KeywordNameAlias(), items)
 
-	// TODO extract func
-	m.keys = []string{
-		m.rule.NameAlias(),
-		m.rule.KeywordNameAlias(),
-		m.rule.KeywordNumNameAlias(),
-	}
-	m.keys = append(m.keys, m.rule.LabelsAlias()...)
-	m.keys = append(m.keys, m.rule.FixedKeysAlias()...)
-
-	// TODO extract func
-	m.defaultValues = map[string]any{
-		m.rule.NameAlias():           "",
-		m.rule.KeywordNameAlias():    "",
-		m.rule.KeywordNumNameAlias(): 0,
-	}
-	for _, _la := range m.rule.LabelsAlias() {
-		m.defaultValues[_la] = ""
-	}
-	for _, _fka := range m.rule.FixedKeysAlias() {
-		m.defaultValues[_fka] = ""
-	}
+	m.keys = m.rule.MeansKeys()
+	m.defaultValues = m.rule.MeansDefaultValues()
 
 	return nil
 }

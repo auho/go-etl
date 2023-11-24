@@ -8,14 +8,17 @@ import (
 )
 
 func TestMatcher(t *testing.T) {
-	items := make([]map[string]string, 0)
-	items = append(items, map[string]string{"a": "b", "b": "b", "c": "c"})
-	items = append(items, map[string]string{"a": "123", "b": "b", "c": "c"})
-	items = append(items, map[string]string{"a": "中文", "b": "b2", "c": "c2"})
-	items = append(items, map[string]string{"a": "中_文", "b": "b3", "c": "c3"})
-	items = append(items, map[string]string{"a": "_中1_a文", "b": "b4", "c": "c4"})
-	items = append(items, map[string]string{"a": "，。【】", "b": "b5", "c": "c5"})
-	items = append(items, map[string]string{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"})
+	// keyword: a
+	// labels: b c
+	items := []map[string]string{
+		{"a": "b", "b": "b", "c": "c"},
+		{"a": "123", "b": "b", "c": "c"},
+		{"a": "中文", "b": "b2", "c": "c2"},
+		{"a": "中_文", "b": "b3", "c": "c3"},
+		{"a": "_中1_a文", "b": "b4", "c": "c4"},
+		{"a": "，。【】", "b": "b5", "c": "c5"},
+		{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"},
+	}
 
 	m := NewMatcher(WithMatcherKeyFormatFunc(func(s string) string {
 		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)

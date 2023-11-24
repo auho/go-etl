@@ -32,4 +32,6 @@ type Ruler interface {
 	FixedKeysAlias() []string
 	ItemsAlias() ([]map[string]string, error)
 	ItemsForRegexp() ([]map[string]string, error)
+	MeansKeys() []string
+	MeansDefaultValues() map[string]any
 }

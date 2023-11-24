@@ -8,10 +8,28 @@ import (
 
 func TestMeans(t *testing.T) {
 	tm := NewMeans(_rule, nil)
+	err := tm.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	keys := tm.GetKeys()
 	if len(keys) < 3 {
-		t.Error("error")
+		t.Fatal("error")
+	}
+}
+
+func TestWholeLabels(t *testing.T) {
+	tm := NewWholeLabels(_rule)
+	err := tm.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resSlice := tm.Insert(_contents)
+	fmt.Println(resSlice)
+	if len(resSlice) != 1 {
+		t.Fatal("error")
 	}
 }
 
@@ -23,11 +41,11 @@ func TestKey(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	if len(resSlice) <= 0 {
-		t.Error("error")
+	fmt.Println(resSlice)
+	if len(resSlice) != 5 {
+		t.Fatal("error")
 	}
 
-	fmt.Println(resSlice)
 }
 
 func TestLabel(t *testing.T) {
@@ -38,11 +56,12 @@ func TestLabel(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	if len(resSlice) <= 0 {
-		t.Error("error")
+	fmt.Println(resSlice)
+
+	if len(resSlice) != 5 {
+		t.Fatal("error")
 	}
 
-	fmt.Println(resSlice)
 }
 
 func TestMostKey(t *testing.T) {
@@ -53,29 +72,26 @@ func TestMostKey(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	if len(resSlice) <= 0 {
-		t.Error("error")
+	fmt.Println(resSlice)
+	if len(resSlice) != 1 {
+		t.Fatal("error")
 	}
 
-	fmt.Println(resSlice)
+	if resSlice[0][_rule.KeywordName()] != "中_文" {
+		t.Fatal("error")
+	}
 
 	keys := tm.GetKeys()
-	for _, k := range keys {
-		if k != "a" && k != "ab" && k != "a_keyword" && k != "a_keyword_num" {
-			t.Error("keys error")
-		}
-	}
 
 	resMap := tm.Update(_contents)
-	if len(resMap) <= 0 {
-		t.Error("error")
-	}
-
 	fmt.Println(resMap)
+	if len(resMap) <= 0 {
+		t.Fatal("error")
+	}
 
 	for _, k := range keys {
 		if _, ok := resMap[k]; !ok {
-			t.Error("update error")
+			t.Fatal("error")
 		}
 	}
 }
@@ -89,16 +105,19 @@ func TestMostText(t *testing.T) {
 
 	for _, k := range tm.rule.LabelsAlias() {
 		if !strings.HasSuffix(k, "_alias") {
-			t.Error("alias is error")
+			t.Fatal("error")
 		}
 	}
 
 	resSlice := tm.Insert(_contents)
-	if len(resSlice) <= 0 {
+	fmt.Println(resSlice)
+	if len(resSlice) != 1 {
 		t.Error("error")
 	}
 
-	fmt.Println(resSlice)
+	if resSlice[0][_ruleAliasFixed.KeywordNameAlias()] != "123" {
+		t.Fatal("error")
+	}
 
 	keys := tm.GetKeys()
 	for _, k := range keys {
@@ -108,16 +127,14 @@ func TestMostText(t *testing.T) {
 	}
 
 	resMap := tm.Update(_contents)
+	fmt.Println(resMap)
 	if len(resMap) <= 0 {
 		t.Error("error")
 	}
-
-	fmt.Println(resMap)
 
 	for _, k := range keys {
 		if _, ok := resMap[k]; !ok {
 			t.Error("update error")
 		}
 	}
-
 }

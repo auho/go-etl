@@ -73,27 +73,8 @@ func (c *Contains) Prepare() error {
 		return fmt.Errorf("contains Prepare error; %w", err)
 	}
 
-	// TODO extract func
-	c.keys = []string{
-		c.rule.NameAlias(),
-		c.rule.KeywordNameAlias(),
-		c.rule.KeywordNumNameAlias(),
-	}
-	c.keys = append(c.keys, c.rule.LabelsAlias()...)
-	c.keys = append(c.keys, c.rule.FixedKeysAlias()...)
-
-	// TODO extract func
-	c.defaultValues = map[string]any{
-		c.rule.NameAlias():           "",
-		c.rule.KeywordNameAlias():    "",
-		c.rule.KeywordNumNameAlias(): 0,
-	}
-	for _, _la := range c.rule.LabelsAlias() {
-		c.defaultValues[_la] = ""
-	}
-	for _, _fka := range c.rule.FixedKeysAlias() {
-		c.defaultValues[_fka] = ""
-	}
+	c.keys = c.rule.MeansKeys()
+	c.defaultValues = c.rule.MeansDefaultValues()
 
 	return nil
 }

@@ -12,6 +12,37 @@ var _ means.Ruler = (*ruleAliasFixedTest)(nil)
 type ruleTest struct {
 }
 
+func (r *ruleTest) MeansKeys() []string {
+	var keys []string
+	keys = []string{
+		r.NameAlias(),
+		r.KeywordNameAlias(),
+		r.KeywordNumNameAlias(),
+	}
+	keys = append(keys, r.LabelsAlias()...)
+	keys = append(keys, r.FixedKeysAlias()...)
+
+	return keys
+}
+
+func (r *ruleTest) MeansDefaultValues() map[string]any {
+	defaultValues := map[string]any{
+		r.NameAlias():           "",
+		r.KeywordNameAlias():    "",
+		r.KeywordNumNameAlias(): 0,
+	}
+
+	for _, _la := range r.LabelsAlias() {
+		defaultValues[_la] = ""
+	}
+
+	for _, _fka := range r.FixedKeysAlias() {
+		defaultValues[_fka] = ""
+	}
+
+	return defaultValues
+}
+
 func (r *ruleTest) Name() string {
 	return "a"
 }
@@ -71,6 +102,7 @@ func (r *ruleTest) Items() ([]map[string]string, error) {
 		{"a": "ab", "ab": "ab1", "a_keyword": "ab"},
 		{"a": "123", "ab": "123", "a_keyword": "123"},
 		{"a": "中文", "ab": "中文1", "a_keyword": "中文"},
+		{"a": "中1文", "ab": "中1文1", "a_keyword": `中_文`},
 	}, nil
 }
 
@@ -149,4 +181,35 @@ func (r *ruleAliasFixedTest) ItemsAlias() ([]map[string]string, error) {
 
 func (r *ruleAliasFixedTest) ItemsForRegexp() ([]map[string]string, error) {
 	return r.ItemsAlias()
+}
+
+func (r *ruleAliasFixedTest) MeansKeys() []string {
+	var keys []string
+	keys = []string{
+		r.NameAlias(),
+		r.KeywordNameAlias(),
+		r.KeywordNumNameAlias(),
+	}
+	keys = append(keys, r.LabelsAlias()...)
+	keys = append(keys, r.FixedKeysAlias()...)
+
+	return keys
+}
+
+func (r *ruleAliasFixedTest) MeansDefaultValues() map[string]any {
+	defaultValues := map[string]any{
+		r.NameAlias():           "",
+		r.KeywordNameAlias():    "",
+		r.KeywordNumNameAlias(): 0,
+	}
+
+	for _, _la := range r.LabelsAlias() {
+		defaultValues[_la] = ""
+	}
+
+	for _, _fka := range r.FixedKeysAlias() {
+		defaultValues[_fka] = ""
+	}
+
+	return defaultValues
 }

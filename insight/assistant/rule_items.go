@@ -39,6 +39,37 @@ type RuleItems struct {
 	keywordFormatFunc func(string) string
 }
 
+func (ri *RuleItems) MeansKeys() []string {
+	var keys []string
+	keys = []string{
+		ri.NameAlias(),
+		ri.KeywordNameAlias(),
+		ri.KeywordNumNameAlias(),
+	}
+	keys = append(keys, ri.LabelsAlias()...)
+	keys = append(keys, ri.FixedKeysAlias()...)
+
+	return keys
+}
+
+func (ri *RuleItems) MeansDefaultValues() map[string]any {
+	defaultValues := map[string]any{
+		ri.NameAlias():           "",
+		ri.KeywordNameAlias():    "",
+		ri.KeywordNumNameAlias(): 0,
+	}
+
+	for _, _la := range ri.LabelsAlias() {
+		defaultValues[_la] = ""
+	}
+
+	for _, _fka := range ri.FixedKeysAlias() {
+		defaultValues[_fka] = ""
+	}
+
+	return defaultValues
+}
+
 func NewRuleItems(rule Ruler, opts ...func(items *RuleItems)) *RuleItems {
 	ri := &RuleItems{}
 	ri.rule = rule
