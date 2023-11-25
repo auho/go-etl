@@ -71,11 +71,15 @@ func (a *Application) Build(cn string) {
 
 	config, err := conf.LoadConfig(a.ConfDir, a.ConfName)
 	if err != nil {
+		a.PrintlnState()
+
 		panic(err)
 	}
 
 	a.DB, err = config.Db.BuildDB()
 	if err != nil {
+		a.PrintlnState()
+
 		panic(err)
 	}
 }
