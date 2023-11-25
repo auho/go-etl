@@ -8,14 +8,12 @@ output 	:=	$(shell echo "${project}_"`echo ${os} | tr '[A-Z]' '[a-z]'`)
 ifeq ($(shell uname),Darwin)
 GOBIN		:=	$(shell echo ${GOBIN} | cut -d':' -f1)
 GOPATH		:=	$(shell echo ${GOPATH} | cut -d':' -f1)
-CGO_ENABLED	:=	0
 endif
 
 # Linux
 ifeq ($(os),Linux)
 GOBIN		:=	$(shell echo ${GOBIN} | cut -d':' -f1)
 GOPATH		:=	$(shell echo ${GOPATH} | cut -d':' -f1)
-CGO_ENABLED :=	1
 endif
 
 # Windows
@@ -32,11 +30,15 @@ help:
 	@echo "os: ${os}"
 	@echo "cgo enabled: ${CGO_ENABLED}"
 	@echo ""
-	@echo "use: build, test, test_coverage, tidy"
+	@echo "use: build, build_office, test, test_coverage, tidy"
 
 build:
 	@echo "output: ${output}"
-	go build -ldflags "-s -w" -o "${output}"
+	go build -ldflags "-s -w -X main.env=develop -X main.version=${rev}" -o "${output}"
+
+build_office:
+	@echo "output: ${output}"
+	go build -ldflags "-s -w -X main.env=office -X main.version=${rev}" -o "${output}"
 
 test:
 	echo "go test $(sed -n 1p go.mod | cut -d ' ' -f2)"

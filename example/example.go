@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"runtime/pprof"
@@ -10,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var env = "develop"
+var version string
 var confName string
 
 func main() {
@@ -38,11 +41,12 @@ func main() {
 		Use: "root",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if confName == "" {
-				confName = "develop"
+				confName = env
 				//panic("conf name is empty")
 			}
 
 			app.APP.Build(confName)
+			app.APP.PrintlnState()
 		},
 	}
 
@@ -61,9 +65,12 @@ func initial(rootCmd *cobra.Command) {
 
 	// init app
 	app.NewApp()
-	app.APP.PrintlnState()
 
 	rootCmd.Use = app.APP.Name
+
+	fmt.Println("env:", env)
+	fmt.Println("version:", version)
+	fmt.Println()
 
 	// initial demand
 	demand.Initial(rootCmd)
