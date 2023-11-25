@@ -10,7 +10,18 @@ type Run struct {
 	names []string
 	fns   []func() error
 
+	preFun   []func()
 	commands []*cobra.Command
+}
+
+func (r *Run) PreFun(fn ...func()) {
+	r.preFun = append(r.preFun, fn...)
+}
+
+func (r *Run) RunPreFun() {
+	for _, fn := range r.preFun {
+		fn()
+	}
 }
 
 func (r *Run) AddCommand(cs ...*cobra.Command) {

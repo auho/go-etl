@@ -47,6 +47,7 @@ func main() {
 
 			app.APP.Build(confName)
 			app.APP.PrintlnState()
+			app.APP.RunPreFun()
 		},
 	}
 

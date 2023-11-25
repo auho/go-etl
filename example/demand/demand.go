@@ -18,13 +18,13 @@ func Initial(parentCmd *cobra.Command) {
 
 	parentCmd.AddCommand(_stateCmd)
 
-	layout.Initial()
+	_app.PreFun(layout.Initial)
+
 	build.Initial(parentCmd)
 	tag.Initial(parentCmd)
 	query.Initial(parentCmd)
 
 	// other initial
-
 }
 
 var _stateCmd = &cobra.Command{
