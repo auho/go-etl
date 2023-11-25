@@ -8,6 +8,10 @@ type Command struct {
 	Table *mysql.Table
 }
 
+func NewCommandMysql() *Command {
+	return &Command{Table: mysql.NewTable()}
+}
+
 func (c *Command) TableName() string {
 	return c.Table.GetName()
 }
