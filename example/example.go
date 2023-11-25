@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var confName string
+
 func main() {
 	cpuFile, err := os.Create("cpu.pprof")
 	if err != nil {
@@ -34,6 +36,14 @@ func main() {
 	// root cmd
 	var rootCmd = &cobra.Command{
 		Use: "root",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			if confName == "" {
+				confName = "develop"
+				//panic("conf name is empty")
+			}
+
+			app.APP.Build(confName)
+		},
 	}
 
 	// initial root cmd
@@ -47,16 +57,10 @@ func main() {
 }
 
 func initial(rootCmd *cobra.Command) {
-	var confName string
 	rootCmd.PersistentFlags().StringVarP(&confName, "config", "c", "", "config")
 
-	if confName == "" {
-		confName = "develop"
-		//panic("conf name is empty")
-	}
-
 	// init app
-	app.NewApp(confName)
+	app.NewApp()
 	app.APP.PrintlnState()
 
 	rootCmd.Use = app.APP.Name

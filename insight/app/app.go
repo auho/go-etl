@@ -12,8 +12,8 @@ import (
 
 var APP *Application
 
-func NewApp(cn string) {
-	APP = NewApplication(cn)
+func NewApp() {
+	APP = NewApplication()
 }
 
 type Application struct {
@@ -27,13 +27,11 @@ type Application struct {
 	ConfDir  string
 }
 
-func NewApplication(cn string) *Application {
+func NewApplication() *Application {
 	a := &Application{}
-	a.ConfName = cn
 
 	a.buildWorkDir()
 	a.checkDir()
-	a.buildDb()
 
 	return a
 }
@@ -56,18 +54,6 @@ func (a *Application) buildWorkDir() {
 	a.ConfDir = path.Join(a.WorkDir, "conf")
 }
 
-func (a *Application) buildDb() {
-	config, err := conf.LoadConfig(a.ConfDir, a.ConfName)
-	if err != nil {
-		panic(err)
-	}
-
-	a.DB, err = config.Db.BuildDB()
-	if err != nil {
-		panic(err)
-	}
-}
-
 func (a *Application) checkDir() {
 	for _, _dir := range []string{a.DataDir, a.XlsxDir} {
 		_, err := os.Stat(_dir)
@@ -77,6 +63,20 @@ func (a *Application) checkDir() {
 				panic(fmt.Errorf("dir[%s]; %w", _dir, err))
 			}
 		}
+	}
+}
+
+func (a *Application) Build(cn string) {
+	a.ConfName = cn
+
+	config, err := conf.LoadConfig(a.ConfDir, a.ConfName)
+	if err != nil {
+		panic(err)
+	}
+
+	a.DB, err = config.Db.BuildDB()
+	if err != nil {
+		panic(err)
 	}
 }
 

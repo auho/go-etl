@@ -9,7 +9,9 @@ import (
 var t001Cmd = &cobra.Command{
 	Use:     "001",
 	GroupID: "tag",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println(cmd.Use)
+
+		return nil
 	},
 }
