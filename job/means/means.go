@@ -26,6 +26,8 @@ type Ruler interface {
 	KeywordNumNameAlias() string
 	Labels() []string
 	LabelsAlias() []string
+	LabelNumName() string
+	LabelNumNameAlias() string
 	Fixed() map[string]any
 	FixedAlias() map[string]any
 	FixedKeys() []string

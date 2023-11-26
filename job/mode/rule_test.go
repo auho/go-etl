@@ -11,6 +11,16 @@ var _ means.Ruler = (*ruleTest)(nil)
 type ruleTest struct {
 }
 
+func (r *ruleTest) LabelNumName() string {
+	//TODO implement
+	panic("implement me")
+}
+
+func (r *ruleTest) LabelNumNameAlias() string {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (r *ruleTest) MeansKeys() []string {
 	var keys []string
 	keys = []string{

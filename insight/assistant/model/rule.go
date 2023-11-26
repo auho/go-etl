@@ -1,10 +1,12 @@
 package model
 
 import (
+	"fmt"
 	"maps"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -32,6 +34,10 @@ func NewRule(name string, length, keywordLength int, labels map[string]int, db *
 	return r
 }
 
+func (r *Rule) TableName() string {
+	return fmt.Sprintf("%s_%s", NameRule, r.name)
+}
+
 func (r *Rule) ToOriginRule() assistant.Ruler {
 	return r.handlerOrigin()
 }
@@ -42,6 +48,12 @@ func (r *Rule) DmlTable() *dml.Table {
 
 func (r *Rule) ToItems(opts ...func(items *assistant.RuleItems)) *assistant.RuleItems {
 	return assistant.NewRuleItems(r, opts...)
+}
+
+func (r *Rule) WithCommand(fn func(command *tablestructure.Command)) *Rule {
+	r.withCommand(fn)
+
+	return r
 }
 
 func (r *Rule) ToAliasRule(alias map[string]string) *Rule {

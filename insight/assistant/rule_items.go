@@ -193,6 +193,16 @@ func (ri *RuleItems) LabelsAlias() []string {
 	return labels
 }
 
+func (ri *RuleItems) LabelNumName() string {
+	return ri.rule.LabelNumName()
+}
+
+func (ri *RuleItems) LabelNumNameAlias() string {
+	s, _ := ri.getAlias(ri.LabelNumName())
+
+	return s
+}
+
 func (ri *RuleItems) KeywordName() string {
 	return ri.rule.KeywordName()
 }

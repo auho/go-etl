@@ -90,8 +90,8 @@ func (br *baseRule) LabelsAlias() map[string]string {
 	return br.labelsAlias
 }
 
-func (br *baseRule) TableName() string {
-	return fmt.Sprintf("%s_%s", NameRule, br.name)
+func (br *baseRule) LabelNumName() string {
+	return fmt.Sprintf("%s_%s", br.aliasName, NameLabelNum)
 }
 
 func (br *baseRule) KeywordName() string {

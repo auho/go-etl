@@ -5,6 +5,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
+	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -51,4 +52,10 @@ func (t *TagDataRule) TableName() string {
 
 func (t *TagDataRule) DmlTable() *dml.Table {
 	return dml.NewTable(t.TableName())
+}
+
+func (t *TagDataRule) WithCommand(fn func(*tablestructure.Command)) *TagDataRule {
+	t.withCommand(fn)
+
+	return t
 }

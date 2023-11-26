@@ -36,6 +36,7 @@ type Ruler interface {
 	GetKeywordLength() int
 	LabelsName() []string
 	LabelsAlias() map[string]string
+	LabelNumName() string
 	KeywordName() string
 	KeywordLenName() string
 	KeywordNumName() string
