@@ -13,6 +13,7 @@ import (
 
 var env = "develop"
 var version string
+var lastDate string
 var confName string
 
 func main() {
@@ -71,6 +72,7 @@ func initial(rootCmd *cobra.Command) {
 
 	fmt.Println("env:", env)
 	fmt.Println("version:", version)
+	fmt.Println("last date:", lastDate)
 	fmt.Println()
 
 	// initial demand

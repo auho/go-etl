@@ -1,8 +1,12 @@
-user	:=	$(shell whoami)
-rev		:= 	$(shell git rev-parse --short HEAD)
-os 		:=	$(shell uname -s)
-project	:= 	$(shell sed -n 1p go.mod | cut -d ' ' -f2)
-output 	:=	$(shell echo "${project}_"`echo ${os} | tr '[A-Z]' '[a-z]'`)
+user		:=	$(shell whoami)
+rev			:= 	$(shell git rev-parse --short HEAD)
+lastDate	:=	$(shell git log -1 --date=format:"%Y %m %d %T" --format="%ad")
+os 			:=	$(shell uname -s)
+project		:= 	$(shell sed -n 1p go.mod | cut -d ' ' -f2)
+output 		:=	$(shell echo "${project}_"`echo ${os} | tr '[A-Z]' '[a-z]'`)
+basePath 	:=	$(shell pwd)
+
+ldflags		:=	-ldflags "-s -w -X main.env=develop -X main.version=${rev} -X \"main.lastDate=${lastDate}\""
 
 # Mac OS X
 ifeq ($(shell uname),Darwin)
@@ -34,11 +38,20 @@ help:
 
 build:
 	@echo "output: ${output}"
-	go build -ldflags "-s -w -X main.env=develop -X main.version=${rev}" -o "${output}"
+	go build ${ldflags} -o ${output}
 
 build_office:
 	@echo "output: ${output}"
-	go build -ldflags "-s -w -X main.env=office -X main.version=${rev}" -o "${output}"
+	go build ${ldflags} -o ${output}
+
+office:
+	@echo "office"
+	@cd /data/devops/docker/service;docker-compose run --rm -w ${basePath} go make build_office
+	@scp "./${project}_linux" office:"/data/office/etl/${project}"
+
+office_data:
+	@echo "sync data"
+	@scp ./data/* office:"/data/office/etl/${project}/data"
 
 test:
 	echo "go test $(sed -n 1p go.mod | cut -d ' ' -f2)"
