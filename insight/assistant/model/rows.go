@@ -66,6 +66,10 @@ func (r *Rows) ToRaw() *Raw {
 	return NewRaw(r.name, r.db)
 }
 
+func (r *Rows) Clone(name string) *Rows {
+	return NewRows(name, r.idName, r.db)
+}
+
 func (r *Rows) ToDeletedRows() *Rows {
 	return NewRows(fmt.Sprintf("%s_%s", NameDeleted, r.name), r.idName, r.db)
 }

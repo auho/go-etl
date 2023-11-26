@@ -71,7 +71,7 @@ func (t *Table) Select(fields []string) *Table {
 
 func (t *Table) SelectAlias(alias map[string]string) *Table {
 	for k, v := range alias {
-		t.fields.AddEntry(k, v)
+		t.fields.AddEntryExpression(k, v)
 	}
 
 	return t
@@ -267,6 +267,10 @@ func (t *Table) GetSelectFields() []string {
 	}
 
 	return fields
+}
+
+func (t *Table) ToSqlTable(name string) *Table {
+	return NewSqlTable(name, t.Sql())
 }
 
 func (t *Table) prepare() {
