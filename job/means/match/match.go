@@ -65,7 +65,13 @@ func (c *Match) Prepare() error {
 func (c *Match) Close() error { return nil }
 
 func NewFindAll(rule means.Ruler) *Match {
-	return NewMatch(rule, func(ruler means.Ruler, m *matcher, c []string) []map[string]any {
+	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
 		return m.findAll(c)
+	})
+}
+
+func NewFindFirst(rule means.Ruler) *Match {
+	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
+		return m.findFirst(c)
 	})
 }

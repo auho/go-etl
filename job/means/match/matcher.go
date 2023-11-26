@@ -27,3 +27,17 @@ func (m *matcher) findAll(contents []string) []map[string]any {
 
 	return results
 }
+
+func (m *matcher) findFirst(contents []string) []map[string]any {
+	var results []map[string]any
+	for _, content := range contents {
+		for _, item := range m.items {
+			if strings.Contains(content, item[m.keyName]) {
+				results = append(results, maps.MapToMapAny(item))
+				break
+			}
+		}
+	}
+
+	return results
+}

@@ -75,6 +75,10 @@ func (m *Means) DefaultValues() map[string]any {
 	return m.defaultValues
 }
 
+// NewWholeLabels
+// merge all labels together
+// label1|label2|label3
+// keyword1|keyword2|keyword3|
 func NewWholeLabels(rule means.Ruler) *Means {
 	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchLabel(c)
@@ -91,9 +95,9 @@ func NewWholeLabels(rule means.Ruler) *Means {
 
 			for _, _key := range _r.Keys {
 				_rts[rule.KeywordNameAlias()] = append(_rts[rule.KeywordNameAlias()], _key)
-			}
 
-			_amount += 1
+				_amount += 1
+			}
 		}
 
 		_rt := make(map[string]any)
@@ -133,6 +137,8 @@ func NewLabel(rule means.Ruler) *Means {
 	})
 }
 
+// NewMostText
+// most text
 func NewMostText(rule means.Ruler) *Means {
 	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchMostText(c)
@@ -144,6 +150,8 @@ func NewMostText(rule means.Ruler) *Means {
 	})
 }
 
+// NewMostKey
+// most key
 func NewMostKey(rule means.Ruler) *Means {
 	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchMostKey(c)
@@ -155,6 +163,8 @@ func NewMostKey(rule means.Ruler) *Means {
 	})
 }
 
+// NewFirst
+// the first part of the text is matched
 func NewFirst(rule means.Ruler) *Means {
 	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchFirstText(c)
