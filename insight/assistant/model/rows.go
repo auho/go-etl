@@ -73,3 +73,7 @@ func (r *Rows) Clone(name string) *Rows {
 func (r *Rows) ToDeletedRows() *Rows {
 	return NewRows(fmt.Sprintf("%s_%s", NameDeleted, r.name), r.idName, r.db)
 }
+
+func (r *Rows) CopyBuild(dst assistant.Rawer) error {
+	return r.db.DropAndCopy(r.TableName(), dst.TableName())
+}

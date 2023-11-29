@@ -59,3 +59,7 @@ func (d *Data) ToRows() *Rows {
 func (d *Data) ToRaw() *Raw {
 	return NewRaw(d.name, d.db)
 }
+
+func (d *Data) CopyBuild(dst assistant.Rawer) error {
+	return d.db.DropAndCopy(d.TableName(), dst.TableName())
+}

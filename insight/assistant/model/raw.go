@@ -36,3 +36,7 @@ func (r *Raw) TableName() string {
 func (r *Raw) DmlTable() *dml.Table {
 	return dml.NewTable(r.TableName())
 }
+
+func (r *Raw) CopyBuild(dst assistant.Rawer) error {
+	return r.db.DropAndCopy(r.TableName(), dst.TableName())
+}
