@@ -84,10 +84,14 @@ func (a *Application) Build(cn string) {
 	}
 }
 
+// DataFilePath
+// name with file suffix
 func (a *Application) DataFilePath(name string) string {
 	return path.Join(a.DataDir, name)
 }
 
+// XlsxFilePath
+// name with xlsx file suffix
 func (a *Application) XlsxFilePath(name string) string {
 	return path.Join(a.XlsxDir, name)
 }

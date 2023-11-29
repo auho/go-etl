@@ -20,5 +20,5 @@ func ExampleNewApplication() {
 
 	// run command
 	_app.AddCommand(&cobra.Command{})
-	_ = _app.RunCommandE([]string{})
+	_ = _app.RunCommandE(nil, []string{})
 }
