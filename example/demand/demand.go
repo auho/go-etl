@@ -18,7 +18,11 @@ func Initial(parentCmd *cobra.Command) {
 
 	parentCmd.AddCommand(_stateCmd)
 
-	_app.PreFun(layout.Initial)
+	_app.AddPreFunE(func() error {
+		layout.Initial()
+
+		return nil
+	})
 
 	build.Initial(parentCmd)
 	tag.Initial(parentCmd)

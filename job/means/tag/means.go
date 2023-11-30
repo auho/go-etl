@@ -87,7 +87,9 @@ func NewWholeLabels(rule means.Ruler) *Means {
 		}
 
 		_rts := make(map[string][]string)
-		_amount := 0
+		_labelAmount := 0
+		_keywordAmount := 0
+
 		for _, _r := range rs {
 			for _labelKey, _labelValue := range _r.Labels {
 				_rts[_labelKey] = append(_rts[_labelKey], _labelValue)
@@ -96,8 +98,10 @@ func NewWholeLabels(rule means.Ruler) *Means {
 			for _, _key := range _r.Keys {
 				_rts[rule.KeywordNameAlias()] = append(_rts[rule.KeywordNameAlias()], _key)
 
-				_amount += 1
+				_keywordAmount += 1
 			}
+
+			_labelAmount += 1
 		}
 
 		_rt := make(map[string]any)
@@ -105,7 +109,8 @@ func NewWholeLabels(rule means.Ruler) *Means {
 			_rt[_rk] = strings.Join(_rv, "|")
 		}
 
-		_rt[rule.KeywordNumNameAlias()] = _amount
+		_rt[rule.LabelNumNameAlias()] = _labelAmount
+		_rt[rule.KeywordNumNameAlias()] = _keywordAmount
 
 		return []map[string]any{_rt}
 	})

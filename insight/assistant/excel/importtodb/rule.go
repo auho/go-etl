@@ -3,6 +3,7 @@ package importtodb
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
@@ -55,12 +56,21 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 	err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
 		rs.titlesKey = append(rs.titlesKey, rs.Rule.KeywordLenName())
 
-		for i, row := range rows {
-			row = append(row, strconv.Itoa(utf8.RuneCountInString(row[keywordIndex])))
-			rows[i] = row
+		var _newRow [][]string
+		for _, row := range rows {
+			_ky := row[keywordIndex]
+			_ky = strings.TrimSpace(_ky)
+			if _ky == "" {
+				continue
+			}
+
+			row[keywordIndex] = _ky
+
+			row = append(row, strconv.Itoa(utf8.RuneCountInString(_ky)))
+			_newRow = append(_newRow, row)
 		}
 
-		return rows, nil
+		return _newRow, nil
 	})
 
 	if err != nil {

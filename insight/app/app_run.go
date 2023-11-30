@@ -11,22 +11,30 @@ type Run struct {
 	names []string
 	fns   []func() error
 
-	preFun   []func()
+	preFun   []func() error
 	commands []*cobra.Command
 }
 
-// PreFun
+// AddPreFunE
 // 需要在 Run 或 RunE 之前执行的 func
-func (r *Run) PreFun(fn ...func()) {
+func (r *Run) AddPreFunE(fn ...func() error) {
 	r.preFun = append(r.preFun, fn...)
 }
 
-// RunPreFun
+// RunPreFunE
 // 在执行 Run 或 RunE 之前执行
-func (r *Run) RunPreFun() {
-	for _, fn := range r.preFun {
-		fn()
+func (r *Run) RunPreFunE() error {
+	_fns := slices.Clone(r.preFun)
+	r.preFun = nil
+
+	for _, fn := range _fns {
+		err := fn()
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func (r *Run) AddCommand(cs ...*cobra.Command) {

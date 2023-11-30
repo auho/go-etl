@@ -64,14 +64,65 @@ func (c *Match) Prepare() error {
 
 func (c *Match) Close() error { return nil }
 
-func NewFindAll(rule means.Ruler) *Match {
+func NewKey(rule means.Ruler) *Match {
 	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
-		return m.findAll(c)
+		res := m.MatchKey(c)
+		if res == nil {
+			return nil
+		}
+
+		return res.toSliceMapAny(rule)
 	})
 }
 
-func NewFindFirst(rule means.Ruler) *Match {
+func NewFirstKey(rule means.Ruler) *Match {
 	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
-		return m.findFirst(c)
+		res := m.MatchFirstKey(c)
+		if res == nil {
+			return nil
+		}
+
+		return res.toSliceMapAny(rule)
+	})
+}
+
+// NewFindWholeLabels
+// merge all labels together
+// label1|label2|label3
+// keyword1|keyword2|keyword3|
+func NewFindWholeLabels(rule means.Ruler) *Match {
+	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
+		res := m.MatchLabel(c)
+		if res == nil {
+			return nil
+		}
+
+		_rts := make(map[string][]string)
+		_labelAmount := 0
+		_keywordAmount := 0
+
+		for _, _r := range res {
+			for _labelKey, _labelValue := range _r.Labels {
+				_rts[_labelKey] = append(_rts[_labelKey], _labelValue)
+			}
+
+			for _, _key := range _r.Keys {
+				_rts[rule.KeywordNameAlias()] = append(_rts[rule.KeywordNameAlias()], _key)
+
+				_keywordAmount += 1
+			}
+
+			_labelAmount += 1
+		}
+
+		_rt := make(map[string]any)
+		for _rk, _rv := range _rts {
+			_rt[_rk] = strings.Join(_rv, "|")
+		}
+
+		_rt[rule.LabelNumNameAlias()] = _labelAmount
+		_rt[rule.KeywordNumNameAlias()] = _keywordAmount
+
+		return []map[string]any{_rt}
 	})
 }

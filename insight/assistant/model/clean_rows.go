@@ -24,6 +24,14 @@ func NewCleanRows(newName string, raw assistant.Moder) *CleanRows {
 	return cd
 }
 
+func (cd *CleanRows) Rows() *Rows {
+	return cd.rows
+}
+
+func (cd *CleanRows) DeletedRows() *Rows {
+	return cd.deleted
+}
+
 func (cd *CleanRows) SourceTarget() job.Target {
 	return cd.raw
 }

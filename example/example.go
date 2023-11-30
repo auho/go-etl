@@ -40,7 +40,7 @@ func main() {
 	// root cmd
 	var rootCmd = &cobra.Command{
 		Use: "root",
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if confName == "" {
 				confName = env
 				//panic("conf name is empty")
@@ -48,7 +48,12 @@ func main() {
 
 			app.APP.Build(confName)
 			app.APP.PrintlnState()
-			app.APP.RunPreFun()
+			err1 := app.APP.RunPreFunE()
+			if err1 != nil {
+				return err1
+			}
+
+			return nil
 		},
 	}
 
