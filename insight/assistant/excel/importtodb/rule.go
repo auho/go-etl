@@ -56,7 +56,7 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 	err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
 		rs.titlesKey = append(rs.titlesKey, rs.Rule.KeywordLenName())
 
-		var _newRow [][]string
+		var _newRows [][]string
 		for _, row := range rows {
 			_ky := row[keywordIndex]
 			_ky = strings.TrimSpace(_ky)
@@ -67,10 +67,10 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 			row[keywordIndex] = _ky
 
 			row = append(row, strconv.Itoa(utf8.RuneCountInString(_ky)))
-			_newRow = append(_newRow, row)
+			_newRows = append(_newRows, row)
 		}
 
-		return _newRow, nil
+		return _newRows, nil
 	})
 
 	if err != nil {
