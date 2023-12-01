@@ -2,6 +2,7 @@ package match
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/auho/go-etl/v2/job/means"
@@ -86,22 +87,26 @@ func NewFirstKey(rule means.Ruler) *Match {
 	})
 }
 
-// NewFindWholeLabels
+// NewWholeLabels
 // merge all labels together
 // label1|label2|label3
 // keyword1|keyword2|keyword3|
-func NewFindWholeLabels(rule means.Ruler) *Match {
+func NewWholeLabels(rule means.Ruler) *Match {
 	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
-		res := m.MatchLabel(c)
-		if res == nil {
+		_res := m.MatchLabel(c)
+		if _res == nil {
 			return nil
 		}
+
+		sort.SliceStable(_res, func(i, j int) bool {
+			return _res[i].Identity < _res[j].Identity
+		})
 
 		_rts := make(map[string][]string)
 		_labelAmount := 0
 		_keywordAmount := 0
 
-		for _, _r := range res {
+		for _, _r := range _res {
 			for _labelKey, _labelValue := range _r.Labels {
 				_rts[_labelKey] = append(_rts[_labelKey], _labelValue)
 			}

@@ -272,6 +272,7 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 			result.MatchAmount += 1
 		} else {
 			result := NewLabelResult()
+			result.Identity = tagsIdentity
 			result.Labels = tags
 			result.Match[key] = map[string]int{text: 1}
 			result.Keys = append(result.Keys, key)

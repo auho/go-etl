@@ -2,6 +2,7 @@ package tag
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/auho/go-etl/v2/job/means"
@@ -85,6 +86,10 @@ func NewWholeLabels(rule means.Ruler) *Means {
 		if rs == nil {
 			return nil
 		}
+
+		sort.SliceStable(rs, func(i, j int) bool {
+			return rs[i].Identity < rs[j].Identity
+		})
 
 		_rts := make(map[string][]string)
 		_labelAmount := 0

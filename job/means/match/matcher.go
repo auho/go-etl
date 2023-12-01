@@ -154,6 +154,7 @@ func (m *matcher) toLabelResults(items []map[string]string) LabelResults {
 			result.MatchAmount += 1
 		} else {
 			result := NewLabelResult()
+			result.Identity = _labelsIdentity
 			result.Labels = m.matchItems[item[m.keyName]]
 			result.Keys = append(result.Keys, item[m.keyName])
 			result.Match[item[m.keyName]] = 1

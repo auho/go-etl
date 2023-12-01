@@ -59,3 +59,7 @@ func (t *TagDataRule) WithCommand(fn func(*tablestructure.Command)) *TagDataRule
 
 	return t
 }
+
+func (t *TagDataRule) CopyBuild(dst assistant.Rawer) error {
+	return t.db.DropAndCopy(t.TableName(), dst.TableName())
+}
