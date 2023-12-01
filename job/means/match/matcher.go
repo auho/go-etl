@@ -9,22 +9,27 @@ type matcher struct {
 	items      []map[string]string
 	matchItems map[string]map[string]string // map[key name]map[label name]label value
 	labelsName []string
+	hasItems   bool
 }
 
 func newMatcher(keyName string, items []map[string]string) *matcher {
 	m := &matcher{keyName: keyName, items: items}
 
-	for k, _ := range items[0] {
-		if k != keyName {
-			m.labelsName = append(m.labelsName, k)
-		}
-	}
+	if len(items) > 0 {
+		m.hasItems = true
 
-	m.matchItems = make(map[string]map[string]string)
-	for _, item := range m.items {
-		m.matchItems[item[m.keyName]] = make(map[string]string)
-		for _, labelName := range m.labelsName {
-			m.matchItems[item[m.keyName]][labelName] = item[labelName]
+		for k, _ := range items[0] {
+			if k != keyName {
+				m.labelsName = append(m.labelsName, k)
+			}
+		}
+
+		m.matchItems = make(map[string]map[string]string)
+		for _, item := range m.items {
+			m.matchItems[item[m.keyName]] = make(map[string]string)
+			for _, labelName := range m.labelsName {
+				m.matchItems[item[m.keyName]][labelName] = item[labelName]
+			}
 		}
 	}
 
@@ -68,6 +73,10 @@ func (m *matcher) MatchFirstLabel(contents []string) LabelResults {
 }
 
 func (m *matcher) findAll(contents []string) []map[string]string {
+	if !m.hasItems {
+		return nil
+	}
+
 	var results []map[string]string
 	for _, content := range contents {
 		for _, item := range m.items {
@@ -81,6 +90,10 @@ func (m *matcher) findAll(contents []string) []map[string]string {
 }
 
 func (m *matcher) findFirst(contents []string) []map[string]string {
+	if !m.hasItems {
+		return nil
+	}
+
 	var results []map[string]string
 	for _, content := range contents {
 		for _, item := range m.items {

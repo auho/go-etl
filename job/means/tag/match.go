@@ -53,6 +53,7 @@ type Matcher struct {
 	normalRegexpName string                       // 普通匹配、非普通匹配的分组名称前缀（防止和自定义名称冲突）
 	badKeyMap        map[string]string            // 非普通匹配分组名称
 	tagsName         []string                     // 标签名称列表
+	hasItems         bool
 }
 
 func NewMatcher(Options ...MatcherOption) *Matcher {
@@ -71,6 +72,12 @@ func NewMatcher(Options ...MatcherOption) *Matcher {
 // keyName keyword
 // items map[keyword, tags]
 func (m *Matcher) prepare(keyName string, items []map[string]string) {
+	if len(items) <= 0 {
+		return
+	}
+
+	m.hasItems = true
+
 	m.regexpItems = make(map[string]map[string]string, len(items))
 
 	for k := range items[0] {
@@ -350,6 +357,10 @@ func (m *Matcher) findAllMatch(contents []string) [][]string {
 // findAllSubMatch
 // [][keyword, matched text]
 func (m *Matcher) findAllSubMatch(content string) [][]string {
+	if !m.hasItems {
+		return nil
+	}
+
 	// 所有分组的匹配结果
 	allSubGroup := m.regexp.SubexpNames()
 	allSubMatch := m.regexp.FindAllStringSubmatch(content, -1)
