@@ -1,6 +1,7 @@
 package match
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -80,8 +81,14 @@ func (m *matcher) findAll(contents []string) []map[string]string {
 	var results []map[string]string
 	for _, content := range contents {
 		for _, item := range m.items {
-			if strings.Contains(content, item[m.keyName]) {
-				results = append(results, item)
+			_count := strings.Count(content, item[m.keyName])
+			if _count > 0 {
+				for i := 0; i < _count; i++ {
+					results = append(results, item)
+				}
+
+				// replace 防止重复 count
+				content = strings.ReplaceAll(content, item[m.keyName], fmt.Sprintf("%c", 0x00))
 			}
 		}
 	}
@@ -139,8 +146,11 @@ func (m *matcher) toLabelResults(items []map[string]string) LabelResults {
 
 		if _index, ok := labelsIndex[_labelsIdentity]; ok {
 			result := results[_index]
-			result.Keys = append(result.Keys, item[m.keyName])
-			result.Match[item[m.keyName]] = +1
+			if _, ok1 := result.Match[item[m.keyName]]; !ok1 {
+				result.Keys = append(result.Keys, item[m.keyName])
+			}
+
+			result.Match[item[m.keyName]] += 1
 			result.MatchAmount += 1
 		} else {
 			result := NewLabelResult()
@@ -150,7 +160,7 @@ func (m *matcher) toLabelResults(items []map[string]string) LabelResults {
 			result.MatchAmount = 1
 
 			results = append(results, result)
-			labelsIndex[_labelsIdentity] = len(labelsIndex) - 1
+			labelsIndex[_labelsIdentity] = len(results) - 1
 		}
 	}
 
