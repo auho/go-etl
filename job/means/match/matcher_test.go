@@ -73,7 +73,7 @@ func TestMatcher_MatchFirstKey(t *testing.T) {
 	}
 
 	_rts = _m.MatchFirstKey([]string{"abcba"})
-	if _rts[0].Key != "abcd" {
+	if _rts[0].Key != "abc" {
 		t.Fatal(3)
 	}
 
