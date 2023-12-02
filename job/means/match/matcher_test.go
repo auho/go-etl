@@ -15,6 +15,9 @@ var _matcherItems = []map[string]string{
 	{"a": "ab", "b": "b5"},
 	{"a": "ba", "b": "b6"},
 	{"a": "a", "b": "b6"},
+	{"a": "A_c", "b": "b7"},
+	{"a": "E_F_G", "b": "b8"},
+	{"a": "h_i_j_", "b": "b9"},
 }
 
 var _corpus = []string{
@@ -31,6 +34,62 @@ func TestMatcher(t *testing.T) {
 	_m.MatchFirstKey(_corpus)
 	_m.MatchLabel(_corpus)
 	_m.MatchFirstLabel(_corpus)
+}
+
+func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
+	var _rts Results
+	_m := newMatcher("a", _matcherItems, &matcherConfig{
+		ignoreCase:  true,
+		mode:        modePriorityFuzzy,
+		enableFuzzy: true,
+		fuzzyConfig: FuzzyConfig{
+			Window: 3,
+			Sep:    "_",
+		},
+	})
+
+	_rts = _m.MatchKey([]string{"acAbcabbCAbbbCABbbBc"})
+	if _rts.Len() != 2 {
+		t.Fatal()
+	}
+
+	if _rts[0].Key != "A_c" {
+		t.Fatal()
+	}
+
+	if _rts[0].Num != 4 {
+		t.Fatal()
+	}
+
+	if _rts[1].Key != "ab" {
+		t.Fatal()
+	}
+
+	if _rts[1].Num != 1 {
+		t.Fatal()
+	}
+
+	_rts = _m.MatchKey([]string{"efgE一f一二gE一二三FgeF一GE一FGEF一二三四G"})
+	if _rts.Len() != 1 {
+		t.Fatal()
+	}
+
+	if _rts[0].Key != "E_F_G" {
+		t.Fatal()
+	}
+
+	_rts = _m.MatchKey([]string{"efgE一f一二gE一二三FgeF一GE一FGEF一二三四G"})
+	if _rts.Len() != 1 {
+		t.Fatal()
+	}
+
+	if _rts[0].Key != "E_F_G" {
+		t.Fatal()
+	}
+
+	if _rts[0].Num != 5 {
+		t.Fatal()
+	}
 }
 
 func TestMatcher_MatchKey(t *testing.T) {

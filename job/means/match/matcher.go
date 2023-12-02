@@ -11,15 +11,29 @@ const (
 )
 
 type FuzzyConfig struct {
-	Enable bool
 	Window int
 	Sep    string
+}
+
+func (fc *FuzzyConfig) check() {
+	if fc.Sep == "" {
+		fc.Sep = "_"
+	}
+
+	if fc.Window <= 0 {
+		fc.Window = 3
+	}
 }
 
 type matcherConfig struct {
 	ignoreCase  bool
 	mode        int
+	enableFuzzy bool
 	fuzzyConfig FuzzyConfig
+}
+
+func (mc *matcherConfig) check() {
+	mc.fuzzyConfig.check()
 }
 
 type matcher struct {
@@ -38,6 +52,8 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 	if config == nil {
 		config = &matcherConfig{}
 	}
+
+	config.check()
 
 	m := &matcher{
 		keyName: keyName,
@@ -68,7 +84,7 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 				_labels[_ln] = item[_ln]
 			}
 
-			_seeker, _sm := newSeeker(_i, _originKeyValue, _keyValue, _labels, config.fuzzyConfig)
+			_seeker, _sm := newSeeker(_i, _originKeyValue, _keyValue, _labels, config)
 			if config.mode == modeSequence {
 				m.allSeek = append(m.allSeek, _seeker)
 			} else {
@@ -135,27 +151,27 @@ func (m *matcher) findAll(contents []string) seekResults {
 		var _rts seekResults
 		switch m.config.mode {
 		case modeSequence:
-			_rts, ok = m.seekingAll(m.allSeek, content)
+			_rts, _, ok = m.seekingAll(m.allSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 		case modePriorityAccurate:
-			_rts, ok = m.seekingAll(m.accurateSeek, content)
+			_rts, content, ok = m.seekingAll(m.accurateSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 
-			_rts, ok = m.seekingAll(m.fuzzySeek, content)
+			_rts, _, ok = m.seekingAll(m.fuzzySeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 		case modePriorityFuzzy:
-			_rts, ok = m.seekingAll(m.fuzzySeek, content)
+			_rts, content, ok = m.seekingAll(m.fuzzySeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 
-			_rts, ok = m.seekingAll(m.accurateSeek, content)
+			_rts, _, ok = m.seekingAll(m.accurateSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
@@ -182,29 +198,29 @@ func (m *matcher) findFirst(contents []string) seekResults {
 		var _rts seekResults
 		switch m.config.mode {
 		case modeSequence:
-			_rts, ok = m.seekingFirst(m.allSeek, content)
+			_rts, _, ok = m.seekingFirst(m.allSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 		case modePriorityAccurate:
-			_rts, ok = m.seekingFirst(m.accurateSeek, content)
+			_rts, _, ok = m.seekingFirst(m.accurateSeek, content)
 			if ok {
 				results = append(results, _rts...)
 				break
 			}
 
-			_rts, ok = m.seekingFirst(m.fuzzySeek, content)
+			_rts, _, ok = m.seekingFirst(m.fuzzySeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 		case modePriorityFuzzy:
-			_rts, ok = m.seekingFirst(m.fuzzySeek, content)
+			_rts, _, ok = m.seekingFirst(m.fuzzySeek, content)
 			if ok {
 				results = append(results, _rts...)
 				break
 			}
 
-			_rts, ok = m.seekingFirst(m.accurateSeek, content)
+			_rts, _, ok = m.seekingFirst(m.accurateSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
@@ -216,15 +232,15 @@ func (m *matcher) findFirst(contents []string) seekResults {
 	return results
 }
 
-func (m *matcher) seekingAll(seekers []seeker, content string) (seekResults, bool) {
+func (m *matcher) seekingAll(seekers []seeker, content string) (seekResults, string, bool) {
 	return m.seeking(seekers, content, false)
 }
 
-func (m *matcher) seekingFirst(seekers []seeker, content string) (seekResults, bool) {
+func (m *matcher) seekingFirst(seekers []seeker, content string) (seekResults, string, bool) {
 	return m.seeking(seekers, content, true)
 }
 
-func (m *matcher) seeking(seekers []seeker, content string, onlyFirst bool) (seekResults, bool) {
+func (m *matcher) seeking(seekers []seeker, content string, onlyFirst bool) (seekResults, string, bool) {
 	var results seekResults
 
 	has := false
@@ -242,7 +258,7 @@ func (m *matcher) seeking(seekers []seeker, content string, onlyFirst bool) (see
 		}
 	}
 
-	return results, has
+	return results, content, has
 }
 
 func (m *matcher) toResults(items seekResults) Results {

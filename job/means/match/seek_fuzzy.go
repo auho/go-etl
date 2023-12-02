@@ -2,6 +2,7 @@ package match
 
 import (
 	"strings"
+	"unicode/utf8"
 )
 
 var _ seeker = (*fuzzy)(nil)
@@ -27,7 +28,7 @@ type fuzzy struct {
 	keysWidth int   // 所有词的宽度
 }
 
-func newFuzzyFromItem(index int, originKey, key string, labels map[string]string, config FuzzyConfig) *fuzzy {
+func newFuzzy(index int, originKey, key string, labels map[string]string, config FuzzyConfig) *fuzzy {
 	keys := strings.Split(key, config.Sep)
 
 	f := &fuzzy{}
@@ -66,7 +67,7 @@ func (f *fuzzy) seeking(content string) (seekResult, string, bool) {
 
 			// TODO optimize 最后一次如果长度不够，不再进行 match
 		} else {
-			newContent += content
+			newContent += prefix
 
 			break
 		}
@@ -89,16 +90,24 @@ func (f *fuzzy) seeking(content string) (seekResult, string, bool) {
 // bool: true 有匹配项，false 没有匹配项
 func (f *fuzzy) match(content string) (string, string, bool) {
 	hasMatch := true
-	prefix := ""
+	var prefix, gap string
 
 	originContent := content
 
 	for _i, _key := range f.keys {
-		_index := strings.Index(content, _key.key)
+		_index := 0
+		if _key.key == "" {
+			_index = 0
+		} else {
+			_index = strings.Index(content, _key.key)
+		}
+
 		if _index > -1 {
 			if _i == 0 { // 第一个 key 取匹配项前面的部分
 				prefix = content[0:_index]
 			}
+
+			gap = content[0:_index]
 
 			content = content[_index+_key.keyLen:] // 截取匹配到的关键词的后面部分
 		} else { // 未匹配到
@@ -107,7 +116,8 @@ func (f *fuzzy) match(content string) (string, string, bool) {
 		}
 
 		if _i > 0 { // 取和上一个 key 的 window
-			if _index > f.windows[_i-1] { // 匹配到的关键词的距离是否在窗口内（包含窗口）
+			// 使用 rune 长度
+			if utf8.RuneCountInString(gap) > f.windows[_i-1] { // 匹配到的关键词的距离是否在窗口内（包含窗口）
 				hasMatch = false
 				break
 			}

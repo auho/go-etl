@@ -16,7 +16,7 @@ type Match struct {
 	matcher *matcher
 	fn      func(means.Ruler, *matcher, []string) []map[string]any
 
-	ignoreCase    bool
+	matcherConfig *matcherConfig
 	newMatcherFun func(*matcherConfig) (*matcher, error)
 
 	keys          []string
@@ -65,7 +65,7 @@ func (m *Match) Prepare() error {
 	}
 
 	var err error
-	m.matcher, err = m.newMatcherFun(&matcherConfig{ignoreCase: m.ignoreCase})
+	m.matcher, err = m.newMatcherFun(m.matcherConfig)
 	if err != nil {
 		return fmt.Errorf("prepare error; %w", err)
 	}
@@ -79,7 +79,14 @@ func (m *Match) Prepare() error {
 func (m *Match) Close() error { return nil }
 
 func (m *Match) WithIgnoreCase() *Match {
-	m.ignoreCase = true
+	m.matcherConfig.ignoreCase = true
+
+	return m
+}
+
+func (m *Match) WithFuzzy(config FuzzyConfig) *Match {
+	m.matcherConfig.enableFuzzy = true
+	m.matcherConfig.fuzzyConfig = config
 
 	return m
 }

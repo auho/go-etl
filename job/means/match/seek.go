@@ -34,9 +34,9 @@ func (s *seek) replaceKeyPoint(content, key string) string {
 	return strings.ReplaceAll(content, key, _placeholder)
 }
 
-func newSeeker(index int, originKey, key string, labels map[string]string, config FuzzyConfig) (seeker, int) {
-	if config.Enable && strings.Index(key, config.Sep) > -1 {
-		return newFuzzyFromItem(index, originKey, key, labels, config), seekFuzzy
+func newSeeker(index int, originKey, key string, labels map[string]string, config *matcherConfig) (seeker, int) {
+	if config.enableFuzzy && strings.Index(key, config.fuzzyConfig.Sep) > -1 {
+		return newFuzzy(index, originKey, key, labels, config.fuzzyConfig), seekFuzzy
 	} else {
 		return newAccurate(index, originKey, key, labels), seekAccurate
 	}
