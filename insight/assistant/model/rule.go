@@ -60,6 +60,12 @@ func (r *Rule) WithCommand(fn func(command *tablestructure.Command)) *Rule {
 	return r
 }
 
+func (r *Rule) WithAllowKeywordDuplicate() *Rule {
+	r.allowKeywordDuplicate = true
+
+	return r
+}
+
 func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 	_rule := r.handlerOrigin()
 	_rule.handlerAlias(alias)

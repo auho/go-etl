@@ -51,6 +51,12 @@ func (dr *DataRule) WithCommand(fn func(command *tablestructure.Command)) *DataR
 	return dr
 }
 
+func (dr *DataRule) WithAllowKeywordDuplicate() *DataRule {
+	dr.allowKeywordDuplicate = true
+
+	return dr
+}
+
 func (dr *DataRule) ToAliasRule(alias map[string]string) *DataRule {
 	_rule := dr.handlerOrigin()
 	_rule.handlerAlias(alias)

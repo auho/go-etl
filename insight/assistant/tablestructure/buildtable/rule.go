@@ -2,6 +2,7 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/ddl/command/mysql"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
@@ -26,7 +27,14 @@ func (t *RuleTable) build() {
 	t.Command.AddPkInt(t.rule.GetIdName())
 
 	t.buildRuleLabels(t.Command)
-	keywordFiled := t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetKeywordLength())
+
+	var keywordFiled *mysql.Field
+	if t.rule.AllowKeywordDuplicate() {
+		keywordFiled = t.Command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
+	} else {
+		keywordFiled = t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetKeywordLength())
+	}
+
 	keywordFiled.SetCollateUtf8mb4Bin()
 	t.Command.AddInt(t.rule.KeywordLenName())
 

@@ -42,4 +42,5 @@ type Ruler interface {
 	KeywordNumName() string
 	ToOriginRule() Ruler
 	ToItems(opts ...func(items *RuleItems)) *RuleItems
+	AllowKeywordDuplicate() bool
 }

@@ -18,6 +18,8 @@ type baseRule struct {
 	aliasName   string            // alias name
 	aliasLabels map[string]int    // map[label alias]label alias length, alias labels
 	labelsAlias map[string]string // map[label]label alias
+
+	allowKeywordDuplicate bool
 }
 
 func newBaseRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) baseRule {
@@ -104,6 +106,10 @@ func (br *baseRule) KeywordLenName() string {
 
 func (br *baseRule) KeywordNumName() string {
 	return fmt.Sprintf("%s_%s", br.aliasName, NameKeywordNum)
+}
+
+func (br *baseRule) AllowKeywordDuplicate() bool {
+	return br.allowKeywordDuplicate
 }
 
 func (br *baseRule) WithCommand(fn func(command *tablestructure.Command)) *baseRule {

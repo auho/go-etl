@@ -92,8 +92,8 @@ func (c *Command) AddString(name string) {
 	c.Table.AddVarchar(name, 30, "")
 }
 
-func (c *Command) AddStringWithLength(name string, length int) {
-	c.Table.AddVarchar(name, length, "")
+func (c *Command) AddStringWithLength(name string, length int) *mysql.Field {
+	return c.Table.AddVarchar(name, length, "")
 }
 
 func (c *Command) AddText(name string) {
