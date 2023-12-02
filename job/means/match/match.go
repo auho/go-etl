@@ -17,6 +17,8 @@ type Match struct {
 	fn      func(means.Ruler, *matcher, []string) []map[string]any
 
 	ignoreCase    bool
+	newMatcherFun func(*matcherConfig) (*matcher, error)
+
 	keys          []string
 	defaultValues map[string]any
 }
@@ -51,14 +53,22 @@ func (m *Match) Update(contents []string) map[string]any {
 }
 
 func (m *Match) Prepare() error {
-	items, err := m.rule.ItemsAlias()
-	if err != nil {
-		return fmt.Errorf("contains Prepare error; %w", err)
+	if m.newMatcherFun == nil {
+		m.newMatcherFun = func(config *matcherConfig) (*matcher, error) {
+			items, err := m.rule.ItemsAlias()
+			if err != nil {
+				return nil, fmt.Errorf("ItemsAlias error; %w", err)
+			}
+
+			return newMatcher(m.rule.KeywordNameAlias(), items, config), nil
+		}
 	}
 
-	m.matcher = newMatcher(m.rule.KeywordNameAlias(), items, &matcherConfig{
-		ignoreCase: m.ignoreCase,
-	})
+	var err error
+	m.matcher, err = m.newMatcherFun(&matcherConfig{ignoreCase: m.ignoreCase})
+	if err != nil {
+		return fmt.Errorf("prepare error; %w", err)
+	}
 
 	m.keys = m.rule.MeansKeys()
 	m.defaultValues = m.rule.MeansDefaultValues()
@@ -70,6 +80,14 @@ func (m *Match) Close() error { return nil }
 
 func (m *Match) WithIgnoreCase() *Match {
 	m.ignoreCase = true
+
+	return m
+}
+
+func (m *Match) WithMatcher(keyName string, items []map[string]string) *Match {
+	m.newMatcherFun = func(config *matcherConfig) (*matcher, error) {
+		return newMatcher(keyName, items, config), nil
+	}
 
 	return m
 }
