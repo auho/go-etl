@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"path"
 
 	"github.com/auho/go-etl/v2/insight/assistant/excel/write"
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
@@ -17,7 +18,6 @@ type subQuery struct {
 
 type Query struct {
 	xlsxPath string
-	xlsxName string
 	excel    *write.Excel
 
 	queries  []*subQuery
@@ -27,21 +27,26 @@ type Query struct {
 	summary []string
 }
 
-func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
+func NewQueryWithPath(xlsxFilePath string) (*Query, error) {
 	q := &Query{}
-	q.xlsxName = xlsxName + ".xlsx"
-	q.xlsxPath = xlsxPath
+	q.xlsxPath = xlsxFilePath
 
 	q.duration = timing.NewDuration()
 	q.duration.Start()
 
 	var err error
-	q.excel, err = write.NewExcel(fmt.Sprintf("%s/%s", q.xlsxPath, q.xlsxName))
+	q.excel, err = write.NewExcel(q.xlsxPath)
 	if err != nil {
 		return nil, fmt.Errorf("NewExcel error; %w", err)
 	}
 
 	return q, nil
+}
+
+// NewQuery
+// xlsx Name: without file suffix
+func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
+	return NewQueryWithPath(path.Join(xlsxPath, xlsxName+".xlsx"))
 }
 
 // AddAppend
@@ -64,7 +69,7 @@ func (q *Query) add(dm dataset.Mode, s source.Sourcer) {
 }
 
 func (q *Query) doQueries() error {
-	fmt.Println(fmt.Sprintf("%s/%s", q.xlsxPath, q.xlsxName))
+	fmt.Println(q.xlsxPath)
 	fmt.Println()
 
 	for _, sq := range q.queries {

@@ -17,7 +17,7 @@ type Schema struct {
 	table  buildtable.Tabler
 	config Config
 
-	titleFunc func(string) string
+	titleFunc []func(string) string
 }
 
 func NewSchemaWithPath(xlsxPath string, table buildtable.Tabler, config Config) (*Schema, error) {
@@ -37,10 +37,27 @@ func NewSchema(excel *Excel, table buildtable.Tabler, config Config) (*Schema, e
 	}, nil
 }
 
-func (s *Schema) WithFuncTitle(fn func(string) string) *Schema {
-	s.titleFunc = fn
+func (s *Schema) WithTitleFunc(fn func(string) string) *Schema {
+	s.titleFunc = append(s.titleFunc, fn)
 
 	return s
+}
+
+func (s *Schema) WithTitleAlias(alias map[string]string) *Schema {
+	s.WithTitleFunc(func(s string) string {
+		if _a, ok := alias[s]; ok {
+			return _a
+		} else {
+			return s
+		}
+	})
+
+	return s
+}
+
+func (s *Schema) WithTitleAliasByIndex() {
+	// TODO implement me
+	panic("implement me")
 }
 
 func (s *Schema) BuildTable() (buildtable.Tabler, error) {
@@ -65,8 +82,8 @@ func (s *Schema) buildTable(rows [][]string) {
 	_command := s.table.GetCommand()
 
 	for i, title := range titles {
-		if s.titleFunc != nil {
-			title = s.titleFunc(title)
+		for _, _fn := range s.titleFunc {
+			title = _fn(title)
 		}
 
 		_type, _len1, _ := s.detectColumnType(i, rows)

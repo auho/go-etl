@@ -5,11 +5,11 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
 )
 
-var _execl *Excel
+var _excel *Excel
 var _raw *model.Raw
 
 func ExampleNewSchema() {
-	s, _ := NewSchema(_execl, buildtable.NewRawTable(_raw), Config{
+	s, _ := NewSchema(_excel, buildtable.NewRawTable(_raw), Config{
 		SheetName:  "",
 		SheetIndex: 0,
 		StartRow:   0,
@@ -18,7 +18,7 @@ func ExampleNewSchema() {
 	})
 
 	// handler title func
-	_ = s.WithFuncTitle(func(title string) string {
+	_ = s.WithTitleFunc(func(title string) string {
 		// handler title
 
 		return title
@@ -38,7 +38,7 @@ func ExampleNewSchemaWithPath() {
 	})
 
 	// handler title func
-	_ = s.WithFuncTitle(func(title string) string {
+	_ = s.WithTitleFunc(func(title string) string {
 		// handler title
 
 		return title
@@ -50,7 +50,7 @@ func ExampleNewSchemaWithPath() {
 
 func ExampleNewSheetDataNoTitle() {
 	s, _ := NewSheetDataNoTitle(
-		_execl,
+		_excel,
 		Config{
 			SheetName:  "",
 			SheetIndex: 0,
@@ -102,7 +102,7 @@ func ExampleNewSheetDataNoTitleWithPath() {
 
 func ExampleNewSheetDataWithTitle() {
 	s, _ := NewSheetDataWithTitle(
-		_execl,
+		_excel,
 		Config{
 			SheetName:  "",
 			SheetIndex: 0,
