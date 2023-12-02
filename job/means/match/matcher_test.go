@@ -26,7 +26,7 @@ var _corpus = []string{
 }
 
 func TestMatcher(t *testing.T) {
-	_m := newMatcher("a", _matcherItems)
+	_m := newMatcher("a", _matcherItems, nil)
 	_m.MatchKey(_corpus)
 	_m.MatchFirstKey(_corpus)
 	_m.MatchLabel(_corpus)
@@ -35,7 +35,7 @@ func TestMatcher(t *testing.T) {
 
 func TestMatcher_MatchKey(t *testing.T) {
 	var _rts Results
-	_m := newMatcher("a", _matcherItems)
+	_m := newMatcher("a", _matcherItems, nil)
 
 	_rts = _m.MatchKey([]string{"abcdef-abcd-abc-ab-a"})
 	if len(_rts) != 5 {
@@ -56,15 +56,37 @@ func TestMatcher_MatchKey(t *testing.T) {
 	if len(_rts) != 2 {
 		t.Fatal(4)
 	}
+
+	_m = newMatcher("a", _matcherItems, &matcherConfig{ignoreCase: true})
+
+	_rts = _m.MatchKey([]string{"ABCDEF-ABCD-abc-ab-A"})
+	if len(_rts) != 5 {
+		t.Fatal(1)
+	}
+
+	_rts = _m.MatchKey([]string{"BaBcDeFa"})
+	if len(_rts) != 2 {
+		t.Fatal(4)
+	}
 }
 
 func TestMatcher_MatchFirstKey(t *testing.T) {
 	var _rts Results
-	_m := newMatcher("a", _matcherItems)
+	_m := newMatcher("a", _matcherItems, nil)
 
 	_rts = _m.MatchFirstKey([]string{"abcdef-abcd-abc-ab-a"})
 	if _rts[0].Key != "abcdef" {
 		t.Fatal(1)
+	}
+
+	_rts = _m.MatchFirstKey([]string{"ABCDEF-abCd-Abc-ab-a"})
+	if _rts[0].Key != "ab" {
+		t.Fatal(12)
+	}
+
+	_rts = _m.MatchFirstKey([]string{"aBcdef-aBcd-abc-ab-a"})
+	if _rts[0].Key != "abc" {
+		t.Fatal(13)
 	}
 
 	_rts = _m.MatchFirstKey([]string{"babcdefa"})
@@ -85,11 +107,21 @@ func TestMatcher_MatchFirstKey(t *testing.T) {
 
 func TestMatcher_MatchLabel(t *testing.T) {
 	var _rts LabelResults
-	_m := newMatcher("a", _matcherItems)
+	_m := newMatcher("a", _matcherItems, nil)
 
 	_rts = _m.MatchLabel([]string{"abcdef-abcd-abc-ab-a"})
 	if len(_rts) != 5 {
 		t.Fatal(1)
+	}
+
+	_rts = _m.MatchLabel([]string{"ABCDEF-ABCD-ABC-AB-A"})
+	if len(_rts) != 0 {
+		t.Fatal(11)
+	}
+
+	_rts = _m.MatchLabel([]string{"aBcdef-aBcd-aBc-ab-a"})
+	if len(_rts) != 2 {
+		t.Fatal(11)
 	}
 
 	_rts = _m.MatchLabel([]string{"abcabcabc"})
@@ -101,11 +133,29 @@ func TestMatcher_MatchLabel(t *testing.T) {
 	if len(_rts) != 1 || _rts[0].Labels["b"] != "b3" || _rts[0].Match["abc"] != 3 || _rts[0].Match["cba"] != 2 || _rts[0].Match["cb"] != 1 || _rts[0].MatchAmount != 6 {
 		t.Fatal(31)
 	}
+
+	_m = newMatcher("a", _matcherItems, &matcherConfig{true})
+
+	_rts = _m.MatchLabel([]string{"ABCDEF-aBcd-Abc-aB-a"})
+	if len(_rts) != 5 {
+		t.Fatal(1)
+	}
+
+	_rts = _m.MatchLabel([]string{"aBcABCabC"})
+	if len(_rts) != 1 || _rts[0].Labels["b"] != "b3" || _rts[0].Match["abc"] != 3 || _rts[0].MatchAmount != 3 {
+		t.Fatal(2)
+	}
+
+	_rts = _m.MatchLabel([]string{"abCCbcBAABCCBAabc"})
+	if len(_rts) != 1 || _rts[0].Labels["b"] != "b3" || _rts[0].Match["abc"] != 3 || _rts[0].Match["cba"] != 2 || _rts[0].Match["cb"] != 1 || _rts[0].MatchAmount != 6 {
+		t.Fatal(31)
+	}
+
 }
 
 func TestMatcher_MatchFirstLabel(t *testing.T) {
 	var _rts LabelResults
-	_m := newMatcher("a", _matcherItems)
+	_m := newMatcher("a", _matcherItems, nil)
 
 	_rts = _m.MatchFirstLabel([]string{"abcdef-abcd-abc-ab-a"})
 	if len(_rts) != 1 || _rts[0].Match["abcdef"] <= 0 {

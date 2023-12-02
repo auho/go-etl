@@ -5,16 +5,31 @@ import (
 	"strings"
 )
 
-type matcher struct {
-	keyName    string
-	items      []map[string]string
-	matchItems map[string]map[string]string // map[key name]map[label name]label value
-	labelsName []string
-	hasItems   bool
+type matcherConfig struct {
+	ignoreCase bool
 }
 
-func newMatcher(keyName string, items []map[string]string) *matcher {
-	m := &matcher{keyName: keyName, items: items}
+type matcher struct {
+	keyName     string
+	labelsName  []string
+	icKeyValues []string
+	items       []map[string]string
+	matchItems  map[string]map[string]string // map[key name]map[label name]label value
+	hasItems    bool
+
+	config *matcherConfig
+}
+
+func newMatcher(keyName string, items []map[string]string, config *matcherConfig) *matcher {
+	if config == nil {
+		config = &matcherConfig{}
+	}
+
+	m := &matcher{
+		keyName: keyName,
+		items:   items,
+		config:  config,
+	}
 
 	if len(items) > 0 {
 		m.hasItems = true
@@ -30,6 +45,10 @@ func newMatcher(keyName string, items []map[string]string) *matcher {
 			m.matchItems[item[m.keyName]] = make(map[string]string)
 			for _, labelName := range m.labelsName {
 				m.matchItems[item[m.keyName]][labelName] = item[labelName]
+			}
+
+			if m.config.ignoreCase {
+				m.icKeyValues = append(m.icKeyValues, strings.ToLower(item[m.keyName]))
 			}
 		}
 	}
@@ -80,15 +99,26 @@ func (m *matcher) findAll(contents []string) []map[string]string {
 
 	var results []map[string]string
 	for _, content := range contents {
-		for _, item := range m.items {
-			_count := strings.Count(content, item[m.keyName])
+		if m.config.ignoreCase {
+			content = strings.ToLower(content)
+		}
+
+		for k, item := range m.items {
+			_subStr := ""
+			if m.config.ignoreCase {
+				_subStr = m.icKeyValues[k]
+			} else {
+				_subStr = item[m.keyName]
+			}
+
+			_count := strings.Count(content, _subStr)
 			if _count > 0 {
 				for i := 0; i < _count; i++ {
 					results = append(results, item)
 				}
 
 				// replace 防止重复 count
-				content = strings.ReplaceAll(content, item[m.keyName], fmt.Sprintf("%c", 0x00))
+				content = strings.ReplaceAll(content, _subStr, fmt.Sprintf("%c", 0x00))
 			}
 		}
 	}
@@ -103,8 +133,19 @@ func (m *matcher) findFirst(contents []string) []map[string]string {
 
 	var results []map[string]string
 	for _, content := range contents {
-		for _, item := range m.items {
-			if strings.Contains(content, item[m.keyName]) {
+		if m.config.ignoreCase {
+			content = strings.ToLower(content)
+		}
+
+		for k, item := range m.items {
+			_subStr := ""
+			if m.config.ignoreCase {
+				_subStr = m.icKeyValues[k]
+			} else {
+				_subStr = item[m.keyName]
+			}
+
+			if strings.Contains(content, _subStr) {
 				results = append(results, item)
 				break
 			}
