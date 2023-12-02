@@ -10,14 +10,14 @@ import (
 // Result
 // result 匹配结果
 type Result struct {
-	Key  string            // keyword
-	Num  int64             // matched num
-	Tags map[string]string // tags map[tag name]tag
+	Key    string            // keyword
+	Num    int               // matched num
+	Labels map[string]string // labels[label name]label value
 }
 
 func NewResult() *Result {
 	m := &Result{}
-	m.Tags = make(map[string]string)
+	m.Labels = make(map[string]string)
 
 	return m
 }
@@ -25,7 +25,7 @@ func NewResult() *Result {
 func (r *Result) toMapAny(rule means.Ruler) map[string]any {
 	item := make(map[string]any)
 
-	for _k, _v := range r.Tags {
+	for _k, _v := range r.Labels {
 		item[_k] = _v
 	}
 
@@ -44,7 +44,7 @@ func (r *Result) toMapAny(rule means.Ruler) map[string]any {
 // label result
 type LabelResult struct {
 	Identity    string
-	Labels      map[string]string // tags map[tag name]tag
+	Labels      map[string]string // labels map[label name]label value
 	Match       map[string]int    // keyword num map[keyword]num
 	Keys        []string          // []keyword
 	MatchAmount int               // match amount

@@ -134,7 +134,7 @@ func TestMatcher_MatchLabel(t *testing.T) {
 		t.Fatal(31)
 	}
 
-	_m = newMatcher("a", _matcherItems, &matcherConfig{true})
+	_m = newMatcher("a", _matcherItems, &matcherConfig{ignoreCase: true})
 
 	_rts = _m.MatchLabel([]string{"ABCDEF-aBcd-Abc-aB-a"})
 	if len(_rts) != 5 {

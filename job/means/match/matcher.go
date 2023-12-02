@@ -1,21 +1,35 @@
 package match
 
 import (
-	"fmt"
 	"strings"
 )
 
+const (
+	modeSequence = iota
+	modePriorityAccurate
+	modePriorityFuzzy
+)
+
+type FuzzyConfig struct {
+	Enable bool
+	Window int
+	Sep    string
+}
+
 type matcherConfig struct {
-	ignoreCase bool
+	ignoreCase  bool
+	mode        int
+	fuzzyConfig FuzzyConfig
 }
 
 type matcher struct {
-	keyName     string
-	labelsName  []string
-	icKeyValues []string
-	items       []map[string]string
-	matchItems  map[string]map[string]string // map[key name]map[label name]label value
-	hasItems    bool
+	keyName    string
+	labelsName []string
+	hasItems   bool
+
+	allSeek      []seeker
+	fuzzySeek    []seeker
+	accurateSeek []seeker
 
 	config *matcherConfig
 }
@@ -27,28 +41,42 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 
 	m := &matcher{
 		keyName: keyName,
-		items:   items,
 		config:  config,
 	}
 
 	if len(items) > 0 {
 		m.hasItems = true
 
+		// labels name
 		for k, _ := range items[0] {
 			if k != keyName {
 				m.labelsName = append(m.labelsName, k)
 			}
 		}
 
-		m.matchItems = make(map[string]map[string]string)
-		for _, item := range m.items {
-			m.matchItems[item[m.keyName]] = make(map[string]string)
-			for _, labelName := range m.labelsName {
-				m.matchItems[item[m.keyName]][labelName] = item[labelName]
+		for _i, item := range items {
+			var _keyValue string
+			_originKeyValue := item[keyName]
+			if config.ignoreCase {
+				_keyValue = strings.ToLower(_originKeyValue)
+			} else {
+				_keyValue = _originKeyValue
 			}
 
-			if m.config.ignoreCase {
-				m.icKeyValues = append(m.icKeyValues, strings.ToLower(item[m.keyName]))
+			_labels := make(map[string]string)
+			for _, _ln := range m.labelsName {
+				_labels[_ln] = item[_ln]
+			}
+
+			_seeker, _sm := newSeeker(_i, _originKeyValue, _keyValue, _labels, config.fuzzyConfig)
+			if config.mode == modeSequence {
+				m.allSeek = append(m.allSeek, _seeker)
+			} else {
+				if _sm == seekAccurate {
+					m.accurateSeek = append(m.accurateSeek, _seeker)
+				} else {
+					m.fuzzySeek = append(m.fuzzySeek, _seeker)
+				}
 			}
 		}
 	}
@@ -92,81 +120,143 @@ func (m *matcher) MatchFirstLabel(contents []string) LabelResults {
 	return m.toLabelResults(items)
 }
 
-func (m *matcher) findAll(contents []string) []map[string]string {
+func (m *matcher) findAll(contents []string) seekResults {
 	if !m.hasItems {
 		return nil
 	}
 
-	var results []map[string]string
+	var results seekResults
 	for _, content := range contents {
 		if m.config.ignoreCase {
 			content = strings.ToLower(content)
 		}
 
-		for k, item := range m.items {
-			_subStr := ""
-			if m.config.ignoreCase {
-				_subStr = m.icKeyValues[k]
-			} else {
-				_subStr = item[m.keyName]
+		var ok bool
+		var _rts seekResults
+		switch m.config.mode {
+		case modeSequence:
+			_rts, ok = m.seekingAll(m.allSeek, content)
+			if ok {
+				results = append(results, _rts...)
+			}
+		case modePriorityAccurate:
+			_rts, ok = m.seekingAll(m.accurateSeek, content)
+			if ok {
+				results = append(results, _rts...)
 			}
 
-			_count := strings.Count(content, _subStr)
-			if _count > 0 {
-				for i := 0; i < _count; i++ {
-					results = append(results, item)
-				}
-
-				// replace 防止重复 count
-				content = strings.ReplaceAll(content, _subStr, fmt.Sprintf("%c", 0x00))
+			_rts, ok = m.seekingAll(m.fuzzySeek, content)
+			if ok {
+				results = append(results, _rts...)
 			}
+		case modePriorityFuzzy:
+			_rts, ok = m.seekingAll(m.fuzzySeek, content)
+			if ok {
+				results = append(results, _rts...)
+			}
+
+			_rts, ok = m.seekingAll(m.accurateSeek, content)
+			if ok {
+				results = append(results, _rts...)
+			}
+		default:
+			panic("unknown mode")
 		}
 	}
 
 	return results
 }
 
-func (m *matcher) findFirst(contents []string) []map[string]string {
+func (m *matcher) findFirst(contents []string) seekResults {
 	if !m.hasItems {
 		return nil
 	}
 
-	var results []map[string]string
+	var results seekResults
 	for _, content := range contents {
 		if m.config.ignoreCase {
 			content = strings.ToLower(content)
 		}
 
-		for k, item := range m.items {
-			_subStr := ""
-			if m.config.ignoreCase {
-				_subStr = m.icKeyValues[k]
-			} else {
-				_subStr = item[m.keyName]
+		var ok bool
+		var _rts seekResults
+		switch m.config.mode {
+		case modeSequence:
+			_rts, ok = m.seekingFirst(m.allSeek, content)
+			if ok {
+				results = append(results, _rts...)
+			}
+		case modePriorityAccurate:
+			_rts, ok = m.seekingFirst(m.accurateSeek, content)
+			if ok {
+				results = append(results, _rts...)
+				break
 			}
 
-			if strings.Contains(content, _subStr) {
-				results = append(results, item)
+			_rts, ok = m.seekingFirst(m.fuzzySeek, content)
+			if ok {
+				results = append(results, _rts...)
+			}
+		case modePriorityFuzzy:
+			_rts, ok = m.seekingFirst(m.fuzzySeek, content)
+			if ok {
+				results = append(results, _rts...)
+				break
+			}
+
+			_rts, ok = m.seekingFirst(m.accurateSeek, content)
+			if ok {
+				results = append(results, _rts...)
+			}
+		default:
+			panic("unknown mode")
+		}
+	}
+
+	return results
+}
+
+func (m *matcher) seekingAll(seekers []seeker, content string) (seekResults, bool) {
+	return m.seeking(seekers, content, false)
+}
+
+func (m *matcher) seekingFirst(seekers []seeker, content string) (seekResults, bool) {
+	return m.seeking(seekers, content, true)
+}
+
+func (m *matcher) seeking(seekers []seeker, content string, onlyFirst bool) (seekResults, bool) {
+	var results seekResults
+
+	has := false
+	var ok bool
+	var _srt seekResult
+	for _, _seeker := range seekers {
+		_srt, content, ok = _seeker.seeking(content)
+		if ok {
+			results = append(results, _srt)
+			has = true
+
+			if onlyFirst {
 				break
 			}
 		}
 	}
 
-	return results
+	return results, has
 }
 
-func (m *matcher) toResults(items []map[string]string) Results {
+func (m *matcher) toResults(items seekResults) Results {
 	var results Results
 	keysIndex := make(map[string]int)
 
 	for _, item := range items {
 		if _index, ok := keysIndex[m.keyName]; ok {
-			results[_index].Num += 1
+			results[_index].Num += item.amount
 		} else {
 			result := NewResult()
-			result.Key = item[m.keyName]
-			result.Num = 1
-			result.Tags = m.matchItems[item[m.keyName]]
+			result.Key = item.key
+			result.Num = item.amount
+			result.Labels = item.labels
 
 			results = append(results, result)
 		}
@@ -175,31 +265,31 @@ func (m *matcher) toResults(items []map[string]string) Results {
 	return results
 }
 
-func (m *matcher) toLabelResults(items []map[string]string) LabelResults {
+func (m *matcher) toLabelResults(items seekResults) LabelResults {
 	var results LabelResults
 	labelsIndex := make(map[string]int)
 
 	for _, item := range items {
 		_labelsIdentity := ""
 		for _, _labelName := range m.labelsName {
-			_labelsIdentity += "-" + item[_labelName]
+			_labelsIdentity += "-" + item.labels[_labelName]
 		}
 
 		if _index, ok := labelsIndex[_labelsIdentity]; ok {
 			result := results[_index]
-			if _, ok1 := result.Match[item[m.keyName]]; !ok1 {
-				result.Keys = append(result.Keys, item[m.keyName])
+			if _, ok1 := result.Match[item.key]; !ok1 {
+				result.Keys = append(result.Keys, item.key)
 			}
 
-			result.Match[item[m.keyName]] += 1
-			result.MatchAmount += 1
+			result.Match[item.key] += item.amount
+			result.MatchAmount += item.amount
 		} else {
 			result := NewLabelResult()
 			result.Identity = _labelsIdentity
-			result.Labels = m.matchItems[item[m.keyName]]
-			result.Keys = append(result.Keys, item[m.keyName])
-			result.Match[item[m.keyName]] = 1
-			result.MatchAmount = 1
+			result.Labels = item.labels
+			result.Keys = append(result.Keys, item.key)
+			result.Match[item.key] = item.amount
+			result.MatchAmount = item.amount
 
 			results = append(results, result)
 			labelsIndex[_labelsIdentity] = len(results) - 1
