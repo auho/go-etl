@@ -48,7 +48,7 @@ func main() {
 
 			app.APP.Build(confName)
 			app.APP.PrintlnState()
-			err1 := app.APP.RunPreFunE()
+			err1 := app.APP.RunPreFunE(cmd)
 			if err1 != nil {
 				return err1
 			}

@@ -23,7 +23,9 @@ func (r *Run) AddPreFunE(fn ...func() error) {
 
 // RunPreFunE
 // 在执行 Run 或 RunE 之前执行
-func (r *Run) RunPreFunE() error {
+func (r *Run) RunPreFunE(parentCmd *cobra.Command) error {
+	fmt.Println(fmt.Sprintf("parent cmd[%s] run pre", parentCmd.Use))
+
 	_fns := slices.Clone(r.preFun)
 	r.preFun = nil
 
