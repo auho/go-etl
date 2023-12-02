@@ -25,6 +25,10 @@ func NewDataRule(data assistant.Dataor, rule *Rule) *DataRule {
 	return dr
 }
 
+func (dr *DataRule) handlerOrigin() *DataRule {
+	return NewDataRule(dr.data, dr.rule.handlerOrigin())
+}
+
 func (dr *DataRule) TableName() string {
 	return fmt.Sprintf("%s_%s_%s", NameRule, dr.data.GetName(), dr.GetName())
 }
@@ -60,8 +64,4 @@ func (dr *DataRule) GetData() assistant.Dataor {
 
 func (dr *DataRule) GetRule() *Rule {
 	return dr.rule
-}
-
-func (dr *DataRule) handlerOrigin() *DataRule {
-	return NewDataRule(dr.data, dr.rule.handlerOrigin())
 }

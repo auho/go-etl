@@ -79,6 +79,7 @@ func (it *ImportToDb) buildResourceTable(resource Resourcer, table buildtable.Ta
 		fmt.Println(table.Sql())
 	}
 
+	// TODO Optimize 合并 recreate 至 table
 	isRecreateTable := resource.GetIsRecreateTable()
 	_, err := resource.GetDB().GetTableColumns(table.GetTableName())
 	if err != nil {

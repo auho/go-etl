@@ -16,8 +16,9 @@ var _ Resourcer = (*RuleResource)(nil)
 
 type RuleResource struct {
 	Resource
-	Titles // column title of save to db
-	Rule   assistant.Ruler
+	Titles                  // column title of save to db
+	Rule                    assistant.Ruler
+	KeywordNotDropDuplicate bool // true 不去重；false 去重
 }
 
 func (rs *RuleResource) Prepare() error {
@@ -43,7 +44,11 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 	for i, title := range rs.titlesKey {
 		if title == rs.Rule.KeywordName() {
 			keywordIndex = rs.titlesIndex[i]
-			rs.ColumnDropDuplicates = append(rs.ColumnDropDuplicates, i)
+
+			if !rs.KeywordNotDropDuplicate {
+				rs.ColumnDropDuplicates = append(rs.ColumnDropDuplicates, i)
+			}
+
 			break
 		}
 	}

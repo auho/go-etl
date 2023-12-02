@@ -34,6 +34,10 @@ func NewRule(name string, length, keywordLength int, labels map[string]int, db *
 	return r
 }
 
+func (r *Rule) handlerOrigin() *Rule {
+	return NewRule(r.name, r.length, r.keywordLength, maps.Clone(r.labels), r.db)
+}
+
 func (r *Rule) TableName() string {
 	return fmt.Sprintf("%s_%s", NameRule, r.name)
 }
@@ -61,8 +65,4 @@ func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 	_rule.handlerAlias(alias)
 
 	return _rule
-}
-
-func (r *Rule) handlerOrigin() *Rule {
-	return NewRule(r.name, r.length, r.keywordLength, maps.Clone(r.labels), r.db)
 }
