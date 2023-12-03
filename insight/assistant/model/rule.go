@@ -42,7 +42,12 @@ func (r *Rule) handlerOrigin() *Rule {
 }
 
 func (r *Rule) TableName() string {
-	return fmt.Sprintf("%s_%s", NameRule, r.name)
+	_n := r.name
+	if r.independentTableName != "" {
+		_n = r.independentTableName
+	}
+
+	return fmt.Sprintf("%s_%s", NameRule, _n)
 }
 
 func (r *Rule) ToOriginRule() assistant.Ruler {
@@ -65,6 +70,16 @@ func (r *Rule) WithAllowKeywordDuplicate() *Rule {
 	return r
 }
 
+// WithTableName
+// 不包含 table prefix
+func (r *Rule) WithTableName(tableName string) *Rule {
+	r.independentTableName = tableName
+
+	return r
+}
+
+// ToAliasRule
+// db name 是 origin， output name 是 alias
 func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 	_rule := r.handlerOrigin()
 	_rule.handlerAlias(alias)
@@ -72,8 +87,12 @@ func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 	return _rule
 }
 
+// Clone
+// only change name. copy labels, copy alias, copy command
 func (r *Rule) Clone(name string) *Rule {
-	return NewRule(name, r.length, r.keywordLength, r.GetLabels(), r.db).ToAliasRule(r.alias).WithCommand(r.commandFun)
+	return NewRule(name, r.length, r.keywordLength, r.labels, r.db).
+		ToAliasRule(r.alias).
+		WithCommand(r.commandFun)
 }
 
 func (r *Rule) CloneSuffix(suffix string) *Rule {

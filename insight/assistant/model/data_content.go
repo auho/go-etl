@@ -12,6 +12,7 @@ var _ assistant.Dataor = (*DataContent)(nil)
 
 type DataContent struct {
 	model
+	extra
 	data        *Data
 	contentName string
 }
@@ -20,6 +21,9 @@ func NewDataContent(data *Data, contentName string) *DataContent {
 	d := &DataContent{}
 	d.data = data
 	d.contentName = contentName
+	d.extra = extra{
+		model: d,
+	}
 
 	return d
 }

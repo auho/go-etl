@@ -58,6 +58,11 @@ func (ic *InsertComposeSpreadMode) Prepare() error {
 	ic.defaultValues = make(map[string]any)
 
 	for _, m := range ic.modes {
+		err := m.Prepare()
+		if err != nil {
+			return err
+		}
+
 		ic.insertKeys = append(ic.insertKeys, m.GetKeys()...)
 
 		maps.Copy(ic.defaultValues, m.DefaultValues())
@@ -69,7 +74,7 @@ func (ic *InsertComposeSpreadMode) Prepare() error {
 }
 
 func (ic *InsertComposeSpreadMode) Do(item map[string]any) []map[string]any {
-	var ret map[string]any
+	ret := make(map[string]any)
 	for _, m := range ic.modes {
 		_mrt := m.Do(item)
 		if len(_mrt) <= 0 {

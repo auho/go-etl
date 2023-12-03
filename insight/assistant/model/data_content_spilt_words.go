@@ -13,6 +13,7 @@ var _ assistant.Moder = (*DataContentSpiltWords)(nil)
 
 type DataContentSpiltWords struct {
 	model
+	extra
 	data        assistant.Rowsor
 	contentName string
 }
@@ -22,6 +23,9 @@ func NewDataContentSpiltWords(data assistant.Rowsor, contentName string, db *sim
 	dc.data = data
 	dc.contentName = contentName
 	dc.db = db
+	dc.extra = extra{
+		model: dc,
+	}
 
 	return dc
 }

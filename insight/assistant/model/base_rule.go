@@ -21,6 +21,7 @@ type baseRule struct {
 	labelsAlias map[string]string // map[label]label alias
 
 	allowKeywordDuplicate bool
+	independentTableName  string // ind
 }
 
 func newBaseRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) baseRule {

@@ -13,6 +13,7 @@ var _ assistant.Rowsor = (*Rows)(nil)
 
 type Rows struct {
 	model
+	extra
 	name      string
 	idName    string
 	tableName string
@@ -24,6 +25,9 @@ func NewRowsFake(name, tableName, idName string, db *simpleDb.SimpleDB) *Rows {
 	r.idName = idName
 	r.tableName = tableName
 	r.db = db
+	r.extra = extra{
+		model: r,
+	}
 
 	return r
 }

@@ -13,6 +13,7 @@ var _ assistant.Moder = (*TagDataRules)(nil)
 
 type TagDataRules struct {
 	model
+	extra
 	name  string
 	data  assistant.Rowsor
 	rules []assistant.Ruler
@@ -24,6 +25,9 @@ func NewTagDataRules(name string, data assistant.Rowsor, rules []assistant.Ruler
 	t.data = data
 	t.rules = rules
 	t.db = db
+	t.extra = extra{
+		model: t,
+	}
 
 	return t
 }

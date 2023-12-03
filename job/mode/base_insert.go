@@ -50,7 +50,7 @@ func (ih *insertHorizontalMode) Prepare() error {
 }
 
 func (ih *insertHorizontalMode) GetTitle() string {
-	ss := make([]string, 0)
+	var ss []string
 	for _, m := range ih.ms {
 		ss = append(ss, m.GetTitle())
 	}

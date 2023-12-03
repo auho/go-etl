@@ -13,6 +13,7 @@ var _ assistant.Moder = (*DataContentSegWords)(nil)
 
 type DataContentSegWords struct {
 	model
+	extra
 	data        assistant.Rowsor
 	contentName string
 }
@@ -22,7 +23,10 @@ func NewDataContentSegWords(data assistant.Rowsor, contentName string, db *simpl
 	dc.data = data
 	dc.contentName = contentName
 	dc.db = db
-
+	dc.extra = extra{
+		model: dc,
+	}
+	
 	return dc
 }
 
