@@ -1,6 +1,7 @@
 package match
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -30,6 +31,7 @@ type matcherConfig struct {
 	mode        int
 	enableFuzzy bool
 	fuzzyConfig FuzzyConfig
+	debug       bool
 }
 
 func (mc *matcherConfig) check() {
@@ -143,6 +145,8 @@ func (m *matcher) findAll(contents []string) seekResults {
 
 	var results seekResults
 	for _, content := range contents {
+		originContent := content
+
 		if m.config.ignoreCase {
 			content = strings.ToLower(content)
 		}
@@ -151,7 +155,7 @@ func (m *matcher) findAll(contents []string) seekResults {
 		var _rts seekResults
 		switch m.config.mode {
 		case modeSequence:
-			_rts, _, ok = m.seekingAll(m.allSeek, content)
+			_rts, content, ok = m.seekingAll(m.allSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
@@ -171,12 +175,16 @@ func (m *matcher) findAll(contents []string) seekResults {
 				results = append(results, _rts...)
 			}
 
-			_rts, _, ok = m.seekingAll(m.accurateSeek, content)
+			_rts, content, ok = m.seekingAll(m.accurateSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 		default:
 			panic("unknown mode")
+		}
+
+		if m.config.debug {
+			fmt.Println(originContent, content, results)
 		}
 	}
 
@@ -190,6 +198,8 @@ func (m *matcher) findFirst(contents []string) seekResults {
 
 	var results seekResults
 	for _, content := range contents {
+		originContent := content
+
 		if m.config.ignoreCase {
 			content = strings.ToLower(content)
 		}
@@ -198,34 +208,38 @@ func (m *matcher) findFirst(contents []string) seekResults {
 		var _rts seekResults
 		switch m.config.mode {
 		case modeSequence:
-			_rts, _, ok = m.seekingFirst(m.allSeek, content)
+			_rts, content, ok = m.seekingFirst(m.allSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 		case modePriorityAccurate:
-			_rts, _, ok = m.seekingFirst(m.accurateSeek, content)
+			_rts, content, ok = m.seekingFirst(m.accurateSeek, content)
 			if ok {
 				results = append(results, _rts...)
 				break
 			}
 
-			_rts, _, ok = m.seekingFirst(m.fuzzySeek, content)
+			_rts, content, ok = m.seekingFirst(m.fuzzySeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 		case modePriorityFuzzy:
-			_rts, _, ok = m.seekingFirst(m.fuzzySeek, content)
+			_rts, content, ok = m.seekingFirst(m.fuzzySeek, content)
 			if ok {
 				results = append(results, _rts...)
 				break
 			}
 
-			_rts, _, ok = m.seekingFirst(m.accurateSeek, content)
+			_rts, content, ok = m.seekingFirst(m.accurateSeek, content)
 			if ok {
 				results = append(results, _rts...)
 			}
 		default:
 			panic("unknown mode")
+		}
+
+		if m.config.debug {
+			m.debugInfo(originContent, content, results)
 		}
 	}
 
@@ -313,4 +327,10 @@ func (m *matcher) toLabelResults(items seekResults) LabelResults {
 	}
 
 	return results
+}
+
+func (m *matcher) debugInfo(os, s string, rts seekResults) {
+	fmt.Println(os)
+	fmt.Println(s)
+	fmt.Println(rts)
 }

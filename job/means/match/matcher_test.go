@@ -18,6 +18,7 @@ var _matcherItems = []map[string]string{
 	{"a": "A_c", "b": "b7"},
 	{"a": "E_F_G", "b": "b8"},
 	{"a": "h_i_j_", "b": "b9"},
+	{"a": "hij", "b": "b10"},
 }
 
 var _corpus = []string{
@@ -36,12 +37,52 @@ func TestMatcher(t *testing.T) {
 	_m.MatchFirstLabel(_corpus)
 }
 
+func TestMatcher_MatchKey_Accurate(t *testing.T) {
+	var _rts Results
+	_m := newMatcher("a", _matcherItems, &matcherConfig{
+		ignoreCase:  false,
+		mode:        modePriorityAccurate,
+		enableFuzzy: true,
+		debug:       true,
+		fuzzyConfig: FuzzyConfig{
+			Window: 3,
+			Sep:    "_",
+		},
+	})
+
+	_rts = _m.MatchKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_efgAxxc"})
+	if _rts.Len() != 5 {
+		t.Fatal()
+	}
+
+	if _rts[0].Key != "ca" || _rts[0].Num != 1 {
+		t.Fatal()
+	}
+
+	if _rts[1].Key != "ab" || _rts[1].Num != 1 {
+		t.Fatal()
+	}
+
+	if _rts[2].Key != "a" || _rts[2].Num != 3 {
+		t.Fatal()
+	}
+
+	if _rts[3].Key != "E_F_G" || _rts[3].Num != 1 {
+		t.Fatal()
+	}
+
+	if _rts[4].Key != "h_i_j_" || _rts[4].Num != 1 {
+		t.Fatal()
+	}
+}
+
 func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
 	var _rts Results
 	_m := newMatcher("a", _matcherItems, &matcherConfig{
 		ignoreCase:  true,
 		mode:        modePriorityFuzzy,
 		enableFuzzy: true,
+		debug:       true,
 		fuzzyConfig: FuzzyConfig{
 			Window: 3,
 			Sep:    "_",
@@ -53,28 +94,24 @@ func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
 		t.Fatal()
 	}
 
-	if _rts[0].Key != "A_c" {
+	if _rts[0].Key != "A_c" || _rts[0].Num != 4 {
 		t.Fatal()
 	}
 
-	if _rts[0].Num != 4 {
+	if _rts[1].Key != "ab" || _rts[1].Num != 1 {
 		t.Fatal()
 	}
 
-	if _rts[1].Key != "ab" {
+	_rts = _m.MatchKey([]string{"acAbcabbCAbbbCABbbBc"})
+	if _rts.Len() != 2 {
 		t.Fatal()
 	}
 
-	if _rts[1].Num != 1 {
+	if _rts[0].Key != "A_c" || _rts[0].Num != 4 {
 		t.Fatal()
 	}
 
-	_rts = _m.MatchKey([]string{"efgE一f一二gE一二三FgeF一GE一FGEF一二三四G"})
-	if _rts.Len() != 1 {
-		t.Fatal()
-	}
-
-	if _rts[0].Key != "E_F_G" {
+	if _rts[1].Key != "ab" || _rts[1].Num != 1 {
 		t.Fatal()
 	}
 
@@ -83,11 +120,16 @@ func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
 		t.Fatal()
 	}
 
-	if _rts[0].Key != "E_F_G" {
+	if _rts[0].Key != "E_F_G" || _rts[0].Num != 5 {
 		t.Fatal()
 	}
 
-	if _rts[0].Num != 5 {
+	_rts = _m.MatchKey([]string{"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J"})
+	if _rts.Len() != 1 {
+		t.Fatal()
+	}
+
+	if _rts[0].Key != "h_i_j_" || _rts[0].Num != 7 {
 		t.Fatal()
 	}
 }

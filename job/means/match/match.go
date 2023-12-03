@@ -24,7 +24,7 @@ type Match struct {
 }
 
 func NewMatch(rule means.Ruler, fn func(means.Ruler, *matcher, []string) []map[string]any) *Match {
-	return &Match{rule: rule, fn: fn}
+	return &Match{rule: rule, fn: fn, matcherConfig: &matcherConfig{}}
 }
 
 func (m *Match) GetTitle() string {
@@ -87,6 +87,12 @@ func (m *Match) WithIgnoreCase() *Match {
 func (m *Match) WithFuzzy(config FuzzyConfig) *Match {
 	m.matcherConfig.enableFuzzy = true
 	m.matcherConfig.fuzzyConfig = config
+
+	return m
+}
+
+func (m *Match) WithFuzzyPriority() *Match {
+	m.matcherConfig.mode = modePriorityFuzzy
 
 	return m
 }

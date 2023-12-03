@@ -22,3 +22,7 @@ func (x *Xlsx) XlsxFilePathWithName(name string) string {
 func (x *Xlsx) XlsxFilePathWithNameWithTime(name string) string {
 	return x.XlsxFilePathWithName(name + time.Now().Format("20060102_1504"))
 }
+
+func (x *Xlsx) XlsxQueryWithNameWithTime(name string) string {
+	return x.XlsxFilePathWithNameWithTime("_q" + name)
+}
