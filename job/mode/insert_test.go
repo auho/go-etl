@@ -65,7 +65,7 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	ti5 := NewInsertMulti([]string{_keyName}, tSegWords, tSegWords)
+	ti5 := NewInsertStack([]string{_keyName}, tSegWords, tSegWords)
 	err = ti5.Prepare()
 	if err != nil {
 		t.Fatal("ti5", err)

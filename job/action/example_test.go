@@ -50,7 +50,7 @@ func ExampleNewClean() {
 func ExampleNewInsert() {
 
 	_mode := mode.NewInsert([]string{"key1", "key2"}, tag.NewKey(_ruler))
-	_modeMulti := mode.NewInsertMulti([]string{"key1", "key2"}, tag.NewKey(_ruler), tag.NewLabel(_ruler))
+	_modeMulti := mode.NewInsertStack([]string{"key1", "key2"}, tag.NewKey(_ruler), tag.NewLabel(_ruler))
 	_modeCross := mode.NewInsertCross([]string{"key1", "key2"}, tag.NewMostKey(_ruler), tag.NewMostText(_ruler))
 	_modeSpread := mode.NewInsertSpread([]string{"key1", "key2"}, tag.NewKey(_ruler), tag.NewKey(_ruler))
 
