@@ -7,6 +7,7 @@ import (
 var _ Tabler = (*Table)(nil)
 
 type Table struct {
+	statement
 	commander command.TableCommander
 	name      string
 	fields    *command.Entities
@@ -55,6 +56,10 @@ func (t *Table) init(name string, driver string) {
 	t.set = make([]*command.Set, 0)
 
 	t.commander = newTableCommand(driver)
+	t.statement = statement{
+		sr:          t.commander,
+		prepareFunc: t.prepare,
+	}
 }
 
 func (t *Table) GetName() string {
@@ -92,10 +97,19 @@ func (t *Table) GroupBy(g []string) *Table {
 	return t
 }
 
-func (t *Table) GroupByAlias(g map[string]string) *Table {
-	for k, v := range g {
-		t.groupBy.AddEntry(k, v)
-		t.fields.AddEntry(k, v)
+func (t *Table) GroupByAlias(g ...string) *Table {
+	g = g[0 : len(g)/2*2]
+	for i := 0; i < len(g); i += 2 {
+		t.groupBy.AddEntry(g[i], g[i+1])
+		t.fields.AddEntry(g[i], g[i+1])
+	}
+
+	return t
+}
+
+func (t *Table) GroupByWithoutField(g []string) *Table {
+	for _, v := range g {
+		t.groupBy.AddEntry(v, v)
 	}
 
 	return t
@@ -224,36 +238,6 @@ func (t *Table) SetValue(s map[string]any) *Table {
 
 func (t *Table) SetSet(s *command.Set) {
 	t.set = append(t.set, s)
-}
-
-func (t *Table) Sql() string {
-	t.prepare()
-
-	return t.commander.Query()
-}
-
-func (t *Table) InsertSql(name string) string {
-	t.prepare()
-
-	return t.commander.InsertQuery(name)
-}
-
-func (t *Table) InsertWithFieldsSql(name string, fields []string) string {
-	t.prepare()
-
-	return t.commander.InsertWithFieldsQuery(name, fields)
-}
-
-func (t *Table) UpdateSql() string {
-	t.prepare()
-
-	return t.commander.UpdateQuery()
-}
-
-func (t *Table) DeleteSql() string {
-	t.prepare()
-
-	return t.commander.DeleteQuery()
 }
 
 func (t *Table) CreateJoin() *TableJoin {

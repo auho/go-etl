@@ -72,3 +72,11 @@ func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 
 	return _rule
 }
+
+func (r *Rule) Clone(name string) *Rule {
+	return NewRule(name, r.length, r.keywordLength, r.GetLabels(), r.db).ToAliasRule(r.alias).WithCommand(r.commandFun)
+}
+
+func (r *Rule) CloneSuffix(suffix string) *Rule {
+	return r.Clone(r.name + "_" + suffix)
+}

@@ -67,7 +67,11 @@ func (r *Rows) ToRaw() *Raw {
 }
 
 func (r *Rows) Clone(name string) *Rows {
-	return NewRows(name, r.idName, r.db)
+	return NewRows(name, r.idName, r.db).WithCommand(r.commandFun)
+}
+
+func (r *Rows) CloneSuffix(suffix string) *Rows {
+	return r.Clone(r.name + "_" + suffix)
 }
 
 func (r *Rows) ToDeletedRows() *Rows {

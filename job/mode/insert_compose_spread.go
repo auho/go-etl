@@ -20,7 +20,7 @@ type InsertComposeSpreadMode struct {
 	defaultValues map[string]any
 }
 
-func NewInsertCompose(modes ...InsertModer) *InsertComposeSpreadMode {
+func NewInsertComposeSpread(modes ...InsertModer) *InsertComposeSpreadMode {
 	ic := &InsertComposeSpreadMode{}
 	ic.modes = modes
 

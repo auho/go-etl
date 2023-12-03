@@ -92,7 +92,7 @@ func getTable1() *Table {
 		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
 		Where("`a` = 1").
 		GroupBy([]string{"c", "d"}).
-		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
+		GroupByAlias("c1", "c11", "d1", "d11").
 		OrderBy("a", command.SortDesc, "b", command.SortAsc).
 		OrderByAsc("c").
 		OrderByDesc("d").
@@ -105,7 +105,7 @@ func getTable2() *Table {
 		Aggregation(map[string]string{"COUNT(`a`)": "总数"}).
 		Where("`a` = 1").
 		GroupBy([]string{"c", "d"}).
-		GroupByAlias(map[string]string{"c1": "c11", "d1": "d11"}).
+		GroupByAlias("c1", "c11", "d1", "d11").
 		OrderBy("b", command.SortAsc, "a", command.SortDesc).
 		OrderByAsc("c").
 		OrderByDesc("d").

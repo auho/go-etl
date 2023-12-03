@@ -15,6 +15,7 @@ type baseRule struct {
 	keywordLength int
 	labels        map[string]int // map[label]label length
 
+	alias       map[string]string
 	aliasName   string            // alias name
 	aliasLabels map[string]int    // map[label alias]label alias length, alias labels
 	labelsAlias map[string]string // map[label]label alias
@@ -119,6 +120,8 @@ func (br *baseRule) WithCommand(fn func(command *tablestructure.Command)) *baseR
 }
 
 func (br *baseRule) handlerAlias(alias map[string]string) {
+	br.alias = alias
+
 	if v, ok := alias[br.name]; ok {
 		br.aliasName = v
 	} else {
