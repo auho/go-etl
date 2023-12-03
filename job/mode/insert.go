@@ -54,6 +54,10 @@ func (im *InsertMode) GetKeys() []string {
 	return im.means.GetKeys()
 }
 
+func (im *InsertMode) DefaultValues() map[string]any {
+	return maps.Clone(im.means.DefaultValues())
+}
+
 func (im *InsertMode) Do(item map[string]any) []map[string]any {
 	if item == nil {
 		return nil
@@ -135,6 +139,10 @@ func (im *InsertMultiMode) GetFields() []string {
 
 func (im *InsertMultiMode) GetKeys() []string {
 	return im.insertKeys
+}
+
+func (im *InsertMultiMode) DefaultValues() map[string]any {
+	return maps.Clone(im.defaultValues)
 }
 
 func (im *InsertMultiMode) Do(item map[string]any) []map[string]any {
@@ -349,6 +357,10 @@ func (ih *insertHorizontalMode) GetFields() []string {
 
 func (ih *insertHorizontalMode) GetKeys() []string {
 	return ih.insertKeys
+}
+
+func (ih *insertHorizontalMode) DefaultValues() map[string]any {
+	return maps.Clone(ih.defaultValues)
 }
 
 func (ih *insertHorizontalMode) Close() error {

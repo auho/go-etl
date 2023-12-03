@@ -20,7 +20,8 @@ type VoidModer interface {
 
 type InsertModer interface {
 	Moder
-	GetKeys() []string // 处理后的 key name
+	GetKeys() []string             // 处理后的 key name
+	DefaultValues() map[string]any // 需要 implement clone important!
 	Do(map[string]any) []map[string]any
 }
 
