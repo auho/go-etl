@@ -40,7 +40,7 @@ type Mode struct {
 }
 
 func (t *Mode) GenTitle(name string, means string) string {
-	return fmt.Sprintf("insertHorizontalMode %s{%s}", name, "keys["+strings.Join(t.Keys, ", ")+"]", means)
+	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(t.Keys, ", ")+"]", means)
 }
 
 func (t *Mode) GetKeyContent(key string, item map[string]any) string {

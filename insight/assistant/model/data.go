@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
@@ -13,6 +12,7 @@ var _ assistant.Dataor = (*Data)(nil)
 
 type Data struct {
 	model
+	extra
 	name   string
 	idName string
 }
@@ -22,6 +22,9 @@ func NewData(name string, idName string, db *simpleDb.SimpleDB) *Data {
 	d.name = name
 	d.idName = idName
 	d.db = db
+	d.extra = extra{
+		model: d,
+	}
 
 	return d
 }
@@ -48,18 +51,10 @@ func (d *Data) WithCommand(fn func(command *tablestructure.Command)) *Data {
 	return d
 }
 
-func (d *Data) DmlTable() *dml.Table {
-	return dml.NewTable(d.TableName())
-}
-
 func (d *Data) ToRows() *Rows {
 	return NewRows(d.name, d.idName, d.db)
 }
 
 func (d *Data) ToRaw() *Raw {
 	return NewRaw(d.name, d.db)
-}
-
-func (d *Data) CopyBuild(dst assistant.Rawer) error {
-	return d.db.DropAndCopy(d.TableName(), dst.TableName())
 }

@@ -5,7 +5,6 @@ import (
 	"maps"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
@@ -16,6 +15,7 @@ const defaultStringLen = 30
 
 type Rule struct {
 	baseRule
+	extra
 }
 
 func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
@@ -30,6 +30,9 @@ func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
 func NewRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) *Rule {
 	r := &Rule{}
 	r.baseRule = newBaseRule(name, length, keywordLength, labels, db)
+	r.extra = extra{
+		model: r,
+	}
 
 	return r
 }
@@ -44,10 +47,6 @@ func (r *Rule) TableName() string {
 
 func (r *Rule) ToOriginRule() assistant.Ruler {
 	return r.handlerOrigin()
-}
-
-func (r *Rule) DmlTable() *dml.Table {
-	return dml.NewTable(r.TableName())
 }
 
 func (r *Rule) ToItems(opts ...func(items *assistant.RuleItems)) *assistant.RuleItems {

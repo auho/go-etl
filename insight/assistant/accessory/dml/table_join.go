@@ -7,7 +7,7 @@ import (
 var _ Tabler = (*TableJoin)(nil)
 
 type TableJoin struct {
-	statement
+	manipulation
 	commander command.TableJoinCommander
 	tables    []*Table
 	limit     []int
@@ -17,8 +17,8 @@ type TableJoin struct {
 func newTableJoin(driver string) *TableJoin {
 	tj := &TableJoin{}
 	tj.commander = newTableJoinCommand(driver)
-	tj.statement = statement{
-		sr:          tj.commander,
+	tj.manipulation = manipulation{
+		st:          tj.commander,
 		prepareFunc: tj.prepare,
 	}
 	tj.tables = make([]*Table, 0)

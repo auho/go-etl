@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
@@ -13,6 +12,7 @@ var _ assistant.Moder = (*TagDataRule)(nil)
 
 type TagDataRule struct {
 	model
+	extra
 	data assistant.Rowsor
 	rule assistant.Ruler
 }
@@ -22,6 +22,9 @@ func NewTagDataRule(data assistant.Rowsor, rule assistant.Ruler, db *simpleDb.Si
 	t.data = data
 	t.rule = rule
 	t.db = db
+	t.extra = extra{
+		model: t,
+	}
 
 	return t
 }
@@ -50,16 +53,8 @@ func (t *TagDataRule) TableName() string {
 	return fmt.Sprintf("%s_%s_%s", NameTag, t.data.GetName(), t.rule.GetName())
 }
 
-func (t *TagDataRule) DmlTable() *dml.Table {
-	return dml.NewTable(t.TableName())
-}
-
 func (t *TagDataRule) WithCommand(fn func(*tablestructure.Command)) *TagDataRule {
 	t.withCommand(fn)
 
 	return t
-}
-
-func (t *TagDataRule) CopyBuild(dst assistant.Rawer) error {
-	return t.db.DropAndCopy(t.TableName(), dst.TableName())
 }

@@ -7,7 +7,7 @@ import (
 var _ Tabler = (*Table)(nil)
 
 type Table struct {
-	statement
+	manipulation
 	commander command.TableCommander
 	name      string
 	fields    *command.Entities
@@ -56,8 +56,8 @@ func (t *Table) init(name string, driver string) {
 	t.set = make([]*command.Set, 0)
 
 	t.commander = newTableCommand(driver)
-	t.statement = statement{
-		sr:          t.commander,
+	t.manipulation = manipulation{
+		st:          t.commander,
 		prepareFunc: t.prepare,
 	}
 }

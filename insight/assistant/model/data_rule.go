@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
@@ -12,6 +11,7 @@ var _ assistant.Ruler = (*DataRule)(nil)
 
 type DataRule struct {
 	baseRule
+	extra
 	data assistant.Dataor
 	rule *Rule
 }
@@ -21,6 +21,9 @@ func NewDataRule(data assistant.Dataor, rule *Rule) *DataRule {
 	dr.data = data
 	dr.baseRule = rule.baseRule
 	dr.rule = rule
+	dr.extra = extra{
+		model: dr,
+	}
 
 	return dr
 }
@@ -35,10 +38,6 @@ func (dr *DataRule) TableName() string {
 
 func (dr *DataRule) ToOriginRule() assistant.Ruler {
 	return dr.handlerOrigin()
-}
-
-func (dr *DataRule) DmlTable() *dml.Table {
-	return dml.NewTable(dr.TableName())
 }
 
 func (dr *DataRule) ToItems(opts ...func(items *assistant.RuleItems)) *assistant.RuleItems {
