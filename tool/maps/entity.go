@@ -1,5 +1,9 @@
 package maps
 
+type keyEntity interface {
+	string | int
+}
+
 type valueEntity interface {
 	string | int
 }

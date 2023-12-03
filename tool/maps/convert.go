@@ -15,8 +15,17 @@ func SliceMapStringAnyToSliceSliceAny(sm []map[string]any, keys []string) [][]an
 	return ss
 }
 
-func MapToMapAny[T valueEntity](m map[string]T) map[string]any {
-	nm := make(map[string]any, len(m))
+func SliceMapToAny[KT keyEntity, VT valueEntity](sm []map[KT]VT) []map[KT]any {
+	var nsm []map[KT]any
+	for _, m := range sm {
+		nsm = append(nsm, MapToAny(m))
+	}
+
+	return nsm
+}
+
+func MapToAny[KT keyEntity, VT valueEntity](m map[KT]VT) map[KT]any {
+	nm := make(map[KT]any, len(m))
 	for k, v := range m {
 		nm[k] = v
 	}

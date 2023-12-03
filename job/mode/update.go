@@ -18,14 +18,14 @@ type UpdateMode struct {
 
 func NewUpdate(keys []string, meanses ...means.UpdateMeans) *UpdateMode {
 	um := &UpdateMode{}
-	um.keys = keys
+	um.Keys = keys
 	um.meanses = meanses
 
 	return um
 }
 
 func (um *UpdateMode) Prepare() error {
-	if len(um.keys) <= 0 {
+	if len(um.Keys) <= 0 {
 		return fmt.Errorf("update prepare keys is not exists error")
 	}
 
@@ -49,11 +49,11 @@ func (um *UpdateMode) GetTitle() string {
 		is = append(is, i.GetTitle())
 	}
 
-	return fmt.Sprintf("UpdateMode %s{%s}", um.Mode.getTitle(), strings.Join(is, ","))
+	return um.GenTitle("UpdateMode", strings.Join(is, ","))
 }
 
 func (um *UpdateMode) GetFields() []string {
-	return um.keys
+	return um.Keys
 }
 
 func (um *UpdateMode) Do(item map[string]any) map[string]any {
@@ -61,7 +61,7 @@ func (um *UpdateMode) Do(item map[string]any) map[string]any {
 		return nil
 	}
 
-	contents := um.GetKeysContent(um.keys, item)
+	contents := um.GetKeysContent(um.Keys, item)
 
 	if len(contents) <= 0 {
 		return nil

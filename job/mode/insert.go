@@ -23,14 +23,14 @@ type InsertMode struct {
 
 func NewInsert(keys []string, means means.InsertMeans) *InsertMode {
 	im := &InsertMode{}
-	im.keys = keys
+	im.Keys = keys
 	im.means = means
 
 	return im
 }
 
 func (im *InsertMode) Prepare() error {
-	if len(im.keys) <= 0 {
+	if len(im.Keys) <= 0 {
 		return fmt.Errorf("InsertMode Prepare kyes not exists error")
 	}
 
@@ -43,11 +43,11 @@ func (im *InsertMode) Prepare() error {
 }
 
 func (im *InsertMode) GetTitle() string {
-	return "InsertMode " + im.Mode.getTitle() + " " + im.means.GetTitle()
+	return im.GenTitle("InsertMode", im.means.GetTitle())
 }
 
 func (im *InsertMode) GetFields() []string {
-	return im.keys
+	return im.Keys
 }
 
 func (im *InsertMode) GetKeys() []string {
@@ -63,7 +63,7 @@ func (im *InsertMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	contents := im.GetKeysContent(im.keys, item)
+	contents := im.GetKeysContent(im.Keys, item)
 	if len(contents) <= 0 {
 		return nil
 	}
@@ -93,14 +93,14 @@ type InsertMultiMode struct {
 
 func NewInsertMulti(keys []string, meanses ...means.InsertMeans) *InsertMultiMode {
 	im := &InsertMultiMode{}
-	im.keys = keys
+	im.Keys = keys
 	im.meanses = meanses
 
 	return im
 }
 
 func (im *InsertMultiMode) Prepare() error {
-	if len(im.keys) <= 0 {
+	if len(im.Keys) <= 0 {
 		return fmt.Errorf("InsertMultiMode Prepare kyes not exists error")
 	}
 
@@ -130,11 +130,11 @@ func (im *InsertMultiMode) GetTitle() string {
 		is = append(is, i.GetTitle())
 	}
 
-	return fmt.Sprintf("InsertMultiMode %s{%s}", im.Mode.getTitle(), strings.Join(is, ","))
+	return im.GenTitle("InsertMultiMode", strings.Join(is, ","))
 }
 
 func (im *InsertMultiMode) GetFields() []string {
-	return im.keys
+	return im.Keys
 }
 
 func (im *InsertMultiMode) GetKeys() []string {
@@ -150,7 +150,7 @@ func (im *InsertMultiMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	contents := im.GetKeysContent(im.keys, item)
+	contents := im.GetKeysContent(im.Keys, item)
 	if len(contents) <= 0 {
 		return nil
 	}
@@ -209,7 +209,7 @@ func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	contents := ic.GetKeysContent(ic.keys, item)
+	contents := ic.GetKeysContent(ic.Keys, item)
 	if len(contents) <= 0 {
 		return nil
 	}
@@ -273,7 +273,7 @@ func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	contents := is.GetKeysContent(is.keys, item)
+	contents := is.GetKeysContent(is.Keys, item)
 	if len(contents) <= 0 {
 		return nil
 	}
@@ -313,14 +313,14 @@ type insertHorizontalMode struct {
 
 func newInsertHorizontal(keys []string, meanses ...means.InsertMeans) insertHorizontalMode {
 	ih := insertHorizontalMode{}
-	ih.keys = keys
+	ih.Keys = keys
 	ih.meanses = meanses
 
 	return ih
 }
 
 func (ih *insertHorizontalMode) Prepare() error {
-	if len(ih.keys) <= 0 {
+	if len(ih.Keys) <= 0 {
 		return fmt.Errorf("insertHorizontalMode Prepare kyes not exists error")
 	}
 
@@ -348,11 +348,11 @@ func (ih *insertHorizontalMode) GetTitle() string {
 		ss = append(ss, m.GetTitle())
 	}
 
-	return fmt.Sprintf("insertHorizontalMode %s{%s}", ih.Mode.getTitle(), strings.Join(ss, ","))
+	return ih.GenTitle("insertHorizontalMode", strings.Join(ss, ","))
 }
 
 func (ih *insertHorizontalMode) GetFields() []string {
-	return ih.keys
+	return ih.Keys
 }
 
 func (ih *insertHorizontalMode) GetKeys() []string {

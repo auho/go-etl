@@ -36,11 +36,11 @@ type TransferModer interface {
 }
 
 type Mode struct {
-	keys []string // 要被处理的 key name
+	Keys []string // 要被处理的 key name
 }
 
-func (t *Mode) getTitle() string {
-	return "keys[" + strings.Join(t.keys, ", ") + "]"
+func (t *Mode) GenTitle(name string, means string) string {
+	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(t.Keys, ", ")+"]", means)
 }
 
 func (t *Mode) GetKeyContent(key string, item map[string]any) string {
