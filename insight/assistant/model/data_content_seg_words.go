@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
@@ -26,7 +25,7 @@ func NewDataContentSegWords(data assistant.Rowsor, contentName string, db *simpl
 	dc.extra = extra{
 		model: dc,
 	}
-	
+
 	return dc
 }
 
@@ -52,10 +51,6 @@ func (dc *DataContentSegWords) GetContentName() string {
 
 func (dc *DataContentSegWords) TableName() string {
 	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSegWords)
-}
-
-func (dc *DataContentSegWords) DmlTable() *dml.Table {
-	return dml.NewTable(dc.TableName())
 }
 
 func (dc *DataContentSegWords) WordName() string {

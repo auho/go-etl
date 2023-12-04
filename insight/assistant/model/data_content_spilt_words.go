@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
@@ -44,10 +43,6 @@ func (dc *DataContentSpiltWords) GetIdName() string {
 
 func (dc *DataContentSpiltWords) TableName() string {
 	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSpiltWords)
-}
-
-func (dc *DataContentSpiltWords) DmlTable() *dml.Table {
-	return dml.NewTable(dc.TableName())
 }
 
 func (dc *DataContentSpiltWords) GetData() assistant.Rowsor {

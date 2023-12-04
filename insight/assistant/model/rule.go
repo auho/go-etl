@@ -71,7 +71,7 @@ func (r *Rule) WithAllowKeywordDuplicate() *Rule {
 }
 
 // WithTableName
-// 不包含 table prefix
+// 指定一个 table name 不包含 table prefix
 func (r *Rule) WithTableName(tableName string) *Rule {
 	r.independentTableName = tableName
 

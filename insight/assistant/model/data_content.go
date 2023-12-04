@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
@@ -42,8 +41,4 @@ func (d *DataContent) GetIdName() string {
 
 func (d *DataContent) TableName() string {
 	return fmt.Sprintf("%s_%s", NameData, d.GetName())
-}
-
-func (d *DataContent) DmlTable() *dml.Table {
-	return dml.NewTable(d.TableName())
 }
