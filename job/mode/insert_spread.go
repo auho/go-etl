@@ -22,6 +22,8 @@ func NewInsertSpread(keys []string, ms ...means.InsertMeans) *InsertSpreadMode {
 }
 
 func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
+	is.AddTotal(1)
+
 	if item == nil {
 		return nil
 	}
@@ -45,6 +47,8 @@ func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
 	}
 
 	if _has {
+		is.AddAmount(1)
+
 		_dv := maps.Clone(is.defaultValues)
 		maps.Copy(_dv, newItem)
 

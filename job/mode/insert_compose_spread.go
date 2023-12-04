@@ -1,6 +1,7 @@
 package mode
 
 import (
+	"fmt"
 	"maps"
 	slices2 "slices"
 	"strings"
@@ -74,17 +75,49 @@ func (ic *InsertComposeSpreadMode) Prepare() error {
 }
 
 func (ic *InsertComposeSpreadMode) Do(item map[string]any) []map[string]any {
+	ic.AddTotal(1)
+
+	_has := false
 	ret := make(map[string]any)
 	for _, m := range ic.modes {
 		_mrt := m.Do(item)
 		if len(_mrt) <= 0 {
 			maps.Copy(ret, m.DefaultValues())
 		} else {
+			_has = true
 			maps.Copy(ret, _mrt[0])
 		}
 	}
 
-	return []map[string]any{ret}
+	if _has {
+		ic.AddAmount(1)
+
+		return []map[string]any{ret}
+	} else {
+		return nil
+	}
+}
+
+func (ic *InsertComposeSpreadMode) State() []string {
+	var ss []string
+	ss = append(ss, fmt.Sprintf("InsertComposeSpreadMode: %s", ic.GenCounter()))
+	for i, m := range ic.modes {
+		var mss []string
+		for _i, _ms := range m.State() {
+			_s := ""
+			if _i == 0 {
+				_s = fmt.Sprintf("%-5s%s", fmt.Sprintf("%d.", i), _ms)
+			} else {
+				_s = fmt.Sprintf("%-5s%s", "", _ms)
+			}
+
+			mss = append(mss, _s)
+		}
+
+		ss = append(ss, mss...)
+	}
+
+	return ss
 }
 
 func (ic *InsertComposeSpreadMode) Close() error {

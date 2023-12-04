@@ -77,6 +77,8 @@ func (im *InsertStackMode) DefaultValues() map[string]any {
 }
 
 func (im *InsertStackMode) Do(item map[string]any) []map[string]any {
+	im.AddTotal(1)
+
 	if item == nil {
 		return nil
 	}
@@ -101,7 +103,13 @@ func (im *InsertStackMode) Do(item map[string]any) []map[string]any {
 		}
 	}
 
+	im.AddAmount(int64(len(item)))
+
 	return items
+}
+
+func (im *InsertStackMode) State() []string {
+	return []string{fmt.Sprintf("%s: %s", im.GetTitle(), im.GenCounter())}
 }
 
 func (im *InsertStackMode) Close() error {

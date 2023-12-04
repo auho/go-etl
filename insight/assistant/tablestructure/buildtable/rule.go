@@ -26,7 +26,7 @@ func (t *RuleTable) build() {
 	t.initCommand(t.rule.TableName())
 	t.Command.AddPkInt(t.rule.GetIdName())
 
-	t.buildRuleLabels(t.Command)
+	t.BuildLabels(t.Command)
 
 	var keywordFiled *mysql.Field
 	if t.rule.AllowKeywordDuplicate() {
@@ -43,7 +43,7 @@ func (t *RuleTable) build() {
 	t.Command.AddTimestamp("ctime", true, true)
 }
 
-func (t *RuleTable) buildRuleLabels(command *tablestructure.Command) {
+func (t *RuleTable) BuildLabels(command *tablestructure.Command) {
 	command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
 
 	for label, length := range t.rule.GetLabels() {
@@ -51,9 +51,27 @@ func (t *RuleTable) buildRuleLabels(command *tablestructure.Command) {
 	}
 }
 
-func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
-	t.buildRuleLabels(command)
+func (t *RuleTable) BuildLabelsForWhole(command *tablestructure.Command, length int) {
+	command.AddStringWithLength(t.rule.GetName(), length)
+
+	for label := range t.rule.GetLabels() {
+		command.AddStringWithLength(label, length)
+	}
+}
+
+func (t *RuleTable) BuildTags(command *tablestructure.Command) {
+	t.BuildLabels(command)
 	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
+}
+
+func (t *RuleTable) BuildTagsForWhole(command *tablestructure.Command, length int) {
+	t.BuildLabelsForWhole(command, length)
+	command.AddStringWithLength(t.rule.KeywordName(), length)
+}
+
+func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
+	t.BuildTags(command)
+
 	command.AddInt(t.rule.KeywordNumName())
 	command.AddInt(t.rule.LabelNumName())
 }

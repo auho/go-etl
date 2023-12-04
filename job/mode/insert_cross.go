@@ -29,6 +29,8 @@ func NewInsertCross(keys []string, ms ...means.InsertMeans) *InsertCrossMode {
 }
 
 func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
+	ic.AddTotal(1)
+
 	if item == nil {
 		return nil
 	}
@@ -75,6 +77,8 @@ func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
 
 		_tItems = newItems
 	}
+
+	ic.AddAmount(int64(len(newItems)))
 
 	return newItems
 }

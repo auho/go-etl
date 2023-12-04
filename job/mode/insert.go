@@ -54,6 +54,8 @@ func (im *InsertMode) DefaultValues() map[string]any {
 }
 
 func (im *InsertMode) Do(item map[string]any) []map[string]any {
+	im.AddTotal(1)
+
 	if item == nil {
 		return nil
 	}
@@ -63,7 +65,14 @@ func (im *InsertMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	return im.means.Insert(contents)
+	rt := im.means.Insert(contents)
+	im.AddAmount(int64(len(rt)))
+
+	return rt
+}
+
+func (im *InsertMode) State() []string {
+	return []string{fmt.Sprintf("%s: %s", im.GetTitle(), im.GenCounter())}
 }
 
 func (im *InsertMode) Close() error {

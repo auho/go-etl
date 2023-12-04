@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync/atomic"
 )
 
 type Moder interface {
@@ -23,6 +24,7 @@ type InsertModer interface {
 	GetKeys() []string             // 处理后的 key name
 	DefaultValues() map[string]any // 需要 implement clone important!
 	Do(map[string]any) []map[string]any
+	State() []string
 }
 
 type UpdateModer interface {
@@ -36,21 +38,35 @@ type TransferModer interface {
 }
 
 type Mode struct {
-	Keys []string // 要被处理的 key name
+	Keys   []string // 要被处理的 key name
+	total  int64
+	amount int64
 }
 
-func (t *Mode) GenTitle(name string, means string) string {
-	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(t.Keys, ", ")+"]", means)
+func (m *Mode) AddTotal(num int64) {
+	atomic.AddInt64(&m.total, num)
 }
 
-func (t *Mode) GetKeyContent(key string, item map[string]any) string {
-	return t.KeyValueToString(key, item)
+func (m *Mode) AddAmount(num int64) {
+	atomic.AddInt64(&m.amount, num)
 }
 
-func (t *Mode) GetKeysContent(keys []string, item map[string]any) []string {
+func (m *Mode) GenCounter() string {
+	return fmt.Sprintf("total: %d; amount: %d", m.total, m.amount)
+}
+
+func (m *Mode) GenTitle(name string, means string) string {
+	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.Keys, ", ")+"]", means)
+}
+
+func (m *Mode) GetKeyContent(key string, item map[string]any) string {
+	return m.KeyValueToString(key, item)
+}
+
+func (m *Mode) GetKeysContent(keys []string, item map[string]any) []string {
 	contents := make([]string, 0)
 	for _, key := range keys {
-		keyValue := t.KeyValueToString(key, item)
+		keyValue := m.KeyValueToString(key, item)
 
 		contents = append(contents, keyValue)
 	}
@@ -58,7 +74,7 @@ func (t *Mode) GetKeysContent(keys []string, item map[string]any) []string {
 	return contents
 }
 
-func (t *Mode) KeyValueToString(key string, item map[string]any) string {
+func (m *Mode) KeyValueToString(key string, item map[string]any) string {
 	keyValue := ""
 
 	switch item[key].(type) {

@@ -70,6 +70,10 @@ func (ih *insertHorizontalMode) DefaultValues() map[string]any {
 	return maps.Clone(ih.defaultValues)
 }
 
+func (ih *insertHorizontalMode) State() []string {
+	return []string{fmt.Sprintf("%s: %s", ih.GetTitle(), ih.GenCounter())}
+}
+
 func (ih *insertHorizontalMode) Close() error {
 	for _, m := range ih.ms {
 		err := m.Close()
