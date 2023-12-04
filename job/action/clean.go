@@ -187,7 +187,16 @@ func (c *Clean) PostDo() error {
 	return nil
 }
 
-func (c *Clean) Close() error { return nil }
+func (c *Clean) Close() error {
+	for _, m := range c.modes {
+		err := m.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 var _ destination.Destinationer[storage.MapEntry] = (*cleanToDB)(nil)
 

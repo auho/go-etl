@@ -132,5 +132,5 @@ func (i *Insert) Close() error {
 
 	i.Println("")
 
-	return nil
+	return i.mode.Close()
 }
