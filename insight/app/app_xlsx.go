@@ -24,5 +24,5 @@ func (x *Xlsx) XlsxFilePathWithNameWithTime(name string) string {
 }
 
 func (x *Xlsx) XlsxQueryWithNameWithTime(name string) string {
-	return x.XlsxFilePathWithNameWithTime("_q" + name)
+	return x.XlsxFilePathWithNameWithTime("_q_" + name)
 }
