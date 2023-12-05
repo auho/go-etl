@@ -39,23 +39,51 @@ func (r *Run) RunPreFunE(parentCmd *cobra.Command) error {
 	return nil
 }
 
-func (r *Run) AddCommand(cs ...*cobra.Command) {
-	for _, cmd := range cs {
-		r.commands = append(r.commands, cmd)
+func (r *Run) AddCommands(cs ...[]*cobra.Command) {
+	for _, c := range cs {
+		for _, _c := range c {
+			r.commands = append(r.commands, _c)
+		}
 	}
 }
 
+func (r *Run) AddCommand(cs ...*cobra.Command) {
+	r.AddCommands(cs)
+}
+
 func (r *Run) RunCommandE(parentCmd *cobra.Command, args []string) error {
-	var err error
-
-	if parentCmd == nil {
-		parentCmd = &cobra.Command{Use: "unknown"}
-	}
-
 	// 循环嵌套问题
 	// 先 shallow clone，然后在清空，后续不会出现循环嵌套
 	_commands := slices.Clone(r.commands)
 	r.commands = nil
+
+	return r.execECommands(parentCmd, args, _commands)
+}
+
+func (r *Run) RunECommand(parentCmd *cobra.Command, args []string, cs ...*cobra.Command) error {
+	return r.execECommands(parentCmd, args, cs)
+}
+
+func (r *Run) RunECommands(parentCmd *cobra.Command, args []string, cs ...[]*cobra.Command) error {
+	var _cs []*cobra.Command
+	for _, c := range cs {
+		_cs = append(_cs, c...)
+	}
+
+	return r.execECommands(parentCmd, args, _cs)
+}
+
+func (r *Run) execECommands(parentCmd *cobra.Command, args []string, cs ...[]*cobra.Command) error {
+	var err error
+
+	var _commands []*cobra.Command
+	for _, c := range cs {
+		_commands = append(_commands, c...)
+	}
+
+	if parentCmd == nil {
+		parentCmd = &cobra.Command{Use: "unknown"}
+	}
 
 	fmt.Println(fmt.Sprintf("parent cmd[%s] start", parentCmd.Use))
 	for _, _cmd := range _commands {

@@ -36,10 +36,27 @@ func (e *extra) GetTableColumns() ([]string, error) {
 	return e.model.GetDB().GetTableColumns(e.model.TableName())
 }
 
+func (e *extra) RecreateFromSql(sql string) error {
+	err := e.Drop()
+	if err != nil {
+		return err
+	}
+
+	return e.ExecSql(sql)
+}
+
+func (e *extra) Drop() error {
+	return e.model.GetDB().Drop(e.model.TableName())
+}
+
 func (e *extra) Truncate() error {
 	return e.model.GetDB().Truncate(e.model.TableName())
 }
 
 func (e *extra) CopyBuild(dst assistant.Rawer) error {
 	return e.model.GetDB().DropAndCopy(e.model.TableName(), dst.TableName())
+}
+
+func (e *extra) ExecSql(sql string, v ...any) error {
+	return e.model.GetDB().Exec(sql, v...).Error
 }
