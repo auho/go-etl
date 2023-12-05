@@ -16,9 +16,8 @@ var _ Resourcer = (*RuleResource)(nil)
 
 type RuleResource struct {
 	Resource
-	Titles                  // column title of save to db
-	Rule                    assistant.Ruler
-	KeywordNotDropDuplicate bool // true 不去重；false 去重
+	Titles // column title of save to db
+	Rule   assistant.Ruler
 }
 
 func (rs *RuleResource) Prepare() error {
@@ -45,7 +44,7 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 		if title == rs.Rule.KeywordName() {
 			keywordIndex = rs.titlesIndex[i]
 
-			if !rs.KeywordNotDropDuplicate {
+			if !rs.Rule.AllowKeywordDuplicate() {
 				rs.ColumnDropDuplicates = append(rs.ColumnDropDuplicates, i)
 			}
 
@@ -53,9 +52,9 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 		}
 	}
 
-	if keywordIndex < 0 {
-		return nil, fmt.Errorf("keyword index error")
-	}
+	//if keywordIndex < 0 {
+	//	return nil, fmt.Errorf("keyword index error")
+	//}
 
 	// keyword len of string
 	err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
@@ -63,15 +62,20 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 
 		var _newRows [][]string
 		for _, row := range rows {
-			_ky := row[keywordIndex]
-			_ky = strings.TrimSpace(_ky)
-			if _ky == "" {
-				continue
+			keywordLen := "0"
+
+			if keywordIndex > -1 {
+				_ky := row[keywordIndex]
+				_ky = strings.TrimSpace(_ky)
+				if _ky == "" {
+					continue
+				}
+
+				row[keywordIndex] = _ky
+				keywordLen = strconv.Itoa(utf8.RuneCountInString(_ky))
 			}
 
-			row[keywordIndex] = _ky
-
-			row = append(row, strconv.Itoa(utf8.RuneCountInString(_ky)))
+			row = append(row, keywordLen)
 			_newRows = append(_newRows, row)
 		}
 
