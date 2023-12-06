@@ -4,12 +4,24 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
+var _ assistant.RuleConfigure = (*RuleConfig)(nil)
+
+type RuleConfig struct {
+	allowKeywordDuplicate bool
+}
+
+func (rc RuleConfig) AllowKeywordDuplicate() bool {
+	return rc.allowKeywordDuplicate
+}
+
 type baseRule struct {
 	model
+	config        RuleConfig
 	name          string // origin name
 	length        int    // origin name length
 	keywordLength int
@@ -112,6 +124,10 @@ func (br *baseRule) KeywordNumName() string {
 
 func (br *baseRule) AllowKeywordDuplicate() bool {
 	return br.allowKeywordDuplicate
+}
+
+func (br *baseRule) Config() assistant.RuleConfigure {
+	return br.config
 }
 
 func (br *baseRule) WithCommand(fn func(command *tablestructure.Command)) *baseRule {

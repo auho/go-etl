@@ -29,7 +29,7 @@ func (t *RuleTable) build() {
 	t.BuildLabels(t.Command)
 
 	var keywordFiled *mysql.Field
-	if t.rule.AllowKeywordDuplicate() {
+	if t.rule.Config().AllowKeywordDuplicate() {
 		keywordFiled = t.Command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
 	} else {
 		keywordFiled = t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetKeywordLength())

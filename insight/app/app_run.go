@@ -11,8 +11,7 @@ type Run struct {
 	names []string
 	fns   []func() error
 
-	preFun   []func() error
-	commands []*cobra.Command
+	preFun []func() error
 }
 
 // AddPreFunE
@@ -23,8 +22,8 @@ func (r *Run) AddPreFunE(fn ...func() error) {
 
 // RunPreFunE
 // 在执行 Run 或 RunE 之前执行
-func (r *Run) RunPreFunE(parentCmd *cobra.Command) error {
-	fmt.Println(fmt.Sprintf("parent cmd[%s] run pre", parentCmd.Use))
+func (r *Run) RunPreFunE(cmd *cobra.Command) error {
+	fmt.Println(fmt.Sprintf("cmd[%s] run pre", cmd.Use))
 
 	_fns := slices.Clone(r.preFun)
 	r.preFun = nil
@@ -39,41 +38,20 @@ func (r *Run) RunPreFunE(parentCmd *cobra.Command) error {
 	return nil
 }
 
-func (r *Run) AddCommands(cs ...[]*cobra.Command) {
-	for _, c := range cs {
-		for _, _c := range c {
-			r.commands = append(r.commands, _c)
-		}
-	}
+func (r *Run) RunCommandE(parentCmd *cobra.Command, args []string, cs ...*cobra.Command) error {
+	return r.execCommandsE(parentCmd, args, cs)
 }
 
-func (r *Run) AddCommand(cs ...*cobra.Command) {
-	r.AddCommands(cs)
-}
-
-func (r *Run) RunCommandE(parentCmd *cobra.Command, args []string) error {
-	// 循环嵌套问题
-	// 先 shallow clone，然后在清空，后续不会出现循环嵌套
-	_commands := slices.Clone(r.commands)
-	r.commands = nil
-
-	return r.execECommands(parentCmd, args, _commands)
-}
-
-func (r *Run) RunECommand(parentCmd *cobra.Command, args []string, cs ...*cobra.Command) error {
-	return r.execECommands(parentCmd, args, cs)
-}
-
-func (r *Run) RunECommands(parentCmd *cobra.Command, args []string, cs ...[]*cobra.Command) error {
+func (r *Run) RunCommandsE(parentCmd *cobra.Command, args []string, cs ...[]*cobra.Command) error {
 	var _cs []*cobra.Command
 	for _, c := range cs {
 		_cs = append(_cs, c...)
 	}
 
-	return r.execECommands(parentCmd, args, _cs)
+	return r.execCommandsE(parentCmd, args, _cs)
 }
 
-func (r *Run) execECommands(parentCmd *cobra.Command, args []string, cs ...[]*cobra.Command) error {
+func (r *Run) execCommandsE(parentCmd *cobra.Command, args []string, cs ...[]*cobra.Command) error {
 	var err error
 
 	var _commands []*cobra.Command
@@ -97,11 +75,12 @@ func (r *Run) execECommands(parentCmd *cobra.Command, args []string, cs ...[]*co
 		fmt.Println(fmt.Sprintf("cmd[%s] end", _cmd.Use))
 	}
 
-	fmt.Println()
+	fmt.Println("======")
 	fmt.Println(fmt.Sprintf("parent cmd[%s]:", parentCmd.Use))
 	for _, _cmd := range _commands {
-		fmt.Println(_cmd.Use)
+		fmt.Println("  " + _cmd.Use)
 	}
+	fmt.Println()
 
 	return nil
 }

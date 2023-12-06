@@ -38,6 +38,10 @@ func (tj *TableJoin) Table(t *Table) *TableJoin {
 	return tj
 }
 
+func (tj *TableJoin) LeftJoinDefault(rightTable *Table, fields []string) *TableJoin {
+	return tj.LeftJoin(rightTable, fields, nil, nil)
+}
+
 // LeftJoin
 //
 // left table 为 nil，默认取上一个设定的 table, table fields

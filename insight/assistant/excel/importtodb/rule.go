@@ -44,7 +44,7 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 		if title == rs.Rule.KeywordName() {
 			keywordIndex = rs.titlesIndex[i]
 
-			if !rs.Rule.AllowKeywordDuplicate() {
+			if !rs.Rule.Config().AllowKeywordDuplicate() {
 				rs.ColumnDropDuplicates = append(rs.ColumnDropDuplicates, i)
 			}
 

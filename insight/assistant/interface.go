@@ -29,6 +29,10 @@ type Dataor interface {
 
 var _ Moder = Ruler(nil)
 
+type RuleConfigure interface {
+	AllowKeywordDuplicate() bool
+}
+
 type Ruler interface {
 	Moder
 	GetNameLength() int
@@ -42,5 +46,5 @@ type Ruler interface {
 	KeywordNumName() string
 	ToOriginRule() Ruler
 	ToItems(opts ...func(items *RuleItems)) *RuleItems
-	AllowKeywordDuplicate() bool
+	Config() RuleConfigure
 }

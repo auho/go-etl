@@ -158,6 +158,8 @@ func (t *Table) OrderByDesc(k string) *Table {
 	return t
 }
 
+// OrderByDescExpression
+// k: 为 aggregation expression 的 alias，如果是 expression 使用 SelectAlias
 func (t *Table) OrderByDescExpression(k string) *Table {
 	t.OrderByExpression(k, command.SortDesc)
 

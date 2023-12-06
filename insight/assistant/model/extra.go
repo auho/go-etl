@@ -57,6 +57,15 @@ func (e *extra) CopyBuild(dst assistant.Rawer) error {
 	return e.model.GetDB().DropAndCopy(e.model.TableName(), dst.TableName())
 }
 
+func (e *extra) CopyBuildAndData(dst assistant.Rawer) error {
+	err := e.CopyBuild(dst)
+	if err != nil {
+		return err
+	}
+
+	return e.model.GetDB().CopyData(e.model.TableName(), dst.TableName())
+}
+
 func (e *extra) RawSqlAndScan(dst any, sql string, v ...any) error {
 	return e.model.GetDB().Raw(sql, v...).Scan(dst).Error
 }

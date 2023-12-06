@@ -19,6 +19,5 @@ func ExampleNewApplication() {
 	_app.XlsxFilePath("file name")
 
 	// run command
-	_app.AddCommand(&cobra.Command{})
-	_ = _app.RunCommandE(nil, []string{})
+	_ = _app.RunCommandE(nil, []string{}, &cobra.Command{})
 }

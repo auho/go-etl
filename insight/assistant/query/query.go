@@ -27,6 +27,26 @@ type Query struct {
 	summary []string
 }
 
+func Do(xlsxName, xlsxPath string, fn func(q *Query)) error {
+	return DoWithPath(path.Join(xlsxPath, xlsxName+".xlsx"), fn)
+}
+
+func DoWithPath(xlsxFilePath string, fn func(q *Query)) error {
+	q, err := NewQueryWithPath(xlsxFilePath)
+	if err != nil {
+		return err
+	}
+
+	fn(q)
+
+	err = q.Save()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NewQueryWithPath(xlsxFilePath string) (*Query, error) {
 	q := &Query{}
 	q.xlsxPath = xlsxFilePath

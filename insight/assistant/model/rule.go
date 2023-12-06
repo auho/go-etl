@@ -65,7 +65,7 @@ func (r *Rule) WithCommand(fn func(command *tablestructure.Command)) *Rule {
 }
 
 func (r *Rule) WithAllowKeywordDuplicate() *Rule {
-	r.allowKeywordDuplicate = true
+	r.config.allowKeywordDuplicate = true
 
 	return r
 }
