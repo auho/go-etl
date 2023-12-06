@@ -20,7 +20,7 @@ func (e *extra) AlterTable(fn func(*tablestructure.Command)) ([]string, error) {
 	return at.BuildAffixSql()
 }
 
-func (e *extra) InsertFromTable(table dml.Tabler) (string, error) {
+func (e *extra) InsertWholeWithTable(table dml.Tabler) (string, error) {
 	return table.Insert(e.model.TableName(), e.model.GetDB())
 }
 
@@ -55,6 +55,10 @@ func (e *extra) Truncate() error {
 
 func (e *extra) CopyBuild(dst assistant.Rawer) error {
 	return e.model.GetDB().DropAndCopy(e.model.TableName(), dst.TableName())
+}
+
+func (e *extra) RawSqlAndScan(dst any, sql string, v ...any) error {
+	return e.model.GetDB().Raw(sql, v...).Scan(dst).Error
 }
 
 func (e *extra) ExecSql(sql string, v ...any) error {

@@ -103,8 +103,7 @@ func (c *Clean) Title() string {
 	return fmt.Sprintf("Clean[%s, %s] {%s}",
 		c.cleanTarget.DataTarget().TableName(),
 		c.cleanTarget.DeletedTarget().TableName(),
-		strings.Join(s, ", "),
-	)
+		strings.Join(s, ", "))
 }
 
 func (c *Clean) Prepare() error {

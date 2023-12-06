@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
@@ -69,8 +70,13 @@ func (r *Rows) Clone(name string) *Rows {
 	return NewRows(name, r.idName, r.db).WithCommand(r.commandFun)
 }
 
-func (r *Rows) CloneSuffix(suffix string) *Rows {
-	return r.Clone(r.name + "_" + suffix)
+func (r *Rows) CloneSuffix(suffix ...string) *Rows {
+	var ns []string
+	for _, _s := range suffix {
+		ns = append(ns, strings.ReplaceAll(_s, "-", "_"))
+	}
+
+	return r.Clone(strings.Join(append([]string{r.TableName()}, ns...), "_"))
 }
 
 func (r *Rows) ToDeletedRows() *Rows {
