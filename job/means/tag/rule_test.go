@@ -13,13 +13,11 @@ type ruleTest struct {
 }
 
 func (r *ruleTest) LabelNumName() string {
-	//TODO implement me
-	panic("implement me")
+	return "a_label_num"
 }
 
 func (r *ruleTest) LabelNumNameAlias() string {
-	//TODO implement me
-	panic("implement me")
+	return "a_label_num"
 }
 
 func (r *ruleTest) MeansKeys() []string {

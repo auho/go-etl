@@ -17,8 +17,8 @@ type Result struct {
 	IsKeyMerge bool
 }
 
-func NewResult() *Result {
-	m := &Result{}
+func NewResult() Result {
+	m := Result{}
 	m.Tags = make(map[string]string)
 	m.Texts = make(map[string]int64)
 
@@ -53,8 +53,8 @@ type LabelResult struct {
 	MatchAmount int                       // match amount
 }
 
-func NewLabelResult() *LabelResult {
-	l := &LabelResult{}
+func NewLabelResult() LabelResult {
+	l := LabelResult{}
 	l.Labels = make(map[string]string)
 	l.Match = make(map[string]map[string]int)
 
@@ -91,7 +91,7 @@ func (lr *LabelResult) toMapAny(rule means.Ruler) map[string]any {
 
 // Results
 // result
-type Results []*Result
+type Results []Result
 
 func (rs Results) Len() int {
 	return len(rs)
@@ -116,7 +116,7 @@ func (rs Results) toSliceMapAny(rule means.Ruler) []map[string]any {
 
 // LabelResults
 // label results
-type LabelResults []*LabelResult
+type LabelResults []LabelResult
 
 func (lrs LabelResults) Len() int {
 	return len(lrs)

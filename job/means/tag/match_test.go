@@ -35,13 +35,17 @@ func TestMatcher(t *testing.T) {
 
 	m.prepare("a", items)
 
-	var results []*Result
-	var tagResults []*LabelResult
+	var results []Result
+	var tagResults []LabelResult
 
 	fmt.Println("\n Match")
 	results = m.Match(_contents)
 	for _, result := range results {
 		fmt.Println(result)
+	}
+
+	if len(results) != 31 || results[0].Key != "b" {
+		t.Fatal("Match")
 	}
 
 	fmt.Println("\n MatchText")
@@ -50,10 +54,18 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
+	if len(results) != 17 || results[1].Key != "123" || results[1].Texts["123"] != 7 || results[2].Num != 4 {
+		t.Fatal("MatchText")
+	}
+
 	fmt.Println("\n MatchKey")
 	results = m.MatchKey(_contents)
 	for _, result := range results {
 		fmt.Println(result)
+	}
+
+	if len(results) != 4 || results[1].Texts["123"] != 7 || results[2].Key != "中文" || results[3].Num != 17 {
+		t.Fatal("MatchKey")
 	}
 
 	fmt.Println("\n MatchFirstText")
@@ -62,10 +74,18 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
+	if len(results) != 1 || results[0].Key != "b" || results[0].Num != 1 {
+		t.Fatal("MatchFirstText")
+	}
+
 	fmt.Println("\n MatchLastText")
 	results = m.MatchLastText(_contents)
 	for _, result := range results {
 		fmt.Println(result)
+	}
+
+	if len(results) != 1 || results[0].Key != "中_文" || results[0].Num != 1 || results[0].Texts["中123文"] != 1 {
+		t.Fatal("MatchLastText")
 	}
 
 	fmt.Println("\n MatchMostKey")
@@ -74,10 +94,18 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
+	if len(results) != 1 || results[0].Key != "中_文" || results[0].Num != 17 || results[0].Texts["中00文"] != 2 {
+		t.Fatal("MatchMostKey")
+	}
+
 	fmt.Println("\n MatchMostText")
 	results = m.MatchMostText(_contents)
 	for _, result := range results {
 		fmt.Println(result)
+	}
+
+	if len(results) != 1 || results[0].Key != "123" || results[0].Num != 7 || results[0].Texts["123"] != 7 {
+		t.Fatal("MatchMostText")
 	}
 
 	fmt.Println("\n MatchLabel")
@@ -86,9 +114,17 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(tagResult)
 	}
 
+	if len(tagResults) != 3 || tagResults[1].MatchAmount != 10 || tagResults[1].Identity != "-b-c" {
+		t.Fatal("MatchLabel")
+	}
+
 	fmt.Println("\n MatchLabelMostText")
 	tagResults = m.MatchLabelMostText(_contents)
 	for _, tagResult := range tagResults {
 		fmt.Println(tagResult)
+	}
+
+	if len(tagResults) != 1 || tagResults[0].MatchAmount != 17 || tagResults[0].Identity != "-b3-c3" {
+		t.Fatal("MatchLabelMostText")
 	}
 }
