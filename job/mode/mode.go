@@ -28,13 +28,11 @@ type InsertModer interface {
 }
 
 type UpdateModer interface {
-	Moder
-	Do(map[string]any) map[string]any
+	VoidModer
 }
 
 type TransferModer interface {
-	Moder
-	Do(map[string]any) map[string]any
+	VoidModer
 }
 
 type Mode struct {

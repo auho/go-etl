@@ -7,8 +7,8 @@ import (
 
 type Collector interface {
 	GetTitle() string
-	GetKeys() []string
-	Search(item map[string]any, fn func(string) token.Tokenizer) token.Tokenizer
+	GetKeys() []string // for source select data row
+	Pick(item map[string]any, fn func([]string) token.Tokenizer) token.Tokenizer
 }
 
 type Collect struct {

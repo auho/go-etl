@@ -2,10 +2,11 @@ package token
 
 type Tokenizer interface {
 	GetOk() bool
-	ToModer(m string) Moder
+	ToExport(m string) Exporter
 }
 
-type Moder interface {
+type Exporter interface {
+	Name() string
 	DefaultValues() map[string]any
 	ToTokenize() []map[string]any
 }

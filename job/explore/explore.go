@@ -9,23 +9,21 @@ import (
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
-var _ mode.InsertModer = (*Explore)(nil)
-
 type Explore struct {
 	mode.Mode
 
-	collect  collect.Collector
-	search   search.Searcher
-	modeName string
+	collect   collect.Collector
+	search    search.Searcher
+	exportWay string
 
 	defaultValues map[string]any
 }
 
-func NewExplorer(collect collect.Collector, search search.Searcher, modeName string) *Explore {
+func NewExplorer(collect collect.Collector, search search.Searcher, exportWay string) *Explore {
 	return &Explore{
-		collect:  collect,
-		search:   search,
-		modeName: modeName,
+		collect:   collect,
+		search:    search,
+		exportWay: exportWay,
 	}
 }
 
@@ -46,24 +44,9 @@ func (e *Explore) DefaultValues() map[string]any {
 }
 
 func (e *Explore) Prepare() error {
-	e.defaultValues = e.search.DefaultTokenize().ToModer(e.modeName).DefaultValues()
+	e.defaultValues = e.search.DefaultTokenize().ToExport(e.exportWay).DefaultValues()
 
 	return nil
-}
-
-func (e *Explore) Do(item map[string]any) []map[string]any {
-	e.AddTotal(1)
-
-	_ticket := e.collect.Search(item, e.search.Search)
-	if !_ticket.GetOk() {
-		return nil
-	}
-
-	ret := _ticket.ToModer(e.modeName).ToTokenize()
-
-	e.AddAmount(int64(len(ret)))
-
-	return ret
 }
 
 func (e *Explore) State() []string {
