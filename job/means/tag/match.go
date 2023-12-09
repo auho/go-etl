@@ -148,7 +148,7 @@ func (m *Matcher) MatchText(contents []string) Results {
 
 		if index, ok := resultIndex[text]; ok {
 			results[index].Texts[text] += 1
-			results[index].Num += 1
+			results[index].Amount += 1
 		} else {
 			results = append(results, m.matchToResult(match, false))
 			resultIndex[text] = len(results) - 1
@@ -175,7 +175,7 @@ func (m *Matcher) MatchKey(contents []string) Results {
 
 		if index, ok := resultIndex[key]; ok {
 			results[index].Texts[text] += 1
-			results[index].Num += 1
+			results[index].Amount += 1
 		} else {
 			results = append(results, m.matchToResult(match, true))
 			resultIndex[key] = len(results) - 1
@@ -268,15 +268,15 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 				result.Keys = append(result.Keys, key)
 			}
 
-			result.MatchAmount += 1
+			result.Amount += 1
 			results[index] = result
 		} else {
 			result := NewLabelResult()
 			result.Identity = tagsIdentity
-			result.Labels = tags
+			result.Tags = tags
 			result.Match[key] = map[string]int{text: 1}
 			result.Keys = append(result.Keys, key)
-			result.MatchAmount += 1
+			result.Amount += 1
 
 			results = append(results, result)
 			resultIndex[tagsIdentity] = len(results) - 1
@@ -329,7 +329,7 @@ func (m *Matcher) matchToResult(match []string, isKeyMerge bool) Result {
 	mRes := NewResult()
 	mRes.Key = match[0]
 	mRes.Texts[match[1]] = 1
-	mRes.Num = 1
+	mRes.Amount = 1
 	mRes.Tags = m.regexpItems[mRes.Key]
 	mRes.IsKeyMerge = isKeyMerge
 

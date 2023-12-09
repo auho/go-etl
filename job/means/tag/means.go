@@ -96,7 +96,7 @@ func NewWholeLabels(rule means.Ruler) *Means {
 		_keywordAmount := 0
 
 		for _, _r := range rs {
-			for _labelKey, _labelValue := range _r.Labels {
+			for _labelKey, _labelValue := range _r.Tags {
 				_rts[_labelKey] = append(_rts[_labelKey], _labelValue)
 			}
 
@@ -130,7 +130,7 @@ func NewKey(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.toSliceMapAny(rule)
+		return rs.ToTags(rule)
 	})
 }
 
@@ -143,7 +143,7 @@ func NewLabel(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.toSliceMapAny(rule)
+		return rs.ToTags(rule)
 	})
 }
 
@@ -156,7 +156,7 @@ func NewMostText(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.toSliceMapAny(rule)
+		return rs.ToTags(rule)
 	})
 }
 
@@ -169,7 +169,7 @@ func NewMostKey(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.toSliceMapAny(rule)
+		return rs.ToTags(rule)
 	})
 }
 
@@ -182,6 +182,6 @@ func NewFirst(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.toSliceMapAny(rule)
+		return rs.ToTags(rule)
 	})
 }

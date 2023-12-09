@@ -24,10 +24,14 @@ type Ruler interface {
 	KeywordNameAlias() string
 	KeywordNumName() string
 	KeywordNumNameAlias() string
+	KeywordAmountName() string
+	KeywordAmountNameAlias() string
 	Labels() []string
 	LabelsAlias() []string
 	LabelNumName() string
 	LabelNumNameAlias() string
+	Tags() []string
+	TagsAlias() []string
 	Fixed() map[string]any
 	FixedAlias() map[string]any
 	FixedKeys() []string

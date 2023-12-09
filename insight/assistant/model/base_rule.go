@@ -122,6 +122,10 @@ func (br *baseRule) KeywordNumName() string {
 	return fmt.Sprintf("%s_%s", br.aliasName, NameKeywordNum)
 }
 
+func (br *baseRule) KeywordAmountName() string {
+	return fmt.Sprintf("%s_%s", br.aliasName, NameKeywordAmount)
+}
+
 func (br *baseRule) AllowKeywordDuplicate() bool {
 	return br.allowKeywordDuplicate
 }
