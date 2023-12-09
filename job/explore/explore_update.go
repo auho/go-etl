@@ -13,12 +13,12 @@ type Update struct {
 func (u *Update) Do(item map[string]any) map[string]any {
 	u.AddTotal(1)
 
-	_ticket := u.collect.Pick(item, u.search.Search)
-	if !_ticket.GetOk() {
+	_export := u.collect.Do(item, u.search)
+	if _export == nil || !_export.IsOk() {
 		return nil
 	}
 
-	ret := _ticket.ToExport(u.exportWay).ToTokenize()
+	ret := _export.ToTokenize()
 
 	u.AddAmount(int64(len(ret)))
 

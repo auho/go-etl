@@ -28,8 +28,9 @@ func TestWholeLabels(t *testing.T) {
 
 	resSlice := tm.Insert(_contents)
 	fmt.Println(resSlice)
-	if len(resSlice) != 1 {
-		t.Fatal("error")
+	if len(resSlice) != 1 || resSlice[0]["a"] != "123|a|ab|中1文|中文" ||
+		resSlice[0]["a_keyword_num"] != 5 || resSlice[0]["a_label_num"] != 5 {
+		t.Fatal()
 	}
 }
 

@@ -13,12 +13,12 @@ type Insert struct {
 func (i *Insert) Do(item map[string]any) []map[string]any {
 	i.AddTotal(1)
 
-	_ticket := i.collect.Pick(item, i.search.Search)
-	if !_ticket.GetOk() {
+	_export := i.collect.Do(item, i.search)
+	if _export == nil || !_export.IsOk() {
 		return nil
 	}
 
-	ret := _ticket.ToExport(i.exportWay).ToTokenize()
+	ret := _export.ToTokenize()
 
 	i.AddAmount(int64(len(ret)))
 

@@ -327,10 +327,10 @@ func (m *Matcher) matchToResults(match []string, isKeyMerge bool) Results {
 
 func (m *Matcher) matchToResult(match []string, isKeyMerge bool) Result {
 	mRes := NewResult()
-	mRes.Key = match[0]
+	mRes.Keyword = match[0]
 	mRes.Texts[match[1]] = 1
 	mRes.Amount = 1
-	mRes.Tags = m.regexpItems[mRes.Key]
+	mRes.Tags = m.regexpItems[mRes.Keyword]
 	mRes.IsKeyMerge = isKeyMerge
 
 	return mRes

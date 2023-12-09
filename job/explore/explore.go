@@ -12,18 +12,15 @@ import (
 type Explore struct {
 	mode.Mode
 
-	collect   collect.Collector
-	search    search.Searcher
-	exportWay string
-
+	collect       collect.Collector
+	search        search.Searcher
 	defaultValues map[string]any
 }
 
-func NewExplorer(collect collect.Collector, search search.Searcher, exportWay string) *Explore {
+func NewExplorer(collect collect.Collector, search search.Searcher) *Explore {
 	return &Explore{
-		collect:   collect,
-		search:    search,
-		exportWay: exportWay,
+		collect: collect,
+		search:  search,
 	}
 }
 
@@ -44,7 +41,7 @@ func (e *Explore) DefaultValues() map[string]any {
 }
 
 func (e *Explore) Prepare() error {
-	e.defaultValues = e.search.DefaultTokenize().ToExport(e.exportWay).DefaultValues()
+	e.defaultValues = e.search.InitialExporter().DefaultValues()
 
 	return nil
 }

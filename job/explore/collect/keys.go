@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v2/job/explore/token"
+	"github.com/auho/go-etl/v2/job/explore/search"
 )
 
 var _ Collector = (*Keys)(nil)
@@ -50,35 +50,32 @@ func (f *Keys) GetKeys() []string {
 	return f.keys
 }
 
-func (f *Keys) Pick(item map[string]any, fn func([]string) token.Tokenizer) token.Tokenizer {
+func (f *Keys) Do(item map[string]any, searcher search.Searcher) search.Exporter {
 	if f.IsAll() {
-		return f.doAll(item, fn)
+		return f.doAll(item, searcher)
 	} else if f.IsInOrder() {
-		return f.doInOrder(item, fn)
+		return f.doInOrder(item, searcher)
 	} else {
 		panic("way unknown")
 	}
 }
 
-func (f *Keys) doAll(item map[string]any, fn func([]string) token.Tokenizer) token.Tokenizer {
-	var rt token.Tokenizer
-
+func (f *Keys) doAll(item map[string]any, searcher search.Searcher) search.Exporter {
 	var contents []string
 	for _, _key := range f.keys {
 		contents = append(contents, f.GetKeyContent(_key, item))
 	}
 
-	rt = fn(contents)
-
-	return rt
+	return searcher.Do(contents)
 }
 
-func (f *Keys) doInOrder(item map[string]any, fn func([]string) token.Tokenizer) token.Tokenizer {
-	var rt token.Tokenizer
+func (f *Keys) doInOrder(item map[string]any, searcher search.Searcher) search.Exporter {
+	var rt search.Exporter
+
 	for _, _key := range f.keys {
 		_v := f.GetKeyContent(_key, item)
-		rt = fn([]string{_v})
-		if rt.GetOk() {
+		rt = searcher.Do([]string{_v})
+		if rt.IsOk() {
 			break
 		}
 	}

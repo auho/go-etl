@@ -35,8 +35,8 @@ func TestMatcher(t *testing.T) {
 
 	m.prepare("a", items)
 
-	var results []Result
-	var tagResults []LabelResult
+	var results Results
+	var tagResults LabelResults
 
 	fmt.Println("\n Match")
 	results = m.Match(_contents)
@@ -44,7 +44,7 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
-	if len(results) != 31 || results[0].Key != "b" {
+	if len(results) != 31 || results[0].Keyword != "b" {
 		t.Fatal("Match")
 	}
 
@@ -54,7 +54,7 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
-	if len(results) != 17 || results[1].Key != "123" || results[1].Texts["123"] != 7 || results[2].Amount != 4 {
+	if len(results) != 17 || results[1].Keyword != "123" || results[1].Texts["123"] != 7 || results[2].Amount != 4 {
 		t.Fatal("MatchText")
 	}
 
@@ -64,7 +64,7 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
-	if len(results) != 4 || results[1].Texts["123"] != 7 || results[2].Key != "中文" || results[3].Amount != 17 {
+	if len(results) != 4 || results[1].Texts["123"] != 7 || results[2].Keyword != "中文" || results[3].Amount != 17 {
 		t.Fatal("MatchKey")
 	}
 
@@ -74,7 +74,7 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
-	if len(results) != 1 || results[0].Key != "b" || results[0].Amount != 1 {
+	if len(results) != 1 || results[0].Keyword != "b" || results[0].Amount != 1 {
 		t.Fatal("MatchFirstText")
 	}
 
@@ -84,7 +84,7 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
-	if len(results) != 1 || results[0].Key != "中_文" || results[0].Amount != 1 || results[0].Texts["中123文"] != 1 {
+	if len(results) != 1 || results[0].Keyword != "中_文" || results[0].Amount != 1 || results[0].Texts["中123文"] != 1 {
 		t.Fatal("MatchLastText")
 	}
 
@@ -94,7 +94,7 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
-	if len(results) != 1 || results[0].Key != "中_文" || results[0].Amount != 17 || results[0].Texts["中00文"] != 2 {
+	if len(results) != 1 || results[0].Keyword != "中_文" || results[0].Amount != 17 || results[0].Texts["中00文"] != 2 {
 		t.Fatal("MatchMostKey")
 	}
 
@@ -104,7 +104,7 @@ func TestMatcher(t *testing.T) {
 		fmt.Println(result)
 	}
 
-	if len(results) != 1 || results[0].Key != "123" || results[0].Amount != 7 || results[0].Texts["123"] != 7 {
+	if len(results) != 1 || results[0].Keyword != "123" || results[0].Amount != 7 || results[0].Texts["123"] != 7 {
 		t.Fatal("MatchMostText")
 	}
 
