@@ -5,7 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/means"
 )
 
@@ -21,9 +20,6 @@ type Means struct {
 
 	keys          []string       // output name
 	defaultValues map[string]any // output default values
-
-	newExporterResult      NewExporterResult
-	newExporterLabelResult NewExporterLabelResult
 }
 
 func NewMeans(rule means.Ruler, fn func(means.Ruler, *Matcher, []string) []map[string]any) *Means {
@@ -74,22 +70,6 @@ func (m *Means) Update(contents []string) map[string]any {
 	}
 
 	return results[0]
-}
-
-func (m *Means) WithNewExporterResult(ne NewExporterResult) {
-	m.newExporterResult = ne
-}
-
-func (m *Means) WithNewExporterLabelResult(ne NewExporterLabelResult) {
-	m.newExporterLabelResult = ne
-}
-
-func (m *Means) InitialExporter() search.Exporter {
-	return nil //TODO WIP
-}
-
-func (m *Means) Do(contents []string) search.Exporter {
-	return nil //TODO WIP
 }
 
 func (m *Means) Close() error { return nil }

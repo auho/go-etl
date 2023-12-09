@@ -2,6 +2,6 @@ package search
 
 type Searcher interface {
 	GetTitle() string
-	InitialExporter() Exporter
+	GetExport() Exporter
 	Do(s []string) Exporter
 }
