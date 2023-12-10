@@ -32,8 +32,8 @@ type Ruler interface {
 	LabelNumNameAlias() string
 	Tags() []string
 	TagsAlias() []string
-	Fixed() map[string]any
-	FixedAlias() map[string]any
+	Fixed() map[string]string
+	FixedAlias() map[string]string
 	FixedKeys() []string
 	FixedKeysAlias() []string
 	ItemsAlias() ([]map[string]string, error)

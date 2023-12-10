@@ -8,15 +8,6 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-func attachFixesValues(rule means.Ruler, m map[string]any) map[string]any {
-	fixed := rule.FixedAlias()
-	for _, key := range rule.FixedKeysAlias() {
-		m[key] = fixed[key]
-	}
-
-	return m
-}
-
 func pluckFromSliceMap(sm []map[string]any, keys []string) []map[string]any {
 	var nsm []map[string]any
 	for _, m := range sm {
@@ -42,6 +33,7 @@ type Result struct {
 	Keyword    string            // keyword
 	Tags       map[string]string // tags map[tag name]tag
 	Texts      map[string]int    // matched text map[matched text]amount
+	TagsName   []string          // tags name
 	IsKeyMerge bool
 }
 
@@ -64,7 +56,7 @@ func (r *Result) ToTag(rule means.Ruler) map[string]any {
 	item[rule.KeywordNumNameAlias()] = 1
 	item[rule.KeywordAmountNameAlias()] = r.Amount
 
-	return attachFixesValues(rule, item)
+	return item
 }
 
 // Results
@@ -84,7 +76,9 @@ func (rs Results) Swap(i, j int) {
 }
 
 func (rs Results) ToTags(rule means.Ruler) []map[string]any {
-	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
+	keys := append(rule.TagsAlias(), rule.FixedKeysAlias()...)
+	keys = append(keys, rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
+
 	items := make([]map[string]any, 0, rs.Len())
 	for _, _r := range rs {
 		items = append(items, pluckFromMap(_r.ToTag(rule), keys))
@@ -94,8 +88,10 @@ func (rs Results) ToTags(rule means.Ruler) []map[string]any {
 }
 
 func (rs Results) ToLine(rule means.Ruler) []map[string]any {
-	keys := append(rule.TagsAlias(), rule.KeywordNameAlias())
-	sm := rs.MergeKeys(rule)
+	keys := append(rule.TagsAlias(), rule.FixedKeysAlias()...)
+	keys = append(keys, rule.KeywordNameAlias())
+
+	sm := rs.MergeKeysToWhole(rule)
 
 	return pluckFromSliceMap(sm, keys)
 }
@@ -107,13 +103,13 @@ func (rs Results) ToFlag(rule means.Ruler) []map[string]any {
 	return sm
 }
 
-func (rs Results) MergeKeys(rule means.Ruler) []map[string]any {
+func (rs Results) MergeKeysToWhole(rule means.Ruler) []map[string]any {
 	keyNum := 0
 	keyAmount := 0
 	tagsValues := make(map[string][]string)
 	for _, _r := range rs {
-		for _, _ta := range rule.TagsAlias() {
-			tagsValues[_ta] = append(tagsValues[_ta], _r.Tags[_ta])
+		for _ta, _tv := range _r.Tags {
+			tagsValues[_ta] = append(tagsValues[_ta], _tv)
 		}
 
 		keyNum += 1
@@ -129,8 +125,6 @@ func (rs Results) MergeKeys(rule means.Ruler) []map[string]any {
 	m[rule.KeywordNumNameAlias()] = keyNum
 	m[rule.KeywordAmountNameAlias()] = keyAmount
 
-	m = attachFixesValues(rule, m)
-
 	return []map[string]any{m}
 }
 
@@ -142,6 +136,7 @@ type LabelResult struct {
 	Tags     map[string]string         // tags map[tag name]tag
 	Match    map[string]map[string]int // keyword and match text map[keyword]map[matched text]num
 	Keys     []string                  // []keyword
+	TagsName []string                  // tags name
 }
 
 func NewLabelResult() LabelResult {
@@ -177,7 +172,7 @@ func (lr *LabelResult) ToTag(rule means.Ruler) map[string]any {
 	m[rule.KeywordNumNameAlias()] = keyNum
 	m[rule.KeywordAmountNameAlias()] = keyAmount
 
-	return attachFixesValues(rule, m)
+	return m
 }
 
 // LabelResults
@@ -197,7 +192,8 @@ func (lrs LabelResults) Swap(i, j int) {
 }
 
 func (lrs LabelResults) ToTags(rule means.Ruler) []map[string]any {
-	keys := append(rule.Tags(), rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
+	keys := append(rule.TagsAlias(), rule.FixedKeysAlias()...)
+	keys = append(keys, rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
 
 	items := make([]map[string]any, 0, lrs.Len())
 	for _, _r := range lrs {
@@ -208,8 +204,10 @@ func (lrs LabelResults) ToTags(rule means.Ruler) []map[string]any {
 }
 
 func (lrs LabelResults) ToLine(rule means.Ruler) []map[string]any {
-	keys := append(rule.TagsAlias(), rule.KeywordNameAlias())
-	m := lrs.MergeLabels(rule)
+	keys := append(rule.TagsAlias(), rule.FixedKeysAlias()...)
+	keys = append(keys, rule.KeywordNameAlias())
+
+	m := lrs.MergeLabelsToWhole(rule)
 
 	return []map[string]any{pluckFromMap(m, keys)}
 }
@@ -221,7 +219,7 @@ func (lrs LabelResults) ToFlag(rule means.Ruler) []map[string]any {
 	return sm
 }
 
-func (lrs LabelResults) MergeLabels(rule means.Ruler) map[string]any {
+func (lrs LabelResults) MergeLabelsToWhole(rule means.Ruler) map[string]any {
 	sort.SliceStable(lrs, func(i, j int) bool {
 		return lrs[i].Identity < lrs[j].Identity
 	})
@@ -234,8 +232,8 @@ func (lrs LabelResults) MergeLabels(rule means.Ruler) map[string]any {
 	tagsValues := make(map[string][]string)
 
 	for _, _lr := range lrs {
-		for _, _ta := range rule.TagsAlias() {
-			tagsValues[_ta] = append(tagsValues[_ta], _lr.Tags[_ta])
+		for _ta, _tv := range _lr.Tags {
+			tagsValues[_ta] = append(tagsValues[_ta], _tv)
 		}
 
 		var keysValue []string
@@ -265,5 +263,5 @@ func (lrs LabelResults) MergeLabels(rule means.Ruler) map[string]any {
 	m[rule.KeywordNumNameAlias()] = keywordNum
 	m[rule.KeywordAmountNameAlias()] = keywordAmount
 
-	return attachFixesValues(rule, m)
+	return m
 }

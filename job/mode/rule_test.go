@@ -104,11 +104,11 @@ func (r *ruleTest) TagsAlias() []string {
 	return append([]string{r.NameAlias()}, r.LabelsAlias()...)
 }
 
-func (r *ruleTest) Fixed() map[string]any {
+func (r *ruleTest) Fixed() map[string]string {
 	return nil
 }
 
-func (r *ruleTest) FixedAlias() map[string]any {
+func (r *ruleTest) FixedAlias() map[string]string {
 	return nil
 }
 

@@ -2,6 +2,7 @@ package tag
 
 import (
 	"fmt"
+	"maps"
 	"regexp"
 	"sort"
 	"strings"
@@ -47,8 +48,9 @@ func DefaultMatcher() *Matcher {
 // label：label
 // tag：name +label
 type Matcher struct {
+	fixed         map[string]string
 	keyFormatFunc []MatcherKeyFormatFunc       // 在匹配前格式化关键词（使匹配更精确、丰富）
-	regexpItems   map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名称][标签]
+	regexpItems   map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名][标签值]
 	regexp        *regexp.Regexp               // 所有关键词的 regexp
 	regexpString  string                       // regular expression "(<?P<group name of keyword>...)"
 
@@ -75,13 +77,13 @@ func NewMatcher(Options ...MatcherOption) *Matcher {
 // prepare
 // keyName keyword
 // items map[keyword, tags]
-func (m *Matcher) prepare(keyName string, items []map[string]string) {
+func (m *Matcher) prepare(keyName string, items []map[string]string, fixed map[string]string) {
 	if len(items) <= 0 {
 		return
 	}
 
 	m.hasItems = true
-
+	m.fixed = fixed
 	m.regexpItems = make(map[string]map[string]string, len(items))
 
 	for k := range items[0] {
@@ -273,7 +275,8 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 		} else {
 			result := NewLabelResult()
 			result.Identity = tagsIdentity
-			result.Tags = tags
+			maps.Copy(result.Tags, tags)
+			maps.Copy(result.Tags, m.fixed)
 			result.Match[key] = map[string]int{text: 1}
 			result.Keys = append(result.Keys, key)
 			result.Amount += 1
@@ -326,14 +329,15 @@ func (m *Matcher) matchToResults(match []string, isKeyMerge bool) Results {
 }
 
 func (m *Matcher) matchToResult(match []string, isKeyMerge bool) Result {
-	mRes := NewResult()
-	mRes.Keyword = match[0]
-	mRes.Texts[match[1]] = 1
-	mRes.Amount = 1
-	mRes.Tags = m.regexpItems[mRes.Keyword]
-	mRes.IsKeyMerge = isKeyMerge
+	r := NewResult()
+	r.Keyword = match[0]
+	r.Texts[match[1]] = 1
+	r.Amount = 1
+	maps.Copy(r.Tags, m.regexpItems[r.Keyword])
+	maps.Copy(r.Tags, m.fixed)
+	r.IsKeyMerge = isKeyMerge
 
-	return mRes
+	return r
 }
 
 // findAllMatch

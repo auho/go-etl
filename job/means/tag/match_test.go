@@ -33,7 +33,7 @@ func TestMatcher(t *testing.T) {
 		}
 	}))
 
-	m.prepare("a", items)
+	m.prepare("a", items, nil)
 
 	amount := 0
 	var results Results

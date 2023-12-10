@@ -38,7 +38,7 @@ func (m *Means) Prepare() error {
 		return fmt.Errorf("ItemsForRegexp error; %w", err)
 	}
 
-	m.matcher.prepare(m.rule.KeywordNameAlias(), items)
+	m.matcher.prepare(m.rule.KeywordNameAlias(), items, m.rule.FixedAlias())
 
 	m.keys = m.rule.MeansKeys()
 	m.defaultValues = m.rule.MeansDefaultValues()
@@ -84,24 +84,11 @@ func NewWholeLabels(rule means.Ruler) *Means {
 			return nil
 		}
 
-		_m := pluckFromMap(rs.MergeLabels(rule),
+		_m := pluckFromMap(rs.MergeLabelsToWhole(rule),
 			append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.LabelNumNameAlias(), rule.KeywordAmountNameAlias()),
 		)
-		_m = rs.MergeLabels(rule)
+		_m = rs.MergeLabelsToWhole(rule)
 		return []map[string]any{_m}
-	})
-}
-
-// NewKey
-// keyword
-func NewKey(rule means.Ruler) *Means {
-	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
-		rs := m.MatchKey(c)
-		if rs == nil {
-			return nil
-		}
-
-		return rs.ToTags(rule)
 	})
 }
 
@@ -118,11 +105,11 @@ func NewLabel(rule means.Ruler) *Means {
 	})
 }
 
-// NewMostText
-// most text
-func NewMostText(rule means.Ruler) *Means {
+// NewKey
+// keyword
+func NewKey(rule means.Ruler) *Means {
 	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
-		rs := m.MatchMostText(c)
+		rs := m.MatchKey(c)
 		if rs == nil {
 			return nil
 		}
@@ -136,6 +123,19 @@ func NewMostText(rule means.Ruler) *Means {
 func NewMostKey(rule means.Ruler) *Means {
 	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
 		rs := m.MatchMostKey(c)
+		if rs == nil {
+			return nil
+		}
+
+		return rs.ToTags(rule)
+	})
+}
+
+// NewMostText
+// most text
+func NewMostText(rule means.Ruler) *Means {
+	return NewMeans(rule, func(rule means.Ruler, m *Matcher, c []string) []map[string]any {
+		rs := m.MatchMostText(c)
 		if rs == nil {
 			return nil
 		}

@@ -25,7 +25,7 @@ func (r *ruleTest) MeansKeys() []string {
 	keys = []string{
 		r.NameAlias(),
 		r.KeywordNameAlias(),
-		r.KeywordNumNameAlias(),
+		r.KeywordAmountNameAlias(),
 	}
 	keys = append(keys, r.LabelsAlias()...)
 	keys = append(keys, r.FixedKeysAlias()...)
@@ -35,9 +35,9 @@ func (r *ruleTest) MeansKeys() []string {
 
 func (r *ruleTest) MeansDefaultValues() map[string]any {
 	defaultValues := map[string]any{
-		r.NameAlias():           "",
-		r.KeywordNameAlias():    "",
-		r.KeywordNumNameAlias(): 0,
+		r.NameAlias():              "",
+		r.KeywordNameAlias():       "",
+		r.KeywordAmountNameAlias(): 0,
 	}
 
 	for _, _la := range r.LabelsAlias() {
@@ -103,11 +103,11 @@ func (r *ruleTest) TagsAlias() []string {
 	return append([]string{r.NameAlias()}, r.LabelsAlias()...)
 }
 
-func (r *ruleTest) Fixed() map[string]any {
+func (r *ruleTest) Fixed() map[string]string {
 	return nil
 }
 
-func (r *ruleTest) FixedAlias() map[string]any {
+func (r *ruleTest) FixedAlias() map[string]string {
 	return nil
 }
 
@@ -169,16 +169,23 @@ func (r *ruleAliasFixedTest) LabelsAlias() []string {
 
 	return labels
 }
+func (r *ruleAliasFixedTest) Tags() []string {
+	return append([]string{r.Name()}, r.Labels()...)
+}
 
-func (r *ruleAliasFixedTest) Fixed() map[string]any {
-	return map[string]any{
+func (r *ruleAliasFixedTest) TagsAlias() []string {
+	return append([]string{r.NameAlias()}, r.LabelsAlias()...)
+}
+
+func (r *ruleAliasFixedTest) Fixed() map[string]string {
+	return map[string]string{
 		"c": "c_fixed",
 		"d": "d_fixed",
 	}
 }
 
-func (r *ruleAliasFixedTest) FixedAlias() map[string]any {
-	return map[string]any{
+func (r *ruleAliasFixedTest) FixedAlias() map[string]string {
+	return map[string]string{
 		"c_alias": "c_fixed",
 		"d_alias": "d_fixed",
 	}
@@ -217,7 +224,7 @@ func (r *ruleAliasFixedTest) MeansKeys() []string {
 	keys = []string{
 		r.NameAlias(),
 		r.KeywordNameAlias(),
-		r.KeywordNumNameAlias(),
+		r.KeywordAmountNameAlias(),
 	}
 	keys = append(keys, r.LabelsAlias()...)
 	keys = append(keys, r.FixedKeysAlias()...)
@@ -227,9 +234,9 @@ func (r *ruleAliasFixedTest) MeansKeys() []string {
 
 func (r *ruleAliasFixedTest) MeansDefaultValues() map[string]any {
 	defaultValues := map[string]any{
-		r.NameAlias():           "",
-		r.KeywordNameAlias():    "",
-		r.KeywordNumNameAlias(): 0,
+		r.NameAlias():              "",
+		r.KeywordNameAlias():       "",
+		r.KeywordAmountNameAlias(): 0,
 	}
 
 	for _, _la := range r.LabelsAlias() {

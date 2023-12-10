@@ -16,58 +16,50 @@ var _ means.Ruler = (*RuleItems)(nil)
 // rule items config
 type RuleItemsConfig struct {
 	Alias             map[string]string   // map[data name]output name
-	Fixed             map[string]any      // map[key]value
+	Fixed             map[string]string   // map[key]value
 	KeywordFormatFunc func(string) string // []func(data keyword value)regexp keyword value
 }
 
 func WithRuleItemsConfig(config RuleItemsConfig) func(*RuleItems) {
 	return func(ri *RuleItems) {
 		ri.alias = config.Alias
-		ri.fixed = config.Fixed
+		ri.fixedValues = config.Fixed
 		ri.keywordFormatFunc = config.KeywordFormatFunc
 	}
 }
 
 // RuleItems
 // alias: [data name] => [output name]
-// fixed: [key] => [value]
+// fixedValues: [key] => [value]
 // keywordFormatFunc: [data keyword value] => [regexp keyword value]
 type RuleItems struct {
 	rule              Ruler
 	alias             map[string]string
-	fixed             map[string]any
 	keywordFormatFunc func(string) string
-}
 
-func (ri *RuleItems) MeansKeys() []string {
-	var keys []string
-	keys = []string{
-		ri.NameAlias(),
-		ri.KeywordNameAlias(),
-		ri.KeywordNumNameAlias(),
-	}
-	keys = append(keys, ri.LabelsAlias()...)
-	keys = append(keys, ri.FixedKeysAlias()...)
+	tableName string
+	name      string
+	nameAlias string
 
-	return keys
-}
+	tags             []string
+	labels           []string
+	tagsAlias        []string
+	labelsAlias      []string
+	fixedKeys        []string
+	fixedKeysAlias   []string
+	fixedValues      map[string]string
+	fixedValuesAlias map[string]string
 
-func (ri *RuleItems) MeansDefaultValues() map[string]any {
-	defaultValues := map[string]any{
-		ri.NameAlias():           "",
-		ri.KeywordNameAlias():    "",
-		ri.KeywordNumNameAlias(): 0,
-	}
-
-	for _, _la := range ri.LabelsAlias() {
-		defaultValues[_la] = ""
-	}
-
-	for _, _fka := range ri.FixedKeysAlias() {
-		defaultValues[_fka] = ""
-	}
-
-	return defaultValues
+	labelNumName           string
+	labelNumNameAlias      string
+	keywordName            string
+	keywordNameAlias       string
+	keywordLenName         string
+	keywordLenNameAlias    string
+	keywordNumName         string
+	keywordNumNameAlias    string
+	keywordAmountName      string
+	keywordAmountNameAlias string
 }
 
 func NewRuleItems(rule Ruler, opts ...func(items *RuleItems)) *RuleItems {
@@ -84,7 +76,91 @@ func NewRuleItems(rule Ruler, opts ...func(items *RuleItems)) *RuleItems {
 		}
 	}
 
+	ri.initName()
+	ri.initLabels()
+	ri.initTags()
+
 	return ri
+}
+
+func (ri *RuleItems) initName() {
+	ri.tableName = ri.rule.TableName()
+	ri.name = ri.rule.GetName()
+	ri.nameAlias = ri.genAlias(ri.name)
+
+	ri.labelNumName = ri.rule.LabelNumName()
+	ri.labelNumNameAlias = ri.genAlias(ri.labelNumName)
+
+	ri.keywordName = ri.rule.KeywordName()
+	ri.keywordNameAlias = ri.genAlias(ri.keywordName)
+	ri.keywordLenName = ri.rule.KeywordLenName()
+	ri.keywordLenNameAlias = ri.genAlias(ri.keywordLenName)
+	ri.keywordNumName = ri.rule.KeywordNumName()
+	ri.keywordNumNameAlias = ri.genAlias(ri.keywordNumName)
+	ri.keywordAmountName = ri.rule.KeywordAmountName()
+	ri.keywordAmountNameAlias = ri.genAlias(ri.keywordAmountName)
+}
+
+func (ri *RuleItems) initLabels() {
+	var labels []string
+	for label := range ri.rule.GetLabels() {
+		labels = append(labels, label)
+	}
+
+	sort.Slice(labels, func(i, j int) bool {
+		return labels[i] < labels[j]
+	})
+
+	ri.labels = labels
+
+	var labelsAlias []string
+	for _, label := range ri.labels {
+		labelAlias, _ := ri.getAlias(label)
+
+		labelsAlias = append(labelsAlias, labelAlias)
+	}
+
+	ri.labelsAlias = labelsAlias
+}
+
+func (ri *RuleItems) initFixed() {
+	var keys []string
+	for k := range ri.fixedValues {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
+
+	ri.fixedKeys = keys
+
+	var keysAlias []string
+	for _, k := range ri.fixedKeys {
+		keysAlias = append(keysAlias, k)
+	}
+
+	ri.fixedKeysAlias = keysAlias
+
+	fixedValues := maps.Clone(ri.fixedValues)
+	for k, v := range fixedValues {
+		if nk, ok := ri.getAlias(k); ok {
+			fixedValues[nk] = v
+			delete(fixedValues, k)
+		}
+	}
+
+	ri.fixedValuesAlias = fixedValues
+}
+
+func (ri *RuleItems) initTags() {
+	ri.tags = []string{ri.name}
+	ri.tags = append(ri.tags, ri.labels...)
+	ri.tags = append(ri.tags, ri.fixedKeys...)
+
+	ri.tagsAlias = []string{ri.nameAlias}
+	ri.tagsAlias = append(ri.tagsAlias, ri.labelsAlias...)
+	ri.tagsAlias = append(ri.tagsAlias, ri.fixedKeysAlias...)
 }
 
 func (ri *RuleItems) getAlias(s string) (string, bool) {
@@ -93,6 +169,43 @@ func (ri *RuleItems) getAlias(s string) (string, bool) {
 	} else {
 		return s, ok
 	}
+}
+
+func (ri *RuleItems) genAlias(s string) string {
+	ns, _ := ri.getAlias(s)
+
+	return ns
+}
+
+func (ri *RuleItems) MeansKeys() []string {
+	var keys []string
+	keys = []string{
+		ri.NameAlias(),
+		ri.KeywordNameAlias(),
+		ri.KeywordAmountNameAlias(),
+	}
+	keys = append(keys, ri.LabelsAlias()...)
+	keys = append(keys, ri.FixedKeysAlias()...)
+
+	return keys
+}
+
+func (ri *RuleItems) MeansDefaultValues() map[string]any {
+	defaultValues := map[string]any{
+		ri.NameAlias():              "",
+		ri.KeywordNameAlias():       "",
+		ri.KeywordAmountNameAlias(): 0,
+	}
+
+	for _, _la := range ri.LabelsAlias() {
+		defaultValues[_la] = ""
+	}
+
+	for _, _fka := range ri.FixedKeysAlias() {
+		defaultValues[_fka] = ""
+	}
+
+	return defaultValues
 }
 
 func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
@@ -157,139 +270,85 @@ func (ri *RuleItems) ItemsForRegexp() ([]map[string]string, error) {
 }
 
 func (ri *RuleItems) Name() string {
-	return ri.rule.GetName()
+	return ri.name
 }
 
 func (ri *RuleItems) NameAlias() string {
-	s, _ := ri.getAlias(ri.Name())
-	return s
+	return ri.nameAlias
 }
 
 func (ri *RuleItems) TableName() string {
-	return ri.rule.TableName()
+	return ri.tableName
 }
 
 func (ri *RuleItems) Labels() []string {
-	var labels []string
-	for label, _ := range ri.rule.GetLabels() {
-		labels = append(labels, label)
-	}
-
-	sort.Slice(labels, func(i, j int) bool {
-		return labels[i] < labels[j]
-	})
-
-	return labels
+	return ri.labels
 }
 
 func (ri *RuleItems) LabelsAlias() []string {
-	var labels []string
-	for _, label := range ri.Labels() {
-		label, _ = ri.getAlias(label)
-
-		labels = append(labels, label)
-	}
-
-	return labels
+	return ri.labelsAlias
 }
 
 func (ri *RuleItems) Tags() []string {
-	return append([]string{ri.Name()}, ri.Labels()...)
+	return ri.tags
 }
 
 func (ri *RuleItems) TagsAlias() []string {
-	return append([]string{ri.NameAlias()}, ri.LabelsAlias()...)
+	return ri.tagsAlias
 }
 
 func (ri *RuleItems) LabelNumName() string {
-	return ri.rule.LabelNumName()
+	return ri.labelNumName
 }
 
 func (ri *RuleItems) LabelNumNameAlias() string {
-	s, _ := ri.getAlias(ri.LabelNumName())
-
-	return s
+	return ri.labelNumNameAlias
 }
 
 func (ri *RuleItems) KeywordName() string {
-	return ri.rule.KeywordName()
+	return ri.keywordName
 }
 
 func (ri *RuleItems) KeywordNameAlias() string {
-	s, _ := ri.getAlias(ri.KeywordName())
-
-	return s
+	return ri.keywordNameAlias
 }
 
 func (ri *RuleItems) KeywordLenName() string {
-	return ri.rule.KeywordLenName()
+	return ri.keywordLenName
 }
 
 func (ri *RuleItems) KeywordLenNameAlias() string {
-	s, _ := ri.getAlias(ri.KeywordLenName())
-
-	return s
+	return ri.keywordLenNameAlias
 }
 
 func (ri *RuleItems) KeywordNumName() string {
-	return ri.rule.KeywordNumName()
+	return ri.keywordNumName
 }
 
 func (ri *RuleItems) KeywordNumNameAlias() string {
-	s, _ := ri.getAlias(ri.KeywordNumName())
-
-	return s
+	return ri.keywordNumNameAlias
 }
 
 func (ri *RuleItems) KeywordAmountName() string {
-	return ri.rule.KeywordAmountName()
+	return ri.keywordAmountName
 }
 
 func (ri *RuleItems) KeywordAmountNameAlias() string {
-	s, _ := ri.getAlias(ri.KeywordAmountName())
-
-	return s
+	return ri.keywordAmountNameAlias
 }
 
-func (ri *RuleItems) Fixed() map[string]any {
-	return ri.fixed
+func (ri *RuleItems) Fixed() map[string]string {
+	return ri.fixedValues
 }
 
-func (ri *RuleItems) FixedAlias() map[string]any {
-	fixed := maps.Clone(ri.Fixed())
-
-	for k, v := range fixed {
-		if nk, ok := ri.getAlias(k); ok {
-			fixed[nk] = v
-			delete(fixed, k)
-		}
-	}
-
-	return fixed
+func (ri *RuleItems) FixedAlias() map[string]string {
+	return ri.fixedValuesAlias
 }
 
 func (ri *RuleItems) FixedKeys() []string {
-	var keys []string
-	for k := range ri.Fixed() {
-		keys = append(keys, k)
-	}
-
-	sort.Slice(keys, func(i, j int) bool {
-		return keys[i] < keys[j]
-	})
-
-	return keys
+	return ri.fixedKeys
 }
 
 func (ri *RuleItems) FixedKeysAlias() []string {
-	var keys []string
-	for k := range ri.FixedAlias() {
-		keys = append(keys, k)
-	}
-
-	sort.Slice(keys, func(i, j int) bool {
-		return keys[i] < keys[j]
-	})
-
-	return keys
+	return ri.fixedKeysAlias
 }
