@@ -5,26 +5,28 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ search.Exporter = (*ExportKeywordTag)(nil)
+var _ search.Exporter = (*ExportKeywordAll)(nil)
 var _ search.Exporter = (*ExportKeywordLine)(nil)
 var _ search.Exporter = (*ExportKeywordFlag)(nil)
 
 type NewExportKeyword func(rs Results, rule means.Ruler) search.Exporter
 
 type ExportKeyword struct {
-	Ok      bool
+	export
 	Results Results
-	Rule    means.Ruler
-
-	defaultValues map[string]any
 }
 
-func (e *ExportKeyword) IsOk() bool {
-	return e.Ok
-}
+func newExportKeyword(rs Results, rule means.Ruler) ExportKeyword {
+	e := ExportKeyword{
+		export: export{
+			Rule: rule,
+		},
+		Results: rs,
+	}
 
-func (e *ExportKeyword) DefaultValues() map[string]any {
-	return e.defaultValues
+	e.init()
+
+	return e
 }
 
 func (e *ExportKeyword) init() {
@@ -34,21 +36,21 @@ func (e *ExportKeyword) init() {
 	}
 }
 
-func (e *ExportKeyword) defaultValuesTagsWithKeywordAndNum() map[string]any {
-	m := e.defaultValuesTagsWithKeyword()
+func (e *ExportKeyword) defaultValuesTagsWithKeywordAndNum() ([]string, map[string]any) {
+	keys, m := e.defaultValuesTagsWithKeyword()
 	m[e.Rule.KeywordNumNameAlias()] = 0
 
-	return m
+	return append(keys, e.Rule.KeywordNumNameAlias()), m
 }
 
-func (e *ExportKeyword) defaultValuesTagsWithKeyword() map[string]any {
-	m := e.defaultValuesTags()
+func (e *ExportKeyword) defaultValuesTagsWithKeyword() ([]string, map[string]any) {
+	keys, m := e.defaultValuesTags()
 	m[e.Rule.KeywordNameAlias()] = ""
 
-	return m
+	return append(keys, e.Rule.KeywordNameAlias()), m
 }
 
-func (e *ExportKeyword) defaultValuesTags() map[string]any {
+func (e *ExportKeyword) defaultValuesTags() ([]string, map[string]any) {
 	m := map[string]any{}
 
 	m[e.Rule.NameAlias()] = ""
@@ -56,30 +58,28 @@ func (e *ExportKeyword) defaultValuesTags() map[string]any {
 		m[_la] = ""
 	}
 
-	return m
+	return append([]string{e.Rule.NameAlias()}, e.Rule.LabelsAlias()...), m
 }
 
-type ExportKeywordTag struct {
+type ExportKeywordAll struct {
 	ExportKeyword
 }
 
-func NewExportKeywordTag(rs Results, rule means.Ruler) search.Exporter {
-	e := &ExportKeywordTag{ExportKeyword{
-		Results: rs,
-		Rule:    rule,
-	}}
+func NewExportKeywordAll(rs Results, rule means.Ruler) search.Exporter {
+	e := &ExportKeywordAll{
+		ExportKeyword: newExportKeyword(rs, rule),
+	}
 
-	e.init()
 	e.initial()
 
 	return e
 }
 
-func (e *ExportKeywordTag) initial() {
-	e.defaultValues = e.defaultValuesTagsWithKeywordAndNum()
+func (e *ExportKeywordAll) initial() {
+	e.keys, e.defaultValues = e.defaultValuesTagsWithKeywordAndNum()
 }
 
-func (e *ExportKeywordTag) ToTokenize() []map[string]any {
+func (e *ExportKeywordAll) ToTokenize() []map[string]any {
 	return e.Results.ToTags(e.Rule)
 }
 
@@ -88,19 +88,17 @@ type ExportKeywordLine struct {
 }
 
 func NewExportKeywordLine(rs Results, rule means.Ruler) search.Exporter {
-	e := &ExportKeywordLine{ExportKeyword{
-		Results: rs,
-		Rule:    rule,
-	}}
+	e := &ExportKeywordLine{
+		ExportKeyword: newExportKeyword(rs, rule),
+	}
 
-	e.init()
 	e.initial()
 
 	return e
 }
 
 func (e *ExportKeywordLine) initial() {
-	e.defaultValues = e.defaultValuesTagsWithKeyword()
+	e.keys, e.defaultValues = e.defaultValuesTagsWithKeyword()
 }
 
 func (e *ExportKeywordLine) ToTokenize() []map[string]any {
@@ -112,19 +110,17 @@ type ExportKeywordFlag struct {
 }
 
 func NewExportKeywordFlag(rs Results, rule means.Ruler) search.Exporter {
-	e := &ExportKeywordFlag{ExportKeyword{
-		Results: rs,
-		Rule:    rule,
-	}}
+	e := &ExportKeywordFlag{
+		ExportKeyword: newExportKeyword(rs, rule),
+	}
 
-	e.init()
 	e.initial()
 
 	return e
 }
 
 func (e *ExportKeywordFlag) initial() {
-	e.defaultValues = e.defaultValuesTagsWithKeyword()
+	e.keys, e.defaultValues = e.defaultValuesTagsWithKeyword()
 }
 
 func (e *ExportKeywordFlag) ToTokenize() []map[string]any {

@@ -5,29 +5,32 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-//type NewExporterLabelResult func(rs LabelResults, rule means.Ruler) *ExportLabelResult // TODO
-// TODO WIP this file
+// all
+// line
+// flag
 
-var _ search.Exporter = (*ExportLabelTag)(nil)
+var _ search.Exporter = (*ExportLabelAll)(nil)
 var _ search.Exporter = (*ExportLabelLine)(nil)
 var _ search.Exporter = (*ExportLabelFlag)(nil)
 
-type NewExportLabel func(rs Results, rule means.Ruler) *ExportLabel
+type NewExportLabel func(rs LabelResults, rule means.Ruler) *ExportLabel
 
 type ExportLabel struct {
-	Ok      bool
-	Results Results
-	Rule    means.Ruler
-
-	defaultValues map[string]any
+	export
+	Results LabelResults
 }
 
-func (e *ExportLabel) IsOk() bool {
-	return e.Ok
-}
+func newExportLabel(rs LabelResults, rule means.Ruler) ExportLabel {
+	e := ExportLabel{
+		export: export{
+			Rule: rule,
+		},
+		Results: rs,
+	}
 
-func (e *ExportLabel) DefaultValues() map[string]any {
-	return e.defaultValues
+	e.init()
+
+	return e
 }
 
 func (e *ExportLabel) init() {
@@ -37,21 +40,21 @@ func (e *ExportLabel) init() {
 	}
 }
 
-func (e *ExportLabel) defaultValuesTagsWithKeywordAndNum() map[string]any {
-	m := e.defaultValuesTagsWithKeyword()
-	m[e.Rule.KeywordNumNameAlias()] = 0
+func (e *ExportLabel) defaultValuesTagsWithKeywordAndLabelNum() ([]string, map[string]any) {
+	keys, m := e.defaultValuesTagsWithKeyword()
+	m[e.Rule.LabelNumNameAlias()] = 0
 
-	return m
+	return append(keys, e.Rule.LabelNumNameAlias()), m
 }
 
-func (e *ExportLabel) defaultValuesTagsWithKeyword() map[string]any {
-	m := e.defaultValuesTags()
+func (e *ExportLabel) defaultValuesTagsWithKeyword() ([]string, map[string]any) {
+	keys, m := e.defaultValuesTags()
 	m[e.Rule.KeywordNameAlias()] = ""
 
-	return m
+	return append(keys, e.Rule.KeywordNameAlias()), m
 }
 
-func (e *ExportLabel) defaultValuesTags() map[string]any {
+func (e *ExportLabel) defaultValuesTags() ([]string, map[string]any) {
 	m := map[string]any{}
 
 	m[e.Rule.NameAlias()] = ""
@@ -59,30 +62,24 @@ func (e *ExportLabel) defaultValuesTags() map[string]any {
 		m[_la] = ""
 	}
 
-	return m
+	return append([]string{e.Rule.NameAlias()}, e.Rule.LabelsAlias()...), m
 }
 
-type ExportLabelTag struct {
+type ExportLabelAll struct {
 	ExportLabel
 }
 
-func NewExportLabelTag(rs Results, rule means.Ruler) *ExportLabelTag {
-	e := &ExportLabelTag{ExportLabel{
-		Results: rs,
-		Rule:    rule,
-	}}
+func NewExportLabelAll(rs LabelResults, rule means.Ruler) *ExportLabelAll {
+	e := &ExportLabelAll{
+		ExportLabel: newExportLabel(rs, rule),
+	}
 
-	e.init()
-	e.initial()
+	e.keys, e.defaultValues = e.defaultValuesTagsWithKeywordAndLabelNum()
 
 	return e
 }
 
-func (e *ExportLabelTag) initial() {
-	e.defaultValues = e.defaultValuesTagsWithKeywordAndNum()
-}
-
-func (e *ExportLabelTag) ToTokenize() []map[string]any {
+func (e *ExportLabelAll) ToTokenize() []map[string]any {
 	return e.Results.ToTags(e.Rule)
 }
 
@@ -90,20 +87,14 @@ type ExportLabelLine struct {
 	ExportLabel
 }
 
-func NewExportLabelLine(rs Results, rule means.Ruler) *ExportLabelLine {
-	e := &ExportLabelLine{ExportLabel{
-		Results: rs,
-		Rule:    rule,
-	}}
+func NewExportLabelLine(rs LabelResults, rule means.Ruler) *ExportLabelLine {
+	e := &ExportLabelLine{
+		ExportLabel: newExportLabel(rs, rule),
+	}
 
-	e.init()
-	e.initial()
+	e.keys, e.defaultValues = e.defaultValuesTagsWithKeyword()
 
 	return e
-}
-
-func (e *ExportLabelLine) initial() {
-	e.defaultValues = e.defaultValuesTagsWithKeyword()
 }
 
 func (e *ExportLabelLine) ToTokenize() []map[string]any {
@@ -114,20 +105,14 @@ type ExportLabelFlag struct {
 	ExportLabel
 }
 
-func NewExportLabelFlag(rs Results, rule means.Ruler) *ExportLabelFlag {
-	e := &ExportLabelFlag{ExportLabel{
-		Results: rs,
-		Rule:    rule,
-	}}
+func NewExportLabelFlag(rs LabelResults, rule means.Ruler) *ExportLabelFlag {
+	e := &ExportLabelFlag{
+		ExportLabel: newExportLabel(rs, rule),
+	}
 
-	e.init()
-	e.initial()
+	e.keys, e.defaultValues = e.defaultValuesTagsWithKeyword()
 
 	return e
-}
-
-func (e *ExportLabelFlag) initial() {
-	e.defaultValues = e.defaultValuesTagsWithKeyword()
 }
 
 func (e *ExportLabelFlag) ToTokenize() []map[string]any {

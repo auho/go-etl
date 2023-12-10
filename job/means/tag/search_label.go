@@ -5,9 +5,21 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
+var _ search.Searcher = (*SearchLabel)(nil)
+
 type SearchLabel struct {
 	rule      means.Ruler
 	newExport NewExportLabel
+}
+
+func (s *SearchLabel) Prepare() error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *SearchLabel) Close() error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (s *SearchLabel) GetTitle() string {
@@ -15,7 +27,7 @@ func (s *SearchLabel) GetTitle() string {
 	panic("implement me")
 }
 
-func (s *SearchLabel) GetExport() search.Exporter {
+func (s *SearchLabel) GenExport() search.Exporter {
 	//TODO implement me
 	panic("implement me")
 }

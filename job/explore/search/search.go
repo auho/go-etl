@@ -1,7 +1,9 @@
 package search
 
 type Searcher interface {
+	Prepare() error
 	GetTitle() string
-	GetExport() Exporter
+	GenExport() Exporter
 	Do(s []string) Exporter
+	Close() error
 }
