@@ -247,7 +247,7 @@ func (lrs LabelResults) MergeLabels(rule means.Ruler) map[string]any {
 
 			keywordNum += 1
 			keywordAmount += _keyAmount
-			keysValue = append(keysValue, fmt.Sprintf("%s %d", _key, _keyAmount))
+			keysValue = append(keysValue, _key)
 		}
 
 		tagsValues[rule.KeywordNameAlias()] = append(tagsValues[rule.KeywordNameAlias()], strings.Join(keysValue, ","))

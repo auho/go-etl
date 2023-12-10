@@ -2,7 +2,6 @@ package tag
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/auho/go-etl/v2/job/means"
@@ -85,37 +84,11 @@ func NewWholeLabels(rule means.Ruler) *Means {
 			return nil
 		}
 
-		sort.SliceStable(rs, func(i, j int) bool {
-			return rs[i].Identity < rs[j].Identity
-		})
-
-		_rts := make(map[string][]string)
-		_labelAmount := 0
-		_keywordAmount := 0
-
-		for _, _r := range rs {
-			for _labelKey, _labelValue := range _r.Tags {
-				_rts[_labelKey] = append(_rts[_labelKey], _labelValue)
-			}
-
-			for _, _key := range _r.Keys {
-				_rts[rule.KeywordNameAlias()] = append(_rts[rule.KeywordNameAlias()], _key)
-
-				_keywordAmount += 1
-			}
-
-			_labelAmount += 1
-		}
-
-		_rt := make(map[string]any)
-		for _rk, _rv := range _rts {
-			_rt[_rk] = strings.Join(_rv, "|")
-		}
-
-		_rt[rule.LabelNumNameAlias()] = _labelAmount
-		_rt[rule.KeywordNumNameAlias()] = _keywordAmount
-
-		return []map[string]any{_rt}
+		_m := pluckFromMap(rs.MergeLabels(rule),
+			append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.LabelNumNameAlias(), rule.KeywordAmountNameAlias()),
+		)
+		_m = rs.MergeLabels(rule)
+		return []map[string]any{_m}
 	})
 }
 

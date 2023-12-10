@@ -35,6 +35,7 @@ func TestMatcher(t *testing.T) {
 
 	m.prepare("a", items)
 
+	amount := 0
 	var results Results
 	var tagResults LabelResults
 
@@ -98,6 +99,14 @@ func TestMatcher(t *testing.T) {
 		t.Fatal("MatchMostKey")
 	}
 
+	amount = 0
+	for _, _ts := range results[0].Texts {
+		amount += _ts
+	}
+	if amount != results[0].Amount {
+		t.Fatal("amount")
+	}
+
 	fmt.Println("\n MatchMostText")
 	results = m.MatchMostText(_contents)
 	for _, result := range results {
@@ -126,5 +135,16 @@ func TestMatcher(t *testing.T) {
 
 	if len(tagResults) != 1 || tagResults[0].Amount != 17 || tagResults[0].Identity != "-b3-c3" {
 		t.Fatal("MatchLabelMostText")
+	}
+
+	amount = 0
+	for _, _mm := range tagResults[0].Match {
+		for _, _m := range _mm {
+			amount += _m
+		}
+	}
+
+	if amount != tagResults[0].Amount {
+		t.Fatal("amount")
 	}
 }

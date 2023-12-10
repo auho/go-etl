@@ -123,6 +123,7 @@ func (r *ruleTest) Items() ([]map[string]string, error) {
 	return []map[string]string{
 		{"a": "a", "ab": "a1", "a_keyword": "a"},
 		{"a": "a", "ab": "a1", "a_keyword": "b"},
+		{"a": "e", "ab": "e1", "a_keyword": "e"},
 		{"a": "ab", "ab": "ab1", "a_keyword": "ab"},
 		{"a": "123", "ab": "123", "a_keyword": "123"},
 		{"a": "中文", "ab": "中文1", "a_keyword": "中文"},

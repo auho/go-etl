@@ -27,10 +27,28 @@ func TestWholeLabels(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	fmt.Println(resSlice)
-	if len(resSlice) != 1 || resSlice[0]["a"] != "123|a|ab|中1文|中文" ||
-		resSlice[0]["a_keyword_num"] != 5 || resSlice[0]["a_label_num"] != 5 {
+	_printResult(resSlice)
+	if len(resSlice) != 1 {
 		t.Fatal()
+	}
+
+	if resSlice[0]["a"] != "123|a|ab|中1文|中文" || resSlice[0]["a_label_num"] != 5 ||
+		resSlice[0]["a_keyword_num"] != 6 || resSlice[0]["a_keyword_amount"] != 33 {
+		t.Fatal(0)
+	}
+
+	if resSlice[0]["a_label_num"] != len(strings.Split(resSlice[0]["a"].(string), "|")) {
+		t.Fatal("label num")
+	}
+
+	amount := 0
+	keyword := resSlice[0]["a_keyword"].(string)
+	for _, _s := range strings.Split(keyword, "|") {
+		amount += len(strings.Split(_s, ","))
+	}
+
+	if resSlice[0]["a_keyword_num"] != amount {
+		t.Fatal("keyword num")
 	}
 }
 
@@ -42,11 +60,35 @@ func TestKey(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	fmt.Println(resSlice)
-	if len(resSlice) != 5 {
-		t.Fatal("error")
+	_printResult(resSlice)
+	if len(resSlice) != 6 {
+		t.Fatal()
 	}
 
+	if resSlice[0]["a"] != "a" || resSlice[0]["a_keyword"] != "b" || resSlice[0]["a_keyword_amount"] != 3 {
+		t.Fatal(0)
+	}
+
+	if resSlice[2]["a"] != "123" || resSlice[2]["a_keyword"] != "123" || resSlice[2]["a_keyword_amount"] != 7 {
+		t.Fatal(2)
+	}
+
+	if resSlice[3]["a"] != "a" || resSlice[3]["a_keyword"] != "a" || resSlice[3]["a_keyword_amount"] != 1 {
+		t.Fatal(3)
+	}
+
+	if resSlice[5]["a"] != "中1文" || resSlice[5]["a_keyword"] != "中_文" || resSlice[5]["a_keyword_amount"] != 17 {
+		t.Fatal(5)
+	}
+
+	_amount := 0
+	for _, _m := range resSlice {
+		_amount += _m["a_keyword_amount"].(int)
+	}
+
+	if _amount != 33 {
+		t.Fatal("amount")
+	}
 }
 
 func TestLabel(t *testing.T) {
@@ -57,12 +99,10 @@ func TestLabel(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	fmt.Println(resSlice)
-
+	_printResult(resSlice)
 	if len(resSlice) != 5 {
 		t.Fatal("error")
 	}
-
 }
 
 func TestMostKey(t *testing.T) {
@@ -73,7 +113,7 @@ func TestMostKey(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	fmt.Println(resSlice)
+	_printResult(resSlice)
 	if len(resSlice) != 1 {
 		t.Fatal("error")
 	}
@@ -111,7 +151,7 @@ func TestMostText(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	fmt.Println(resSlice)
+	_printResult(resSlice)
 	if len(resSlice) != 1 {
 		t.Error("error")
 	}
@@ -148,12 +188,18 @@ func TestFirst(t *testing.T) {
 	}
 
 	resSlice := tm.Insert(_contents)
-	fmt.Println(resSlice)
+	_printResult(resSlice)
 	if len(resSlice) != 1 {
 		t.Fatal("error")
 	}
 
 	if resSlice[0][_rule.KeywordName()] != "b" {
 		t.Fatal("error")
+	}
+}
+
+func _printResult[T any](sm []T) {
+	for _, m := range sm {
+		fmt.Println(fmt.Sprintf("%+v", m))
 	}
 }
