@@ -217,7 +217,9 @@ func (m *Matcher) MatchMostKey(contents []string) Results {
 		return nil
 	}
 
-	sort.Sort(results)
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
 
 	return results[0:1]
 }
@@ -230,7 +232,9 @@ func (m *Matcher) MatchMostText(contents []string) Results {
 		return nil
 	}
 
-	sort.Sort(results)
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
 
 	return results[0:1]
 }
@@ -297,7 +301,9 @@ func (m *Matcher) MatchLabelMostText(contents []string) LabelResults {
 		return nil
 	}
 
-	sort.Sort(results)
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
 
 	return results[0:1]
 }

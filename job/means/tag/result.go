@@ -46,22 +46,10 @@ func (r *Result) ToTag(rule means.Ruler) map[string]any {
 // result
 type Results []Result
 
-func (rs Results) Len() int {
-	return len(rs)
-}
-
-func (rs Results) Less(i, j int) bool {
-	return rs[i].Amount > rs[j].Amount
-}
-
-func (rs Results) Swap(i, j int) {
-	rs[i], rs[j] = rs[j], rs[i]
-}
-
 func (rs Results) ToAll(rule means.Ruler) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
 
-	items := make([]map[string]any, 0, rs.Len())
+	items := make([]map[string]any, 0, len(rs))
 	for _, _r := range rs {
 		items = append(items, maps.PluckMap(_r.ToTag(rule), keys))
 	}
@@ -152,22 +140,10 @@ func (lr *LabelResult) ToTag(rule means.Ruler) map[string]any {
 // label results
 type LabelResults []LabelResult
 
-func (lrs LabelResults) Len() int {
-	return len(lrs)
-}
-
-func (lrs LabelResults) Less(i, j int) bool {
-	return lrs[i].Amount > lrs[j].Amount
-}
-
-func (lrs LabelResults) Swap(i, j int) {
-	lrs[i], lrs[j] = lrs[j], lrs[i]
-}
-
 func (lrs LabelResults) ToAll(rule means.Ruler) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
 
-	items := make([]map[string]any, 0, lrs.Len())
+	items := make([]map[string]any, 0, len(lrs))
 	for _, _r := range lrs {
 		items = append(items, maps.PluckMap(_r.ToTag(rule), keys))
 	}
