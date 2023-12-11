@@ -170,11 +170,11 @@ func (r *ruleAliasFixedTest) LabelsAlias() []string {
 	return labels
 }
 func (r *ruleAliasFixedTest) Tags() []string {
-	return append([]string{r.Name()}, r.Labels()...)
+	return append(append([]string{r.Name()}, r.Labels()...), r.FixedKeys()...)
 }
 
 func (r *ruleAliasFixedTest) TagsAlias() []string {
-	return append([]string{r.NameAlias()}, r.LabelsAlias()...)
+	return append(append([]string{r.NameAlias()}, r.LabelsAlias()...), r.FixedKeysAlias()...)
 }
 
 func (r *ruleAliasFixedTest) Fixed() map[string]string {

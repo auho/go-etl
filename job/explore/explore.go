@@ -41,7 +41,7 @@ func (e *Explore) DefaultValues() map[string]any {
 }
 
 func (e *Explore) Prepare() error {
-	e.defaultValues = e.search.GenExport().DefaultValues()
+	e.defaultValues = e.search.GenExport().GetDefaultValues()
 
 	return nil
 }

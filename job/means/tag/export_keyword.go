@@ -5,23 +5,25 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ search.Exporter = (*ExportKeywordAll)(nil)
-var _ search.Exporter = (*ExportKeywordLine)(nil)
-var _ search.Exporter = (*ExportKeywordFlag)(nil)
+var _ search.Exporter = (*ExportKeyword)(nil)
 
-type NewExportKeyword func(rs Results, rule means.Ruler) search.Exporter
+type GenExportKeyword func(Results, means.Ruler) *ExportKeyword
 
 type ExportKeyword struct {
-	export
-	Results Results
+	Export
+	Results           Results
+	ResultsToTokenize func(results Results) []map[string]any
 }
 
-func newExportKeyword(rs Results, rule means.Ruler) ExportKeyword {
-	e := ExportKeyword{
-		export: export{
-			Rule: rule,
+func NewExportKeyword(rs Results, rule means.Ruler, keys []string, df map[string]any, fn func(Results) []map[string]any) *ExportKeyword {
+	e := &ExportKeyword{
+		Export: Export{
+			Rule:          rule,
+			Keys:          keys,
+			DefaultValues: df,
 		},
-		Results: rs,
+		Results:           rs,
+		ResultsToTokenize: fn,
 	}
 
 	e.init()
@@ -36,93 +38,40 @@ func (e *ExportKeyword) init() {
 	}
 }
 
-func (e *ExportKeyword) defaultValuesTagsWithKeywordAndNum() ([]string, map[string]any) {
-	keys, m := e.defaultValuesTagsWithKeyword()
-	m[e.Rule.KeywordNumNameAlias()] = 0
-
-	return append(keys, e.Rule.KeywordNumNameAlias()), m
+func (e *ExportKeyword) ToTokenize() []map[string]any {
+	return e.ResultsToTokenize(e.Results)
 }
 
-func (e *ExportKeyword) defaultValuesTagsWithKeyword() ([]string, map[string]any) {
-	keys, m := e.defaultValuesTags()
-	m[e.Rule.KeywordNameAlias()] = ""
-
-	return append(keys, e.Rule.KeywordNameAlias()), m
-}
-
-func (e *ExportKeyword) defaultValuesTags() ([]string, map[string]any) {
-	m := map[string]any{}
-
-	m[e.Rule.NameAlias()] = ""
-	for _, _la := range e.Rule.LabelsAlias() {
-		m[_la] = ""
+func NewExportKeywordAll(rs Results, rule means.Ruler) *ExportKeyword {
+	var keys []string
+	values := make(map[string]any)
+	for _, _ta := range rule.TagsAlias() {
+		keys = append(keys, _ta)
+		values[_ta] = ""
 	}
 
-	return append([]string{e.Rule.NameAlias()}, e.Rule.LabelsAlias()...), m
+	keys = append(keys, rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
+	values[rule.KeywordNameAlias()] = ""
+	values[rule.KeywordAmountNameAlias()] = 0
+
+	return NewExportKeyword(rs, rule, keys, values, func(results Results) []map[string]any {
+		return results.ToAll(rule)
+	})
 }
 
-type ExportKeywordAll struct {
-	ExportKeyword
-}
-
-func NewExportKeywordAll(rs Results, rule means.Ruler) search.Exporter {
-	e := &ExportKeywordAll{
-		ExportKeyword: newExportKeyword(rs, rule),
+func NewExportKeywordLine(rs Results, rule means.Ruler) *ExportKeyword {
+	var keys []string
+	values := make(map[string]any)
+	for _, _ta := range rule.TagsAlias() {
+		keys = append(keys, _ta)
+		values[_ta] = ""
 	}
 
-	e.initial()
+	keys = append(keys, rule.KeywordNameAlias(), rule.KeywordNumNameAlias())
+	values[rule.KeywordNameAlias()] = ""
+	values[rule.KeywordNumNameAlias()] = 0
 
-	return e
-}
-
-func (e *ExportKeywordAll) initial() {
-	e.keys, e.defaultValues = e.defaultValuesTagsWithKeywordAndNum()
-}
-
-func (e *ExportKeywordAll) ToTokenize() []map[string]any {
-	return e.Results.ToTags(e.Rule)
-}
-
-type ExportKeywordLine struct {
-	ExportKeyword
-}
-
-func NewExportKeywordLine(rs Results, rule means.Ruler) search.Exporter {
-	e := &ExportKeywordLine{
-		ExportKeyword: newExportKeyword(rs, rule),
-	}
-
-	e.initial()
-
-	return e
-}
-
-func (e *ExportKeywordLine) initial() {
-	e.keys, e.defaultValues = e.defaultValuesTagsWithKeyword()
-}
-
-func (e *ExportKeywordLine) ToTokenize() []map[string]any {
-	return e.Results.ToLine(e.Rule)
-}
-
-type ExportKeywordFlag struct {
-	ExportKeyword
-}
-
-func NewExportKeywordFlag(rs Results, rule means.Ruler) search.Exporter {
-	e := &ExportKeywordFlag{
-		ExportKeyword: newExportKeyword(rs, rule),
-	}
-
-	e.initial()
-
-	return e
-}
-
-func (e *ExportKeywordFlag) initial() {
-	e.keys, e.defaultValues = e.defaultValuesTagsWithKeyword()
-}
-
-func (e *ExportKeywordFlag) ToTokenize() []map[string]any {
-	return e.Results.ToFlag(e.Rule)
+	return NewExportKeyword(rs, rule, keys, values, func(results Results) []map[string]any {
+		return results.ToLine(rule)
+	})
 }

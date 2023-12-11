@@ -84,11 +84,7 @@ func NewWholeLabels(rule means.Ruler) *Means {
 			return nil
 		}
 
-		_m := pluckFromMap(rs.MergeLabelsToWhole(rule),
-			append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.LabelNumNameAlias(), rule.KeywordAmountNameAlias()),
-		)
-		_m = rs.MergeLabelsToWhole(rule)
-		return []map[string]any{_m}
+		return rs.ToLine(rule)
 	})
 }
 
@@ -101,7 +97,7 @@ func NewLabel(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.ToTags(rule)
+		return rs.ToAll(rule)
 	})
 }
 
@@ -114,7 +110,7 @@ func NewKey(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.ToTags(rule)
+		return rs.ToAll(rule)
 	})
 }
 
@@ -127,7 +123,7 @@ func NewMostKey(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.ToTags(rule)
+		return rs.ToAll(rule)
 	})
 }
 
@@ -140,7 +136,7 @@ func NewMostText(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.ToTags(rule)
+		return rs.ToAll(rule)
 	})
 }
 
@@ -153,6 +149,6 @@ func NewFirst(rule means.Ruler) *Means {
 			return nil
 		}
 
-		return rs.ToTags(rule)
+		return rs.ToAll(rule)
 	})
 }

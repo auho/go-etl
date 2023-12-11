@@ -9,23 +9,25 @@ import (
 // line
 // flag
 
-var _ search.Exporter = (*ExportLabelAll)(nil)
-var _ search.Exporter = (*ExportLabelLine)(nil)
-var _ search.Exporter = (*ExportLabelFlag)(nil)
+var _ search.Exporter = (*ExportLabel)(nil)
 
-type NewExportLabel func(rs LabelResults, rule means.Ruler) *ExportLabel
+type GenExportLabel func(LabelResults, means.Ruler) *ExportLabel
 
 type ExportLabel struct {
-	export
-	Results LabelResults
+	Export
+	Results           LabelResults
+	ResultsToTokenize func(results LabelResults) []map[string]any
 }
 
-func newExportLabel(rs LabelResults, rule means.Ruler) ExportLabel {
-	e := ExportLabel{
-		export: export{
-			Rule: rule,
+func NewExportLabel(rs LabelResults, rule means.Ruler, keys []string, df map[string]any, fn func(LabelResults) []map[string]any) *ExportLabel {
+	e := &ExportLabel{
+		Export: Export{
+			Rule:          rule,
+			Keys:          keys,
+			DefaultValues: df,
 		},
-		Results: rs,
+		Results:           rs,
+		ResultsToTokenize: fn,
 	}
 
 	e.init()
@@ -40,81 +42,58 @@ func (e *ExportLabel) init() {
 	}
 }
 
-func (e *ExportLabel) defaultValuesTagsWithKeywordAndLabelNum() ([]string, map[string]any) {
-	keys, m := e.defaultValuesTagsWithKeyword()
-	m[e.Rule.LabelNumNameAlias()] = 0
-
-	return append(keys, e.Rule.LabelNumNameAlias()), m
+func (e *ExportLabel) ToTokenize() []map[string]any {
+	return e.ResultsToTokenize(e.Results)
 }
 
-func (e *ExportLabel) defaultValuesTagsWithKeyword() ([]string, map[string]any) {
-	keys, m := e.defaultValuesTags()
-	m[e.Rule.KeywordNameAlias()] = ""
-
-	return append(keys, e.Rule.KeywordNameAlias()), m
-}
-
-func (e *ExportLabel) defaultValuesTags() ([]string, map[string]any) {
-	m := map[string]any{}
-
-	m[e.Rule.NameAlias()] = ""
-	for _, _la := range e.Rule.LabelsAlias() {
-		m[_la] = ""
+func NewExportLabelAll(rs LabelResults, rule means.Ruler) *ExportLabel {
+	var keys []string
+	values := make(map[string]any)
+	for _, _ta := range rule.TagsAlias() {
+		keys = append(keys, _ta)
+		values[_ta] = ""
 	}
 
-	return append([]string{e.Rule.NameAlias()}, e.Rule.LabelsAlias()...), m
+	keys = append(keys, rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
+	values[rule.KeywordNameAlias()] = ""
+	values[rule.KeywordAmountNameAlias()] = 0
+
+	return NewExportLabel(rs, rule, keys, values, func(results LabelResults) []map[string]any {
+		return results.ToAll(rule)
+	})
 }
 
-type ExportLabelAll struct {
-	ExportLabel
-}
-
-func NewExportLabelAll(rs LabelResults, rule means.Ruler) *ExportLabelAll {
-	e := &ExportLabelAll{
-		ExportLabel: newExportLabel(rs, rule),
+func NewExportLabelLine(rs LabelResults, rule means.Ruler) *ExportLabel {
+	var keys []string
+	values := make(map[string]any)
+	for _, _ta := range rule.TagsAlias() {
+		keys = append(keys, _ta)
+		values[_ta] = ""
 	}
 
-	e.keys, e.defaultValues = e.defaultValuesTagsWithKeywordAndLabelNum()
+	keys = append(keys, rule.KeywordNameAlias(), rule.LabelNumNameAlias(), rule.KeywordNumNameAlias(), rule.KeywordAmountNameAlias())
+	values[rule.KeywordNameAlias()] = ""
+	values[rule.LabelNumNameAlias()] = 0
+	values[rule.KeywordNumNameAlias()] = 0
+	values[rule.KeywordAmountNameAlias()] = 0
 
-	return e
+	return NewExportLabel(rs, rule, keys, values, func(results LabelResults) []map[string]any {
+		return results.ToLine(rule)
+	})
 }
 
-func (e *ExportLabelAll) ToTokenize() []map[string]any {
-	return e.Results.ToTags(e.Rule)
-}
-
-type ExportLabelLine struct {
-	ExportLabel
-}
-
-func NewExportLabelLine(rs LabelResults, rule means.Ruler) *ExportLabelLine {
-	e := &ExportLabelLine{
-		ExportLabel: newExportLabel(rs, rule),
+func NewExportLabelFlag(rs LabelResults, rule means.Ruler) *ExportLabel {
+	var keys []string
+	values := make(map[string]any)
+	for _, _ta := range rule.TagsAlias() {
+		keys = append(keys, _ta)
+		values[_ta] = ""
 	}
 
-	e.keys, e.defaultValues = e.defaultValuesTagsWithKeyword()
+	keys = append(keys, rule.KeywordNameAlias())
+	values[rule.KeywordNameAlias()] = ""
 
-	return e
-}
-
-func (e *ExportLabelLine) ToTokenize() []map[string]any {
-	return e.Results.ToLine(e.Rule)
-}
-
-type ExportLabelFlag struct {
-	ExportLabel
-}
-
-func NewExportLabelFlag(rs LabelResults, rule means.Ruler) *ExportLabelFlag {
-	e := &ExportLabelFlag{
-		ExportLabel: newExportLabel(rs, rule),
-	}
-
-	e.keys, e.defaultValues = e.defaultValuesTagsWithKeyword()
-
-	return e
-}
-
-func (e *ExportLabelFlag) ToTokenize() []map[string]any {
-	return e.Results.ToFlag(e.Rule)
+	return NewExportLabel(rs, rule, keys, values, func(results LabelResults) []map[string]any {
+		return results.ToFlag(rule)
+	})
 }

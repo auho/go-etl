@@ -4,22 +4,22 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-type export struct {
+type Export struct {
 	Ok   bool
 	Rule means.Ruler
 
-	keys          []string
-	defaultValues map[string]any
+	Keys          []string
+	DefaultValues map[string]any
 }
 
-func (e *export) IsOk() bool {
+func (e *Export) IsOk() bool {
 	return e.Ok
 }
 
-func (e *export) GetKeys() []string {
-	return e.keys
+func (e *Export) GetKeys() []string {
+	return e.Keys
 }
 
-func (e *export) DefaultValues() map[string]any {
-	return e.defaultValues
+func (e *Export) GetDefaultValues() map[string]any {
+	return e.DefaultValues
 }
