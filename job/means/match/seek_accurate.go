@@ -9,9 +9,9 @@ var _ seeker = (*accurate)(nil)
 type accurate struct {
 	seek
 	index     int
-	originKey string
-	key       string
-	labels    map[string]string
+	originKey string            // origin keyword
+	key       string            // if ignore case, all to lower
+	labels    map[string]string // labels name and value
 }
 
 func newAccurate(index int, originKey, key string, labels map[string]string) *accurate {

@@ -13,13 +13,16 @@ const (
 )
 
 type seekResult struct {
-	key    string            // origin key
+	key    string            // origin keyword
 	labels map[string]string // 匹配项 labels
-	amount int
+	amount int               // keyword matched amount
 }
 
 type seekResults []seekResult
 
+// seeker
+// content，keyword 大小写在 match 已经处理过
+// 这里区分大小写
 type seeker interface {
 	// seekResult: seek result
 	// string: 去除匹配项后的 content，如果未匹配项则是之前的 content
@@ -27,8 +30,7 @@ type seeker interface {
 	seeking(string) (seekResult, string, bool)
 }
 
-type seek struct {
-}
+type seek struct{}
 
 func (s *seek) replaceKeyPoint(content, key string) string {
 	return strings.ReplaceAll(content, key, _placeholder)

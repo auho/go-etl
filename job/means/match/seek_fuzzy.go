@@ -20,12 +20,12 @@ type fuzzyKey struct {
 type fuzzy struct {
 	seek
 	index     int
-	originKey string
-	key       string
-	labels    map[string]string
-	keys      []fuzzyKey
-	windows   []int // 前后两个关键词的距离
-	keysWidth int   // 所有词的宽度
+	originKey string            // origin keyword
+	key       string            // if ignore case, all to lower
+	labels    map[string]string // labels name and value
+	keys      []fuzzyKey        // split by sep
+	windows   []int             // 前后两个关键词的距离
+	keysWidth int               // 所有词的宽度
 }
 
 func newFuzzy(index int, originKey, key string, labels map[string]string, config FuzzyConfig) *fuzzy {
