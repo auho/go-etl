@@ -15,6 +15,11 @@ type ExportKeyword struct {
 	ResultsToTokenize func(results Results) []map[string]any
 }
 
+// NewExportKeyword
+//
+// keys []string, name of tokenize
+// df: map[string]any, defaultValues
+// fn: fn func(Results) []map[string]any, Results to tokenize
 func NewExportKeyword(rs Results, rule means.Ruler, keys []string, df map[string]any, fn func(Results) []map[string]any) *ExportKeyword {
 	e := &ExportKeyword{
 		Export: Export{

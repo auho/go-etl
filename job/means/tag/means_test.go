@@ -8,7 +8,7 @@ import (
 )
 
 func TestMeans(t *testing.T) {
-	tm := NewMeans(_rule, nil)
+	tm := newMeans(NewSearchKey(_rule, NewExportKeywordAll))
 	err := tm.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -176,7 +176,7 @@ func TestMostText(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for _, k := range tm.rule.LabelsAlias() {
+	for _, k := range _ruleAliasFixed.LabelsAlias() {
 		if !strings.HasSuffix(k, "_alias") {
 			t.Fatal()
 		}
