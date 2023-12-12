@@ -105,30 +105,6 @@ func (m *Match) WithMatcher(keyName string, items []map[string]string) *Match {
 	return m
 }
 
-// NewKey
-// key
-func NewKey(rule means.Ruler) *Match {
-	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
-		res := m.MatchKey(c)
-		if res == nil {
-			return nil
-		}
-
-		return res.toSliceMapAny(rule)
-	})
-}
-
-func NewFirstKey(rule means.Ruler) *Match {
-	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
-		res := m.MatchFirstKey(c)
-		if res == nil {
-			return nil
-		}
-
-		return res.toSliceMapAny(rule)
-	})
-}
-
 // NewWholeLabels
 // merge all labels together
 // label1|label2|label3
@@ -149,11 +125,11 @@ func NewWholeLabels(rule means.Ruler) *Match {
 		_keywordAmount := 0
 
 		for _, _r := range _res {
-			for _labelKey, _labelValue := range _r.Labels {
+			for _labelKey, _labelValue := range _r.Tags {
 				_rts[_labelKey] = append(_rts[_labelKey], _labelValue)
 			}
 
-			for _, _key := range _r.Keys {
+			for _, _key := range _r.Keywords {
 				_rts[rule.KeywordNameAlias()] = append(_rts[rule.KeywordNameAlias()], _key)
 
 				_keywordAmount += 1
@@ -171,5 +147,66 @@ func NewWholeLabels(rule means.Ruler) *Match {
 		_rt[rule.KeywordNumNameAlias()] = _keywordAmount
 
 		return []map[string]any{_rt}
+	})
+}
+
+// NewLabel
+// label
+func NewLabel(rule means.Ruler) *Match {
+	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
+		res := m.MatchLabel(c)
+		if res == nil {
+			return nil
+		}
+
+		return res.ToAll(rule)
+	})
+}
+
+// NewKey
+// key
+func NewKey(rule means.Ruler) *Match {
+	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
+		res := m.MatchKey(c)
+		if res == nil {
+			return nil
+		}
+
+		return res.ToAll(rule)
+	})
+}
+
+func NewMostKey(rule means.Ruler) *Match {
+	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
+		res := m.MatchMostKey(c)
+		if res == nil {
+			return nil
+		}
+
+		return res.ToAll(rule)
+	})
+}
+
+func NewMostText(rule means.Ruler) *Match {
+	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
+		res := m.MatchKey(c)
+		if res == nil {
+			return nil
+		}
+
+		return res.ToAll(rule)
+	})
+}
+
+// NewFirst
+// first key
+func NewFirst(rule means.Ruler) *Match {
+	return NewMatch(rule, func(rule means.Ruler, m *matcher, c []string) []map[string]any {
+		res := m.MatchFirstText(c)
+		if res == nil {
+			return nil
+		}
+
+		return res.ToAll(rule)
 	})
 }

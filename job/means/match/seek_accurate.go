@@ -11,7 +11,7 @@ type accurate struct {
 	index     int
 	originKey string            // origin keyword
 	key       string            // if ignore case, all to lower
-	labels    map[string]string // labels name and value
+	tags      map[string]string // tags name and value
 }
 
 func newAccurate(index int, originKey, key string, labels map[string]string) *accurate {
@@ -19,7 +19,7 @@ func newAccurate(index int, originKey, key string, labels map[string]string) *ac
 		index:     index,
 		originKey: originKey,
 		key:       key,
-		labels:    labels,
+		tags:      labels,
 	}
 }
 
@@ -29,11 +29,13 @@ func (a *accurate) seeking(content string) (seekResult, string, bool) {
 		// replace 防止重复 count
 		content = a.replaceKeyPoint(content, a.key)
 
-		return seekResult{
-			key:    a.originKey,
-			labels: a.labels,
-			amount: _count,
-		}, content, true
+		result := newSeekResult()
+		result.keyword = a.originKey
+		result.texts = append(result.texts, a.key)
+		result.textsAmount[a.key] = _count
+		result.amount = _count
+
+		return result, content, true
 	} else {
 		return seekResult{}, content, false
 	}

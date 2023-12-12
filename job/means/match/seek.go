@@ -2,6 +2,7 @@ package match
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 )
 
@@ -13,9 +14,17 @@ const (
 )
 
 type seekResult struct {
-	key    string            // origin keyword
-	labels map[string]string // 匹配项 labels
-	amount int               // keyword matched amount
+	keyword     string            // origin keyword
+	texts       []string          // matched texts
+	textsAmount map[string]int    // map[text]text amount
+	tags        map[string]string // matched tags
+	amount      int               // keyword matched amount
+}
+
+func newSeekResult() seekResult {
+	return seekResult{
+		textsAmount: make(map[string]int),
+	}
 }
 
 type seekResults []seekResult
@@ -36,10 +45,11 @@ func (s *seek) replaceKeyPoint(content, key string) string {
 	return strings.ReplaceAll(content, key, _placeholder)
 }
 
-func newSeeker(index int, originKey, key string, labels map[string]string, config *matcherConfig) (seeker, int) {
+func newSeeker(index int, originKey, key string, tags map[string]string, config *matcherConfig) (seeker, int) {
+	newTags := maps.Clone(tags)
 	if config.enableFuzzy && strings.Index(key, config.fuzzyConfig.Sep) > -1 {
-		return newFuzzy(index, originKey, key, labels, config.fuzzyConfig), seekFuzzy
+		return newFuzzy(index, originKey, key, newTags, config.fuzzyConfig), seekFuzzy
 	} else {
-		return newAccurate(index, originKey, key, labels), seekAccurate
+		return newAccurate(index, originKey, key, newTags), seekAccurate
 	}
 }

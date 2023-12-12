@@ -21,7 +21,7 @@ func Test_fuzzy(t *testing.T) {
 		t.Fatal("")
 	}
 
-	if sr.key != "a_c" {
+	if sr.keyword != "a_c" {
 		t.Fatal("")
 	}
 
@@ -40,7 +40,7 @@ func Test_fuzzy(t *testing.T) {
 		t.Fatal("")
 	}
 
-	if sr.key != "A_c" {
+	if sr.keyword != "A_c" {
 		t.Fatal("")
 	}
 
@@ -55,7 +55,7 @@ func Test_fuzzy(t *testing.T) {
 		t.Fatal("")
 	}
 
-	if sr.key != "A_c" {
+	if sr.keyword != "A_c" {
 		t.Fatal("")
 	}
 
@@ -70,7 +70,7 @@ func Test_fuzzy(t *testing.T) {
 		t.Fatal("")
 	}
 
-	if sr.key != "A_c" {
+	if sr.keyword != "A_c" {
 		t.Fatal("")
 	}
 }

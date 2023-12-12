@@ -21,7 +21,7 @@ func Test_accurate(t *testing.T) {
 		t.Fatal("")
 	}
 
-	if sr.key != "ac" {
+	if sr.keyword != "ac" {
 		t.Fatal("")
 	}
 
@@ -40,7 +40,7 @@ func Test_accurate(t *testing.T) {
 		t.Fatal("")
 	}
 
-	if sr.key != "Ac" {
+	if sr.keyword != "Ac" {
 		t.Fatal("")
 	}
 }

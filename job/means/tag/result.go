@@ -14,10 +14,9 @@ import (
 type Result struct {
 	Amount     int               // matched amount
 	Keyword    string            // keyword
-	Tags       map[string]string // tags map[tag name]tag
+	Tags       map[string]string // tags map[tag name]tag value
 	Texts      map[string]int    // matched text map[matched text]amount
-	TagsName   []string          // tags name
-	IsKeyMerge bool
+	IsKeyMerge bool              // TODO delete this
 }
 
 func NewResult() Result {
@@ -94,10 +93,9 @@ func (rs Results) MergeKeysToWhole(rule means.Ruler) map[string]any {
 type LabelResult struct {
 	Identity string
 	Amount   int                       // match amount
-	Tags     map[string]string         // tags map[tag name]tag
+	Tags     map[string]string         // tags map[tag name]tag value
 	Match    map[string]map[string]int // keyword and match text map[keyword]map[matched text]num
-	Keys     []string                  // []keyword
-	TagsName []string                  // tags name
+	Keywords []string                  // []keyword
 }
 
 func NewLabelResult() LabelResult {
@@ -118,7 +116,7 @@ func (lr *LabelResult) ToTag(rule means.Ruler) map[string]any {
 	keyNum := 0
 	keyAmount := 0
 	var keysValue []string
-	for _, _key := range lr.Keys {
+	for _, _key := range lr.Keywords {
 		_textAmount := 0
 		for _, _a := range lr.Match[_key] {
 			_textAmount += _a
@@ -184,7 +182,7 @@ func (lrs LabelResults) MergeLabelsToWhole(rule means.Ruler) map[string]any {
 		}
 
 		var keysValue []string
-		for _, _key := range _lr.Keys {
+		for _, _key := range _lr.Keywords {
 			_keyAmount := 0
 			for _, _a := range _lr.Match[_key] {
 				_keyAmount += _a

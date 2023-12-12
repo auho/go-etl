@@ -2,6 +2,7 @@ package match
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -39,9 +40,9 @@ func (mc *matcherConfig) check() {
 }
 
 type matcher struct {
-	keyName    string
-	labelsName []string
-	hasItems   bool
+	keyName  string
+	tagsName []string
+	hasItems bool
 
 	allSeek      []seeker
 	fuzzySeek    []seeker
@@ -65,10 +66,10 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 	if len(items) > 0 {
 		m.hasItems = true
 
-		// labels name
+		// tags name
 		for k, _ := range items[0] {
 			if k != keyName {
-				m.labelsName = append(m.labelsName, k)
+				m.tagsName = append(m.tagsName, k)
 			}
 		}
 
@@ -81,12 +82,12 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 				_keyValue = _originKeyValue
 			}
 
-			_labels := make(map[string]string)
-			for _, _ln := range m.labelsName {
-				_labels[_ln] = item[_ln]
+			_tags := make(map[string]string)
+			for _, _ln := range m.tagsName {
+				_tags[_ln] = item[_ln]
 			}
 
-			_seeker, _sm := newSeeker(_i, _originKeyValue, _keyValue, _labels, config)
+			_seeker, _sm := newSeeker(_i, _originKeyValue, _keyValue, _tags, config)
 			if config.mode == modeSequence {
 				m.allSeek = append(m.allSeek, _seeker)
 			} else {
@@ -108,16 +109,96 @@ func (m *matcher) MatchKey(contents []string) Results {
 		return nil
 	}
 
-	return m.toResults(items)
+	var results Results
+	resultsIndex := make(map[string]int)
+
+	for _, item := range items {
+		if index, ok := resultsIndex[item.keyword]; ok {
+			for text, _n := range item.textsAmount {
+				results[index].Texts[text] += _n
+			}
+
+			results[index].Amount += item.amount
+		} else {
+			results = append(results, m.toResult(item))
+		}
+	}
+
+	return results
 }
 
-func (m *matcher) MatchFirstKey(contents []string) Results {
+func (m *matcher) MatchMostKey(contents []string) Results {
+	results := m.MatchKey(contents)
+	if results == nil {
+		return nil
+	}
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
+
+	return results[0:1]
+}
+
+func (m *matcher) MatchText(contents []string) Results {
+	items := m.findAll(contents)
+	if items == nil {
+		return nil
+	}
+
+	var results Results
+	resultsIndex := make(map[string]int)
+
+	for _, item := range items {
+		for text, _n := range item.textsAmount {
+			if index, ok := resultsIndex[text]; ok {
+				results[index].Texts[text] += _n
+				results[index].Amount += _n
+			} else {
+				result := NewResult()
+				result.Keyword = item.keyword
+				result.Tags = item.tags
+				result.Texts[text] = item.textsAmount[text]
+				result.Amount = item.textsAmount[text]
+
+				results = append(results, result)
+				resultsIndex[text] = len(results) - 1
+			}
+		}
+	}
+
+	return results
+}
+
+func (m *matcher) MatchMostText(contents []string) Results {
+	results := m.MatchText(contents)
+	if results == nil {
+		return nil
+	}
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
+
+	return results[0:1]
+}
+
+func (m *matcher) MatchFirstText(contents []string) Results {
 	items := m.findFirst(contents)
 	if items == nil {
 		return nil
 	}
 
 	return m.toResults(items)
+}
+
+func (m *matcher) MatchLastText(contents []string) Results {
+	items := m.findAll(contents)
+	if items == nil {
+		return nil
+	}
+
+	return m.toResults(items[len(items)-2:])
 }
 
 func (m *matcher) MatchLabel(contents []string) LabelResults {
@@ -130,12 +211,25 @@ func (m *matcher) MatchLabel(contents []string) LabelResults {
 }
 
 func (m *matcher) MatchFirstLabel(contents []string) LabelResults {
-	items := m.findFirst(contents)
-	if items == nil {
+	results := m.MatchLabel(contents)
+	if results == nil {
 		return nil
 	}
 
-	return m.toLabelResults(items)
+	return results[0:1]
+}
+
+func (m *matcher) MatchLabelMostText(contents []string) LabelResults {
+	results := m.MatchLabel(contents)
+	if results == nil {
+		return nil
+	}
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
+
+	return results[0:1]
 }
 
 func (m *matcher) findAll(contents []string) seekResults {
@@ -241,6 +335,10 @@ func (m *matcher) findFirst(contents []string) seekResults {
 		if m.config.debug {
 			m.debugInfo(originContent, content, results)
 		}
+
+		if results != nil {
+			break
+		}
 	}
 
 	return results
@@ -267,6 +365,8 @@ func (m *matcher) seeking(seekers []seeker, content string, onlyFirst bool) (see
 			has = true
 
 			if onlyFirst {
+				results = results[0:1]
+
 				break
 			}
 		}
@@ -277,52 +377,57 @@ func (m *matcher) seeking(seekers []seeker, content string, onlyFirst bool) (see
 
 func (m *matcher) toResults(items seekResults) Results {
 	var results Results
-	keysIndex := make(map[string]int)
 
 	for _, item := range items {
-		if _index, ok := keysIndex[m.keyName]; ok {
-			results[_index].Num += item.amount
-		} else {
-			result := NewResult()
-			result.Key = item.key
-			result.Num = item.amount
-			result.Labels = item.labels
-
-			results = append(results, result)
-		}
+		results = append(results, m.toResult(item))
 	}
 
 	return results
 }
 
+func (m *matcher) toResult(item seekResult) Result {
+	result := NewResult()
+	result.Keyword = item.keyword
+	result.Tags = item.tags
+	result.Texts = item.textsAmount
+	result.Amount = item.amount
+
+	return result
+}
+
 func (m *matcher) toLabelResults(items seekResults) LabelResults {
 	var results LabelResults
-	labelsIndex := make(map[string]int)
+	tagsIndex := make(map[string]int)
 
 	for _, item := range items {
-		_labelsIdentity := ""
-		for _, _labelName := range m.labelsName {
-			_labelsIdentity += "-" + item.labels[_labelName]
+		tagsIdentity := ""
+		for _, _tn := range m.tagsName {
+			tagsIdentity += "-" + item.tags[_tn]
 		}
 
-		if _index, ok := labelsIndex[_labelsIdentity]; ok {
+		if _index, ok := tagsIndex[tagsIdentity]; ok {
 			result := results[_index]
-			if _, ok1 := result.Match[item.key]; !ok1 {
-				result.Keys = append(result.Keys, item.key)
+			if _, ok1 := result.Match[item.keyword]; !ok1 {
+				result.Keywords = append(result.Keywords, item.keyword)
 			}
 
-			result.Match[item.key] += item.amount
-			result.MatchAmount += item.amount
+			for _text, _n := range item.textsAmount {
+				result.Match[item.keyword][_text] += _n
+			}
+
+			result.Amount += item.amount
+
+			results[_index] = result
 		} else {
 			result := NewLabelResult()
-			result.Identity = _labelsIdentity
-			result.Labels = item.labels
-			result.Keys = append(result.Keys, item.key)
-			result.Match[item.key] = item.amount
-			result.MatchAmount = item.amount
+			result.Identity = tagsIdentity
+			result.Tags = item.tags
+			result.Keywords = append(result.Keywords, item.keyword)
+			result.Match[item.keyword] = item.textsAmount
+			result.Amount = item.amount
 
 			results = append(results, result)
-			labelsIndex[_labelsIdentity] = len(results) - 1
+			tagsIndex[tagsIdentity] = len(results) - 1
 		}
 	}
 

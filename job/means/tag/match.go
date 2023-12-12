@@ -271,7 +271,7 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 				}
 			} else {
 				result.Match[key] = map[string]int{text: 1}
-				result.Keys = append(result.Keys, key)
+				result.Keywords = append(result.Keywords, key)
 			}
 
 			result.Amount += 1
@@ -282,7 +282,7 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 			maps.Copy(result.Tags, tags)
 			maps.Copy(result.Tags, m.fixed)
 			result.Match[key] = map[string]int{text: 1}
-			result.Keys = append(result.Keys, key)
+			result.Keywords = append(result.Keywords, key)
 			result.Amount += 1
 
 			results = append(results, result)
