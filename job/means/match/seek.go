@@ -33,10 +33,13 @@ type seekResults []seekResult
 // content，keyword 大小写在 match 已经处理过
 // 这里区分大小写
 type seeker interface {
+	// origin string:
+	// toLower string:
+
 	// seekResult: seek result
 	// string: 去除匹配项后的 content，如果未匹配项则是之前的 content
 	// bool
-	seeking(string) (seekResult, string, bool)
+	seeking(origin string, toLower string) (seekResult, string, bool)
 }
 
 type seek struct{}

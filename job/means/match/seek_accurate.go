@@ -14,29 +14,53 @@ type accurate struct {
 	tags      map[string]string // tags name and value
 }
 
-func newAccurate(index int, originKey, key string, labels map[string]string) *accurate {
+func newAccurate(index int, originKey, key string, tags map[string]string) *accurate {
 	return &accurate{
 		index:     index,
 		originKey: originKey,
 		key:       key,
-		tags:      labels,
+		tags:      tags,
 	}
 }
 
-func (a *accurate) seeking(content string) (seekResult, string, bool) {
-	_count := strings.Count(content, a.key)
-	if _count > 0 {
-		// replace 防止重复 count
-		content = a.replaceKeyPoint(content, a.key)
+func (a *accurate) seeking(origin, content string) (seekResult, string, bool) {
+	result := newSeekResult()
+	result.keyword = a.originKey
+	result.tags = a.tags
 
-		result := newSeekResult()
-		result.keyword = a.originKey
-		result.texts = append(result.texts, a.key)
-		result.textsAmount[a.key] = _count
-		result.amount = _count
+	var matchedIndex int // 每次 matched 的结束 index
+	var matchedContent, originText, before string
+	var hasMatch, ok bool
 
-		return result, content, true
+	keyLen := len(a.key)
+	for {
+		before, content, ok = strings.Cut(content, a.key)
+		if ok {
+			hasMatch = true
+
+			matchedIndex += len(before)
+			originText = origin[matchedIndex : matchedIndex+keyLen]
+
+			if _, ok1 := result.textsAmount[originText]; !ok1 {
+				result.texts = append(result.texts, originText)
+			}
+
+			result.textsAmount[originText] += 1
+			result.amount += 1
+
+			// 防止重复 count
+			matchedContent += before + _placeholder
+			matchedIndex += keyLen
+		} else {
+			matchedContent += before
+
+			break
+		}
+	}
+
+	if hasMatch {
+		return result, matchedContent, true
 	} else {
-		return seekResult{}, content, false
+		return seekResult{}, matchedContent, false
 	}
 }

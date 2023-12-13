@@ -246,39 +246,39 @@ func (m *matcher) findAll(contents []string) seekResults {
 		}
 
 		var ok bool
-		var _rts seekResults
+		var _rets seekResults
 		switch m.config.mode {
 		case modeSequence:
-			_rts, content, ok = m.seekingAll(m.allSeek, content)
+			_rets, content, ok = m.seekingAll(m.allSeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 			}
 		case modePriorityAccurate:
-			_rts, content, ok = m.seekingAll(m.accurateSeek, content)
+			_rets, content, ok = m.seekingAll(m.accurateSeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 			}
 
-			_rts, _, ok = m.seekingAll(m.fuzzySeek, content)
+			_rets, _, ok = m.seekingAll(m.fuzzySeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 			}
 		case modePriorityFuzzy:
-			_rts, content, ok = m.seekingAll(m.fuzzySeek, content)
+			_rets, content, ok = m.seekingAll(m.fuzzySeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 			}
 
-			_rts, content, ok = m.seekingAll(m.accurateSeek, content)
+			_rets, content, ok = m.seekingAll(m.accurateSeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 			}
 		default:
 			panic("unknown mode")
 		}
 
 		if m.config.debug {
-			fmt.Println(originContent, content, results)
+			m.debugInfo(originContent, content, results)
 		}
 	}
 
@@ -299,34 +299,34 @@ func (m *matcher) findFirst(contents []string) seekResults {
 		}
 
 		var ok bool
-		var _rts seekResults
+		var _rets seekResults
 		switch m.config.mode {
 		case modeSequence:
-			_rts, content, ok = m.seekingFirst(m.allSeek, content)
+			_rets, content, ok = m.seekingFirst(m.allSeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 			}
 		case modePriorityAccurate:
-			_rts, content, ok = m.seekingFirst(m.accurateSeek, content)
+			_rets, content, ok = m.seekingFirst(m.accurateSeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 				break
 			}
 
-			_rts, content, ok = m.seekingFirst(m.fuzzySeek, content)
+			_rets, content, ok = m.seekingFirst(m.fuzzySeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 			}
 		case modePriorityFuzzy:
-			_rts, content, ok = m.seekingFirst(m.fuzzySeek, content)
+			_rets, content, ok = m.seekingFirst(m.fuzzySeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 				break
 			}
 
-			_rts, content, ok = m.seekingFirst(m.accurateSeek, content)
+			_rets, content, ok = m.seekingFirst(m.accurateSeek, originContent, content)
 			if ok {
-				results = append(results, _rts...)
+				results = append(results, _rets...)
 			}
 		default:
 			panic("unknown mode")
@@ -344,22 +344,22 @@ func (m *matcher) findFirst(contents []string) seekResults {
 	return results
 }
 
-func (m *matcher) seekingAll(seekers []seeker, content string) (seekResults, string, bool) {
-	return m.seeking(seekers, content, false)
+func (m *matcher) seekingAll(seekers []seeker, originContent, content string) (seekResults, string, bool) {
+	return m.seeking(seekers, originContent, content, false)
 }
 
-func (m *matcher) seekingFirst(seekers []seeker, content string) (seekResults, string, bool) {
-	return m.seeking(seekers, content, true)
+func (m *matcher) seekingFirst(seekers []seeker, originContent, content string) (seekResults, string, bool) {
+	return m.seeking(seekers, originContent, content, true)
 }
 
-func (m *matcher) seeking(seekers []seeker, content string, onlyFirst bool) (seekResults, string, bool) {
+func (m *matcher) seeking(seekers []seeker, originContent, content string, onlyFirst bool) (seekResults, string, bool) {
 	var results seekResults
 
 	has := false
 	var ok bool
 	var _srt seekResult
 	for _, _seeker := range seekers {
-		_srt, content, ok = _seeker.seeking(content)
+		_srt, content, ok = _seeker.seeking(originContent, content)
 		if ok {
 			results = append(results, _srt)
 			has = true
@@ -409,6 +409,7 @@ func (m *matcher) toLabelResults(items seekResults) LabelResults {
 			result := results[_index]
 			if _, ok1 := result.Match[item.keyword]; !ok1 {
 				result.Keywords = append(result.Keywords, item.keyword)
+				result.Match[item.keyword] = make(map[string]int)
 			}
 
 			for _text, _n := range item.textsAmount {
@@ -434,8 +435,13 @@ func (m *matcher) toLabelResults(items seekResults) LabelResults {
 	return results
 }
 
-func (m *matcher) debugInfo(os, s string, rts seekResults) {
-	fmt.Println(os)
-	fmt.Println(s)
-	fmt.Println(rts)
+func (m *matcher) debugInfo(os, s string, rets seekResults) {
+	fmt.Println("origin content:", os)
+	fmt.Println(fmt.Sprintf("%-15s", "content:"), s)
+	fmt.Println("results:")
+	for i, rt := range rets {
+		fmt.Println(fmt.Sprintf("  %-3d%+v", i, rt))
+	}
+
+	fmt.Println()
 }

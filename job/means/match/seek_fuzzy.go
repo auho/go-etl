@@ -28,14 +28,14 @@ type fuzzy struct {
 	keysWidth int               // 所有词的宽度
 }
 
-func newFuzzy(index int, originKey, key string, labels map[string]string, config FuzzyConfig) *fuzzy {
+func newFuzzy(index int, originKey, key string, tags map[string]string, config FuzzyConfig) *fuzzy {
 	keys := strings.Split(key, config.Sep)
 
 	f := &fuzzy{}
 	f.index = index
 	f.originKey = originKey
 	f.key = key
-	f.tags = labels
+	f.tags = tags
 
 	for _, _k := range keys {
 		_kLen := len(_k)
@@ -52,41 +52,47 @@ func newFuzzy(index int, originKey, key string, labels map[string]string, config
 }
 
 // seeking
-func (f *fuzzy) seeking(content string) (seekResult, string, bool) {
-	var amount int
-	var ok, hasMatch bool
-	var prefix, text, newContent string
-
+func (f *fuzzy) seeking(origin, content string) (seekResult, string, bool) {
 	result := newSeekResult()
 	result.keyword = f.originKey
+	result.tags = f.tags
+
+	var matchedIndex, textLen int // 每次 matched 的结束 index
+	var matchedContent, text, originText, before string
+	var hasMatch, ok bool
 
 	for {
-		prefix, text, content, ok = f.match(content)
+		before, text, content, ok = f.match(content)
 		if ok {
-			amount += 1
 			hasMatch = true
 
-			newContent += prefix + _placeholder
+			textLen = len(text)
+			matchedIndex += len(before)
+			originText = origin[matchedIndex : matchedIndex+textLen]
 
-			if _, ok1 := result.textsAmount[text]; !ok1 {
-				result.texts = append(result.texts, text)
+			if _, ok1 := result.textsAmount[originText]; !ok1 {
+				result.texts = append(result.texts, originText)
 			}
 
-			result.textsAmount[text] += 1
+			result.textsAmount[originText] += 1
 			result.amount += 1
+
+			// 防止重复 count
+			matchedContent += before + _placeholder
+			matchedIndex += textLen
 
 			// TODO optimize 最后一次如果长度不够，不再进行 match
 		} else {
-			newContent += prefix
+			matchedContent += before
 
 			break
 		}
 	}
 
 	if hasMatch {
-		return result, newContent, true
+		return result, matchedContent, true
 	} else {
-		return seekResult{}, newContent, false
+		return seekResult{}, matchedContent, false
 	}
 }
 
@@ -102,7 +108,7 @@ func (f *fuzzy) seeking(content string) (seekResult, string, bool) {
 // bool: true 有匹配项，false 没有匹配项
 func (f *fuzzy) match(content string) (string, string, string, bool) {
 	hasMatch := true
-	var prefix, gap, text string
+	var before, gap, text string
 
 	originContent := content
 
@@ -116,7 +122,7 @@ func (f *fuzzy) match(content string) (string, string, string, bool) {
 
 		if _index > -1 {
 			if _i == 0 { // 第一个 key 取匹配项前面的部分
-				prefix = content[0:_index]
+				before = content[0:_index]
 				text = _key.key
 			} else { // 第二个 key 开始计算与前面 key 的 gap
 				gap = content[0:_index]
@@ -139,7 +145,7 @@ func (f *fuzzy) match(content string) (string, string, string, bool) {
 	}
 
 	if hasMatch {
-		return prefix, text, content, true
+		return before, text, content, true
 	} else {
 		return originContent, "", "", false
 	}
