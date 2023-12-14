@@ -25,7 +25,7 @@ type fuzzy struct {
 	tags      map[string]string // tags name and value
 	keys      []fuzzyKey        // split by sep
 	windows   []int             // 前后两个关键词的距离
-	keysWidth int               // 所有词的宽度
+	keysWidth int               // 所有词的总宽度 byte
 }
 
 func newFuzzy(index int, originKey, key string, tags map[string]string, config FuzzyConfig) *fuzzy {
@@ -52,23 +52,28 @@ func newFuzzy(index int, originKey, key string, tags map[string]string, config F
 }
 
 // seeking
-func (f *fuzzy) seeking(origin, content string) (seekResult, string, bool) {
+func (f *fuzzy) seeking(origin, content string) (seekResult, seekContent, bool) {
 	result := newSeekResult()
 	result.keyword = f.originKey
 	result.tags = f.tags
 
-	var matchedIndex, textLen int // 每次 matched 的结束 index
-	var matchedContent, text, originText, before string
+	var matchedIndex, beforeLen, textLen int // 每次 matched 的结束 index
+	var matchedOrigin, matchedContent, text, originText, before string
 	var hasMatch, ok bool
 
 	for {
 		before, text, content, ok = f.match(content)
+		beforeLen = len(before)
+
 		if ok {
 			hasMatch = true
 
 			textLen = len(text)
+			matchedContent += before + _placeholder
+			matchedOrigin += origin[matchedIndex:matchedIndex+beforeLen] + _placeholder
 			matchedIndex += len(before)
 			originText = origin[matchedIndex : matchedIndex+textLen]
+			matchedIndex += textLen
 
 			if _, ok1 := result.textsAmount[originText]; !ok1 {
 				result.texts = append(result.texts, originText)
@@ -77,22 +82,38 @@ func (f *fuzzy) seeking(origin, content string) (seekResult, string, bool) {
 			result.textsAmount[originText] += 1
 			result.amount += 1
 
-			// 防止重复 count
-			matchedContent += before + _placeholder
-			matchedIndex += textLen
-
-			// TODO optimize 最后一次如果长度不够，不再进行 match
+			if len(content) < f.keysWidth {
+				break
+			}
 		} else {
-			matchedContent += before
+			// 匹配失败进行回溯，只回溯第一个 byte // TODO
+			// 剩余 content 长度足够进行匹配
+			if len(before) >= f.keysWidth {
+				matchedContent += before[0:1]
+				matchedOrigin += origin[matchedIndex : matchedIndex+1]
 
-			break
+				matchedIndex += 1
+				content = before[1:]
+			} else { // 待匹配长度不够所有词的总宽度
+
+				matchedContent += before
+				matchedOrigin += origin[matchedIndex:]
+
+				break
+			}
 		}
 	}
 
 	if hasMatch {
-		return result, matchedContent, true
+		return result, seekContent{
+			origin:  matchedOrigin,
+			content: matchedContent,
+		}, true
 	} else {
-		return seekResult{}, matchedContent, false
+		return seekResult{}, seekContent{
+			origin:  matchedOrigin,
+			content: matchedContent,
+		}, false
 	}
 }
 
@@ -107,9 +128,10 @@ func (f *fuzzy) seeking(origin, content string) (seekResult, string, bool) {
 // string: 匹配项后面的部分；
 // bool: true 有匹配项，false 没有匹配项
 func (f *fuzzy) match(content string) (string, string, string, bool) {
-	hasMatch := true
 	var before, gap, text string
+	var contentIndex int
 
+	hasMatch := true
 	originContent := content
 
 	for _i, _key := range f.keys {
@@ -121,23 +143,26 @@ func (f *fuzzy) match(content string) (string, string, string, bool) {
 		}
 
 		if _index > -1 {
+			contentIndex += _index + _key.keyLen
+
 			if _i == 0 { // 第一个 key 取匹配项前面的部分
-				before = content[0:_index]
+				before = originContent[0:_index]
 				text = _key.key
 			} else { // 第二个 key 开始计算与前面 key 的 gap
 				gap = content[0:_index]
 				text += gap + _key.key
-			}
 
-			content = content[_index+_key.keyLen:] // 截取匹配到的关键词的后面部分
-
-			if _i > 0 { // 取和上一个 key 的 window
-				// 使用 rune 长度
-				if utf8.RuneCountInString(gap) > f.windows[_i-1] { // 匹配到的关键词的距离是否在窗口内（包含窗口）
+				// 取和上一个 key 的 window，使用 rune 长度
+				// 匹配到的关键词的距离是否在窗口内（包含窗口）
+				if utf8.RuneCountInString(gap) > f.windows[_i-1] {
 					hasMatch = false
 					break
 				}
 			}
+
+			// 截取匹配到的关键词的后面部分
+			content = content[_index+_key.keyLen:]
+
 		} else { // 未匹配到
 			hasMatch = false
 			break
@@ -145,7 +170,12 @@ func (f *fuzzy) match(content string) (string, string, string, bool) {
 	}
 
 	if hasMatch {
-		return before, text, content, true
+		var after string
+		if contentIndex+1 < len(originContent) {
+			after = originContent[contentIndex:]
+		}
+
+		return before, text, after, true
 	} else {
 		return originContent, "", "", false
 	}

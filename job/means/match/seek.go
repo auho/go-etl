@@ -8,8 +8,10 @@ import (
 
 var _placeholder = fmt.Sprintf("%c", 0x00)
 
+type seekType uint8
+
 const (
-	seekAccurate = iota
+	seekAccurate seekType = iota
 	seekFuzzy
 )
 
@@ -19,6 +21,15 @@ type seekResult struct {
 	textsAmount map[string]int    // map[text]text amount
 	tags        map[string]string // matched tags
 	amount      int               // keyword matched amount
+}
+
+type seekContent struct {
+	// 去除匹配项后（匹配项被替换为 placeholder）的 origin，如果无匹配项则是匹配前 origin
+	origin string
+
+	// 如果 ignore case，content 为 lower
+	// 去除匹配项后（匹配项被替换为 placeholder）的 content，如果无匹配项则是匹配前 content
+	content string
 }
 
 func newSeekResult() seekResult {
@@ -36,10 +47,10 @@ type seeker interface {
 	// origin string:
 	// toLower string:
 
-	// seekResult: seek result
-	// string: 去除匹配项后的 content，如果未匹配项则是之前的 content
-	// bool
-	seeking(origin string, toLower string) (seekResult, string, bool)
+	// seekResult
+	// seekContent
+	// bool: true has matched；false has not matched
+	seeking(origin string, toLower string) (seekResult, seekContent, bool)
 }
 
 type seek struct{}
@@ -48,7 +59,7 @@ func (s *seek) replaceKeyPoint(content, key string) string {
 	return strings.ReplaceAll(content, key, _placeholder)
 }
 
-func newSeeker(index int, originKey, key string, tags map[string]string, config *matcherConfig) (seeker, int) {
+func newSeeker(index int, originKey, key string, tags map[string]string, config *matcherConfig) (seeker, seekType) {
 	newTags := maps.Clone(tags)
 	if config.enableFuzzy && strings.Index(key, config.fuzzyConfig.Sep) > -1 {
 		return newFuzzy(index, originKey, key, newTags, config.fuzzyConfig), seekFuzzy

@@ -43,6 +43,7 @@ func TestMatcher(t *testing.T) {
 }
 
 func TestMatcher_MatchKey_Accurate(t *testing.T) {
+	var amount, textAmount int
 	var rets Results
 	_m := newMatcher("a", _matcherItems, &matcherConfig{
 		ignoreCase:  false,
@@ -55,8 +56,20 @@ func TestMatcher_MatchKey_Accurate(t *testing.T) {
 		},
 	})
 
-	rets = _m.MatchKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_efgAxxc"})
-	if len(rets) != 5 {
+	rets = _m.MatchKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaB"})
+	if len(rets) != 6 {
+		t.Fatal()
+	}
+
+	amount = 0
+	textAmount = 0
+	for _, ret := range rets {
+		amount += ret.Amount
+		for _, _n := range ret.Texts {
+			textAmount += _n
+		}
+	}
+	if amount != textAmount {
 		t.Fatal()
 	}
 
@@ -64,19 +77,111 @@ func TestMatcher_MatchKey_Accurate(t *testing.T) {
 		t.Fatal()
 	}
 
+	amount = 0
+	for _, _n := range rets[0].Texts {
+		amount += _n
+	}
+	if amount != rets[0].Amount {
+		t.Fatal()
+	}
+
 	if rets[1].Keyword != "ab" || rets[1].Amount != 1 {
 		t.Fatal()
 	}
 
-	if rets[2].Keyword != "a" || rets[2].Amount != 3 || rets[0].Texts["ca"] != 3 || rets[0].Tags["b"] != "b6" {
+	if rets[2].Keyword != "a" || rets[2].Amount != 4 || rets[2].Texts["a"] != 4 || rets[2].Tags["b"] != "b6" {
 		t.Fatal()
 	}
 
-	if rets[3].Keyword != "E_F_G" || rets[3].Amount != 1 {
+	if rets[3].Keyword != "A_c" || rets[3].Amount != 3 || rets[3].Texts["ABc"] != 1 || rets[3].Texts["Ac"] != 1 || rets[3].Texts["Axxc"] != 1 {
 		t.Fatal()
 	}
 
-	if rets[4].Keyword != "h_i_j_" || rets[4].Amount != 1 {
+	amount = 0
+	for _, _n := range rets[3].Texts {
+		amount += _n
+	}
+	if amount != rets[3].Amount {
+		t.Fatal()
+	}
+
+	if rets[4].Keyword != "E_F_G" || rets[4].Amount != 1 {
+		t.Fatal()
+	}
+
+	if rets[5].Keyword != "h_i_j_" || rets[5].Amount != 1 {
+		t.Fatal()
+	}
+}
+
+func TestMatcher_MatchKey_Accurate_IgnoreCase(t *testing.T) {
+	var amount, textAmount int
+	var rets Results
+	_m := newMatcher("a", _matcherItems, &matcherConfig{
+		ignoreCase:  true,
+		mode:        modePriorityFuzzy,
+		enableFuzzy: true,
+		debug:       true,
+		fuzzyConfig: FuzzyConfig{
+			Window: 3,
+			Sep:    "_",
+		},
+	})
+
+	rets = _m.MatchKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaB"})
+	if len(rets) != 5 {
+		t.Fatal()
+	}
+
+	amount = 0
+	textAmount = 0
+	for _, ret := range rets {
+		amount += ret.Amount
+		for _, _n := range ret.Texts {
+			textAmount += _n
+		}
+	}
+	if amount != textAmount {
+		t.Fatal()
+	}
+
+	if rets[0].Keyword != "A_c" || rets[0].Amount != 5 || rets[0].Tags["b"] != "b7" {
+		t.Fatal()
+	}
+
+	if rets[0].Texts["ABC"] != 1 || rets[0].Texts["ABc"] != 1 || rets[0].Texts["abac"] != 1 || rets[0].Texts["aAc"] != 1 || rets[0].Texts["Axxc"] != 1 {
+		t.Fatal()
+	}
+
+	amount = 0
+	for _, _n := range rets[0].Texts {
+		amount += _n
+	}
+	if amount != rets[0].Amount {
+		t.Fatal()
+	}
+
+	if rets[1].Keyword != "E_F_G" || rets[1].Amount != 3 {
+		t.Fatal()
+	}
+
+	if rets[2].Keyword != "h_i_j_" || rets[2].Amount != 2 || rets[2].Tags["b"] != "b9" || rets[2].Texts["h_i_j"] != 1 || rets[2].Texts["H_I_J"] != 1 {
+		t.Fatal()
+	}
+
+	if rets[3].Keyword != "ab" || rets[3].Amount != 4 || rets[3].Texts["Ab"] != 1 || rets[3].Texts["ab"] != 1 || rets[3].Texts["AB"] != 1 || rets[3].Texts["aB"] != 1 {
+		t.Fatal()
+	}
+
+	amount = 0
+	for _, _n := range rets[3].Texts {
+		amount += _n
+	}
+	if amount != rets[3].Amount {
+		t.Fatal()
+	}
+
+	if rets[4].Keyword != "a" || rets[4].Amount != 1 {
 		t.Fatal()
 	}
 }
@@ -103,7 +208,7 @@ func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
 		t.Fatal()
 	}
 
-	if rets[0].Texts["Abc"] != 1 {
+	if rets[0].Texts["AbbbC"] != 1 || rets[0].Texts["Abc"] != 1 || rets[0].Texts["abbC"] != 1 || rets[0].Texts["ac"] != 1 {
 		t.Fatal()
 	}
 
@@ -116,6 +221,10 @@ func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
 	}
 
 	if rets[1].Keyword != "ab" || rets[1].Amount != 1 {
+		t.Fatal()
+	}
+
+	if rets[1].Texts["AB"] != 1 {
 		t.Fatal()
 	}
 
@@ -244,7 +353,7 @@ func TestMatcher_MatchLabel(t *testing.T) {
 	}
 
 	rets = _m.MatchLabel([]string{"abcabcabc"})
-	if len(rets) != 1 || rets[0].Tags["b"] != "b3" || len(rets[0].Match["abc"]) != 3 || rets[0].Amount != 3 {
+	if len(rets) != 1 || rets[0].Tags["b"] != "b3" || rets[0].Match["abc"]["abc"] != 3 || rets[0].Amount != 3 {
 		t.Fatal(2)
 	}
 

@@ -6,8 +6,10 @@ import (
 	"strings"
 )
 
+type seekMode int
+
 const (
-	modeSequence = iota
+	modeSequence seekMode = iota
 	modePriorityAccurate
 	modePriorityFuzzy
 )
@@ -29,7 +31,7 @@ func (fc *FuzzyConfig) check() {
 
 type matcherConfig struct {
 	ignoreCase  bool
-	mode        int
+	mode        seekMode
 	enableFuzzy bool
 	fuzzyConfig FuzzyConfig
 	debug       bool
@@ -97,6 +99,16 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 					m.fuzzySeek = append(m.fuzzySeek, _seeker)
 				}
 			}
+		}
+
+		switch config.mode {
+		case modeSequence:
+		case modePriorityAccurate:
+			m.allSeek = append(m.accurateSeek, m.fuzzySeek...)
+		case modePriorityFuzzy:
+			m.allSeek = append(m.fuzzySeek, m.accurateSeek...)
+		default:
+			panic(fmt.Sprintf("mode [%d] error", config.mode))
 		}
 	}
 
@@ -245,40 +257,13 @@ func (m *matcher) findAll(contents []string) seekResults {
 			content = strings.ToLower(content)
 		}
 
-		var ok bool
-		var _rets seekResults
-		switch m.config.mode {
-		case modeSequence:
-			_rets, content, ok = m.seekingAll(m.allSeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-			}
-		case modePriorityAccurate:
-			_rets, content, ok = m.seekingAll(m.accurateSeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-			}
-
-			_rets, _, ok = m.seekingAll(m.fuzzySeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-			}
-		case modePriorityFuzzy:
-			_rets, content, ok = m.seekingAll(m.fuzzySeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-			}
-
-			_rets, content, ok = m.seekingAll(m.accurateSeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-			}
-		default:
-			panic("unknown mode")
+		rets, sc, ok := m.seekingAll(m.allSeek, originContent, content)
+		if ok {
+			results = append(results, rets...)
 		}
 
 		if m.config.debug {
-			m.debugInfo(originContent, content, results)
+			m.debugInfo(originContent, sc, results)
 		}
 	}
 
@@ -298,42 +283,13 @@ func (m *matcher) findFirst(contents []string) seekResults {
 			content = strings.ToLower(content)
 		}
 
-		var ok bool
-		var _rets seekResults
-		switch m.config.mode {
-		case modeSequence:
-			_rets, content, ok = m.seekingFirst(m.allSeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-			}
-		case modePriorityAccurate:
-			_rets, content, ok = m.seekingFirst(m.accurateSeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-				break
-			}
-
-			_rets, content, ok = m.seekingFirst(m.fuzzySeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-			}
-		case modePriorityFuzzy:
-			_rets, content, ok = m.seekingFirst(m.fuzzySeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-				break
-			}
-
-			_rets, content, ok = m.seekingFirst(m.accurateSeek, originContent, content)
-			if ok {
-				results = append(results, _rets...)
-			}
-		default:
-			panic("unknown mode")
+		rets, sc, ok := m.seekingFirst(m.allSeek, originContent, content)
+		if ok {
+			results = append(results, rets...)
 		}
 
 		if m.config.debug {
-			m.debugInfo(originContent, content, results)
+			m.debugInfo(originContent, sc, results)
 		}
 
 		if results != nil {
@@ -344,25 +300,29 @@ func (m *matcher) findFirst(contents []string) seekResults {
 	return results
 }
 
-func (m *matcher) seekingAll(seekers []seeker, originContent, content string) (seekResults, string, bool) {
+func (m *matcher) seekingAll(seekers []seeker, originContent, content string) (seekResults, seekContent, bool) {
 	return m.seeking(seekers, originContent, content, false)
 }
 
-func (m *matcher) seekingFirst(seekers []seeker, originContent, content string) (seekResults, string, bool) {
+func (m *matcher) seekingFirst(seekers []seeker, originContent, content string) (seekResults, seekContent, bool) {
 	return m.seeking(seekers, originContent, content, true)
 }
 
-func (m *matcher) seeking(seekers []seeker, originContent, content string, onlyFirst bool) (seekResults, string, bool) {
+func (m *matcher) seeking(seekers []seeker, originContent, content string, onlyFirst bool) (seekResults, seekContent, bool) {
 	var results seekResults
 
 	has := false
 	var ok bool
-	var _srt seekResult
+	var sr seekResult
+	var sc seekContent
 	for _, _seeker := range seekers {
-		_srt, content, ok = _seeker.seeking(originContent, content)
+		sr, sc, ok = _seeker.seeking(originContent, content)
 		if ok {
-			results = append(results, _srt)
+			results = append(results, sr)
 			has = true
+
+			originContent = sc.origin
+			content = sc.content
 
 			if onlyFirst {
 				results = results[0:1]
@@ -372,7 +332,7 @@ func (m *matcher) seeking(seekers []seeker, originContent, content string, onlyF
 		}
 	}
 
-	return results, content, has
+	return results, sc, has
 }
 
 func (m *matcher) toResults(items seekResults) Results {
@@ -435,9 +395,10 @@ func (m *matcher) toLabelResults(items seekResults) LabelResults {
 	return results
 }
 
-func (m *matcher) debugInfo(os, s string, rets seekResults) {
-	fmt.Println("origin content:", os)
-	fmt.Println(fmt.Sprintf("%-15s", "content:"), s)
+func (m *matcher) debugInfo(origin string, sc seekContent, rets seekResults) {
+	fmt.Println(fmt.Sprintf("%-16s", "origin:"), origin)
+	fmt.Println(fmt.Sprintf("%s", "matched origin: "), sc.origin)
+	fmt.Println(fmt.Sprintf("%s", "matched content:"), sc.content)
 	fmt.Println("results:")
 	for i, rt := range rets {
 		fmt.Println(fmt.Sprintf("  %-3d%+v", i, rt))

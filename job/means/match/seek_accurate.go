@@ -23,44 +23,54 @@ func newAccurate(index int, originKey, key string, tags map[string]string) *accu
 	}
 }
 
-func (a *accurate) seeking(origin, content string) (seekResult, string, bool) {
+func (a *accurate) seeking(origin, content string) (seekResult, seekContent, bool) {
 	result := newSeekResult()
 	result.keyword = a.originKey
 	result.tags = a.tags
 
-	var matchedIndex int // 每次 matched 的结束 index
-	var matchedContent, originText, before string
+	var matchedIndex, beforeLen int // 每次 matched 的结束 index
+	var matchedOrigin, matchedContent, matchedText, before string
 	var hasMatch, ok bool
 
 	keyLen := len(a.key)
 	for {
 		before, content, ok = strings.Cut(content, a.key)
+		beforeLen = len(before)
+
+		matchedContent += before
+		matchedOrigin += origin[matchedIndex : matchedIndex+beforeLen]
+
 		if ok {
 			hasMatch = true
 
-			matchedIndex += len(before)
-			originText = origin[matchedIndex : matchedIndex+keyLen]
+			matchedContent += _placeholder
+			matchedOrigin += _placeholder
 
-			if _, ok1 := result.textsAmount[originText]; !ok1 {
-				result.texts = append(result.texts, originText)
+			matchedIndex += beforeLen
+			matchedText = origin[matchedIndex : matchedIndex+keyLen]
+			matchedIndex += keyLen
+
+			if _, ok1 := result.textsAmount[matchedText]; !ok1 {
+				result.texts = append(result.texts, matchedText)
 			}
 
-			result.textsAmount[originText] += 1
+			result.textsAmount[matchedText] += 1
 			result.amount += 1
 
-			// 防止重复 count
-			matchedContent += before + _placeholder
-			matchedIndex += keyLen
 		} else {
-			matchedContent += before
-
 			break
 		}
 	}
 
 	if hasMatch {
-		return result, matchedContent, true
+		return result, seekContent{
+			origin:  matchedOrigin,
+			content: matchedContent,
+		}, true
 	} else {
-		return seekResult{}, matchedContent, false
+		return seekResult{}, seekContent{
+			origin:  matchedOrigin,
+			content: matchedContent,
+		}, false
 	}
 }
