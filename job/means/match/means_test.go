@@ -8,7 +8,7 @@ import (
 )
 
 func TestMeans(t *testing.T) {
-	tm := NewMatch(_rule, nil)
+	tm := newMeans(NewSearchKey(_rule, NewExportKeywordAll))
 	err := tm.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -21,10 +21,7 @@ func TestMeans(t *testing.T) {
 }
 
 func TestWholeLabels(t *testing.T) {
-	tm := NewWholeLabels(_rule).WithFuzzy(FuzzyConfig{
-		Window: 3,
-		Sep:    "_",
-	}).WithDebug()
+	tm := NewWholeLabels(_rule)
 	err := tm.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -38,7 +35,7 @@ func TestWholeLabels(t *testing.T) {
 
 	if resSlice[0][_rule.NameAlias()] != "123|a|ab|中1文|中文" || resSlice[0][_rule.LabelNumNameAlias()] != 5 ||
 		resSlice[0][_rule.KeywordNumNameAlias()] != 6 || resSlice[0][_rule.KeywordAmountNameAlias()] != 33 {
-		t.Fatal()
+		t.Fatal(0)
 	}
 
 	if resSlice[0][_rule.LabelNumNameAlias()] != len(strings.Split(resSlice[0]["a"].(string), "|")) {
@@ -70,7 +67,7 @@ func TestLabel(t *testing.T) {
 	}
 
 	if resSlice[0]["a"] != "a" || resSlice[0][_rule.KeywordAmountNameAlias()] != 4 {
-		t.Fatal()
+		t.Fatal(0)
 	}
 
 	amount := 0
@@ -81,15 +78,15 @@ func TestLabel(t *testing.T) {
 		}
 	}
 	if amount != resSlice[0][_rule.KeywordAmountNameAlias()] {
-		t.Fatal()
+		t.Fatal(0)
 	}
 
 	if resSlice[3]["a"] != "中文" || resSlice[3][_rule.KeywordNameAlias()] == "中文" || resSlice[3][_rule.KeywordAmountNameAlias()] != 4 {
-		t.Fatal()
+		t.Fatal(3)
 	}
 
 	if resSlice[4]["a"] != "中1文" || resSlice[4][_rule.KeywordAmountNameAlias()] != 17 {
-		t.Fatal()
+		t.Fatal(4)
 	}
 
 	amount = 0
@@ -115,19 +112,19 @@ func TestKey(t *testing.T) {
 	}
 
 	if resSlice[0]["a"] != "a" || resSlice[0][_rule.KeywordNameAlias()] != "b" || resSlice[0][_rule.KeywordAmountNameAlias()] != 3 {
-		t.Fatal()
+		t.Fatal(0)
 	}
 
 	if resSlice[2]["a"] != "123" || resSlice[2][_rule.KeywordNameAlias()] != "123" || resSlice[2][_rule.KeywordAmountNameAlias()] != 7 {
-		t.Fatal()
+		t.Fatal(2)
 	}
 
 	if resSlice[3]["a"] != "a" || resSlice[3][_rule.KeywordNameAlias()] != "a" || resSlice[3][_rule.KeywordAmountNameAlias()] != 1 {
-		t.Fatal()
+		t.Fatal(3)
 	}
 
 	if resSlice[5]["a"] != "中1文" || resSlice[5][_rule.KeywordNameAlias()] != "中_文" || resSlice[5][_rule.KeywordAmountNameAlias()] != 17 {
-		t.Fatal()
+		t.Fatal(5)
 	}
 
 	_amount := 0
@@ -216,8 +213,8 @@ func TestMostText(t *testing.T) {
 	}
 }
 
-func TestFirst(t *testing.T) {
-	tm := NewFirst(_rule)
+func TestFirstText(t *testing.T) {
+	tm := NewFirstText(_rule)
 	err := tm.Prepare()
 	if err != nil {
 		t.Fatal(err)

@@ -1,6 +1,8 @@
 package match
 
 import (
+	"sort"
+
 	"github.com/auho/go-etl/v2/job/means"
 )
 
@@ -120,7 +122,7 @@ func (r *ruleTest) FixedKeysAlias() []string {
 }
 
 func (r *ruleTest) Items() ([]map[string]string, error) {
-	return []map[string]string{
+	items := []map[string]string{
 		{"a": "a", "ab": "a1", "a_keyword": "a"},
 		{"a": "a", "ab": "a1", "a_keyword": "b"},
 		{"a": "e", "ab": "e1", "a_keyword": "e"},
@@ -128,7 +130,13 @@ func (r *ruleTest) Items() ([]map[string]string, error) {
 		{"a": "123", "ab": "123", "a_keyword": "123"},
 		{"a": "中文", "ab": "中文1", "a_keyword": "中文"},
 		{"a": "中1文", "ab": "中1文1", "a_keyword": `中_文`},
-	}, nil
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		return len(items[i]["a_keyword"]) > len(items[j]["a_keyword"])
+	})
+
+	return items, nil
 }
 
 func (r *ruleTest) ItemsAlias() ([]map[string]string, error) {
