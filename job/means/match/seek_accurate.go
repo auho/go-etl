@@ -48,11 +48,15 @@ func (a *accurate) seeking(origin, content string) (seekResult, seekContent, boo
 
 			matchedIndex += beforeLen
 			matchedText = origin[matchedIndex : matchedIndex+keyLen]
-			matchedIndex += keyLen
 
-			if _, ok1 := result.textsAmount[matchedText]; !ok1 {
-				result.texts = append(result.texts, matchedText)
-			}
+			result.texts = append(result.texts, textResult{
+				text:  matchedText,
+				start: matchedIndex,
+				width: keyLen,
+			})
+
+			// + key
+			matchedIndex += keyLen
 
 			result.textsAmount[matchedText] += 1
 			result.amount += 1

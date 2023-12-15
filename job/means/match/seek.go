@@ -17,7 +17,7 @@ const (
 
 type seekResult struct {
 	keyword     string            // origin keyword
-	texts       []string          // matched texts
+	texts       []textResult      // matched texts
 	textsAmount map[string]int    // map[text]text amount
 	tags        map[string]string // matched tags
 	amount      int               // keyword matched amount
@@ -30,6 +30,12 @@ type seekContent struct {
 	// 如果 ignore case，content 为 lower
 	// 去除匹配项后（匹配项被替换为 placeholder）的 content，如果无匹配项则是匹配前 content
 	content string
+}
+
+type textResult struct {
+	text  string
+	start int // start 包含
+	width int // width unit byte
 }
 
 func newSeekResult() seekResult {

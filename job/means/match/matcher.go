@@ -127,7 +127,7 @@ func (m *matcher) MatchKey(contents []string) Results {
 	for _, item := range items {
 		if index, ok := resultsIndex[item.keyword]; ok {
 			for text, _n := range item.textsAmount {
-				results[index].Texts[text] += _n
+				results[index].TextsAmount[text] += _n
 			}
 
 			results[index].Amount += item.amount
@@ -164,13 +164,13 @@ func (m *matcher) MatchText(contents []string) Results {
 	for _, item := range items {
 		for text, _n := range item.textsAmount {
 			if index, ok := resultsIndex[text]; ok {
-				results[index].Texts[text] += _n
+				results[index].TextsAmount[text] += _n
 				results[index].Amount += _n
 			} else {
 				result := NewResult()
 				result.Keyword = item.keyword
 				result.Tags = item.tags
-				result.Texts[text] = item.textsAmount[text]
+				result.TextsAmount[text] = item.textsAmount[text]
 				result.Amount = item.textsAmount[text]
 
 				results = append(results, result)
@@ -349,7 +349,16 @@ func (m *matcher) toResult(item seekResult) Result {
 	result := NewResult()
 	result.Keyword = item.keyword
 	result.Tags = item.tags
-	result.Texts = item.textsAmount
+	result.TextsAmount = item.textsAmount
+	for _, text := range item.texts {
+		result.Texts = append(result.Texts, Text{
+			Text:  text.text,
+			Start: text.start,
+			Width: text.width,
+		})
+	}
+	result.FirstIndex = result.Texts[0].Start
+	result.LastIndex = result.Texts[len(result.Texts)-1].Start
 	result.Amount = item.amount
 
 	return result

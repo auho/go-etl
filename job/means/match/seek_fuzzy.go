@@ -58,7 +58,7 @@ func (f *fuzzy) seeking(origin, content string) (seekResult, seekContent, bool) 
 	result.tags = f.tags
 
 	var matchedIndex, beforeLen, textLen int // 每次 matched 的结束 index
-	var matchedOrigin, matchedContent, text, originText, before string
+	var matchedOrigin, matchedContent, text, matchedText, before string
 	var hasMatch, ok bool
 
 	for {
@@ -72,14 +72,16 @@ func (f *fuzzy) seeking(origin, content string) (seekResult, seekContent, bool) 
 			matchedContent += before + _placeholder
 			matchedOrigin += origin[matchedIndex:matchedIndex+beforeLen] + _placeholder
 			matchedIndex += len(before)
-			originText = origin[matchedIndex : matchedIndex+textLen]
+			matchedText = origin[matchedIndex : matchedIndex+textLen]
+			result.texts = append(result.texts, textResult{
+				text:  matchedText,
+				start: matchedIndex,
+				width: textLen,
+			})
+
 			matchedIndex += textLen
 
-			if _, ok1 := result.textsAmount[originText]; !ok1 {
-				result.texts = append(result.texts, originText)
-			}
-
-			result.textsAmount[originText] += 1
+			result.textsAmount[matchedText] += 1
 			result.amount += 1
 
 			if len(content) < f.keysWidth {
