@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"strings"
+	"unicode/utf8"
 )
 
 var _placeholder = fmt.Sprintf("%c", 0x00)
@@ -74,7 +75,10 @@ func (s *seek) replaceMatchedToPlaceholder(content, matched string) string {
 
 func (s *seek) matchedToPlaceholder(matched string) string {
 	if s.config.debug {
-		return strings.Repeat(_placeholder, len(matched))
+		_len := len(matched)
+		_runeLen := utf8.RuneCountInString(matched)
+		_zhLen := (_len - _runeLen) / 2
+		return strings.Repeat(_placeholder, _runeLen+_zhLen)
 	} else {
 		return _placeholder
 	}

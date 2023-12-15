@@ -24,7 +24,7 @@ func TestWholeLabels(t *testing.T) {
 	tm := NewWholeLabels(_rule).WithFuzzy(FuzzyConfig{
 		Window: 3,
 		Sep:    "_",
-	})
+	}).WithDebug()
 	err := tm.Prepare()
 	if err != nil {
 		t.Fatal(err)

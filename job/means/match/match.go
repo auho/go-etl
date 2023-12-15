@@ -97,6 +97,12 @@ func (m *Match) WithFuzzyPriority() *Match {
 	return m
 }
 
+func (m *Match) WithDebug() *Match {
+	m.matcherConfig.debug = true
+
+	return m
+}
+
 func (m *Match) WithMatcher(keyName string, items []map[string]string) *Match {
 	m.newMatcherFun = func(config *matcherConfig) (*matcher, error) {
 		return newMatcher(keyName, items, config), nil

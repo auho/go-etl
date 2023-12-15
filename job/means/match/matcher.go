@@ -139,6 +139,15 @@ func (m *matcher) MatchKey(contents []string) Results {
 	return results
 }
 
+func (m *matcher) MatchFirstKey(contents []string) Results {
+	results := m.MatchKey(contents)
+	if results == nil {
+		return nil
+	}
+
+	return results[0:1]
+}
+
 func (m *matcher) MatchMostKey(contents []string) Results {
 	results := m.MatchKey(contents)
 	if results == nil {
@@ -196,12 +205,17 @@ func (m *matcher) MatchMostText(contents []string) Results {
 }
 
 func (m *matcher) MatchFirstText(contents []string) Results {
-	items := m.findFirst(contents)
+	items := m.findAll(contents)
 	if items == nil {
 		return nil
 	}
 
-	return m.toResults(items)
+	rets := m.toResults(items)
+	sort.Slice(rets, func(i, j int) bool {
+		return rets[i].FirstIndex < rets[j].FirstIndex
+	})
+
+	return rets[0:1]
 }
 
 func (m *matcher) MatchLastText(contents []string) Results {
