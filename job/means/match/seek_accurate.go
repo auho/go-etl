@@ -14,13 +14,17 @@ type accurate struct {
 	tags      map[string]string // tags name and value
 }
 
-func newAccurate(index int, originKey, key string, tags map[string]string) *accurate {
-	return &accurate{
+func newAccurate(index int, originKey, key string, tags map[string]string, config seekConfig) *accurate {
+	a := &accurate{
 		index:     index,
 		originKey: originKey,
 		key:       key,
 		tags:      tags,
 	}
+
+	a.config = config
+
+	return a
 }
 
 func (a *accurate) seeking(origin, content string) (seekResult, seekContent, bool) {
@@ -43,11 +47,11 @@ func (a *accurate) seeking(origin, content string) (seekResult, seekContent, boo
 		if ok {
 			hasMatch = true
 
-			matchedContent += _placeholder
-			matchedOrigin += _placeholder
-
 			matchedIndex += beforeLen
 			matchedText = origin[matchedIndex : matchedIndex+keyLen]
+			_ph := a.matchedToPlaceholder(matchedText)
+			matchedContent += _ph
+			matchedOrigin += _ph
 
 			result.texts = append(result.texts, textResult{
 				text:  matchedText,

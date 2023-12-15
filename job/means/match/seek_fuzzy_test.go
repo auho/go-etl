@@ -9,7 +9,7 @@ import (
 func Test_fuzzy(t *testing.T) {
 	var amount int
 
-	_fuzzy := newFuzzy(1, "a_c", "a_c", map[string]string{"b": "b1"}, FuzzyConfig{Sep: "_", Window: 2})
+	_fuzzy := newFuzzy(1, "a_c", "a_c", map[string]string{"b": "b1"}, FuzzyConfig{Sep: "_", Window: 2}, seekConfig{})
 
 	// lowercase
 	sr, sc, ok := _fuzzy.seeking("acabcabcabbcabbbc", "acabcabcabbcabbbc")
@@ -49,7 +49,7 @@ func Test_fuzzy(t *testing.T) {
 	}
 
 	// uppercase
-	_fuzzy = newFuzzy(1, "A_c", "A_c", map[string]string{"b": "b1"}, FuzzyConfig{Sep: "_", Window: 2})
+	_fuzzy = newFuzzy(1, "A_c", "A_c", map[string]string{"b": "b1"}, FuzzyConfig{Sep: "_", Window: 2}, seekConfig{})
 
 	sr, sc, ok = _fuzzy.seeking("acAbcabbCabbbcACABC", "acAbcabbCabbbcACABC")
 	fmt.Println(sc)
@@ -80,7 +80,7 @@ func Test_fuzzy(t *testing.T) {
 	}
 
 	// ignore case
-	_fuzzy = newFuzzy(1, "A_c", "a_c", map[string]string{"b": "b1"}, FuzzyConfig{Sep: "_", Window: 2})
+	_fuzzy = newFuzzy(1, "A_c", "a_c", map[string]string{"b": "b1"}, FuzzyConfig{Sep: "_", Window: 2}, seekConfig{})
 
 	sr, sc, ok = _fuzzy.seeking("acA一ca二二Ca三三三cACcAAcac", "aca一ca二二ca三三三caccaacac")
 	fmt.Println(sc)
@@ -110,7 +110,7 @@ func Test_fuzzy(t *testing.T) {
 		t.Fatal()
 	}
 
-	_fuzzy = newFuzzy(1, "A_c", "a_c_", map[string]string{"b": "b1"}, FuzzyConfig{Sep: "_", Window: 2})
+	_fuzzy = newFuzzy(1, "A_c", "a_c_", map[string]string{"b": "b1"}, FuzzyConfig{Sep: "_", Window: 2}, seekConfig{})
 
 	sr, sc, ok = _fuzzy.seeking("aca一ca二二ca三三三cACcac", "aca一ca二二ca三三三cACcac")
 	fmt.Println(sc)

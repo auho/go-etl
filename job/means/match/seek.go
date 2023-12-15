@@ -15,14 +15,6 @@ const (
 	seekFuzzy
 )
 
-type seekResult struct {
-	keyword     string            // origin keyword
-	texts       []textResult      // matched texts
-	textsAmount map[string]int    // map[text]text amount
-	tags        map[string]string // matched tags
-	amount      int               // keyword matched amount
-}
-
 type seekContent struct {
 	// 去除匹配项后（匹配项被替换为 placeholder）的 origin，如果无匹配项则是匹配前 origin
 	origin string
@@ -38,6 +30,14 @@ type textResult struct {
 	width int // width unit byte
 }
 
+type seekResult struct {
+	keyword     string            // origin keyword
+	texts       []textResult      // matched texts
+	textsAmount map[string]int    // map[text]text amount
+	tags        map[string]string // matched tags
+	amount      int               // keyword matched amount
+}
+
 func newSeekResult() seekResult {
 	return seekResult{
 		textsAmount: make(map[string]int),
@@ -45,6 +45,10 @@ func newSeekResult() seekResult {
 }
 
 type seekResults []seekResult
+
+type seekConfig struct {
+	debug bool
+}
 
 // seeker
 // content，keyword 大小写在 match 已经处理过
@@ -59,17 +63,30 @@ type seeker interface {
 	seeking(origin string, toLower string) (seekResult, seekContent, bool)
 }
 
-type seek struct{}
-
-func (s *seek) replaceKeyPoint(content, key string) string {
-	return strings.ReplaceAll(content, key, _placeholder)
+type seek struct {
+	config seekConfig
 }
 
-func newSeeker(index int, originKey, key string, tags map[string]string, config *matcherConfig) (seeker, seekType) {
-	newTags := maps.Clone(tags)
-	if config.enableFuzzy && strings.Index(key, config.fuzzyConfig.Sep) > -1 {
-		return newFuzzy(index, originKey, key, newTags, config.fuzzyConfig), seekFuzzy
+func (s *seek) replaceMatchedToPlaceholder(content, matched string) string {
+	c := s.matchedToPlaceholder(matched)
+	return strings.ReplaceAll(content, matched, c)
+}
+
+func (s *seek) matchedToPlaceholder(matched string) string {
+	if s.config.debug {
+		return strings.Repeat(_placeholder, len(matched))
 	} else {
-		return newAccurate(index, originKey, key, newTags), seekAccurate
+		return _placeholder
+	}
+}
+
+func newSeeker(index int, originKey, key string, tags map[string]string, matcherConfig *matcherConfig) (seeker, seekType) {
+	config := seekConfig{debug: matcherConfig.debug}
+	newTags := maps.Clone(tags)
+
+	if matcherConfig.enableFuzzy && strings.Index(key, matcherConfig.fuzzyConfig.Sep) > -1 {
+		return newFuzzy(index, originKey, key, newTags, matcherConfig.fuzzyConfig, config), seekFuzzy
+	} else {
+		return newAccurate(index, originKey, key, newTags, config), seekAccurate
 	}
 }

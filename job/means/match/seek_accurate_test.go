@@ -8,7 +8,7 @@ import (
 
 func Test_accurate(t *testing.T) {
 	var amount int
-	_accurate := newAccurate(1, "ac", "ac", map[string]string{"b": "b1"})
+	_accurate := newAccurate(1, "ac", "ac", map[string]string{"b": "b1"}, seekConfig{})
 
 	// lowercase
 	sr, sc, ok := _accurate.seeking("acabcabbcabbbcac", "acabcabbcabbbcac")
@@ -44,7 +44,7 @@ func Test_accurate(t *testing.T) {
 	}
 
 	// uppercase
-	_accurate = newAccurate(1, "Ac", "AC", map[string]string{"b": "b1"})
+	_accurate = newAccurate(1, "Ac", "AC", map[string]string{"b": "b1"}, seekConfig{})
 
 	sr, sc, ok = _accurate.seeking("AcaCACaccabbCabbbcAC", "AcaCACaccabbCabbbcAC")
 	fmt.Println(sc)
@@ -71,7 +71,7 @@ func Test_accurate(t *testing.T) {
 	}
 
 	// ignore case
-	_accurate = newAccurate(1, "Ac", "ac", map[string]string{"b": "b1"})
+	_accurate = newAccurate(1, "Ac", "ac", map[string]string{"b": "b1"}, seekConfig{})
 
 	sr, sc, ok = _accurate.seeking("AcaCACaccabbCabbbcAC", "acacacaccabbcabbbcac")
 	fmt.Println(sc)

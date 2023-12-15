@@ -28,14 +28,15 @@ type fuzzy struct {
 	keysWidth int               // 所有词的总宽度 byte
 }
 
-func newFuzzy(index int, originKey, key string, tags map[string]string, config FuzzyConfig) *fuzzy {
-	keys := strings.Split(key, config.Sep)
+func newFuzzy(index int, originKey, key string, tags map[string]string, fuzzyConfig FuzzyConfig, config seekConfig) *fuzzy {
+	keys := strings.Split(key, fuzzyConfig.Sep)
 
 	f := &fuzzy{}
 	f.index = index
 	f.originKey = originKey
 	f.key = key
 	f.tags = tags
+	f.config = config
 
 	for _, _k := range keys {
 		_kLen := len(_k)
@@ -44,7 +45,7 @@ func newFuzzy(index int, originKey, key string, tags map[string]string, config F
 			keyLen: _kLen,
 		})
 
-		f.windows = append(f.windows, config.Window)
+		f.windows = append(f.windows, fuzzyConfig.Window)
 		f.keysWidth += _kLen
 	}
 
@@ -69,10 +70,12 @@ func (f *fuzzy) seeking(origin, content string) (seekResult, seekContent, bool) 
 			hasMatch = true
 
 			textLen = len(text)
-			matchedContent += before + _placeholder
-			matchedOrigin += origin[matchedIndex:matchedIndex+beforeLen] + _placeholder
 			matchedIndex += len(before)
 			matchedText = origin[matchedIndex : matchedIndex+textLen]
+			_ph := f.matchedToPlaceholder(matchedText)
+			matchedContent += before + _ph
+			matchedOrigin += origin[matchedIndex:matchedIndex+beforeLen] + _ph
+
 			result.texts = append(result.texts, textResult{
 				text:  matchedText,
 				start: matchedIndex,
