@@ -70,11 +70,13 @@ func (f *fuzzy) seeking(origin, content string) (seekResult, seekContent, bool) 
 			hasMatch = true
 
 			textLen = len(text)
+			matchedContent += before
+			matchedOrigin += origin[matchedIndex : matchedIndex+beforeLen]
 			matchedIndex += len(before)
 			matchedText = origin[matchedIndex : matchedIndex+textLen]
 			_ph := f.matchedToPlaceholder(matchedText)
-			matchedContent += before + _ph
-			matchedOrigin += origin[matchedIndex:matchedIndex+beforeLen] + _ph
+			matchedOrigin += _ph
+			matchedContent += _ph
 
 			result.texts = append(result.texts, textResult{
 				text:  matchedText,
