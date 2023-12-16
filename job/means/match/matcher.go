@@ -75,6 +75,10 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 			}
 		}
 
+		sort.SliceStable(m.tagsName, func(i, j int) bool {
+			return m.tagsName[i] < m.tagsName[j]
+		})
+
 		for _i, item := range items {
 			var _keyValue string
 			_originKeyValue := item[keyName]

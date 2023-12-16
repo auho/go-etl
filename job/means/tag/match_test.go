@@ -7,12 +7,24 @@ import (
 	"testing"
 )
 
-func TestMatcher(t *testing.T) {
+var _expectItemsAmount = 7
+var _expectMatcherAmount = 31
+var _expectTextAmount = 17
+var _expectKeyAmount = 4
+var _expectLabelAmount = 3
+
+var _expect_b_Amount = 3
+var _expect_123_Amount = 7
+var _expect_中文_Amount = 4
+var _expect_中_文_Amount = 17
+var _expect_中_文_Num = 14
+
+func _genMatcher() *Matcher {
 	// keyword: a
 	// labels: b c
 	items := []map[string]string{
-		{"a": "b", "b": "b", "c": "c"},
 		{"a": "123", "b": "b", "c": "c"},
+		{"a": "b", "b": "b", "c": "c"},
 		{"a": "中文", "b": "b2", "c": "c2"},
 		{"a": "中_文", "b": "b3", "c": "c3"},
 		{"a": "_中1_a文", "b": "b4", "c": "c4"},
@@ -20,7 +32,7 @@ func TestMatcher(t *testing.T) {
 		{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"},
 	}
 
-	m := NewMatcher(WithMatcherKeyFormatFunc(func(s string) string {
+	_matcher := NewMatcher(WithMatcherKeyFormatFunc(func(s string) string {
 		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 		if err != nil {
 			return s
@@ -33,118 +45,323 @@ func TestMatcher(t *testing.T) {
 		}
 	}))
 
-	m.prepare("a", items, nil)
+	_matcher.prepare("a", items, nil)
 
-	amount := 0
-	var results Results
-	var tagResults LabelResults
+	return _matcher
+}
 
-	fmt.Println("\n Match")
-	results = m.Match(_contents)
-	for _, result := range results {
-		fmt.Println(result)
+func TestMatcher(t *testing.T) {
+	_matcher := _genMatcher()
+	if len(_matcher.regexpItems) != _expectItemsAmount {
+		t.Fatal()
 	}
 
-	if len(results) != 31 || results[0].Keyword != "b" {
-		t.Fatal("Match")
+	var rets Results
+	var labelRets LabelResults
+
+	t.Run("Match", func(t *testing.T) {
+		rets = _matcher.Match(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, _expectMatcherAmount, _expectMatcherAmount)
+
+		_assertResult(t, rets[0], "b", 1, 1, map[string]int{"b": 1})
+		_assertResult(t, rets[1], "123", 1, 1, map[string]int{"123": 1})
+		_assertResult(t, rets[7], "中文", 1, 1, map[string]int{"中文": 1})
+		_assertResult(t, rets[30], "中_文", 1, 1, map[string]int{"中123文": 1})
+	})
+
+	t.Run("MatchInKeyOrder", func(t *testing.T) {
+		rets = _matcher.MatchInKeyOrder(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, _expectMatcherAmount, _expectMatcherAmount)
+
+		_assertResult(t, rets[0], "123", 1, 1, map[string]int{"123": 1})
+		_assertResult(t, rets[_expect_123_Amount], "b", 1, 1, map[string]int{"b": 1})
+		_assertResult(t, rets[_expect_b_Amount+_expect_123_Amount], "中文", 1, 1, map[string]int{"中文": 1})
+		_assertResult(t, rets[_expect_b_Amount+_expect_123_Amount+_expect_中文_Amount], "中_文", 1, 1, map[string]int{"中bb文": 1})
+		_assertResult(t, rets[_expectMatcherAmount-1], "中_文", 1, 1, map[string]int{"中123文": 1})
+	})
+
+	t.Run("MatchText", func(t *testing.T) {
+		rets = _matcher.MatchText(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, _expectMatcherAmount, _expectTextAmount)
+
+		_assertResult(t, rets[0], "b", _expect_b_Amount, 1, map[string]int{"b": _expect_b_Amount})
+		_assertResult(t, rets[1], "123", _expect_123_Amount, 1, map[string]int{"123": _expect_123_Amount})
+		_assertResult(t, rets[2], "中文", _expect_中文_Amount, 1, map[string]int{"中文": _expect_中文_Amount})
+		_assertResult(t, rets[3], "中_文", 1, 1, map[string]int{"中bb文": 1})
+		_assertResult(t, rets[6], "中_文", 2, 1, map[string]int{"中aa文": 2})
+		_assertResult(t, rets[16], "中_文", 1, 1, map[string]int{"中23文": 1})
+
+	})
+
+	t.Run("MatchFirstText", func(t *testing.T) {
+		rets = _matcher.MatchFirstText(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, 1, 1)
+
+		_assertResult(t, rets[0], "b", 1, 1, map[string]int{"b": 1})
+	})
+
+	t.Run("MatchLastText", func(t *testing.T) {
+		rets = _matcher.MatchLastText(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, 1, 1)
+
+		_assertResult(t, rets[0], "中_文", 1, 1, map[string]int{"中123文": 1})
+	})
+
+	t.Run("MatchMostText", func(t *testing.T) {
+		rets = _matcher.MatchMostText(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, _expect_123_Amount, 1)
+
+		_assertResult(t, rets[0], "123", _expect_123_Amount, 1, map[string]int{"123": _expect_123_Amount})
+	})
+
+	t.Run("MatchKey", func(t *testing.T) {
+		rets = _matcher.MatchKey(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, _expectMatcherAmount, _expectKeyAmount)
+
+		_assertResult(t, rets[0], "123", _expect_123_Amount, 1, map[string]int{"123": _expect_123_Amount})
+		_assertResult(t, rets[1], "b", _expect_b_Amount, 1, map[string]int{"b": _expect_b_Amount})
+		_assertResult(t, rets[2], "中文", _expect_中文_Amount, 1, map[string]int{"中文": _expect_中文_Amount})
+		_assertResult(t, rets[3], "中_文", _expect_中_文_Amount, _expect_中_文_Num, map[string]int{
+			"中00文": 2,
+			"中aa文": 2,
+			"中12文": 1,
+			"中ab文": 1,
+			"中二二文": 1,
+
+			"b": 0,
+		})
+	})
+
+	t.Run("MatchFirstKey", func(t *testing.T) {
+		rets = _matcher.MatchFirstKey(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, 1, 1)
+		_assertResult(t, rets[0], "123", 1, 1, map[string]int{"123": 1})
+	})
+
+	t.Run("MatchLastKey", func(t *testing.T) {
+		rets = _matcher.MatchLastKey(_contents)
+		_outputResults(rets)
+
+		_assertResults(t, rets, 1, 1)
+
+		_assertResult(t, rets[0], "中_文", 1, 1, map[string]int{"中123文": 1})
+	})
+
+	t.Run("MatchMostKey", func(t *testing.T) {
+		rets = _matcher.MatchMostKey(_contents)
+		_outputResults(rets)
+
+		_assertResult(t, rets[0], "中_文", _expect_中_文_Amount, _expect_中_文_Num, map[string]int{
+			"中00文": 2,
+			"中aa文": 2,
+			"中12文": 1,
+			"中ab文": 1,
+			"中二二文": 1,
+
+			"b": 0,
+		})
+	})
+
+	t.Run("MatchLabel", func(t *testing.T) {
+		labelRets = _matcher.MatchLabel(_contents)
+		_outputResults(labelRets)
+
+		_assertLabelResults(t, labelRets, _expectMatcherAmount, _expectLabelAmount)
+
+		_assertLabelResult(t, labelRets[0], "-b-c", _expect_123_Amount+_expect_b_Amount, 2, 2, map[string]int{
+			"123": _expect_123_Amount,
+			"b":   _expect_b_Amount,
+
+			"中文": 0,
+		})
+
+		_assertLabelResult(t, labelRets[1], "-b2-c2", _expect_中文_Amount, 1, 1, map[string]int{
+			"中文": _expect_中文_Amount,
+
+			"b": 0,
+		})
+
+		_assertLabelResult(t, labelRets[2], "-b3-c3", _expect_中_文_Amount, 1, _expect_中_文_Num, map[string]int{
+			"中00文": 2,
+			"中aa文": 2,
+			"中12文": 1,
+			"中ab文": 1,
+			"中二二文": 1,
+
+			"b": 0,
+		})
+	})
+
+	t.Run("MatchLabelMostText", func(t *testing.T) {
+		labelRets = _matcher.MatchLabelMostText(_contents)
+		_outputResults(labelRets)
+
+		_assertLabelResults(t, labelRets, _expect_中_文_Amount, 1)
+		_assertLabelResult(t, labelRets[0], "-b3-c3", _expect_中_文_Amount, 1, _expect_中_文_Num, map[string]int{
+			"中00文": 2,
+			"中aa文": 2,
+			"中12文": 1,
+			"中ab文": 1,
+			"中二二文": 1,
+
+			"b": 0,
+		})
+	})
+}
+
+func _assertResult(t *testing.T, ret Result, keyword string, amount, textsNum int, textsAmount map[string]int) {
+	if ret.Keyword != keyword {
+		t.Fatal(fmt.Sprintf("result[%s != %s]", keyword, ret.Keyword), t.Name())
 	}
 
-	fmt.Println("\n MatchText")
-	results = m.MatchText(_contents)
-	for _, result := range results {
-		fmt.Println(result)
+	if ret.Amount != amount {
+		t.Fatal(fmt.Sprintf("result[%s] amount", keyword), t.Name())
 	}
 
-	if len(results) != 17 || results[1].Keyword != "123" || results[1].Texts["123"] != 7 || results[2].Amount != 4 {
-		t.Fatal("MatchText")
+	if textsNum != len(ret.Texts) {
+		t.Fatal(fmt.Sprintf("result texts[%s] num[%d != %d]", keyword, textsNum, len(ret.Texts)), t.Name())
 	}
 
-	fmt.Println("\n MatchKey")
-	results = m.MatchKey(_contents)
-	for _, result := range results {
-		fmt.Println(result)
-	}
-
-	if len(results) != 4 || results[1].Texts["123"] != 7 || results[2].Keyword != "中文" || results[3].Amount != 17 {
-		t.Fatal("MatchKey")
-	}
-
-	fmt.Println("\n MatchFirstText")
-	results = m.MatchFirstText(_contents)
-	for _, result := range results {
-		fmt.Println(result)
-	}
-
-	if len(results) != 1 || results[0].Keyword != "b" || results[0].Amount != 1 {
-		t.Fatal("MatchFirstText")
-	}
-
-	fmt.Println("\n MatchLastText")
-	results = m.MatchLastText(_contents)
-	for _, result := range results {
-		fmt.Println(result)
-	}
-
-	if len(results) != 1 || results[0].Keyword != "中_文" || results[0].Amount != 1 || results[0].Texts["中123文"] != 1 {
-		t.Fatal("MatchLastText")
-	}
-
-	fmt.Println("\n MatchMostKey")
-	results = m.MatchMostKey(_contents)
-	for _, result := range results {
-		fmt.Println(result)
-	}
-
-	if len(results) != 1 || results[0].Keyword != "中_文" || results[0].Amount != 17 || results[0].Texts["中00文"] != 2 {
-		t.Fatal("MatchMostKey")
-	}
-
-	amount = 0
-	for _, _ts := range results[0].Texts {
-		amount += _ts
-	}
-	if amount != results[0].Amount {
-		t.Fatal("amount")
-	}
-
-	fmt.Println("\n MatchMostText")
-	results = m.MatchMostText(_contents)
-	for _, result := range results {
-		fmt.Println(result)
-	}
-
-	if len(results) != 1 || results[0].Keyword != "123" || results[0].Amount != 7 || results[0].Texts["123"] != 7 {
-		t.Fatal("MatchMostText")
-	}
-
-	fmt.Println("\n MatchLabel")
-	tagResults = m.MatchLabel(_contents)
-	for _, tagResult := range tagResults {
-		fmt.Println(tagResult)
-	}
-
-	if len(tagResults) != 3 || tagResults[0].Amount != 10 || tagResults[1].Identity != "-b2-c2" {
-		t.Fatal("MatchLabel")
-	}
-
-	fmt.Println("\n MatchLabelMostText")
-	tagResults = m.MatchLabelMostText(_contents)
-	for _, tagResult := range tagResults {
-		fmt.Println(tagResult)
-	}
-
-	if len(tagResults) != 1 || tagResults[0].Amount != 17 || tagResults[0].Identity != "-b3-c3" {
-		t.Fatal("MatchLabelMostText")
-	}
-
-	amount = 0
-	for _, _mm := range tagResults[0].Match {
-		for _, _m := range _mm {
-			amount += _m
+	for _t, _a := range textsAmount {
+		if ret.Texts[_t] != _a {
+			t.Fatal(fmt.Sprintf("result text[%s:%s] amont[%d != %d]", keyword, _t, _a, ret.Texts[_t]), t.Name())
 		}
 	}
+}
 
-	if amount != tagResults[0].Amount {
-		t.Fatal("amount")
+func _assertResults(t *testing.T, rets Results, allTextsAmount int, resultsAmount int) {
+	if resultsAmount != len(rets) {
+		t.Fatal("results len", t.Name())
+	}
+
+	amount := 0
+	textsAmount := 0
+	for _, ret := range rets {
+		for _, _n := range ret.Texts {
+			textsAmount += _n
+		}
+		amount += ret.Amount
+	}
+
+	if amount != textsAmount {
+		t.Fatal(fmt.Sprintf("results amount[%d] != texts[%d]", amount, textsAmount), t.Name())
+	}
+
+	if amount != allTextsAmount {
+		t.Fatal(fmt.Sprintf("results amount[%d!= %d]", allTextsAmount, amount), t.Name())
+	}
+
+	for _, ret := range rets {
+		_a := ret.Amount
+		for _, _n := range ret.Texts {
+			_a -= _n
+		}
+
+		if _a != 0 {
+			t.Fatal(fmt.Sprintf("%s amount", ret.Keyword), t.Name())
+		}
+	}
+}
+
+func _assertLabelResult(t *testing.T, ret LabelResult, id string, amount, keysNum, textsNum int, textsAmount map[string]int) {
+	if ret.Identity != id {
+		t.Fatal(fmt.Sprintf("result[%s != %s]", id, ret.Identity), t.Name())
+	}
+
+	if ret.Amount != amount {
+		t.Fatal(fmt.Sprintf("result[%s] amount", id), t.Name())
+	}
+
+	if keysNum != len(ret.Match) {
+		t.Fatal(fmt.Sprintf("result keyword[%s] num[%d != %d]", id, keysNum, len(ret.Match)), t.Name())
+	}
+
+	tn := 0
+	for _, _kt := range ret.Match {
+		tn += len(_kt)
+	}
+	if tn != textsNum {
+		t.Fatal(fmt.Sprintf("result texts[%s] num[%d != %d]", id, textsNum, tn), t.Name())
+	}
+
+	for _t, _a := range textsAmount {
+		var _ok bool
+		for _, _tn := range ret.Match {
+			if _n, ok := _tn[_t]; ok {
+				if _a == _n {
+					_ok = true
+				}
+			}
+		}
+
+		if _ok == false {
+			if _a == 0 {
+				_ok = true
+			}
+		}
+
+		if !_ok {
+			t.Fatal(fmt.Sprintf("result text[%s:%s] amont[%d]", id, _t, _a), t.Name())
+		}
+	}
+}
+
+func _assertLabelResults(t *testing.T, rets LabelResults, allTextsAmount int, resultsAmount int) {
+	if resultsAmount != len(rets) {
+		t.Fatal("label results len", t.Name())
+	}
+
+	amount := 0
+	textsAmount := 0
+	for _, ret := range rets {
+		for _, texts := range ret.Match {
+			for _, _n := range texts {
+				textsAmount += _n
+			}
+		}
+		amount += ret.Amount
+	}
+
+	if amount != textsAmount {
+		t.Fatal(fmt.Sprintf("label results amount[%d] != texts[%d]", amount, textsAmount), t.Name())
+	}
+
+	if amount != allTextsAmount {
+		t.Fatal(fmt.Sprintf("label results amount[%d != %d]", allTextsAmount, amount), t.Name())
+	}
+
+	for _, ret := range rets {
+		_a := ret.Amount
+		for _, texts := range ret.Match {
+			for _, _n := range texts {
+				_a -= _n
+			}
+		}
+
+		if _a != 0 {
+			t.Fatal(fmt.Sprintf("%s amount", ret.Identity), t.Name())
+		}
+	}
+}
+
+func _outputResults[T Result | LabelResult](sm []T) {
+	for i, _m := range sm {
+		fmt.Println(fmt.Sprintf("%-3d%+v", i, _m))
 	}
 }
