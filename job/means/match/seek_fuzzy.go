@@ -71,10 +71,12 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 			textLen = len(text)
 			matchedContent += before
 			matchedOrigin += sc.origin[matchedIndex : matchedIndex+beforeLen]
+
 			matchedIndex += len(before)
 			matchedText = sc.origin[matchedIndex : matchedIndex+textLen]
-			matchedContent += _placeholder
-			matchedOrigin += f.matchedToPlaceholder(matchedText)
+			_ph := f.matchedToPlaceholder(matchedText)
+			matchedContent += _ph
+			matchedOrigin += _ph
 
 			results = append(results, seekResult{
 				index:   sc.index,
@@ -109,16 +111,13 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 		}
 	}
 
-	_sc := seekContent{
-		index:   sc.index,
-		origin:  matchedOrigin,
-		content: matchedContent,
-	}
+	sc.origin = matchedOrigin
+	sc.content = matchedContent
 
 	if hasMatch {
-		return results, _sc, true
+		return results, sc, true
 	} else {
-		return nil, _sc, false
+		return nil, sc, false
 	}
 }
 

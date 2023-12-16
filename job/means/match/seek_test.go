@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"unicode/utf8"
 )
 
 func _assertSeekResults(t *testing.T, ok bool, sc seekContent, sr seekResults, expectAmount, expectTextsNum int) {
@@ -22,12 +21,7 @@ func _assertSeekResults(t *testing.T, ok bool, sc seekContent, sr seekResults, e
 		}
 
 		contentPlWidth += 1
-
-		_len := len(_r.text)
-		_runeLen := utf8.RuneCountInString(_r.text)
-		_zhLen := (_len - _runeLen) / 2
-
-		originPlWidth += len(_r.text) - _zhLen
+		originPlWidth += 1
 	}
 
 	if len(textsIndex) != expectTextsNum {
@@ -44,8 +38,12 @@ func _assertSeekResults(t *testing.T, ok bool, sc seekContent, sr seekResults, e
 		t.Fatal(fmt.Sprintf("placeholder content[%d != %d]", cplw, contentPlWidth), t.Name())
 	}
 
+	if oplw != cplw {
+		t.Fatal(fmt.Sprintf("placeholder[%d != %d]", oplw, cplw), t.Name())
+	}
+
 	if contentPlWidth != len(sr) {
-		t.Fatal(fmt.Sprintf("placeholder[%d != %d]", len(sr), contentPlWidth), t.Name())
+		t.Fatal(fmt.Sprintf("placeholder len[%d != %d]", len(sr), contentPlWidth), t.Name())
 	}
 }
 
@@ -59,7 +57,7 @@ func _assertSeekResult(t *testing.T, sr seekResult, keyword, text string) {
 	}
 }
 
-func _outputSeekResults(sr seekResults, originSc, sc seekContent) {
+func _outputSeekResults(sr seekResults, sc seekContent) {
 	for _, _r := range sr {
 		fmt.Println(fmt.Sprintf("%+v", _r))
 	}
@@ -69,8 +67,6 @@ func _outputSeekResults(sr seekResults, originSc, sc seekContent) {
 	}
 
 	fmt.Println()
-	fmt.Println(originSc.origin)
-	fmt.Println(originSc.content)
 	fmt.Println(sc.origin)
 	fmt.Println(sc.content)
 }

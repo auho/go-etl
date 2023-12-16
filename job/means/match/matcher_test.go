@@ -60,12 +60,12 @@ func TestMatcher_MatchKey_Accurate(t *testing.T) {
 	rets := _m.MatchKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaB"})
 	_outputResults(rets)
 
-	_assertResults(t, rets, 6, 12)
+	_assertResults(t, rets, 6, 11)
 
-	_assertResult(t, rets[0], "ca", 1, 1, map[string]int{"b": 1})
+	_assertResult(t, rets[0], "ca", 1, 1, map[string]int{"ca": 1})
 	_assertResult(t, rets[1], "ab", 1, 1, map[string]int{"ab": 1})
-	_assertResult(t, rets[2], "a", 4, 4, map[string]int{"a": 1})
-	_assertResult(t, rets[3], "A_c", 4, 4, map[string]int{
+	_assertResult(t, rets[2], "a", 4, 3, map[string]int{"a": 1})
+	_assertResult(t, rets[3], "A_c", 3, 3, map[string]int{
 		"ABc":  1,
 		"Ac":   1,
 		"Axxc": 1,
@@ -452,9 +452,9 @@ func _assertResult(t *testing.T, ret Result, keyword string, expectAmount, expec
 	}
 }
 
-func _assertResults(t *testing.T, rets Results, expectTextsAmount int, expectResultsAmount int) {
+func _assertResults(t *testing.T, rets Results, expectResultsAmount, expectTextsAmount int) {
 	if expectResultsAmount != len(rets) {
-		t.Fatal("results len", t.Name())
+		t.Fatal(fmt.Sprintf("results len[%d != %d]", expectResultsAmount, len(rets)), t.Name())
 	}
 
 	amount := 0

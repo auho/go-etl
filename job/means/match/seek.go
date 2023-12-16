@@ -65,14 +65,14 @@ func (s *seek) replaceMatchedToPlaceholder(content, matched string) string {
 }
 
 func (s *seek) matchedToPlaceholder(matched string) string {
-	if s.config.debug {
-		_len := len(matched)
-		_runeLen := utf8.RuneCountInString(matched)
-		_zhLen := (_len - _runeLen) / 2
-		return strings.Repeat(_placeholder, _runeLen+_zhLen)
-	} else {
-		return _placeholder
-	}
+	return strings.Repeat(_placeholder, len(matched))
+}
+
+func (s *seek) debugToPlaceholder(matched string) string {
+	_len := len(matched)
+	_runeLen := utf8.RuneCountInString(matched)
+	_zhLen := (_len - _runeLen) / 2
+	return strings.Repeat(_placeholder, _runeLen+_zhLen)
 }
 
 func newSeeker(keyIndex int, originKey, key string, tags map[string]string, matcherConfig *matcherConfig) (seeker, seekType) {

@@ -3,6 +3,7 @@ package match
 import (
 	"fmt"
 	"maps"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -256,7 +257,7 @@ func (m *matcher) MatchLastKey(contents []string) Results {
 		return nil
 	}
 
-	return m.toResults(items[len(items)-2:])
+	return m.toResults(items[len(items)-1:])
 }
 
 // MatchMostKey
@@ -357,7 +358,7 @@ func (m *matcher) seekContents(contents []string, onlyFirst bool) seekResults {
 		rets, sc, ok = m.seeking(m.allSeek, sc, onlyFirst)
 		if ok {
 			if onlyFirst {
-				results = results[0:1]
+				results = rets[0:1]
 
 				break
 			} else {
@@ -366,7 +367,7 @@ func (m *matcher) seekContents(contents []string, onlyFirst bool) seekResults {
 		}
 
 		if m.config.debug {
-			m.debugInfo(originContent, sc, results)
+			m.debugInfo(sc, results)
 		}
 	}
 
@@ -456,10 +457,29 @@ func (m *matcher) toLabelResults(items seekResults) LabelResults {
 	return results
 }
 
-func (m *matcher) debugInfo(origin string, sc seekContent, rets seekResults) {
-	fmt.Println(fmt.Sprintf("%-16s", "origin:"), origin)
-	fmt.Println(fmt.Sprintf("%s", "matched origin: "), sc.origin)
-	fmt.Println(fmt.Sprintf("%s", "matched content:"), sc.content)
+func (m *matcher) debugInfo(sc seekContent, rets seekResults) {
+	newRest := slices.Clone(rets)
+	sort.SliceStable(newRest, func(i, j int) bool {
+		if newRest[i].index < newRest[j].index {
+			return true
+		} else if newRest[i].index > newRest[j].index {
+			return false
+		} else {
+			return newRest[i].start < newRest[j].start
+		}
+	})
+
+	debugContent := ""
+	//preStart := 0
+	//for _, ret := range newRest {
+	//	//debugContent += sc.originContent[preStart:ret.start]
+	//	//debugContent += strings.Repeat(_placeholder, ret.width)
+	//	preStart = ret.start + ret.width - 1
+	//}
+
+	fmt.Println(fmt.Sprintf("%-16s", "debug origin:"), debugContent)
+	fmt.Println(fmt.Sprintf("%-16s", "matched origin:"), sc.origin)
+	fmt.Println(fmt.Sprintf("%-16s", "matched content:"), sc.content)
 	fmt.Println("results:")
 	for i, rt := range rets {
 		fmt.Println(fmt.Sprintf("  %-3d%+v", i, rt))

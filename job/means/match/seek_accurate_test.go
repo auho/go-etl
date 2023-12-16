@@ -12,7 +12,7 @@ func Test_accurate(t *testing.T) {
 		_accurate := newAccurate(1, "ac", "ac", map[string]string{"b": "b1"}, config)
 		originSc := seekContent{1, "acabcabbcabbbcac", "acabcabbcabbbcac"}
 		sr, sc, ok := _accurate.seeking(originSc)
-		_outputSeekResults(sr, originSc, sc)
+		_outputSeekResults(sr, sc)
 		_assertSeekResults(t, ok, sc, sr, 2, 1)
 
 		_assertSeekResult(t, sr[0], "ac", "ac")
@@ -24,7 +24,7 @@ func Test_accurate(t *testing.T) {
 		_accurate := newAccurate(1, "Ac", "AC", map[string]string{"b": "b1"}, config)
 		originSc := seekContent{1, "AcaCACaccabbCabbbcAC", "AcaCACaccabbCabbbcAC"}
 		sr, sc, ok := _accurate.seeking(originSc)
-		_outputSeekResults(sr, originSc, sc)
+		_outputSeekResults(sr, sc)
 		_assertSeekResults(t, ok, sc, sr, 2, 1)
 
 		_assertSeekResult(t, sr[0], "Ac", "AC")
@@ -36,7 +36,7 @@ func Test_accurate(t *testing.T) {
 		_accurate := newAccurate(1, "Ac", "ac", map[string]string{"b": "b1"}, config)
 		originSc := seekContent{1, "AcaCACaccabbCabbbcAC", "acacacaccabbcabbbcac"}
 		sr, sc, ok := _accurate.seeking(originSc)
-		_outputSeekResults(sr, originSc, sc)
+		_outputSeekResults(sr, sc)
 		_assertSeekResults(t, ok, sc, sr, 5, 4)
 
 		_assertSeekResult(t, sr[0], "Ac", "Ac")
