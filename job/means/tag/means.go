@@ -87,6 +87,12 @@ func NewKey(rule means.Ruler) *Means {
 	return newMeans(NewSearchKey(rule, NewExportKeywordAll))
 }
 
+// NewFirstText
+// the first part of the text is matched
+func NewFirstText(rule means.Ruler) *Means {
+	return newMeans(NewSearchFirstText(rule, NewExportKeywordAll))
+}
+
 // NewMostKey
 // most key
 func NewMostKey(rule means.Ruler) *Means {
@@ -97,10 +103,4 @@ func NewMostKey(rule means.Ruler) *Means {
 // most text
 func NewMostText(rule means.Ruler) *Means {
 	return newMeans(NewSearchMostText(rule, NewExportKeywordAll))
-}
-
-// NewFirst
-// the first part of the text is matched
-func NewFirst(rule means.Ruler) *Means {
-	return newMeans(NewSearchFirst(rule, NewExportKeywordAll))
 }

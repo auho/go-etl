@@ -8,6 +8,13 @@ import (
 	"strings"
 )
 
+type matchedText struct {
+	group string
+	text  string
+	start int // 包含 [
+	stop  int // 不包含 (
+}
+
 // MatcherOption
 // tag match option
 type MatcherOption func(mt *Matcher)
@@ -48,11 +55,12 @@ func DefaultMatcher() *Matcher {
 // label：label
 // tag：name +label
 type Matcher struct {
-	fixed         map[string]string
-	keyFormatFunc []MatcherKeyFormatFunc       // 在匹配前格式化关键词（使匹配更精确、丰富）
-	regexpItems   map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名][标签值]
-	regexp        *regexp.Regexp               // 所有关键词的 regexp
-	regexpString  string                       // regular expression "(<?P<group name of keyword>...)"
+	fixed            map[string]string
+	keyFormatFunc    []MatcherKeyFormatFunc       // 在匹配前格式化关键词（使匹配更精确、丰富）
+	regexpItems      map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名][标签值]
+	regexp           *regexp.Regexp               // 所有关键词的 regexp
+	regexpString     string                       // regular expression "(<?P<group name of keyword>...)"
+	allSubGroupsName []string
 
 	// 普通匹配：不包含 regular expression（纯文本）
 	// 非普通匹配：包含 regular expression（需要指定 group name 与 keyword 关联）
@@ -121,6 +129,7 @@ func (m *Matcher) prepare(keyName string, items []map[string]string, fixed map[s
 	m.regexpString = strings.Join(groupRegexps, "|")
 	m.regexp = regexp.MustCompile(m.regexpString)
 	m.regexp.Longest()
+	m.allSubGroupsName = m.regexp.SubexpNames()
 }
 
 // Match
@@ -145,14 +154,14 @@ func (m *Matcher) MatchText(contents []string) Results {
 	var results Results
 	resultIndex := make(map[string]int)
 
-	for _, match := range matches {
-		text := match[1]
+	for _, matchText := range matches {
+		text := matchText.text
 
 		if index, ok := resultIndex[text]; ok {
 			results[index].Texts[text] += 1
 			results[index].Amount += 1
 		} else {
-			results = append(results, m.matchToResult(match, false))
+			results = append(results, m.matchToResult(matchText, false))
 			resultIndex[text] = len(results) - 1
 		}
 	}
@@ -171,15 +180,15 @@ func (m *Matcher) MatchKey(contents []string) Results {
 	var results Results
 	resultIndex := make(map[string]int)
 
-	for _, match := range matches {
-		key := match[0]
-		text := match[1]
+	for _, matchText := range matches {
+		key := matchText.group
+		text := matchText.text
 
 		if index, ok := resultIndex[key]; ok {
 			results[index].Texts[text] += 1
 			results[index].Amount += 1
 		} else {
-			results = append(results, m.matchToResult(match, true))
+			results = append(results, m.matchToResult(matchText, true))
 			resultIndex[key] = len(results) - 1
 		}
 	}
@@ -187,8 +196,19 @@ func (m *Matcher) MatchKey(contents []string) Results {
 	return results
 }
 
+// MatchFirstKey
+// the first matched key
+func (m *Matcher) MatchFirstKey(contents []string) Results {
+	matches := m.findFirstMatch(contents)
+	if matches == nil {
+		return nil
+	}
+
+	return m.matchToResults(matches[0], false)
+}
+
 // MatchFirstText
-// match first text 匹配第一个被匹配的 text
+// the leftmost matched text
 func (m *Matcher) MatchFirstText(contents []string) Results {
 	matches := m.findFirstMatch(contents)
 	if matches == nil {
@@ -199,7 +219,7 @@ func (m *Matcher) MatchFirstText(contents []string) Results {
 }
 
 // MatchLastText
-// match first text 最后一个被匹配的 text
+// the rightmost matched text
 func (m *Matcher) MatchLastText(contents []string) Results {
 	matches := m.findAllMatch(contents)
 	if matches == nil {
@@ -250,9 +270,9 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 	var results LabelResults
 	resultIndex := make(map[string]int)
 
-	for _, match := range matches {
-		key := match[0]
-		text := match[1]
+	for _, matchText := range matches {
+		key := matchText.group
+		text := matchText.text
 
 		tags := m.regexpItems[key]
 
@@ -293,6 +313,17 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 	return results
 }
 
+// MatchFirstLabel
+// first label
+func (m *Matcher) MatchFirstLabel(contents []string) LabelResults {
+	results := m.MatchLabel(contents)
+	if results == nil {
+		return nil
+	}
+
+	return results[0:1]
+}
+
 // MatchLabelMostText
 // match label most text 合并重复的 tags 组合中，text 最多次数
 func (m *Matcher) MatchLabelMostText(contents []string) LabelResults {
@@ -321,7 +352,7 @@ func (m *Matcher) correctBadKeyOfGroupName(key string, keyIndex int) string {
 	return newKey
 }
 
-func (m *Matcher) matchesToResults(matches [][]string) Results {
+func (m *Matcher) matchesToResults(matches []matchedText) Results {
 	results := make(Results, 0, len(matches))
 	for k := range matches {
 		results = append(results, m.matchToResult(matches[k], false))
@@ -330,14 +361,14 @@ func (m *Matcher) matchesToResults(matches [][]string) Results {
 	return results
 }
 
-func (m *Matcher) matchToResults(match []string, isKeyMerge bool) Results {
+func (m *Matcher) matchToResults(match matchedText, isKeyMerge bool) Results {
 	return Results{m.matchToResult(match, isKeyMerge)}
 }
 
-func (m *Matcher) matchToResult(match []string, isKeyMerge bool) Result {
+func (m *Matcher) matchToResult(match matchedText, isKeyMerge bool) Result {
 	r := NewResult()
-	r.Keyword = match[0]
-	r.Texts[match[1]] = 1
+	r.Keyword = match.group
+	r.Texts[match.text] = 1
 	r.Amount = 1
 	maps.Copy(r.Tags, m.regexpItems[r.Keyword])
 	maps.Copy(r.Tags, m.fixed)
@@ -348,47 +379,81 @@ func (m *Matcher) matchToResult(match []string, isKeyMerge bool) Result {
 
 // findAllMatch
 // [][keyword, matched text]
-func (m *Matcher) findAllMatch(contents []string) [][]string {
-	results := make([][]string, 0)
+func (m *Matcher) findAllMatch(contents []string) []matchedText {
+	rets := make([]matchedText, 0)
 
 	for _, content := range contents {
-		res := m.findAllSubMatch(content, -1)
-		if res != nil {
-			results = append(results, res...)
+		ret := m.findAllSubMatch(content, -1)
+		if ret != nil {
+			rets = append(rets, ret...)
 		}
 	}
 
-	if len(results) <= 0 {
+	if len(rets) <= 0 {
 		return nil
 	}
 
-	return results
+	return rets
 }
 
 // findFirstMatch
 // [][keyword, matched text]
-func (m *Matcher) findFirstMatch(contents []string) [][]string {
-	var res [][]string
+func (m *Matcher) findFirstMatch(contents []string) []matchedText {
+	var rets []matchedText
 
 	for _, content := range contents {
-		res = m.findAllSubMatch(content, 1)
-		if res != nil {
+		rets = m.findAllSubMatch(content, 1)
+		if rets != nil {
 			break
 		}
 	}
 
-	return res
+	return rets
 }
 
-// findAllSubMatch
-// [][keyword, matched text]
-func (m *Matcher) findAllSubMatch(content string, n int) [][]string {
+func (m *Matcher) findAllSubMatch(content string, n int) []matchedText {
 	if !m.hasItems {
 		return nil
 	}
 
 	// 所有分组的匹配结果
-	allSubGroup := m.regexp.SubexpNames()
+	allSubMatchIndex := m.regexp.FindAllStringSubmatchIndex(content, n)
+
+	matches := make([]matchedText, 0, len(allSubMatchIndex))
+	for _, subMatch := range allSubMatchIndex {
+		_mt := matchedText{
+			start: subMatch[0],
+			stop:  subMatch[1],
+		}
+
+		smLen := len(subMatch)
+		for i := 2; i < smLen; i += 2 {
+			if subMatch[i] != -1 {
+				_mt.text = content[subMatch[i]:subMatch[i+1]]
+				_mt.group = m.getGroupName(i/2, _mt.text)
+
+				break
+			}
+		}
+
+		matches = append(matches, _mt)
+	}
+
+	if len(matches) <= 0 {
+		return nil
+	}
+
+	return matches
+}
+
+// findAllSubMatch
+// [][keyword, matched text]
+func (m *Matcher) findAllSubMatchBack(content string, n int) [][]string {
+	if !m.hasItems {
+		return nil
+	}
+
+	// 所有分组的匹配结果
 	allSubMatch := m.regexp.FindAllStringSubmatch(content, n)
 
 	matches := make([][]string, 0, len(allSubMatch))
@@ -398,16 +463,7 @@ func (m *Matcher) findAllSubMatch(content string, n int) [][]string {
 				continue
 			}
 
-			group := allSubGroup[k]
-
-			if group == m.normalRegexpName {
-				group = text
-			} else {
-				if key, ok := m.badKeyMap[group]; ok {
-					group = key
-				}
-			}
-
+			group := m.getGroupName(k, text)
 			matches = append(matches, []string{group, text})
 
 			break
@@ -419,4 +475,18 @@ func (m *Matcher) findAllSubMatch(content string, n int) [][]string {
 	}
 
 	return matches
+}
+
+func (m *Matcher) getGroupName(groupIndex int, text string) string {
+	group := m.allSubGroupsName[groupIndex]
+
+	if group == m.normalRegexpName {
+		group = text
+	} else {
+		if key, ok := m.badKeyMap[group]; ok {
+			group = key
+		}
+	}
+
+	return group
 }

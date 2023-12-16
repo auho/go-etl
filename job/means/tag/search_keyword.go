@@ -53,6 +53,18 @@ func NewSearchKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
 	})
 }
 
+func NewSearchFirstKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
+	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.matcher.MatchFirstKey
+	})
+}
+
+func NewSearchFirstText(rule means.Ruler, gek GenExportKeyword) search.Searcher {
+	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.matcher.MatchFirstText
+	})
+}
+
 func NewSearchMostKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
 	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
 		return s.matcher.MatchMostKey
@@ -62,11 +74,5 @@ func NewSearchMostKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
 func NewSearchMostText(rule means.Ruler, gek GenExportKeyword) search.Searcher {
 	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
 		return s.matcher.MatchMostText
-	})
-}
-
-func NewSearchFirst(rule means.Ruler, gek GenExportKeyword) search.Searcher {
-	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
-		return s.matcher.MatchFirstText
 	})
 }

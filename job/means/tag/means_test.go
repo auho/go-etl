@@ -214,7 +214,7 @@ func TestMostText(t *testing.T) {
 }
 
 func TestFirst(t *testing.T) {
-	tm := NewFirst(_rule)
+	tm := NewFirstText(_rule)
 	err := tm.Prepare()
 	if err != nil {
 		t.Fatal(err)
