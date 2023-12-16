@@ -10,6 +10,10 @@ func _assertSeekResults(t *testing.T, ok bool, sc seekContent, sr seekResults, e
 	originPlWidth := 0
 	contentPlWidth := 0
 
+	if !ok {
+		t.Fatal("ok", t.Name())
+	}
+
 	if len(sr) != expectAmount {
 		t.Fatal(fmt.Sprintf("amount[%d != %d]", expectAmount, len(sr)), t.Name())
 	}
@@ -20,8 +24,8 @@ func _assertSeekResults(t *testing.T, ok bool, sc seekContent, sr seekResults, e
 			textsIndex[_r.text] += 1
 		}
 
-		contentPlWidth += 1
-		originPlWidth += 1
+		contentPlWidth += len(_r.text)
+		originPlWidth += len(_r.text)
 	}
 
 	if len(textsIndex) != expectTextsNum {
@@ -40,10 +44,6 @@ func _assertSeekResults(t *testing.T, ok bool, sc seekContent, sr seekResults, e
 
 	if oplw != cplw {
 		t.Fatal(fmt.Sprintf("placeholder[%d != %d]", oplw, cplw), t.Name())
-	}
-
-	if contentPlWidth != len(sr) {
-		t.Fatal(fmt.Sprintf("placeholder len[%d != %d]", len(sr), contentPlWidth), t.Name())
 	}
 }
 

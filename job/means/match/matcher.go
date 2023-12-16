@@ -6,6 +6,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"unicode/utf8"
 )
 
 type seekMode int
@@ -192,7 +193,7 @@ func (m *matcher) MatchLastText(contents []string) Results {
 		return nil
 	}
 
-	return m.toResults(items[len(items)-2:])
+	return m.toResults(items[len(items)-1:])
 }
 
 // MatchMostText
@@ -203,7 +204,7 @@ func (m *matcher) MatchMostText(contents []string) Results {
 		return nil
 	}
 
-	sort.Slice(results, func(i, j int) bool {
+	sort.SliceStable(results, func(i, j int) bool {
 		return results[i].Amount > results[j].Amount
 	})
 
@@ -252,7 +253,7 @@ func (m *matcher) MatchFirstKey(contents []string) Results {
 // MatchLastKey
 // the last matched key
 func (m *matcher) MatchLastKey(contents []string) Results {
-	items := m.findFirst(contents)
+	items := m.findAll(contents)
 	if items == nil {
 		return nil
 	}
@@ -341,7 +342,10 @@ func (m *matcher) seekContents(contents []string, onlyFirst bool) seekResults {
 	}
 
 	var results seekResults
+	var isBreak bool
 	for i, content := range contents {
+		var contentResults seekResults
+
 		originContent := content
 		if m.config.ignoreCase {
 			content = strings.ToLower(content)
@@ -358,16 +362,24 @@ func (m *matcher) seekContents(contents []string, onlyFirst bool) seekResults {
 		rets, sc, ok = m.seeking(m.allSeek, sc, onlyFirst)
 		if ok {
 			if onlyFirst {
-				results = rets[0:1]
+				contentResults = rets[0:1]
 
-				break
+				isBreak = true
+				goto LOOP
 			} else {
-				results = append(results, rets...)
+				contentResults = append(contentResults, rets...)
 			}
 		}
+	LOOP:
 
 		if m.config.debug {
-			m.debugInfo(sc, results)
+			m.debugInfo(i, originContent, sc, contentResults)
+		}
+
+		results = append(results, contentResults...)
+
+		if isBreak {
+			break
 		}
 	}
 
@@ -457,7 +469,7 @@ func (m *matcher) toLabelResults(items seekResults) LabelResults {
 	return results
 }
 
-func (m *matcher) debugInfo(sc seekContent, rets seekResults) {
+func (m *matcher) debugInfo(index int, originContent string, sc seekContent, rets seekResults) {
 	newRest := slices.Clone(rets)
 	sort.SliceStable(newRest, func(i, j int) bool {
 		if newRest[i].index < newRest[j].index {
@@ -470,13 +482,23 @@ func (m *matcher) debugInfo(sc seekContent, rets seekResults) {
 	})
 
 	debugContent := ""
-	//preStart := 0
-	//for _, ret := range newRest {
-	//	//debugContent += sc.originContent[preStart:ret.start]
-	//	//debugContent += strings.Repeat(_placeholder, ret.width)
-	//	preStart = ret.start + ret.width - 1
-	//}
+	preStart := 0
+	preStop := 0
+	for _, ret := range newRest {
+		debugContent += originContent[preStart:ret.start]
 
+		_len := len(ret.text)
+		_runeLen := utf8.RuneCountInString(ret.text)
+		_zhLen := (_len - _runeLen) / 2
+
+		debugContent += strings.Repeat(_placeholder, _runeLen+_zhLen)
+		preStart = ret.start + ret.width
+		preStop = ret.start + ret.width
+	}
+
+	debugContent += originContent[preStop:]
+	fmt.Println(fmt.Sprintf("%-16s", "index:"), index)
+	fmt.Println(fmt.Sprintf("%-16s", "origin:"), originContent)
 	fmt.Println(fmt.Sprintf("%-16s", "debug origin:"), debugContent)
 	fmt.Println(fmt.Sprintf("%-16s", "matched origin:"), sc.origin)
 	fmt.Println(fmt.Sprintf("%-16s", "matched content:"), sc.content)
