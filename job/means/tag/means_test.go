@@ -2,237 +2,141 @@ package tag
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/auho/go-etl/v2/job/means"
 )
 
 func TestMeans(t *testing.T) {
-	tm := newMeans(NewSearchKey(_rule, NewExportKeywordAll))
-	err := tm.Prepare()
+	_means := NewMeans(NewSearchKey(_rule, NewExportKeywordAll))
+	err := _means.Prepare()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	keys := tm.GetKeys()
+	keys := _means.GetKeys()
 	if len(keys) < 3 {
 		t.Fatal()
 	}
 }
 
-func TestWholeLabels(t *testing.T) {
-	tm := NewWholeLabels(_rule)
-	err := tm.Prepare()
+func _genMeans(t *testing.T, fn func(means.Ruler) *Means) *Means {
+	_means := fn(_rule)
+	err := _means.Prepare()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(err, t.Name())
 	}
 
-	resSlice := tm.Insert(_contents)
-	_printResult(resSlice)
-	if len(resSlice) != 1 {
+	return _means
+}
+
+func TestNewFirstText(t *testing.T) {
+	_means := _genMeans(t, NewFirstText)
+	rets := _means.Insert(_contents)
+	_outputResults(rets)
+
+	_assertTags(t, _rule, rets, 1, 1)
+
+	_assertTag(t, _rule, rets[0], "b", 1)
+}
+
+func TestNewKey(t *testing.T) {
+	_means := _genMeans(t, NewKey)
+	rets := _means.Insert(_contents)
+	_outputResults(rets)
+
+	_assertTags(t, _rule, rets, 4, 31)
+
+	_assertTag(t, _rule, rets[0], "123", 7)
+	_assertTag(t, _rule, rets[1], "b", 3)
+	_assertTag(t, _rule, rets[2], "中文", 4)
+	_assertTag(t, _rule, rets[3], "中_文", 17)
+}
+
+func TestNewFirstKey(t *testing.T) {
+	_means := _genMeans(t, NewFirstKey)
+	rets := _means.Insert(_contents)
+	_outputResults(rets)
+
+	_assertTags(t, _rule, rets, 1, 17)
+
+	_assertTag(t, _rule, rets[0], "中_文", 17)
+}
+
+func TestNewWholeLabels(t *testing.T) {
+	_means := _genMeans(t, NewWholeLabels)
+	rets := _means.Insert(_contents)
+	_outputResults(rets)
+
+	_assertTags(t, _rule, rets, 1, 31)
+
+	_assertTag(t, _rule, rets[0], "123|b|中_文|中文", 31)
+
+	if rets[0][_rule.LabelNumNameAlias()] != 4 || rets[0][_rule.KeywordNumNameAlias()] != 4 {
 		t.Fatal()
 	}
 
-	if resSlice[0][_rule.NameAlias()] != "123|a|ab|中1文|中文" || resSlice[0][_rule.LabelNumNameAlias()] != 5 ||
-		resSlice[0][_rule.KeywordNumNameAlias()] != 6 || resSlice[0][_rule.KeywordAmountNameAlias()] != 33 {
-		t.Fatal(0)
-	}
-
-	if resSlice[0][_rule.LabelNumNameAlias()] != len(strings.Split(resSlice[0]["a"].(string), "|")) {
+	if rets[0][_rule.LabelNumNameAlias()] != len(strings.Split(rets[0]["a"].(string), "|")) {
 		t.Fatal("label num")
 	}
 
 	amount := 0
-	keyword := resSlice[0][_rule.KeywordNameAlias()].(string)
+	keyword := rets[0][_rule.KeywordNameAlias()].(string)
 	for _, _s := range strings.Split(keyword, "|") {
 		amount += len(strings.Split(_s, ","))
 	}
 
-	if resSlice[0][_rule.KeywordNumNameAlias()] != amount {
+	if rets[0][_rule.KeywordNumNameAlias()] != amount {
 		t.Fatal("keyword num")
 	}
 }
 
-func TestLabel(t *testing.T) {
-	tm := NewLabel(_rule)
-	err := tm.Prepare()
-	if err != nil {
-		t.Fatal(err)
+func TestNewLabel(t *testing.T) {
+	_means := _genMeans(t, NewLabel)
+	rets := _means.Insert(_contents)
+	_outputResults(rets)
+
+	_assertTags(t, _rule, rets, 4, 31)
+
+	_assertTagLabel(t, _rule, rets[0], "b", 3)
+	_assertTagLabel(t, _rule, rets[1], "123", 7)
+	_assertTagLabel(t, _rule, rets[2], "中文", 4)
+	_assertTagLabel(t, _rule, rets[3], "中_文", 17)
+}
+
+func _assertTag(t *testing.T, rule means.Ruler, m map[string]any, keyword string, expectAmount int) {
+	if m[rule.KeywordNameAlias()] != keyword {
+		t.Fatal(fmt.Sprintf("keyword[%s != %s]", keyword, m[rule.KeywordNameAlias()]), t.Name())
 	}
 
-	resSlice := tm.Insert(_contents)
-	_printResult(resSlice)
-	if len(resSlice) != 5 {
-		t.Fatal()
+	if m[rule.KeywordAmountNameAlias()] != expectAmount {
+		t.Fatal(fmt.Sprintf("keyword[%s] amount[%d != %d]", keyword, expectAmount, m[rule.KeywordAmountNameAlias()]), t.Name())
+	}
+}
+
+func _assertTagLabel(t *testing.T, rule means.Ruler, m map[string]any, keyword string, expectAmount int) {
+	_ky := fmt.Sprintf("%s %d", keyword, expectAmount)
+	if m[rule.KeywordNameAlias()] != _ky {
+		t.Fatal(fmt.Sprintf("keyword[%s != %s]", keyword, m[rule.KeywordNameAlias()]), t.Name())
 	}
 
-	if resSlice[0]["a"] != "a" || resSlice[0][_rule.KeywordAmountNameAlias()] != 4 {
-		t.Fatal(0)
+	if m[rule.KeywordAmountNameAlias()] != expectAmount {
+		t.Fatal(fmt.Sprintf("keyword[%s] amount[%d != %d]", keyword, expectAmount, m[rule.KeywordAmountNameAlias()]), t.Name())
 	}
+}
 
+func _assertTags(t *testing.T, rule means.Ruler, sm []map[string]any, expectNum, expectAmount int) {
 	amount := 0
-	for _, _kw := range strings.Split(resSlice[0][_rule.KeywordNameAlias()].(string), ",") {
-		for _, _s := range strings.Split(_kw, " ") {
-			_n, _ := strconv.Atoi(_s)
-			amount += _n
-		}
-	}
-	if amount != resSlice[0][_rule.KeywordAmountNameAlias()] {
-		t.Fatal(0)
-	}
-
-	if resSlice[3]["a"] != "中文" || resSlice[3][_rule.KeywordNameAlias()] == "中文" || resSlice[3][_rule.KeywordAmountNameAlias()] != 4 {
-		t.Fatal(3)
-	}
-
-	if resSlice[4]["a"] != "中1文" || resSlice[4][_rule.KeywordAmountNameAlias()] != 17 {
-		t.Fatal(4)
-	}
-
-	amount = 0
-	for _, _m := range resSlice {
-		amount += _m[_rule.KeywordAmountNameAlias()].(int)
-	}
-	if amount != 33 {
-		t.Fatal("amount")
-	}
-}
-
-func TestKey(t *testing.T) {
-	tm := NewKey(_rule)
-	err := tm.Prepare()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	resSlice := tm.Insert(_contents)
-	_printResult(resSlice)
-	if len(resSlice) != 6 {
-		t.Fatal()
-	}
-
-	if resSlice[0]["a"] != "a" || resSlice[0][_rule.KeywordNameAlias()] != "b" || resSlice[0][_rule.KeywordAmountNameAlias()] != 3 {
-		t.Fatal(0)
-	}
-
-	if resSlice[2]["a"] != "123" || resSlice[2][_rule.KeywordNameAlias()] != "123" || resSlice[2][_rule.KeywordAmountNameAlias()] != 7 {
-		t.Fatal(2)
-	}
-
-	if resSlice[3]["a"] != "a" || resSlice[3][_rule.KeywordNameAlias()] != "a" || resSlice[3][_rule.KeywordAmountNameAlias()] != 1 {
-		t.Fatal(3)
-	}
-
-	if resSlice[5]["a"] != "中1文" || resSlice[5][_rule.KeywordNameAlias()] != "中_文" || resSlice[5][_rule.KeywordAmountNameAlias()] != 17 {
-		t.Fatal(5)
-	}
-
-	_amount := 0
-	for _, _m := range resSlice {
-		_amount += _m[_rule.KeywordAmountNameAlias()].(int)
-	}
-
-	if _amount != 33 {
-		t.Fatal("amount")
-	}
-}
-
-func TestMostKey(t *testing.T) {
-	tm := NewMostKey(_rule)
-	err := tm.Prepare()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	resSlice := tm.Insert(_contents)
-	_printResult(resSlice)
-	if len(resSlice) != 1 {
-		t.Fatal()
-	}
-
-	if resSlice[0][_rule.NameAlias()] != "中1文" || resSlice[0][_rule.KeywordName()] != "中_文" || resSlice[0][_rule.KeywordAmountNameAlias()] != 17 {
-		t.Fatal()
-	}
-
-	keys := tm.GetKeys()
-
-	resMap := tm.Update(_contents)
-	fmt.Println(resMap)
-	if len(resMap) <= 0 {
-		t.Fatal()
-	}
-
-	for _, k := range keys {
-		if _, ok := resMap[k]; !ok {
-			t.Fatal()
-		}
-	}
-}
-
-func TestMostText(t *testing.T) {
-	tm := NewMostText(_ruleAliasFixed)
-	err := tm.Prepare()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for _, k := range _ruleAliasFixed.LabelsAlias() {
-		if !strings.HasSuffix(k, "_alias") {
-			t.Fatal()
-		}
-	}
-
-	resSlice := tm.Insert(_contents)
-	_printResult(resSlice)
-	if len(resSlice) != 1 {
-		t.Fatal()
-	}
-
-	if resSlice[0][_ruleAliasFixed.NameAlias()] != "123" || resSlice[0][_ruleAliasFixed.KeywordNameAlias()] != "123" ||
-		resSlice[0][_ruleAliasFixed.KeywordAmountNameAlias()] != 7 || resSlice[0]["c_alias"] != "c_fixed" {
-		t.Fatal()
-	}
-
-	keys := tm.GetKeys()
-	for _, k := range keys {
-		if !strings.HasSuffix(k, "_alias") {
-			t.Error("keys error")
-		}
-	}
-
-	resMap := tm.Update(_contents)
-	fmt.Println(resMap)
-	if len(resMap) <= 0 {
-		t.Fatal()
-	}
-
-	for _, k := range keys {
-		if _, ok := resMap[k]; !ok {
-			t.Error("update error")
-		}
-	}
-}
-
-func TestFirst(t *testing.T) {
-	tm := NewFirstText(_rule)
-	err := tm.Prepare()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	resSlice := tm.Insert(_contents)
-	_printResult(resSlice)
-	if len(resSlice) != 1 {
-		t.Fatal()
-	}
-
-	if resSlice[0][_rule.NameAlias()] != "a" || resSlice[0][_rule.KeywordName()] != "b" || resSlice[0][_rule.KeywordAmountNameAlias()] != 1 {
-		t.Fatal()
-	}
-}
-
-func _printResult[T any](sm []T) {
 	for _, m := range sm {
-		fmt.Println(fmt.Sprintf("%+v", m))
+		amount += m[rule.KeywordAmountNameAlias()].(int)
+	}
+
+	if len(sm) != expectNum {
+		t.Fatal(fmt.Sprintf("num[%d != %d]", expectNum, len(sm)), t.Name())
+	}
+
+	if amount != expectAmount {
+		t.Fatal(fmt.Sprintf("num[%d != %d]", expectAmount, amount), t.Name())
 	}
 }

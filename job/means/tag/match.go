@@ -182,7 +182,7 @@ func (m *Matcher) MatchText(contents []string) Results {
 			results[index].Texts[text] += 1
 			results[index].Amount += 1
 		} else {
-			results = append(results, m.matchToResult(matchText, false))
+			results = append(results, m.matchToResult(matchText))
 			resultIndex[text] = len(results) - 1
 		}
 	}
@@ -198,7 +198,7 @@ func (m *Matcher) MatchFirstText(contents []string) Results {
 		return nil
 	}
 
-	return m.matchToResults(matches[0], false)
+	return m.matchToResults(matches[0])
 }
 
 // MatchLastText
@@ -209,7 +209,7 @@ func (m *Matcher) MatchLastText(contents []string) Results {
 		return nil
 	}
 
-	return m.matchToResults(matches[len(matches)-1], false)
+	return m.matchToResults(matches[len(matches)-1])
 }
 
 // MatchMostText
@@ -247,7 +247,7 @@ func (m *Matcher) MatchKey(contents []string) Results {
 			results[index].Texts[text] += 1
 			results[index].Amount += 1
 		} else {
-			results = append(results, m.matchToResult(matchText, true))
+			results = append(results, m.matchToResult(matchText))
 			resultIndex[key] = len(results) - 1
 		}
 	}
@@ -263,7 +263,7 @@ func (m *Matcher) MatchFirstKey(contents []string) Results {
 		return nil
 	}
 
-	return m.matchToResults(matches[0], false)
+	return m.matchToResults(matches[0])
 }
 
 // MatchLastKey
@@ -274,7 +274,7 @@ func (m *Matcher) MatchLastKey(contents []string) Results {
 		return nil
 	}
 
-	return m.matchToResults(matches[len(matches)-1], false)
+	return m.matchToResults(matches[len(matches)-1])
 }
 
 // MatchMostKey
@@ -388,24 +388,23 @@ func (m *Matcher) correctBadKeyOfGroupName(key string, keyIndex int) string {
 func (m *Matcher) matchesToResults(matches []matchedText) Results {
 	results := make(Results, 0, len(matches))
 	for k := range matches {
-		results = append(results, m.matchToResult(matches[k], false))
+		results = append(results, m.matchToResult(matches[k]))
 	}
 
 	return results
 }
 
-func (m *Matcher) matchToResults(match matchedText, isKeyMerge bool) Results {
-	return Results{m.matchToResult(match, isKeyMerge)}
+func (m *Matcher) matchToResults(match matchedText) Results {
+	return Results{m.matchToResult(match)}
 }
 
-func (m *Matcher) matchToResult(match matchedText, isKeyMerge bool) Result {
+func (m *Matcher) matchToResult(match matchedText) Result {
 	r := NewResult()
 	r.Keyword = match.group
 	r.Texts[match.text] = 1
 	r.Amount = 1
 	maps.Copy(r.Tags, m.regexpItems[r.Keyword])
 	maps.Copy(r.Tags, m.fixed)
-	r.IsKeyMerge = isKeyMerge
 
 	return r
 }

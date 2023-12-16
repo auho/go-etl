@@ -36,7 +36,7 @@ func (s *SearchKeyword) Do(contents []string) search.Exporter {
 	return s.fn(s, contents)
 }
 
-func newSearchKeyword(rule means.Ruler, gek GenExportKeyword, genDoFn func(*SearchKeyword) func([]string) Results) *SearchKeyword {
+func GenSearchKeyword(rule means.Ruler, gek GenExportKeyword, genDoFn func(*SearchKeyword) func([]string) Results) *SearchKeyword {
 	return NewSearchKeyword(rule, gek, func(s *SearchKeyword, contents []string) search.Exporter {
 		rets := genDoFn(s)(contents)
 		if rets == nil {
@@ -47,32 +47,44 @@ func newSearchKeyword(rule means.Ruler, gek GenExportKeyword, genDoFn func(*Sear
 	})
 }
 
-func NewSearchKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
-	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
-		return s.matcher.MatchKey
-	})
-}
-
-func NewSearchFirstKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
-	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
-		return s.matcher.MatchFirstKey
-	})
-}
-
 func NewSearchFirstText(rule means.Ruler, gek GenExportKeyword) search.Searcher {
-	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
-		return s.matcher.MatchFirstText
+	return GenSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.Matcher.MatchFirstText
 	})
 }
 
-func NewSearchMostKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
-	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
-		return s.matcher.MatchMostKey
+func NewSearchLastText(rule means.Ruler, gek GenExportKeyword) search.Searcher {
+	return GenSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.Matcher.MatchLastText
 	})
 }
 
 func NewSearchMostText(rule means.Ruler, gek GenExportKeyword) search.Searcher {
-	return newSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
-		return s.matcher.MatchMostText
+	return GenSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.Matcher.MatchMostText
+	})
+}
+
+func NewSearchKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
+	return GenSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.Matcher.MatchKey
+	})
+}
+
+func NewSearchFirstKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
+	return GenSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.Matcher.MatchFirstKey
+	})
+}
+
+func NewSearchLastKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
+	return GenSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.Matcher.MatchLastKey
+	})
+}
+
+func NewSearchMostKey(rule means.Ruler, gek GenExportKeyword) search.Searcher {
+	return GenSearchKeyword(rule, gek, func(s *SearchKeyword) func([]string) Results {
+		return s.Matcher.MatchMostKey
 	})
 }

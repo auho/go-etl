@@ -8,18 +8,18 @@ import (
 
 type tagSearch struct {
 	rule    means.Ruler
-	matcher *Matcher
+	Matcher *Matcher
 }
 
 func (s *tagSearch) Prepare() error {
-	s.matcher = DefaultMatcher()
+	s.Matcher = DefaultMatcher()
 
 	items, err := s.rule.ItemsForRegexp()
 	if err != nil {
 		return fmt.Errorf("ItemsForRegexp error; %w", err)
 	}
 
-	s.matcher.prepare(s.rule.KeywordNameAlias(), items, s.rule.FixedAlias())
+	s.Matcher.prepare(s.rule.KeywordNameAlias(), items, s.rule.FixedAlias())
 
 	return nil
 }

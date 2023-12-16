@@ -12,11 +12,10 @@ import (
 // Result
 // result 匹配结果
 type Result struct {
-	Amount     int               // matched amount
-	Keyword    string            // keyword
-	Tags       map[string]string // tags map[tag name]tag value
-	Texts      map[string]int    // matched text map[matched text]amount
-	IsKeyMerge bool              // TODO delete this
+	Amount  int               // matched amount
+	Keyword string            // keyword
+	Tags    map[string]string // tags map[tag name]tag value
+	Texts   map[string]int    // matched text map[matched text]amount
 }
 
 func NewResult() Result {

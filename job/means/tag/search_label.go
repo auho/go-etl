@@ -49,18 +49,18 @@ func newSearchLabel(rule means.Ruler, gel GenExportLabel, genDoFn func(*SearchLa
 
 func NewSearchWholeLabels(rule means.Ruler) *SearchLabel {
 	return newSearchLabel(rule, NewExportLabelLine, func(s *SearchLabel) func([]string) LabelResults {
-		return s.matcher.MatchLabel
+		return s.Matcher.MatchLabel
 	})
 }
 
 func NewSearchLabels(rule means.Ruler, gel GenExportLabel) *SearchLabel {
 	return newSearchLabel(rule, gel, func(s *SearchLabel) func([]string) LabelResults {
-		return s.matcher.MatchLabel
+		return s.Matcher.MatchLabel
 	})
 }
 
 func NewSearchFirstLabel(rule means.Ruler, gel GenExportLabel) *SearchLabel {
 	return newSearchLabel(rule, gel, func(s *SearchLabel) func([]string) LabelResults {
-		return s.matcher.MatchFirstLabel
+		return s.Matcher.MatchFirstLabel
 	})
 }

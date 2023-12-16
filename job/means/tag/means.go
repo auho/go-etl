@@ -19,7 +19,7 @@ type Means struct {
 	defaultValues map[string]any
 }
 
-func newMeans(s search.Searcher) *Means {
+func NewMeans(s search.Searcher) *Means {
 	m := &Means{search: s}
 
 	return m
@@ -67,40 +67,34 @@ func (m *Means) Close() error {
 	return m.search.Close()
 }
 
-// NewWholeLabels
-// merge all labels together
-// label1|label2|label3
-// keyword1|keyword2|keyword3|
-func NewWholeLabels(rule means.Ruler) *Means {
-	return newMeans(NewSearchWholeLabels(rule))
-}
-
-// NewLabel
-// label tags
-func NewLabel(rule means.Ruler) *Means {
-	return newMeans(NewSearchLabels(rule, NewExportLabelAll))
+// NewFirstText
+// the leftmost text matched
+func NewFirstText(rule means.Ruler) *Means {
+	return NewMeans(NewSearchFirstText(rule, NewExportKeywordAll))
 }
 
 // NewKey
 // keyword
 func NewKey(rule means.Ruler) *Means {
-	return newMeans(NewSearchKey(rule, NewExportKeywordAll))
+	return NewMeans(NewSearchKey(rule, NewExportKeywordAll))
 }
 
-// NewFirstText
-// the first part of the text is matched
-func NewFirstText(rule means.Ruler) *Means {
-	return newMeans(NewSearchFirstText(rule, NewExportKeywordAll))
+// NewFirstKey
+// the first keyword matched
+func NewFirstKey(rule means.Ruler) *Means {
+	return NewMeans(NewSearchMostKey(rule, NewExportKeywordAll))
 }
 
-// NewMostKey
-// most key
-func NewMostKey(rule means.Ruler) *Means {
-	return newMeans(NewSearchMostKey(rule, NewExportKeywordAll))
+// NewWholeLabels
+// merge all labels together
+// label1|label2|label3
+// keyword1|keyword2|keyword3|
+func NewWholeLabels(rule means.Ruler) *Means {
+	return NewMeans(NewSearchWholeLabels(rule))
 }
 
-// NewMostText
-// most text
-func NewMostText(rule means.Ruler) *Means {
-	return newMeans(NewSearchMostText(rule, NewExportKeywordAll))
+// NewLabel
+// label tags
+func NewLabel(rule means.Ruler) *Means {
+	return NewMeans(NewSearchLabels(rule, NewExportLabelAll))
 }
