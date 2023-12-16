@@ -8,15 +8,15 @@ var _ seeker = (*accurate)(nil)
 
 type accurate struct {
 	seek
-	index     int
+	keyIndex  int
 	originKey string            // origin keyword
 	key       string            // if ignore case, all to lower
 	tags      map[string]string // tags name and value
 }
 
-func newAccurate(index int, originKey, key string, tags map[string]string, config seekConfig) *accurate {
+func newAccurate(keyIndex int, originKey, key string, tags map[string]string, config seekConfig) *accurate {
 	a := &accurate{
-		index:     index,
+		keyIndex:  keyIndex,
 		originKey: originKey,
 		key:       key,
 		tags:      tags,
@@ -27,58 +27,55 @@ func newAccurate(index int, originKey, key string, tags map[string]string, confi
 	return a
 }
 
-func (a *accurate) seeking(origin, content string) (seekResult, seekContent, bool) {
-	result := newSeekResult()
-	result.keyword = a.originKey
-	result.tags = a.tags
+func (a *accurate) seeking(sc seekContent) (seekResults, seekContent, bool) {
+	var results seekResults
 
 	var matchedIndex, beforeLen int // 每次 matched 的结束 index
 	var matchedOrigin, matchedContent, matchedText, before string
 	var hasMatch, ok bool
 
 	keyLen := len(a.key)
+	content := sc.content
 	for {
 		before, content, ok = strings.Cut(content, a.key)
 		beforeLen = len(before)
 
 		matchedContent += before
-		matchedOrigin += origin[matchedIndex : matchedIndex+beforeLen]
+		matchedOrigin += sc.origin[matchedIndex : matchedIndex+beforeLen]
 
 		if ok {
 			hasMatch = true
 
 			matchedIndex += beforeLen
-			matchedText = origin[matchedIndex : matchedIndex+keyLen]
-			_ph := a.matchedToPlaceholder(matchedText)
-			matchedContent += _ph
-			matchedOrigin += _ph
+			matchedText = sc.origin[matchedIndex : matchedIndex+keyLen]
+			matchedContent += _placeholder
+			matchedOrigin += a.matchedToPlaceholder(matchedText)
 
-			result.texts = append(result.texts, textResult{
-				text:  matchedText,
-				start: matchedIndex,
-				width: keyLen,
+			results = append(results, seekResult{
+				index:   sc.index,
+				start:   matchedIndex,
+				width:   keyLen,
+				keyword: a.originKey,
+				text:    matchedText,
+				tags:    a.tags,
 			})
 
 			// + key
 			matchedIndex += keyLen
-
-			result.textsAmount[matchedText] += 1
-			result.amount += 1
-
 		} else {
 			break
 		}
 	}
 
+	_sc := seekContent{
+		index:   sc.index,
+		origin:  matchedOrigin,
+		content: matchedContent,
+	}
+
 	if hasMatch {
-		return result, seekContent{
-			origin:  matchedOrigin,
-			content: matchedContent,
-		}, true
+		return results, _sc, true
 	} else {
-		return seekResult{}, seekContent{
-			origin:  matchedOrigin,
-			content: matchedContent,
-		}, false
+		return nil, _sc, false
 	}
 }

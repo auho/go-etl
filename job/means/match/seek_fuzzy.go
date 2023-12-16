@@ -19,7 +19,7 @@ type fuzzyKey struct {
 // windows: 3	| 2 5	| 1 4 5
 type fuzzy struct {
 	seek
-	index     int
+	keyIndex  int
 	originKey string            // origin keyword
 	key       string            // if ignore case, all to lower
 	tags      map[string]string // tags name and value
@@ -28,11 +28,11 @@ type fuzzy struct {
 	keysWidth int               // 所有词的总宽度 byte
 }
 
-func newFuzzy(index int, originKey, key string, tags map[string]string, fuzzyConfig FuzzyConfig, config seekConfig) *fuzzy {
+func newFuzzy(keyIndex int, originKey, key string, tags map[string]string, fuzzyConfig FuzzyConfig, config seekConfig) *fuzzy {
 	keys := strings.Split(key, fuzzyConfig.Sep)
 
 	f := &fuzzy{}
-	f.index = index
+	f.keyIndex = keyIndex
 	f.originKey = originKey
 	f.key = key
 	f.tags = tags
@@ -53,15 +53,14 @@ func newFuzzy(index int, originKey, key string, tags map[string]string, fuzzyCon
 }
 
 // seeking
-func (f *fuzzy) seeking(origin, content string) (seekResult, seekContent, bool) {
-	result := newSeekResult()
-	result.keyword = f.originKey
-	result.tags = f.tags
+func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
+	var results seekResults
 
 	var matchedIndex, beforeLen, textLen int // 每次 matched 的结束 index
 	var matchedOrigin, matchedContent, text, matchedText, before string
 	var hasMatch, ok bool
 
+	content := sc.content
 	for {
 		before, text, content, ok = f.match(content)
 		beforeLen = len(before)
@@ -71,23 +70,22 @@ func (f *fuzzy) seeking(origin, content string) (seekResult, seekContent, bool) 
 
 			textLen = len(text)
 			matchedContent += before
-			matchedOrigin += origin[matchedIndex : matchedIndex+beforeLen]
+			matchedOrigin += sc.origin[matchedIndex : matchedIndex+beforeLen]
 			matchedIndex += len(before)
-			matchedText = origin[matchedIndex : matchedIndex+textLen]
-			_ph := f.matchedToPlaceholder(matchedText)
-			matchedOrigin += _ph
-			matchedContent += _ph
+			matchedText = sc.origin[matchedIndex : matchedIndex+textLen]
+			matchedContent += _placeholder
+			matchedOrigin += f.matchedToPlaceholder(matchedText)
 
-			result.texts = append(result.texts, textResult{
-				text:  matchedText,
-				start: matchedIndex,
-				width: textLen,
+			results = append(results, seekResult{
+				index:   sc.index,
+				start:   matchedIndex,
+				width:   textLen,
+				keyword: f.originKey,
+				text:    matchedText,
+				tags:    f.tags,
 			})
 
 			matchedIndex += textLen
-
-			result.textsAmount[matchedText] += 1
-			result.amount += 1
 
 			if len(content) < f.keysWidth {
 				break
@@ -97,30 +95,30 @@ func (f *fuzzy) seeking(origin, content string) (seekResult, seekContent, bool) 
 			// 剩余 content 长度足够进行匹配
 			if len(before) >= f.keysWidth {
 				matchedContent += before[0:1]
-				matchedOrigin += origin[matchedIndex : matchedIndex+1]
+				matchedOrigin += sc.origin[matchedIndex : matchedIndex+1]
 
 				matchedIndex += 1
 				content = before[1:]
 			} else { // 待匹配长度不够所有词的总宽度
 
 				matchedContent += before
-				matchedOrigin += origin[matchedIndex:]
+				matchedOrigin += sc.origin[matchedIndex:]
 
 				break
 			}
 		}
 	}
 
+	_sc := seekContent{
+		index:   sc.index,
+		origin:  matchedOrigin,
+		content: matchedContent,
+	}
+
 	if hasMatch {
-		return result, seekContent{
-			origin:  matchedOrigin,
-			content: matchedContent,
-		}, true
+		return results, _sc, true
 	} else {
-		return seekResult{}, seekContent{
-			origin:  matchedOrigin,
-			content: matchedContent,
-		}, false
+		return nil, _sc, false
 	}
 }
 

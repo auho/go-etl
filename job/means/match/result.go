@@ -9,30 +9,19 @@ import (
 	"github.com/auho/go-etl/v2/tool/maps"
 )
 
-type Texts []Text
-
-type Text struct {
-	Text  string
-	Start int // start 包含
-	Width int // width unit byte
-}
-
 // Result
 // result 匹配结果
 type Result struct {
-	Amount      int               // matched amount
-	Keyword     string            // keyword
-	Tags        map[string]string // tags map[tag name]tag value
-	TextsAmount map[string]int    // matched text map[matched text]amount
-	Texts       Texts             // []Text 不去重
-	FirstIndex  int               // 最先被匹配的 text start index
-	LastIndex   int               // 最后被匹配的 text start index
+	Amount  int               // matched amount
+	Keyword string            // keyword
+	Tags    map[string]string // tags map[tag name]tag value
+	Texts   map[string]int    // matched text map[matched text]amount
 }
 
 func NewResult() Result {
 	m := Result{}
 	m.Tags = make(map[string]string)
-	m.TextsAmount = make(map[string]int)
+	m.Texts = make(map[string]int)
 
 	return m
 }

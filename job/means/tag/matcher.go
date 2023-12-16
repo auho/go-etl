@@ -9,11 +9,11 @@ import (
 )
 
 type matchedText struct {
-	group string
-	text  string
-	index int // 多个 content， content 的序号
-	start int // 包含 [
-	stop  int // 不包含 (
+	keyword string
+	text    string
+	index   int // 多个 content， content 的序号
+	start   int // 包含 [
+	stop    int // 不包含 (
 }
 
 // MatcherOption
@@ -142,7 +142,8 @@ func (m *Matcher) prepare(keyName string, items []map[string]string, fixed map[s
 }
 
 // Match
-// all matched, in regexp match order, key order
+// all matched
+// in regexp match order, text order
 func (m *Matcher) Match(contents []string) Results {
 	matches := m.findMatchAll(contents)
 	if matches == nil {
@@ -154,7 +155,7 @@ func (m *Matcher) Match(contents []string) Results {
 
 // MatchInKeyOrder
 // all matched
-// the order of matched keyword
+// in matched keyword order
 func (m *Matcher) MatchInKeyOrder(contents []string) Results {
 	matches := m.findMatchAllInKeyOrder(contents)
 	if matches == nil {
@@ -240,7 +241,7 @@ func (m *Matcher) MatchKey(contents []string) Results {
 	resultIndex := make(map[string]int)
 
 	for _, matchText := range matches {
-		key := matchText.group
+		key := matchText.keyword
 		text := matchText.text
 
 		if index, ok := resultIndex[key]; ok {
@@ -300,61 +301,7 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 		return nil
 	}
 
-	var results LabelResults
-	resultIndex := make(map[string]int)
-
-	for _, matchText := range matches {
-		key := matchText.group
-		text := matchText.text
-
-		tags := m.regexpItems[key]
-
-		tagsIdentity := ""
-		for _, tag := range m.tagsName {
-			tagsIdentity = tagsIdentity + "-" + tags[tag]
-		}
-
-		if index, ok := resultIndex[tagsIdentity]; ok {
-			result := results[index]
-			if _, ok1 := result.Match[key]; ok1 {
-				if _, ok2 := result.Match[key][text]; ok2 {
-					result.Match[key][text] += 1
-				} else {
-					result.Match[key][text] = 1
-				}
-			} else {
-				result.Match[key] = map[string]int{text: 1}
-				result.Keywords = append(result.Keywords, key)
-			}
-
-			result.Amount += 1
-			results[index] = result
-		} else {
-			result := NewLabelResult()
-			result.Identity = tagsIdentity
-			maps.Copy(result.Tags, tags)
-			maps.Copy(result.Tags, m.fixed)
-			result.Match[key] = map[string]int{text: 1}
-			result.Keywords = append(result.Keywords, key)
-			result.Amount += 1
-
-			results = append(results, result)
-			resultIndex[tagsIdentity] = len(results) - 1
-		}
-	}
-
-	return results
-}
-
-// MatchFirstLabel
-// first label
-func (m *Matcher) MatchFirstLabel(contents []string) LabelResults {
-	results := m.MatchLabel(contents)
-	if results == nil {
-		return nil
-	}
-
-	return results[0:1]
+	return m.matchesToLabelResults(matches)
 }
 
 // MatchLabelMostText
@@ -400,13 +347,56 @@ func (m *Matcher) matchToResults(match matchedText) Results {
 
 func (m *Matcher) matchToResult(match matchedText) Result {
 	r := NewResult()
-	r.Keyword = match.group
+	r.Keyword = match.keyword
 	r.Texts[match.text] = 1
 	r.Amount = 1
 	maps.Copy(r.Tags, m.regexpItems[r.Keyword])
 	maps.Copy(r.Tags, m.fixed)
 
 	return r
+}
+
+func (m *Matcher) matchesToLabelResults(matches []matchedText) LabelResults {
+	var results LabelResults
+	resultIndex := make(map[string]int)
+
+	for _, matchText := range matches {
+		key := matchText.keyword
+		text := matchText.text
+
+		tags := m.regexpItems[key]
+
+		tagsIdentity := ""
+		for _, tag := range m.tagsName {
+			tagsIdentity += "-" + tags[tag]
+		}
+
+		if index, ok := resultIndex[tagsIdentity]; ok {
+			result := results[index]
+			if _, ok1 := result.Match[key]; ok1 {
+				result.Match[key][text] += 1
+			} else {
+				result.Match[key] = map[string]int{text: 1}
+				result.Keywords = append(result.Keywords, key)
+			}
+
+			result.Amount += 1
+			results[index] = result
+		} else {
+			result := NewLabelResult()
+			result.Identity = tagsIdentity
+			maps.Copy(result.Tags, tags)
+			maps.Copy(result.Tags, m.fixed)
+			result.Match[key] = map[string]int{text: 1}
+			result.Keywords = append(result.Keywords, key)
+			result.Amount += 1
+
+			results = append(results, result)
+			resultIndex[tagsIdentity] = len(results) - 1
+		}
+	}
+
+	return results
 }
 
 // findMatchAllInKeyOrder
@@ -418,7 +408,7 @@ func (m *Matcher) findMatchAllInKeyOrder(contents []string) []matchedText {
 	}
 
 	sort.SliceStable(matches, func(i, j int) bool {
-		return m.keysIndex[matches[i].group] < m.keysIndex[matches[j].group]
+		return m.keysIndex[matches[i].keyword] < m.keysIndex[matches[j].keyword]
 	})
 
 	return matches
@@ -479,7 +469,7 @@ func (m *Matcher) findAllSubMatch(index int, content string, n int) []matchedTex
 		for i := 2; i < smLen; i += 2 {
 			if subMatch[i] != -1 {
 				_mt.text = content[subMatch[i]:subMatch[i+1]]
-				_mt.group = m.getGroupName(i/2, _mt.text)
+				_mt.keyword = m.getGroupName(i/2, _mt.text)
 
 				break
 			}

@@ -1,6 +1,7 @@
 package match
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -25,3 +26,9 @@ func TestMain(m *testing.M) {
 
 func setUp()    {}
 func tearDown() {}
+
+func _outputResults[T any](sm []T) {
+	for i, _m := range sm {
+		fmt.Println(fmt.Sprintf("%-3d%+v", i, _m))
+	}
+}
