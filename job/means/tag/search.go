@@ -16,16 +16,21 @@ type SearchEntity interface {
 }
 
 type GenExport[T SearchEntity] func(T, means.Ruler) search.Exporter
-type SearchToExport[T SearchEntity] func(SearchContext[T], []string) T
+type SearchToExport[T SearchEntity] func(*SearchContext[T], []string) T
 type SearchContext[T SearchEntity] struct {
-	Matcher *Matcher
+	Matcher *matcher
 }
 
 type Search[T SearchEntity] struct {
-	rule             means.Ruler
-	Matcher          *Matcher
+	rule    means.Ruler
+	matcher *matcher
+
+	context          *SearchContext[T]
 	genExportFn      GenExport[T]
 	searchToExportFn SearchToExport[T]
+
+	matcherConfig *matcherConfig
+	newMatcherFun func(means.Ruler, *matcherConfig) (*matcher, error)
 }
 
 func NewSearch[T SearchEntity](rule means.Ruler, gek GenExport[T], fn SearchToExport[T]) *Search[T] {
@@ -37,7 +42,7 @@ func NewSearch[T SearchEntity](rule means.Ruler, gek GenExport[T], fn SearchToEx
 }
 
 func (s *Search[T]) GetTitle() string {
-	return fmt.Sprintf("Tag Search{%s}", strings.Join(s.GenExport().GetKeys(), ","))
+	return fmt.Sprintf("Search{%s}", strings.Join(s.GenExport().GetKeys(), ","))
 }
 
 func (s *Search[T]) GenExport() search.Exporter {
@@ -45,20 +50,25 @@ func (s *Search[T]) GenExport() search.Exporter {
 }
 
 func (s *Search[T]) Do(contents []string) search.Exporter {
-	rets := s.searchToExportFn(SearchContext[T]{Matcher: s.Matcher}, contents)
+	rets := s.searchToExportFn(s.context, contents)
 
 	return s.genExportFn(rets, s.rule)
 }
 
 func (s *Search[T]) Prepare() error {
-	s.Matcher = DefaultMatcher()
-
-	items, err := s.rule.ItemsForRegexp()
-	if err != nil {
-		return fmt.Errorf("ItemsForRegexp error; %w", err)
+	if s.newMatcherFun == nil {
+		s.newMatcherFun = defaultMatcher
 	}
 
-	s.Matcher.prepare(s.rule.KeywordNameAlias(), items, s.rule.FixedAlias())
+	var err error
+	s.matcher, err = s.newMatcherFun(s.rule, s.matcherConfig)
+	if err != nil {
+		return fmt.Errorf("prepare error; %w", err)
+	}
+
+	s.context = &SearchContext[T]{
+		Matcher: s.matcher,
+	}
 
 	return nil
 }

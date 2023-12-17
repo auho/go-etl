@@ -6,7 +6,13 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/auho/go-etl/v2/job/means"
 )
+
+type matcherConfig struct {
+	debug bool
+}
 
 type matchedText struct {
 	keyword string
@@ -18,14 +24,14 @@ type matchedText struct {
 
 // MatcherOption
 // tag match option
-type MatcherOption func(mt *Matcher)
+type MatcherOption func(mt *matcher)
 
 // MatcherKeyFormatFunc
 // 匹配前格式化 keyword 的 func list
 type MatcherKeyFormatFunc func(string) string
 
 func WithMatcherKeyFormatFunc(f ...MatcherKeyFormatFunc) MatcherOption {
-	return func(m *Matcher) {
+	return func(m *matcher) {
 		m.addKeyFormatFunc(f...)
 	}
 }
@@ -44,18 +50,27 @@ func defaultMatcherKeyFormatFunc(s string) string {
 	}
 }
 
-func DefaultMatcher() *Matcher {
-	return NewMatcher(WithMatcherKeyFormatFunc(defaultMatcherKeyFormatFunc))
+func defaultMatcher(rule means.Ruler, config *matcherConfig) (*matcher, error) {
+	items, err := rule.ItemsForRegexp()
+	if err != nil {
+		return nil, fmt.Errorf("ItemsForRegexp error; %w", err)
+	}
+
+	return newMatcher(
+		rule.KeywordNameAlias(),
+		items,
+		WithMatcherKeyFormatFunc(defaultMatcherKeyFormatFunc),
+	), nil
 }
 
-// Matcher
+// matcher
 // 从 rule 条目生成 regexp，匹配 content, 得到 keyword, matched text
 //
 // key：keyword
 // text：被匹配到的 text
 // label：label
 // tag：name +label
-type Matcher struct {
+type matcher struct {
 	fixed            map[string]string
 	keyFormatFunc    []MatcherKeyFormatFunc // 在匹配前格式化关键词（使匹配更精确、丰富）
 	keysIndex        map[string]int
@@ -72,8 +87,8 @@ type Matcher struct {
 	hasItems         bool              // 是否有 items
 }
 
-func NewMatcher(Options ...MatcherOption) *Matcher {
-	m := &Matcher{}
+func newMatcher(keyName string, items []map[string]string, Options ...MatcherOption) *matcher {
+	m := &matcher{}
 	m.normalRegexpName = "_rEgEx_"
 	m.badKeyMap = make(map[string]string)
 
@@ -81,19 +96,20 @@ func NewMatcher(Options ...MatcherOption) *Matcher {
 		option(m)
 	}
 
+	m.prepare(keyName, items)
+
 	return m
 }
 
 // prepare
 // keyName keyword
 // items map[keyword, tags]
-func (m *Matcher) prepare(keyName string, items []map[string]string, fixed map[string]string) {
+func (m *matcher) prepare(keyName string, items []map[string]string) {
 	if len(items) <= 0 {
 		return
 	}
 
 	m.hasItems = true
-	m.fixed = fixed
 	m.regexpItems = make(map[string]map[string]string, len(items))
 	m.keysIndex = make(map[string]int, len(items))
 
@@ -144,7 +160,7 @@ func (m *Matcher) prepare(keyName string, items []map[string]string, fixed map[s
 // Match
 // all matched
 // in regexp match order, text order
-func (m *Matcher) Match(contents []string) Results {
+func (m *matcher) Match(contents []string) Results {
 	matches := m.findMatchAll(contents)
 	if matches == nil {
 		return nil
@@ -156,7 +172,7 @@ func (m *Matcher) Match(contents []string) Results {
 // MatchInKeyOrder
 // all matched
 // in matched keyword order
-func (m *Matcher) MatchInKeyOrder(contents []string) Results {
+func (m *matcher) MatchInKeyOrder(contents []string) Results {
 	matches := m.findMatchAllInKeyOrder(contents)
 	if matches == nil {
 		return nil
@@ -167,7 +183,7 @@ func (m *Matcher) MatchInKeyOrder(contents []string) Results {
 
 // MatchText
 // match text 合并相同的 matched text
-func (m *Matcher) MatchText(contents []string) Results {
+func (m *matcher) MatchText(contents []string) Results {
 	matches := m.findMatchAll(contents)
 	if matches == nil {
 		return nil
@@ -193,7 +209,7 @@ func (m *Matcher) MatchText(contents []string) Results {
 
 // MatchFirstText
 // the leftmost matched text
-func (m *Matcher) MatchFirstText(contents []string) Results {
+func (m *matcher) MatchFirstText(contents []string) Results {
 	matches := m.findMatchAll(contents)
 	if matches == nil {
 		return nil
@@ -204,7 +220,7 @@ func (m *Matcher) MatchFirstText(contents []string) Results {
 
 // MatchLastText
 // the rightmost matched text
-func (m *Matcher) MatchLastText(contents []string) Results {
+func (m *matcher) MatchLastText(contents []string) Results {
 	matches := m.findMatchAll(contents)
 	if matches == nil {
 		return nil
@@ -215,7 +231,7 @@ func (m *Matcher) MatchLastText(contents []string) Results {
 
 // MatchMostText
 // the text that has been matched the most times
-func (m *Matcher) MatchMostText(contents []string) Results {
+func (m *matcher) MatchMostText(contents []string) Results {
 	results := m.MatchText(contents)
 	if results == nil {
 		return nil
@@ -231,7 +247,7 @@ func (m *Matcher) MatchMostText(contents []string) Results {
 // MatchKey
 // match key 合并相同的 keyword（同时也合并 matched text）
 // in matched key order
-func (m *Matcher) MatchKey(contents []string) Results {
+func (m *matcher) MatchKey(contents []string) Results {
 	matches := m.findMatchAllInKeyOrder(contents)
 	if matches == nil {
 		return nil
@@ -258,7 +274,7 @@ func (m *Matcher) MatchKey(contents []string) Results {
 
 // MatchFirstKey
 // the first matched key
-func (m *Matcher) MatchFirstKey(contents []string) Results {
+func (m *matcher) MatchFirstKey(contents []string) Results {
 	matches := m.findMatchAllInKeyOrder(contents)
 	if matches == nil {
 		return nil
@@ -269,7 +285,7 @@ func (m *Matcher) MatchFirstKey(contents []string) Results {
 
 // MatchLastKey
 // the last matched key
-func (m *Matcher) MatchLastKey(contents []string) Results {
+func (m *matcher) MatchLastKey(contents []string) Results {
 	matches := m.findMatchAllInKeyOrder(contents)
 	if matches == nil {
 		return nil
@@ -280,7 +296,7 @@ func (m *Matcher) MatchLastKey(contents []string) Results {
 
 // MatchMostKey
 // match most key 被匹配次数最多的 keyword
-func (m *Matcher) MatchMostKey(contents []string) Results {
+func (m *matcher) MatchMostKey(contents []string) Results {
 	results := m.MatchKey(contents)
 	if results == nil {
 		return nil
@@ -295,7 +311,7 @@ func (m *Matcher) MatchMostKey(contents []string) Results {
 
 // MatchLabel
 // match label 合并重复的 tags 组合
-func (m *Matcher) MatchLabel(contents []string) LabelResults {
+func (m *matcher) MatchLabel(contents []string) LabelResults {
 	matches := m.findMatchAll(contents)
 	if matches == nil {
 		return nil
@@ -306,7 +322,7 @@ func (m *Matcher) MatchLabel(contents []string) LabelResults {
 
 // MatchLabelMostText
 // match label most text 合并重复的 tags 组合中，text 最多次数
-func (m *Matcher) MatchLabelMostText(contents []string) LabelResults {
+func (m *matcher) MatchLabelMostText(contents []string) LabelResults {
 	results := m.MatchLabel(contents)
 	if results == nil {
 		return nil
@@ -319,20 +335,20 @@ func (m *Matcher) MatchLabelMostText(contents []string) LabelResults {
 	return results[0:1]
 }
 
-func (m *Matcher) addKeyFormatFunc(f ...MatcherKeyFormatFunc) {
+func (m *matcher) addKeyFormatFunc(f ...MatcherKeyFormatFunc) {
 	m.keyFormatFunc = append(m.keyFormatFunc, f...)
 }
 
 // correctBadKeyOfGroupName
 // 避免不合法的分组名称
-func (m *Matcher) correctBadKeyOfGroupName(key string, keyIndex int) string {
+func (m *matcher) correctBadKeyOfGroupName(key string, keyIndex int) string {
 	newKey := fmt.Sprintf("%s%d", m.normalRegexpName, keyIndex)
 	m.badKeyMap[newKey] = key
 
 	return newKey
 }
 
-func (m *Matcher) matchesToResults(matches []matchedText) Results {
+func (m *matcher) matchesToResults(matches []matchedText) Results {
 	results := make(Results, 0, len(matches))
 	for k := range matches {
 		results = append(results, m.matchToResult(matches[k]))
@@ -341,22 +357,21 @@ func (m *Matcher) matchesToResults(matches []matchedText) Results {
 	return results
 }
 
-func (m *Matcher) matchToResults(match matchedText) Results {
+func (m *matcher) matchToResults(match matchedText) Results {
 	return Results{m.matchToResult(match)}
 }
 
-func (m *Matcher) matchToResult(match matchedText) Result {
+func (m *matcher) matchToResult(match matchedText) Result {
 	r := NewResult()
 	r.Keyword = match.keyword
 	r.Texts[match.text] = 1
 	r.Amount = 1
 	maps.Copy(r.Tags, m.regexpItems[r.Keyword])
-	maps.Copy(r.Tags, m.fixed)
 
 	return r
 }
 
-func (m *Matcher) matchesToLabelResults(matches []matchedText) LabelResults {
+func (m *matcher) matchesToLabelResults(matches []matchedText) LabelResults {
 	var results LabelResults
 	resultIndex := make(map[string]int)
 
@@ -386,7 +401,6 @@ func (m *Matcher) matchesToLabelResults(matches []matchedText) LabelResults {
 			result := NewLabelResult()
 			result.Identity = tagsIdentity
 			maps.Copy(result.Tags, tags)
-			maps.Copy(result.Tags, m.fixed)
 			result.Match[key] = map[string]int{text: 1}
 			result.Keywords = append(result.Keywords, key)
 			result.Amount += 1
@@ -401,7 +415,7 @@ func (m *Matcher) matchesToLabelResults(matches []matchedText) LabelResults {
 
 // findMatchAllInKeyOrder
 // all regexp match, in matched keyword order
-func (m *Matcher) findMatchAllInKeyOrder(contents []string) []matchedText {
+func (m *matcher) findMatchAllInKeyOrder(contents []string) []matchedText {
 	matches := m.findMatchAll(contents)
 	if matches == nil {
 		return nil
@@ -417,7 +431,7 @@ func (m *Matcher) findMatchAllInKeyOrder(contents []string) []matchedText {
 // findMatchAll
 // all regexp match, is regexp match order, in matched text order
 // the leftmost text is at the front
-func (m *Matcher) findMatchAll(contents []string) []matchedText {
+func (m *matcher) findMatchAll(contents []string) []matchedText {
 	rets := make([]matchedText, 0)
 
 	for i, content := range contents {
@@ -436,7 +450,7 @@ func (m *Matcher) findMatchAll(contents []string) []matchedText {
 
 // findMatchFirst
 // first regexp match
-func (m *Matcher) findMatchFirst(contents []string) []matchedText {
+func (m *matcher) findMatchFirst(contents []string) []matchedText {
 	var rets []matchedText
 
 	for i, content := range contents {
@@ -449,7 +463,7 @@ func (m *Matcher) findMatchFirst(contents []string) []matchedText {
 	return rets
 }
 
-func (m *Matcher) findAllSubMatch(index int, content string, n int) []matchedText {
+func (m *matcher) findAllSubMatch(index int, content string, n int) []matchedText {
 	if !m.hasItems {
 		return nil
 	}
@@ -485,7 +499,7 @@ func (m *Matcher) findAllSubMatch(index int, content string, n int) []matchedTex
 	return matches
 }
 
-func (m *Matcher) getGroupName(groupIndex int, text string) string {
+func (m *matcher) getGroupName(groupIndex int, text string) string {
 	group := m.allSubGroupsName[groupIndex]
 
 	if group == m.normalRegexpName {
@@ -501,7 +515,7 @@ func (m *Matcher) getGroupName(groupIndex int, text string) string {
 
 // findAllSubMatch
 // [][keyword, matched text]
-func (m *Matcher) findAllSubMatchBackup(content string, n int) [][]string {
+func (m *matcher) findAllSubMatchBackup(content string, n int) [][]string {
 	if !m.hasItems {
 		return nil
 	}

@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/auho/go-etl/v2/job/means"
 )
 
 type seekMode int
@@ -42,6 +44,15 @@ type matcherConfig struct {
 
 func (mc *matcherConfig) check() {
 	mc.fuzzyConfig.check()
+}
+
+func defaultMatcher(rule means.Ruler, config *matcherConfig) (*matcher, error) {
+	items, err := rule.ItemsAlias()
+	if err != nil {
+		return nil, fmt.Errorf("ItemsAlias error; %w", err)
+	}
+
+	return newMatcher(rule.KeywordNameAlias(), items, config), nil
 }
 
 type matcher struct {

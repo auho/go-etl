@@ -5,59 +5,52 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-func GenSearchKeyword(rule means.Ruler, gek GenExportKeyword, matchFn func(*Matcher, []string) Results) *Search[Results] {
+func GenSearchKeyword(rule means.Ruler, gek GenExportKeyword, ste SearchToExport[Results]) *Search[Results] {
 	_gek := func(results Results, ruler means.Ruler) search.Exporter {
 		return gek(results, ruler)
 	}
 
-	return NewSearch[Results](rule, _gek, func(mc SearchContext[Results], contents []string) Results {
-		rets := matchFn(mc.Matcher, contents)
-		if rets == nil {
-			return nil
-		}
-
-		return rets
-	})
+	return NewSearch[Results](rule, _gek, ste)
 }
 
 func NewSearchFirstText(rule means.Ruler, gek GenExportKeyword) *Search[Results] {
-	return GenSearchKeyword(rule, gek, func(m *Matcher, c []string) Results {
-		return m.MatchFirstText(c)
+	return GenSearchKeyword(rule, gek, func(ctx *SearchContext[Results], c []string) Results {
+		return ctx.Matcher.MatchFirstText(c)
 	})
 }
 
 func NewSearchLastText(rule means.Ruler, gek GenExportKeyword) *Search[Results] {
-	return GenSearchKeyword(rule, gek, func(m *Matcher, c []string) Results {
-		return m.MatchLastText(c)
+	return GenSearchKeyword(rule, gek, func(ctx *SearchContext[Results], c []string) Results {
+		return ctx.Matcher.MatchLastText(c)
 	})
 }
 
 func NewSearchMostText(rule means.Ruler, gek GenExportKeyword) *Search[Results] {
-	return GenSearchKeyword(rule, gek, func(m *Matcher, c []string) Results {
-		return m.MatchMostText(c)
+	return GenSearchKeyword(rule, gek, func(ctx *SearchContext[Results], c []string) Results {
+		return ctx.Matcher.MatchMostText(c)
 	})
 }
 
 func NewSearchKey(rule means.Ruler, gek GenExportKeyword) *Search[Results] {
-	return GenSearchKeyword(rule, gek, func(m *Matcher, c []string) Results {
-		return m.MatchKey(c)
+	return GenSearchKeyword(rule, gek, func(ctx *SearchContext[Results], c []string) Results {
+		return ctx.Matcher.MatchKey(c)
 	})
 }
 
 func NewSearchFirstKey(rule means.Ruler, gek GenExportKeyword) *Search[Results] {
-	return GenSearchKeyword(rule, gek, func(m *Matcher, c []string) Results {
-		return m.MatchFirstKey(c)
+	return GenSearchKeyword(rule, gek, func(ctx *SearchContext[Results], c []string) Results {
+		return ctx.Matcher.MatchFirstKey(c)
 	})
 }
 
 func NewSearchLastKey(rule means.Ruler, gek GenExportKeyword) *Search[Results] {
-	return GenSearchKeyword(rule, gek, func(m *Matcher, c []string) Results {
-		return m.MatchLastKey(c)
+	return GenSearchKeyword(rule, gek, func(ctx *SearchContext[Results], c []string) Results {
+		return ctx.Matcher.MatchLastKey(c)
 	})
 }
 
 func NewSearchMostKey(rule means.Ruler, gek GenExportKeyword) *Search[Results] {
-	return GenSearchKeyword(rule, gek, func(m *Matcher, c []string) Results {
-		return m.MatchMostKey(c)
+	return GenSearchKeyword(rule, gek, func(ctx *SearchContext[Results], c []string) Results {
+		return ctx.Matcher.MatchMostKey(c)
 	})
 }

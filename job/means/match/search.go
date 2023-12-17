@@ -29,7 +29,7 @@ type Search[T SearchEntity] struct {
 	searchToExportFn SearchToExport[T]
 
 	matcherConfig *matcherConfig
-	newMatcherFun func(*matcherConfig) (*matcher, error)
+	newMatcherFun func(means.Ruler, *matcherConfig) (*matcher, error)
 }
 
 func NewSearch[T SearchEntity](rule means.Ruler, gek GenExport[T], fn SearchToExport[T]) *Search[T] {
@@ -56,18 +56,11 @@ func (s *Search[T]) Do(contents []string) search.Exporter {
 
 func (s *Search[T]) Prepare() error {
 	if s.newMatcherFun == nil {
-		s.newMatcherFun = func(config *matcherConfig) (*matcher, error) {
-			items, err := s.rule.ItemsAlias()
-			if err != nil {
-				return nil, fmt.Errorf("ItemsAlias error; %w", err)
-			}
-
-			return newMatcher(s.rule.KeywordNameAlias(), items, config), nil
-		}
+		s.newMatcherFun = defaultMatcher
 	}
 
 	var err error
-	s.matcher, err = s.newMatcherFun(s.matcherConfig)
+	s.matcher, err = s.newMatcherFun(s.rule, s.matcherConfig)
 	if err != nil {
 		return fmt.Errorf("prepare error; %w", err)
 	}

@@ -19,7 +19,7 @@ var _expect_中文_Amount = 4
 var _expect_中_文_Amount = 17
 var _expect_中_文_Num = 14
 
-func _genMatcher() *Matcher {
+func _genMatcher() *matcher {
 	// keyword: a
 	// labels: b c
 	items := []map[string]string{
@@ -32,7 +32,7 @@ func _genMatcher() *Matcher {
 		{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"},
 	}
 
-	_matcher := NewMatcher(WithMatcherKeyFormatFunc(func(s string) string {
+	_matcher := newMatcher("a", items, WithMatcherKeyFormatFunc(func(s string) string {
 		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 		if err != nil {
 			return s
@@ -44,8 +44,6 @@ func _genMatcher() *Matcher {
 			return strings.ReplaceAll(s, "_", `.{1,3}`)
 		}
 	}))
-
-	_matcher.prepare("a", items, nil)
 
 	return _matcher
 }
