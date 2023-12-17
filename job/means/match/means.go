@@ -22,6 +22,12 @@ func NewFirstKey(rule means.Ruler) *Search[Results] {
 	return NewSearchFirstKey(rule, NewExportKeywordAll)
 }
 
+// NewMostKey
+// most key
+func NewMostKey(rule means.Ruler) *Search[Results] {
+	return NewSearchMostKey(rule, NewExportKeywordAll)
+}
+
 // NewWholeLabels
 // merge all labels together
 // label1|label2|label3

@@ -10,7 +10,7 @@ import (
 
 func Test_InsertMode(t *testing.T) {
 	// key
-	tKey := tag.NewKey(_rule)
+	tKey := tag.NewKey(_rule).ToMeans()
 	tin1 := NewInsert([]string{_keyName}, tKey)
 	err := tin1.Prepare()
 	if err != nil {
@@ -24,7 +24,7 @@ func Test_InsertMode(t *testing.T) {
 	fmt.Println(results)
 
 	// most text
-	tMostText := tag.NewMostText(_rule)
+	tMostText := tag.NewMostText(_rule).ToMeans()
 	tin2 := NewInsert([]string{_keyName}, tMostText)
 	err = tin2.Prepare()
 	if err != nil {
@@ -38,7 +38,7 @@ func Test_InsertMode(t *testing.T) {
 	fmt.Println(results)
 
 	// most key
-	tMostKey := tag.NewMostKey(_rule)
+	tMostKey := tag.NewMostKey(_rule).ToMeans()
 	tin3 := NewInsert([]string{_keyName}, tMostKey)
 	err = tin3.Prepare()
 	if err != nil {

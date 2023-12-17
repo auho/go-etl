@@ -10,7 +10,7 @@ import (
 )
 
 func Test_Update(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule))
+	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
 	ua := action.NewUpdate(_source, []mode.UpdateModer{m})
 
 	RunTask(_source, []action.Actor{ua})
@@ -29,7 +29,7 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_UpdateAndTransfer(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule))
+	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
 	UpdateAndTransferTask(_source, _targetUpdateTransfer, []mode.UpdateModer{m})
 
 	dataCount := getAmount(_dataTable, t)
@@ -45,7 +45,7 @@ func Test_Insert(t *testing.T) {
 		ExtraKeys: []string{_source.GetIdName()},
 	})
 
-	m := mode.NewInsert([]string{_keyName}, tag.NewKey(_rule))
+	m := mode.NewInsert([]string{_keyName}, tag.NewKey(_rule).ToMeans())
 	ia := action.NewInsert(_targetTagA, m, insertConfig)
 
 	_ = _db.Drop(_targetTagA1.TableName())
@@ -112,7 +112,7 @@ func Test_Transfer(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule))
+	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
 
 	CleanTask(_targetClean, []mode.UpdateModer{m})
 	dataCount := getAmount(_source.TableName(), t)

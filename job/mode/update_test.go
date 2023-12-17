@@ -8,7 +8,7 @@ import (
 )
 
 func Test_UpdateMode(t *testing.T) {
-	tMostText := tag.NewMostText(_rule)
+	tMostText := tag.NewMostText(_rule).ToMeans()
 	tin1 := NewUpdate([]string{_keyName}, tMostText)
 	err := tin1.Prepare()
 	if err != nil {
@@ -21,7 +21,7 @@ func Test_UpdateMode(t *testing.T) {
 	}
 	fmt.Println(results)
 
-	tMostKey := tag.NewMostKey(_rule)
+	tMostKey := tag.NewMostKey(_rule).ToMeans()
 	tin2 := NewUpdate([]string{_keyName}, tMostKey)
 	err = tin2.Prepare()
 	if err != nil {

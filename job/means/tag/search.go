@@ -74,3 +74,7 @@ func (s *Search[T]) Prepare() error {
 }
 
 func (s *Search[T]) Close() error { return nil }
+
+func (s *Search[T]) ToMeans() *means.Means {
+	return means.NewMeans(s)
+}
