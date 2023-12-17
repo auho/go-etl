@@ -16,7 +16,7 @@ type SearchEntity interface {
 }
 
 type GenExport[T SearchEntity] func(T, means.Ruler) search.Exporter
-type SearchToExport[T SearchEntity] func(SearchContext[T], []string) T
+type SearchToExport[T SearchEntity] func(*SearchContext[T], []string) T
 type SearchContext[T SearchEntity] struct {
 	Matcher *matcher
 }
@@ -25,6 +25,7 @@ type Search[T SearchEntity] struct {
 	rule    means.Ruler
 	matcher *matcher
 
+	context          *SearchContext[T]
 	genExportFn      GenExport[T]
 	searchToExportFn SearchToExport[T]
 
@@ -37,11 +38,12 @@ func NewSearch[T SearchEntity](rule means.Ruler, gek GenExport[T], fn SearchToEx
 		rule:             rule,
 		genExportFn:      gek,
 		searchToExportFn: fn,
+		matcherConfig:    &matcherConfig{},
 	}
 }
 
 func (s *Search[T]) GetTitle() string {
-	return fmt.Sprintf("Match Search{%s}", strings.Join(s.GenExport().GetKeys(), ","))
+	return fmt.Sprintf("Search{%s}", strings.Join(s.GenExport().GetKeys(), ","))
 }
 
 func (s *Search[T]) GenExport() search.Exporter {
@@ -49,7 +51,7 @@ func (s *Search[T]) GenExport() search.Exporter {
 }
 
 func (s *Search[T]) Do(contents []string) search.Exporter {
-	rets := s.searchToExportFn(SearchContext[T]{Matcher: s.matcher}, contents)
+	rets := s.searchToExportFn(s.context, contents)
 
 	return s.genExportFn(rets, s.rule)
 }
@@ -65,7 +67,36 @@ func (s *Search[T]) Prepare() error {
 		return fmt.Errorf("prepare error; %w", err)
 	}
 
+	s.context = &SearchContext[T]{
+		Matcher: s.matcher,
+	}
+
 	return nil
 }
 
 func (s *Search[T]) Close() error { return nil }
+
+func (s *Search[T]) WithIgnoreCase() *Search[T] {
+	s.matcherConfig.ignoreCase = true
+
+	return s
+}
+
+func (s *Search[T]) WithFuzzyEnable(config FuzzyConfig) *Search[T] {
+	s.matcherConfig.enableFuzzy = true
+	s.matcherConfig.fuzzyConfig = config
+
+	return s
+}
+
+func (s *Search[T]) WithPriorityFuzzy() *Search[T] {
+	s.matcherConfig.mode = modePriorityFuzzy
+
+	return s
+}
+
+func (s *Search[T]) WithDebug() *Search[T] {
+	s.matcherConfig.debug = true
+
+	return s
+}

@@ -9,7 +9,7 @@ import (
 )
 
 func TestMeans(t *testing.T) {
-	_means := NewMeans(NewSearchKey(_rule, NewExportKeywordAll))
+	_means := means.NewMeans(NewSearchKey(_rule, NewExportKeywordAll))
 	err := _means.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -21,8 +21,8 @@ func TestMeans(t *testing.T) {
 	}
 }
 
-func _genMeans(t *testing.T, fn func(means.Ruler) *Means) *Means {
-	_means := fn(_rule)
+func _genMeans[T SearchEntity](t *testing.T, fn func(means.Ruler) *Search[T]) *means.Means {
+	_means := means.NewMeans(fn(_rule))
 	err := _means.Prepare()
 	if err != nil {
 		t.Fatal(err, t.Name())
@@ -59,9 +59,9 @@ func TestNewFirstKey(t *testing.T) {
 	rets := _means.Insert(_contents)
 	_outputResults(rets)
 
-	_assertTags(t, _rule, rets, 1, 17)
+	_assertTags(t, _rule, rets, 1, 1)
 
-	_assertTag(t, _rule, rets[0], "中_文", 17)
+	_assertTag(t, _rule, rets[0], "123", 1)
 }
 
 func TestNewWholeLabels(t *testing.T) {

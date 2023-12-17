@@ -9,7 +9,7 @@ import (
 )
 
 func TestMeans(t *testing.T) {
-	_means := NewMeans(NewSearchKey(_rule, NewExportKeywordAll))
+	_means := means.NewMeans(NewSearchKey(_rule, NewExportKeywordAll))
 	err := _means.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -21,8 +21,17 @@ func TestMeans(t *testing.T) {
 	}
 }
 
-func _genMeans(t *testing.T, fn func(means.Ruler) *Means) *Means {
-	_means := fn(_rule)
+func _genMeans[T SearchEntity](t *testing.T, fn func(means.Ruler) *Search[T]) *means.Means {
+	_means := means.NewMeans(
+		fn(_rule).
+			WithIgnoreCase().
+			WithPriorityFuzzy().
+			WithFuzzyEnable(FuzzyConfig{
+				Window: 3,
+				Sep:    "_",
+			}).
+			WithDebug(),
+	)
 	err := _means.Prepare()
 	if err != nil {
 		t.Fatal(err, t.Name())
@@ -46,12 +55,11 @@ func TestNewKey(t *testing.T) {
 	rets := _means.Insert(_contents)
 	_outputResults(rets)
 
-	_assertTags(t, _rule, rets, 4, 31)
+	_assertTags(t, _rule, rets, 3, 41)
 
-	_assertTag(t, _rule, rets[0], "123", 7)
-	_assertTag(t, _rule, rets[1], "b", 3)
-	_assertTag(t, _rule, rets[2], "中文", 4)
-	_assertTag(t, _rule, rets[3], "中_文", 17)
+	_assertTag(t, _rule, rets[0], "123", 12)
+	_assertTag(t, _rule, rets[1], "b", 8)
+	_assertTag(t, _rule, rets[2], "中_文", 21)
 }
 
 func TestNewFirstKey(t *testing.T) {
@@ -59,9 +67,9 @@ func TestNewFirstKey(t *testing.T) {
 	rets := _means.Insert(_contents)
 	_outputResults(rets)
 
-	_assertTags(t, _rule, rets, 1, 17)
+	_assertTags(t, _rule, rets, 1, 1)
 
-	_assertTag(t, _rule, rets[0], "中_文", 17)
+	_assertTag(t, _rule, rets[0], "123", 1)
 }
 
 func TestNewWholeLabels(t *testing.T) {
@@ -69,11 +77,11 @@ func TestNewWholeLabels(t *testing.T) {
 	rets := _means.Insert(_contents)
 	_outputResults(rets)
 
-	_assertTags(t, _rule, rets, 1, 31)
+	_assertTags(t, _rule, rets, 1, 41)
 
-	_assertTag(t, _rule, rets[0], "123|b|中_文|中文", 31)
+	_assertTag(t, _rule, rets[0], "123|b|中_文", 41)
 
-	if rets[0][_rule.LabelNumNameAlias()] != 4 || rets[0][_rule.KeywordNumNameAlias()] != 4 {
+	if rets[0][_rule.LabelNumNameAlias()] != 3 || rets[0][_rule.KeywordNumNameAlias()] != 3 {
 		t.Fatal()
 	}
 
@@ -97,12 +105,11 @@ func TestNewLabel(t *testing.T) {
 	rets := _means.Insert(_contents)
 	_outputResults(rets)
 
-	_assertTags(t, _rule, rets, 4, 31)
+	_assertTags(t, _rule, rets, 3, 41)
 
-	_assertTagLabel(t, _rule, rets[0], "b", 3)
-	_assertTagLabel(t, _rule, rets[1], "123", 7)
-	_assertTagLabel(t, _rule, rets[2], "中文", 4)
-	_assertTagLabel(t, _rule, rets[3], "中_文", 17)
+	_assertTagLabel(t, _rule, rets[0], "123", 12)
+	_assertTagLabel(t, _rule, rets[1], "b", 8)
+	_assertTagLabel(t, _rule, rets[2], "中_文", 21)
 }
 
 func _assertTag(t *testing.T, rule means.Ruler, m map[string]any, keyword string, expectAmount int) {
