@@ -21,7 +21,7 @@ func TestMeans(t *testing.T) {
 	}
 }
 
-func _genMeans[T SearchEntity](t *testing.T, fn func(means.Ruler) *Search[T]) *means.Means {
+func _genMeans[T ResultsEntity](t *testing.T, fn func(means.Ruler) *Search[T]) *means.Means {
 	_means := means.NewMeans(
 		fn(_rule).
 			WithIgnoreCase().

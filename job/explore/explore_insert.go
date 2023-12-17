@@ -13,12 +13,12 @@ type Insert struct {
 func (i *Insert) Do(item map[string]any) []map[string]any {
 	i.AddTotal(1)
 
-	_export := i.collect.Do(item, i.search)
-	if _export == nil || !_export.IsOk() {
+	token := i.collect.Do(item, i.search)
+	if !token.IsOk() {
 		return nil
 	}
 
-	ret := _export.ToTokenize()
+	ret := token.ToToken()
 
 	i.AddAmount(int64(len(ret)))
 

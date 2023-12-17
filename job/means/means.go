@@ -48,7 +48,7 @@ func (m *Means) DefaultValues() map[string]any {
 }
 
 func (m *Means) Insert(contents []string) []map[string]any {
-	rets := m.search.Do(contents).ToTokenize()
+	rets := m.search.Do(contents).Tokenizer()
 	if len(rets) <= 0 {
 		return nil
 	}
@@ -57,7 +57,7 @@ func (m *Means) Insert(contents []string) []map[string]any {
 }
 
 func (m *Means) Update(contents []string) map[string]any {
-	rets := m.search.Do(contents).ToTokenize()
+	rets := m.search.Do(contents).Tokenizer()
 	if len(rets) <= 0 {
 		return nil
 	}

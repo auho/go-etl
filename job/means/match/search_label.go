@@ -1,16 +1,11 @@
 package match
 
 import (
-	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-func GenSearchLabel(rule means.Ruler, gek GenExportLabel, ste SearchToExport[LabelResults]) *Search[LabelResults] {
-	_gek := func(results LabelResults, ruler means.Ruler) search.Exporter {
-		return gek(results, ruler)
-	}
-
-	return NewSearch[LabelResults](rule, _gek, ste)
+func GenSearchLabel(rule means.Ruler, gek GenExportLabel, ste SearchResults[LabelResults]) *Search[LabelResults] {
+	return NewSearch[LabelResults](rule, gek(rule), ste)
 }
 
 func NewSearchWholeLabels(rule means.Ruler) *Search[LabelResults] {

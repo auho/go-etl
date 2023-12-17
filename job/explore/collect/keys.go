@@ -50,7 +50,7 @@ func (f *Keys) GetKeys() []string {
 	return f.keys
 }
 
-func (f *Keys) Do(item map[string]any, searcher search.Searcher) search.Exporter {
+func (f *Keys) Do(item map[string]any, searcher search.Searcher) search.Token {
 	if f.IsAll() {
 		return f.doAll(item, searcher)
 	} else if f.IsInOrder() {
@@ -60,7 +60,7 @@ func (f *Keys) Do(item map[string]any, searcher search.Searcher) search.Exporter
 	}
 }
 
-func (f *Keys) doAll(item map[string]any, searcher search.Searcher) search.Exporter {
+func (f *Keys) doAll(item map[string]any, searcher search.Searcher) search.Token {
 	var contents []string
 	for _, _key := range f.keys {
 		contents = append(contents, f.GetKeyContent(_key, item))
@@ -69,18 +69,18 @@ func (f *Keys) doAll(item map[string]any, searcher search.Searcher) search.Expor
 	return searcher.Do(contents)
 }
 
-func (f *Keys) doInOrder(item map[string]any, searcher search.Searcher) search.Exporter {
-	var rt search.Exporter
+func (f *Keys) doInOrder(item map[string]any, searcher search.Searcher) search.Token {
+	var st search.Token
 
 	for _, _key := range f.keys {
 		_v := f.GetKeyContent(_key, item)
-		rt = searcher.Do([]string{_v})
-		if rt.IsOk() {
+		st = searcher.Do([]string{_v})
+		if st.IsOk() {
 			break
 		}
 	}
 
-	return rt
+	return st
 }
 
 func (f *Keys) IsAll() bool {

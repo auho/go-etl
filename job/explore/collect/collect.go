@@ -8,7 +8,7 @@ import (
 type Collector interface {
 	GetTitle() string
 	GetKeys() []string // for source select data row
-	Do(item map[string]any, search search.Searcher) search.Exporter
+	Do(item map[string]any, search search.Searcher) search.Token
 }
 
 type Collect struct{}
