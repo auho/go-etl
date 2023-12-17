@@ -10,7 +10,7 @@ func GenSearchKeyword(rule means.Ruler, gek GenExportKeyword, matchFn func(*Matc
 		return gek(results, ruler)
 	}
 
-	return NewSearch[Results](rule, _gek, func(mc MatchContext[Results], contents []string) Results {
+	return NewSearch[Results](rule, _gek, func(mc SearchContext[Results], contents []string) Results {
 		rets := matchFn(mc.Matcher, contents)
 		if rets == nil {
 			return nil

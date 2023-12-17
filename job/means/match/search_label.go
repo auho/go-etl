@@ -1,60 +1,33 @@
 package match
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ search.Searcher = (*SearchLabel)(nil)
-
-type SearchLabel struct {
-	matchSearch
-	genExport GenExportLabel
-	fn        func(*SearchLabel, []string) search.Exporter
-}
-
-func NewSearchLabel(rule means.Ruler, gel GenExportLabel, fn func(*SearchLabel, []string) search.Exporter) *SearchLabel {
-	return &SearchLabel{
-		matchSearch: matchSearch{rule: rule},
-		genExport:   gel,
-		fn:          fn,
+func GenSearchLabel(rule means.Ruler, gek GenExportLabel, matchFn func(*matcher, []string) LabelResults) *Search[LabelResults] {
+	_gek := func(results LabelResults, ruler means.Ruler) search.Exporter {
+		return gek(results, ruler)
 	}
-}
 
-func (s *SearchLabel) GetTitle() string {
-	return fmt.Sprintf("SearchLabel{%s}", strings.Join(s.GenExport().GetKeys(), ","))
-}
-
-func (s *SearchLabel) GenExport() search.Exporter {
-	return s.genExport(nil, s.rule)
-}
-
-func (s *SearchLabel) Do(contents []string) search.Exporter {
-	return s.fn(s, contents)
-}
-
-func newSearchLabel(rule means.Ruler, gel GenExportLabel, genDoFn func(*SearchLabel) func([]string) LabelResults) *SearchLabel {
-	return NewSearchLabel(rule, gel, func(s *SearchLabel, contents []string) search.Exporter {
-		rets := genDoFn(s)(contents)
+	return NewSearch[LabelResults](rule, _gek, func(mc SearchContext[LabelResults], contents []string) LabelResults {
+		rets := matchFn(mc.Matcher, contents)
 		if rets == nil {
 			return nil
 		}
 
-		return s.genExport(rets, rule)
+		return rets
 	})
 }
 
-func NewSearchWholeLabels(rule means.Ruler) *SearchLabel {
-	return newSearchLabel(rule, NewExportLabelLine, func(s *SearchLabel) func([]string) LabelResults {
-		return s.matcher.MatchLabel
+func NewSearchWholeLabels(rule means.Ruler) *Search[LabelResults] {
+	return GenSearchLabel(rule, NewExportLabelLine, func(m *matcher, c []string) LabelResults {
+		return m.MatchLabel(c)
 	})
 }
 
-func NewSearchLabels(rule means.Ruler, gel GenExportLabel) *SearchLabel {
-	return newSearchLabel(rule, gel, func(s *SearchLabel) func([]string) LabelResults {
-		return s.matcher.MatchLabel
+func NewSearchLabels(rule means.Ruler, gel GenExportLabel) *Search[LabelResults] {
+	return GenSearchLabel(rule, gel, func(m *matcher, c []string) LabelResults {
+		return m.MatchLabel(c)
 	})
 }

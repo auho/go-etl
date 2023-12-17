@@ -33,7 +33,7 @@ func (e *Explore) GetFields() []string {
 }
 
 func (e *Explore) GetKeys() []string {
-	return nil
+	return nil // TODO
 }
 
 func (e *Explore) DefaultValues() map[string]any {

@@ -10,7 +10,7 @@ func GenSearchLabel(rule means.Ruler, gek GenExportLabel, matchFn func(*Matcher,
 		return gek(results, ruler)
 	}
 
-	return NewSearch[LabelResults](rule, _gek, func(mc MatchContext[LabelResults], contents []string) LabelResults {
+	return NewSearch[LabelResults](rule, _gek, func(mc SearchContext[LabelResults], contents []string) LabelResults {
 		rets := matchFn(mc.Matcher, contents)
 		if rets == nil {
 			return nil
