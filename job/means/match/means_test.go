@@ -26,7 +26,7 @@ func _genMeans[T SearchEntity](t *testing.T, fn func(means.Ruler) *Search[T]) *m
 		fn(_rule).
 			WithIgnoreCase().
 			WithPriorityFuzzy().
-			WithFuzzyEnable(FuzzyConfig{
+			WithFuzzy(FuzzyConfig{
 				Window: 3,
 				Sep:    "_",
 			}).

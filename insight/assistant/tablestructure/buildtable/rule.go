@@ -82,6 +82,7 @@ func (t *RuleTable) BuildTagsForWhole(command *tablestructure.Command, length in
 func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
 	t.BuildTags(command)
 
+	command.AddInt(t.rule.KeywordNumName())
 	command.AddInt(t.rule.KeywordAmountName())
 	command.AddInt(t.rule.LabelNumName())
 }

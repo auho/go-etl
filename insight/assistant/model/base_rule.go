@@ -32,8 +32,7 @@ type baseRule struct {
 	aliasLabels map[string]int    // map[label alias]label alias length, alias labels
 	labelsAlias map[string]string // map[label]label alias
 
-	allowKeywordDuplicate bool
-	independentTableName  string // ind
+	independentTableName string // ind
 }
 
 func newBaseRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) baseRule {
@@ -124,10 +123,6 @@ func (br *baseRule) KeywordNumName() string {
 
 func (br *baseRule) KeywordAmountName() string {
 	return fmt.Sprintf("%s_%s", br.aliasName, NameKeywordAmount)
-}
-
-func (br *baseRule) AllowKeywordDuplicate() bool {
-	return br.allowKeywordDuplicate
 }
 
 func (br *baseRule) Config() assistant.RuleConfigure {

@@ -51,7 +51,7 @@ func (dr *DataRule) WithCommand(fn func(command *tablestructure.Command)) *DataR
 }
 
 func (dr *DataRule) WithAllowKeywordDuplicate() *DataRule {
-	dr.allowKeywordDuplicate = true
+	dr.config.allowKeywordDuplicate = true
 
 	return dr
 }

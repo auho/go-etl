@@ -82,7 +82,7 @@ func (s *Search[T]) WithIgnoreCase() *Search[T] {
 	return s
 }
 
-func (s *Search[T]) WithFuzzyEnable(config FuzzyConfig) *Search[T] {
+func (s *Search[T]) WithFuzzy(config FuzzyConfig) *Search[T] {
 	s.matcherConfig.enableFuzzy = true
 	s.matcherConfig.fuzzyConfig = config
 
@@ -93,6 +93,14 @@ func (s *Search[T]) WithPriorityFuzzy() *Search[T] {
 	s.matcherConfig.mode = modePriorityFuzzy
 
 	return s
+}
+
+func (m *Search[T]) WithMatcher(keyName string, items []map[string]string) *Search[T] {
+	m.newMatcherFun = func(rule means.Ruler, config *matcherConfig) (*matcher, error) {
+		return newMatcher(keyName, items, config), nil
+	}
+
+	return m
 }
 
 func (s *Search[T]) WithDebug() *Search[T] {
