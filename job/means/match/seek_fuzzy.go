@@ -99,7 +99,7 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 				break
 			}
 		} else {
-			// TODO optimize 回溯优化，回溯 key 而不是 byte
+			// TODO optimize 回溯优化，回溯 key(命中的) 而不是 byte
 			// 匹配失败进行回溯，只回溯第一个 byte
 			// 匹配到了 first key
 			// 剩余 content 长度足够进行匹配

@@ -10,8 +10,8 @@ import (
 var _ Collector = (*Keys)(nil)
 
 const (
-	keysWayAll = iota
-	keysWayInOrder
+	keysWayAll   = iota // 所有的 key
+	keysWayFirst        // first
 )
 
 // Keys
@@ -29,10 +29,10 @@ func NewKeys(keys []string) *Keys {
 	return newKeys(keys, keysWayAll)
 }
 
-// NewKeysInOrder
-// one by one, if matched return
-func NewKeysInOrder(keys []string) *Keys {
-	return newKeys(keys, keysWayInOrder)
+// NewKeysFirst
+// first matched key, if matched return
+func NewKeysFirst(keys []string) *Keys {
+	return newKeys(keys, keysWayFirst)
 }
 
 func newKeys(keys []string, way int) *Keys {
@@ -53,8 +53,8 @@ func (f *Keys) GetKeys() []string {
 func (f *Keys) Do(item map[string]any, searcher search.Searcher) search.Token {
 	if f.IsAll() {
 		return f.doAll(item, searcher)
-	} else if f.IsInOrder() {
-		return f.doInOrder(item, searcher)
+	} else if f.IsFirst() {
+		return f.doFirst(item, searcher)
 	} else {
 		panic("way unknown")
 	}
@@ -69,7 +69,7 @@ func (f *Keys) doAll(item map[string]any, searcher search.Searcher) search.Token
 	return searcher.Do(contents)
 }
 
-func (f *Keys) doInOrder(item map[string]any, searcher search.Searcher) search.Token {
+func (f *Keys) doFirst(item map[string]any, searcher search.Searcher) search.Token {
 	var st search.Token
 
 	for _, _key := range f.keys {
@@ -87,6 +87,6 @@ func (f *Keys) IsAll() bool {
 	return f.way == keysWayAll
 }
 
-func (f *Keys) IsInOrder() bool {
-	return f.way == keysWayInOrder
+func (f *Keys) IsFirst() bool {
+	return f.way == keysWayFirst
 }
