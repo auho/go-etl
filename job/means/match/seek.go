@@ -16,6 +16,8 @@ const (
 )
 
 type seekContent struct {
+	maxSeekNum int
+
 	// 多个 content， content 的序号
 	index int
 

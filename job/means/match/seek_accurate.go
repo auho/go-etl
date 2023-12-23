@@ -30,10 +30,14 @@ func newAccurate(keyIndex int, originKey, key string, tags map[string]string, co
 func (a *accurate) seeking(sc seekContent) (seekResults, seekContent, bool) {
 	var results seekResults
 
-	var matchedIndex, beforeLen int // 每次 matched 的结束 index
+	// matchedIndex: 每次 matched 的结束 index
+	// beforeLen: 匹配项前面的内容
+	// soughtNum: seek num
+	var matchedIndex, beforeLen, soughtNum int
 	var matchedOrigin, matchedContent, matchedText, before string
 	var hasMatch, ok bool
 
+	soughtNum = sc.maxSeekNum
 	keyLen := len(a.key)
 	content := sc.content
 	for {
@@ -63,6 +67,11 @@ func (a *accurate) seeking(sc seekContent) (seekResults, seekContent, bool) {
 
 			// + key
 			matchedIndex += keyLen
+			soughtNum -= 1
+
+			if soughtNum == 0 {
+				break
+			}
 		} else {
 			break
 		}

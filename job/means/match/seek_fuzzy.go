@@ -56,10 +56,15 @@ func newFuzzy(keyIndex int, originKey, key string, tags map[string]string, fuzzy
 func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 	var results seekResults
 
-	var matchedIndex, beforeLen, textLen int // 每次 matched 的结束 index
+	// matchedIndex: 每次 matched 的结束 index
+	// beforeLen: 匹配项前面的内容
+	// textLen: 匹配项的长度 byte
+	// soughtNum: seek num
+	var matchedIndex, beforeLen, textLen, soughtNum int
 	var matchedOrigin, matchedContent, text, matchedText, before string
 	var hasMatch, hasFirstKey, ok bool
 
+	soughtNum = sc.maxSeekNum
 	content := sc.content
 	for {
 		before, text, content, hasFirstKey, ok = f.match(content)
@@ -88,8 +93,9 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 			})
 
 			matchedIndex += textLen
+			soughtNum -= 1
 
-			if len(content) < f.keysWidth {
+			if soughtNum == 0 || len(content) < f.keysWidth {
 				break
 			}
 		} else {

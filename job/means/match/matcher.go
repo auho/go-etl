@@ -363,9 +363,14 @@ func (m *matcher) seekContents(contents []string, onlyFirst bool) seekResults {
 		}
 
 		sc := seekContent{
-			index:   i,
-			origin:  originContent,
-			content: content,
+			maxSeekNum: -1,
+			index:      i,
+			origin:     originContent,
+			content:    content,
+		}
+
+		if onlyFirst {
+			sc.maxSeekNum = 1
 		}
 
 		var ok bool
