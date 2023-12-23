@@ -2,7 +2,6 @@ package assistant
 
 import (
 	"fmt"
-	"maps"
 	"sort"
 
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
@@ -16,21 +15,18 @@ var _ means.Ruler = (*RuleItems)(nil)
 // rule items config
 type RuleItemsConfig struct {
 	Alias             map[string]string   // map[data name]output name
-	Fixed             map[string]string   // map[key]value
 	KeywordFormatFunc func(string) string // []func(data keyword value)regexp keyword value
 }
 
 func WithRuleItemsConfig(config RuleItemsConfig) func(*RuleItems) {
 	return func(ri *RuleItems) {
 		ri.alias = config.Alias
-		ri.fixedValues = config.Fixed
 		ri.keywordFormatFunc = config.KeywordFormatFunc
 	}
 }
 
 // RuleItems
 // alias: [data name] => [output name]
-// fixedValues: [key] => [value]
 // keywordFormatFunc: [data keyword value] => [regexp keyword value]
 type RuleItems struct {
 	rule              Ruler
@@ -41,14 +37,10 @@ type RuleItems struct {
 	name      string
 	nameAlias string
 
-	tags             []string
-	labels           []string
-	tagsAlias        []string
-	labelsAlias      []string
-	fixedKeys        []string
-	fixedKeysAlias   []string
-	fixedValues      map[string]string
-	fixedValuesAlias map[string]string
+	tags        []string
+	labels      []string
+	tagsAlias   []string
+	labelsAlias []string
 
 	labelNumName           string
 	labelNumNameAlias      string
@@ -123,44 +115,12 @@ func (ri *RuleItems) initLabels() {
 	ri.labelsAlias = labelsAlias
 }
 
-func (ri *RuleItems) initFixed() {
-	var keys []string
-	for k := range ri.fixedValues {
-		keys = append(keys, k)
-	}
-
-	sort.Slice(keys, func(i, j int) bool {
-		return keys[i] < keys[j]
-	})
-
-	ri.fixedKeys = keys
-
-	var keysAlias []string
-	for _, k := range ri.fixedKeys {
-		keysAlias = append(keysAlias, k)
-	}
-
-	ri.fixedKeysAlias = keysAlias
-
-	fixedValues := maps.Clone(ri.fixedValues)
-	for k, v := range fixedValues {
-		if nk, ok := ri.getAlias(k); ok {
-			fixedValues[nk] = v
-			delete(fixedValues, k)
-		}
-	}
-
-	ri.fixedValuesAlias = fixedValues
-}
-
 func (ri *RuleItems) initTags() {
 	ri.tags = []string{ri.name}
 	ri.tags = append(ri.tags, ri.labels...)
-	ri.tags = append(ri.tags, ri.fixedKeys...)
 
 	ri.tagsAlias = []string{ri.nameAlias}
 	ri.tagsAlias = append(ri.tagsAlias, ri.labelsAlias...)
-	ri.tagsAlias = append(ri.tagsAlias, ri.fixedKeysAlias...)
 }
 
 func (ri *RuleItems) getAlias(s string) (string, bool) {
@@ -175,37 +135,6 @@ func (ri *RuleItems) genAlias(s string) string {
 	ns, _ := ri.getAlias(s)
 
 	return ns
-}
-
-func (ri *RuleItems) MeansKeys() []string {
-	var keys []string
-	keys = []string{
-		ri.NameAlias(),
-		ri.KeywordNameAlias(),
-		ri.KeywordAmountNameAlias(),
-	}
-	keys = append(keys, ri.LabelsAlias()...)
-	keys = append(keys, ri.FixedKeysAlias()...)
-
-	return keys
-}
-
-func (ri *RuleItems) MeansDefaultValues() map[string]any {
-	defaultValues := map[string]any{
-		ri.NameAlias():              "",
-		ri.KeywordNameAlias():       "",
-		ri.KeywordAmountNameAlias(): 0,
-	}
-
-	for _, _la := range ri.LabelsAlias() {
-		defaultValues[_la] = ""
-	}
-
-	for _, _fka := range ri.FixedKeysAlias() {
-		defaultValues[_fka] = ""
-	}
-
-	return defaultValues
 }
 
 func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
@@ -335,20 +264,4 @@ func (ri *RuleItems) KeywordAmountName() string {
 
 func (ri *RuleItems) KeywordAmountNameAlias() string {
 	return ri.keywordAmountNameAlias
-}
-
-func (ri *RuleItems) Fixed() map[string]string {
-	return ri.fixedValues
-}
-
-func (ri *RuleItems) FixedAlias() map[string]string {
-	return ri.fixedValuesAlias
-}
-
-func (ri *RuleItems) FixedKeys() []string {
-	return ri.fixedKeys
-}
-
-func (ri *RuleItems) FixedKeysAlias() []string {
-	return ri.fixedKeysAlias
 }

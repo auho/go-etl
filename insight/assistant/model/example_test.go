@@ -26,7 +26,6 @@ func ExampleNewRuleItems() {
 		_rule,
 		assistant.WithRuleItemsConfig(assistant.RuleItemsConfig{
 			Alias:             map[string]string{"label1": "label1_alias", "label2": "label2_alias"},
-			Fixed:             map[string]string{"fixed1": "1"},
 			KeywordFormatFunc: func(s string) string { return s },
 		}),
 	)

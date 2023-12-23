@@ -71,7 +71,6 @@ func defaultMatcher(rule means.Ruler, config *matcherConfig) (*matcher, error) {
 // label：label
 // tag：name +label
 type matcher struct {
-	fixed            map[string]string
 	keyFormatFunc    []MatcherKeyFormatFunc // 在匹配前格式化关键词（使匹配更精确、丰富）
 	keysIndex        map[string]int
 	regexpItems      map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名][标签值]
