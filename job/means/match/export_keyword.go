@@ -4,13 +4,14 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-type GenExportKeyword func(means.Ruler) *Export[Results]
+// all
+// line
+// flag
 
 // NewExportKeyword
 //
 // keys []string, name of tokenize
 // df: map[string]any, defaultValues
-// fn: fn func(Results) []map[string]any, Results to tokenize
 func NewExportKeyword(keys []string, df map[string]any, fn func(Results, means.Ruler) []map[string]any) *Export[Results] {
 	e := &Export[Results]{
 		keys:           keys,

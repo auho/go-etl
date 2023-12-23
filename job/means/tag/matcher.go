@@ -147,7 +147,7 @@ func (m *matcher) prepare(keyName string, items []map[string]string) {
 	}
 
 	if len(normalItems) > 0 {
-		groupRegexps = append([]string{fmt.Sprintf("(?P<%s>%s)", m.normalRegexpName, strings.Join(normalItems, "|"))}, groupRegexps...)
+		groupRegexps = append(groupRegexps, fmt.Sprintf("(?P<%s>%s)", m.normalRegexpName, strings.Join(normalItems, "|")))
 	}
 
 	m.regexpString = strings.Join(groupRegexps, "|")

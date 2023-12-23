@@ -7,31 +7,31 @@ import (
 // NewFirstText
 // the leftmost text matched
 func NewFirstText(rule means.Ruler) *Search[Results] {
-	return NewSearchFirstText(rule, NewExportKeywordAll)
+	return NewSearchFirstText(rule, NewExportKeywordAll(rule))
 }
 
 // NewMostText
 // most text
 func NewMostText(rule means.Ruler) *Search[Results] {
-	return NewSearchMostText(rule, NewExportKeywordAll)
+	return NewSearchMostText(rule, NewExportKeywordAll(rule))
 }
 
 // NewKey
 // keyword
 func NewKey(rule means.Ruler) *Search[Results] {
-	return NewSearchKey(rule, NewExportKeywordAll)
+	return NewSearchKey(rule, NewExportKeywordAll(rule))
 }
 
 // NewFirstKey
 // the first keyword matched
 func NewFirstKey(rule means.Ruler) *Search[Results] {
-	return NewSearchFirstKey(rule, NewExportKeywordAll)
+	return NewSearchFirstKey(rule, NewExportKeywordAll(rule))
 }
 
 // NewMostKey
 // most key
 func NewMostKey(rule means.Ruler) *Search[Results] {
-	return NewSearchMostKey(rule, NewExportKeywordAll)
+	return NewSearchMostKey(rule, NewExportKeywordAll(rule))
 }
 
 // NewWholeLabels
@@ -45,5 +45,5 @@ func NewWholeLabels(rule means.Ruler) *Search[LabelResults] {
 // NewLabel
 // label tags
 func NewLabel(rule means.Ruler) *Search[LabelResults] {
-	return NewSearchLabels(rule, NewExportLabelAll)
+	return NewSearchLabels(rule, NewExportLabelAll(rule))
 }

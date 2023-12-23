@@ -8,8 +8,10 @@ import (
 // line
 // flag
 
-type GenExportLabel func(means.Ruler) *Export[LabelResults]
-
+// NewExportLabel
+//
+// keys []string, name of tokenize
+// df: map[string]any, defaultValues
 func NewExportLabel(keys []string, df map[string]any, fn func(LabelResults, means.Ruler) []map[string]any) *Export[LabelResults] {
 	return &Export[LabelResults]{
 		keys:           keys,

@@ -58,11 +58,11 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 
 	var matchedIndex, beforeLen, textLen int // 每次 matched 的结束 index
 	var matchedOrigin, matchedContent, text, matchedText, before string
-	var hasMatch, ok bool
+	var hasMatch, hasFirstKey, ok bool
 
 	content := sc.content
 	for {
-		before, text, content, ok = f.match(content)
+		before, text, content, hasFirstKey, ok = f.match(content)
 		beforeLen = len(before)
 
 		if ok {
@@ -93,9 +93,11 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 				break
 			}
 		} else {
-			// 匹配失败进行回溯，只回溯第一个 byte // TODO
+			// TODO optimize 回溯优化，回溯 key 而不是 byte
+			// 匹配失败进行回溯，只回溯第一个 byte
+			// 匹配到了 first key
 			// 剩余 content 长度足够进行匹配
-			if len(before) >= f.keysWidth {
+			if hasFirstKey && len(before) >= f.keysWidth {
 				matchedContent += before[0:1]
 				matchedOrigin += sc.origin[matchedIndex : matchedIndex+1]
 
@@ -131,11 +133,12 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 // string: 匹配项
 // string: 匹配项后面的部分；
 // bool: true 有匹配项，false 没有匹配项
-func (f *fuzzy) match(content string) (string, string, string, bool) {
+func (f *fuzzy) match(content string) (string, string, string, bool, bool) {
 	var before, gap, text string
 	var contentIndex int
 
-	hasMatch := true
+	hasFirstKey := false // 是否匹配到 first key
+	hasMatch := true     // 是否匹配
 	originContent := content
 
 	for _i, _key := range f.keys {
@@ -150,6 +153,7 @@ func (f *fuzzy) match(content string) (string, string, string, bool) {
 			contentIndex += _index + _key.keyLen
 
 			if _i == 0 { // 第一个 key 取匹配项前面的部分
+				hasFirstKey = true
 				before = originContent[0:_index]
 				text = _key.key
 			} else { // 第二个 key 开始计算与前面 key 的 gap
@@ -179,8 +183,8 @@ func (f *fuzzy) match(content string) (string, string, string, bool) {
 			after = originContent[contentIndex:]
 		}
 
-		return before, text, after, true
+		return before, text, after, hasFirstKey, true
 	} else {
-		return originContent, "", "", false
+		return originContent, "", "", hasFirstKey, false
 	}
 }
