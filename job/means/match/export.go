@@ -24,19 +24,14 @@ func (e *Export[T]) GetDefaultValues() map[string]any {
 }
 
 func (e *Export[T]) ToToken(results T, rule means.Ruler) search.Token {
-	token := search.Token{
-		Ok:        false,
-		Tokenizer: nil,
-	}
+	token := search.Token{}
 
-	if len(results) <= 0 {
-		return token
-	}
-
-	return search.Token{
-		Ok: true,
-		Tokenizer: func() []map[string]any {
+	if len(results) > 0 {
+		token.SetOk()
+		token.SetTokenizerFunc(func() []map[string]any {
 			return e.resultsToToken(results, rule)
-		},
+		})
 	}
+
+	return token
 }
