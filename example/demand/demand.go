@@ -18,7 +18,7 @@ func Initial(parentCmd *cobra.Command) {
 
 	parentCmd.AddCommand(_stateCmd)
 
-	_app.AddPreFunE(func() error {
+	_app.AddPreRunE(func() error {
 		layout.Initial()
 
 		return nil

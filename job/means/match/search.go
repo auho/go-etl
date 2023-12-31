@@ -10,12 +10,17 @@ import (
 
 var _ search.Searcher = (*Search[Results])(nil)
 var _ search.Searcher = (*Search[LabelResults])(nil)
+var _ search.Searcher = (*SearchResults)(nil)
+var _ search.Searcher = (*SearchLabelResults)(nil)
 
 type ResultsEntity interface {
 	Results | LabelResults
 }
 
-type SearchResults[T ResultsEntity] func(*SearchContext[T], []string) T
+type SearchResults = Search[Results]
+type SearchLabelResults = Search[LabelResults]
+
+type SearchResultsFun[T ResultsEntity] func(*SearchContext[T], []string) T
 type SearchContext[T ResultsEntity] struct {
 	Matcher *matcher
 }
@@ -26,17 +31,17 @@ type Search[T ResultsEntity] struct {
 	export  *Export[T]
 
 	context          *SearchContext[T]
-	searchToExportFn SearchResults[T]
+	searchResultsFun SearchResultsFun[T]
 
 	matcherConfig *matcherConfig
 	newMatcherFun func(means.Ruler, *matcherConfig) (*matcher, error)
 }
 
-func NewSearch[T ResultsEntity](rule means.Ruler, export *Export[T], fn SearchResults[T]) *Search[T] {
+func NewSearch[T ResultsEntity](rule means.Ruler, export *Export[T], fn SearchResultsFun[T]) *Search[T] {
 	return &Search[T]{
 		rule:             rule,
 		export:           export,
-		searchToExportFn: fn,
+		searchResultsFun: fn,
 		matcherConfig:    &matcherConfig{},
 	}
 }
@@ -50,7 +55,7 @@ func (s *Search[T]) GenExport() search.Exporter {
 }
 
 func (s *Search[T]) Do(contents []string) search.Token {
-	rets := s.searchToExportFn(s.context, contents)
+	rets := s.searchResultsFun(s.context, contents)
 
 	return s.export.ToToken(rets, s.rule)
 }
