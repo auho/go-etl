@@ -13,6 +13,10 @@ type Insert struct {
 func (i *Insert) Do(item map[string]any) []map[string]any {
 	i.AddTotal(1)
 
+	if !i.doCondition(item) {
+		return nil
+	}
+
 	token := i.collect.Do(item, i.search)
 	if !token.IsOk() {
 		return nil

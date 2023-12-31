@@ -10,8 +10,8 @@ import (
 var _ Collector = (*Keys)(nil)
 
 const (
-	keysWayAll   = iota // 所有的 key
-	keysWayFirst        // first
+	keysWayAll = iota // collect all keys
+	keysWayAny        // collect just any one
 )
 
 // Keys
@@ -24,15 +24,15 @@ type Keys struct {
 }
 
 // NewKeys
-// all keys
+// collect all keys
 func NewKeys(keys []string) *Keys {
 	return newKeys(keys, keysWayAll)
 }
 
-// NewKeysFirst
-// first matched key, if matched return
-func NewKeysFirst(keys []string) *Keys {
-	return newKeys(keys, keysWayFirst)
+// NewKeysAny
+// collect any one, if matched return
+func NewKeysAny(keys []string) *Keys {
+	return newKeys(keys, keysWayAny)
 }
 
 func newKeys(keys []string, way int) *Keys {
@@ -42,38 +42,38 @@ func newKeys(keys []string, way int) *Keys {
 	}
 }
 
-func (f *Keys) GetTitle() string {
-	return fmt.Sprintf("keys{%s}", strings.Join(f.keys, ","))
+func (k *Keys) GetTitle() string {
+	return fmt.Sprintf("keys{%s}", strings.Join(k.keys, ","))
 }
 
-func (f *Keys) GetKeys() []string {
-	return f.keys
+func (k *Keys) GetKeys() []string {
+	return k.keys
 }
 
-func (f *Keys) Do(item map[string]any, searcher search.Searcher) search.Token {
-	if f.IsAll() {
-		return f.doAll(item, searcher)
-	} else if f.IsFirst() {
-		return f.doFirst(item, searcher)
+func (k *Keys) Do(item map[string]any, searcher search.Searcher) search.Token {
+	if k.IsAll() {
+		return k.doAll(item, searcher)
+	} else if k.IsAny() {
+		return k.doAny(item, searcher)
 	} else {
 		panic("way unknown")
 	}
 }
 
-func (f *Keys) doAll(item map[string]any, searcher search.Searcher) search.Token {
+func (k *Keys) doAll(item map[string]any, searcher search.Searcher) search.Token {
 	var contents []string
-	for _, _key := range f.keys {
-		contents = append(contents, f.GetKeyContent(_key, item))
+	for _, _key := range k.keys {
+		contents = append(contents, k.GetKeyContent(_key, item))
 	}
 
 	return searcher.Do(contents)
 }
 
-func (f *Keys) doFirst(item map[string]any, searcher search.Searcher) search.Token {
+func (k *Keys) doAny(item map[string]any, searcher search.Searcher) search.Token {
 	var st search.Token
 
-	for _, _key := range f.keys {
-		_v := f.GetKeyContent(_key, item)
+	for _, _key := range k.keys {
+		_v := k.GetKeyContent(_key, item)
 		st = searcher.Do([]string{_v})
 		if st.IsOk() {
 			break
@@ -83,10 +83,10 @@ func (f *Keys) doFirst(item map[string]any, searcher search.Searcher) search.Tok
 	return st
 }
 
-func (f *Keys) IsAll() bool {
-	return f.way == keysWayAll
+func (k *Keys) IsAll() bool {
+	return k.way == keysWayAll
 }
 
-func (f *Keys) IsFirst() bool {
-	return f.way == keysWayFirst
+func (k *Keys) IsAny() bool {
+	return k.way == keysWayAny
 }
