@@ -1,13 +1,22 @@
 package explore
 
 import (
+	"github.com/auho/go-etl/v2/job/explore/collect"
+	"github.com/auho/go-etl/v2/job/explore/condition"
+	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
 var _ mode.UpdateModer = (*Update)(nil)
 
 type Update struct {
-	Explore
+	*Explore
+}
+
+func NewUpdate(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Update {
+	return &Update{
+		Explore: newExplore(collect, search, condition),
+	}
 }
 
 func (u *Update) Do(item map[string]any) map[string]any {

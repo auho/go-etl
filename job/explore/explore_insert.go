@@ -1,13 +1,22 @@
 package explore
 
 import (
+	"github.com/auho/go-etl/v2/job/explore/collect"
+	"github.com/auho/go-etl/v2/job/explore/condition"
+	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
 var _ mode.InsertModer = (*Insert)(nil)
 
 type Insert struct {
-	Explore
+	*Explore
+}
+
+func NewInsert(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Insert {
+	return &Insert{
+		Explore: newExplore(collect, search, condition),
+	}
 }
 
 func (i *Insert) Do(item map[string]any) []map[string]any {

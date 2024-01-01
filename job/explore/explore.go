@@ -21,7 +21,7 @@ type Explore struct {
 	defaultValues map[string]any
 }
 
-func NewExplore(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Explore {
+func newExplore(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Explore {
 	return &Explore{
 		collect:   collect,
 		search:    search,
