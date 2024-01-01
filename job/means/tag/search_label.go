@@ -8,8 +8,8 @@ func NewSearchLabel(rule means.Ruler, export *ExportLabelResults, srf SearchResu
 	return NewSearch[LabelResults](rule, export, srf)
 }
 
-func NewSearchWholeLabels(rule means.Ruler) *SearchLabelResults {
-	return NewSearchLabel(rule, NewExportLabelLine(rule), func(ctx *SearchContextLabelResults, c []string) LabelResults {
+func NewSearchWholeLabels(rule means.Ruler, export *ExportLabelResults) *SearchLabelResults {
+	return NewSearchLabel(rule, export, func(ctx *SearchContextLabelResults, c []string) LabelResults {
 		return ctx.Matcher.MatchLabel(c)
 	})
 }

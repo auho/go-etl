@@ -67,6 +67,7 @@ func NewExportLabelFlag(rule means.Ruler) *ExportLabelResults {
 
 	keys = append(keys, rule.KeywordNameAlias())
 	values[rule.KeywordNameAlias()] = ""
+	values[rule.NameAlias()] = 0
 
 	return NewExportLabel(keys, values, func(results LabelResults, rule means.Ruler) []map[string]any {
 		return results.ToFlag(rule)

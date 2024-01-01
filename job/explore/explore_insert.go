@@ -2,7 +2,7 @@ package explore
 
 import (
 	"github.com/auho/go-etl/v2/job/explore/collect"
-	"github.com/auho/go-etl/v2/job/explore/condition"
+	"github.com/auho/go-etl/v2/job/explore/expression"
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/mode"
 )
@@ -14,19 +14,19 @@ type Insert struct {
 }
 
 func newInsertFromExplore(e *Explore) *Insert {
-	return NewInsert(e.collect, e.search, e.condition)
+	return NewInsert(e.collect, e.search, e.expression)
 }
 
-func NewInsert(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Insert {
+func NewInsert(collect collect.Collector, search search.Searcher, expression expression.Operation) *Insert {
 	return &Insert{
-		Explore: newExplore(collect, search, condition),
+		Explore: newExplore(collect, search, expression),
 	}
 }
 
 func (i *Insert) Do(item map[string]any) []map[string]any {
 	i.AddTotal(1)
 
-	if !i.doCondition(item) {
+	if !i.expressionOperation(item) {
 		return nil
 	}
 

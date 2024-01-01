@@ -10,6 +10,12 @@ func NewFirstText(rule means.Ruler) *Search[Results] {
 	return NewSearchFirstText(rule, NewExportKeywordAll(rule))
 }
 
+// NewMostText
+// most text
+func NewMostText(rule means.Ruler) *Search[Results] {
+	return NewSearchMostText(rule, NewExportKeywordAll(rule))
+}
+
 // NewKey
 // keyword
 func NewKey(rule means.Ruler) *Search[Results] {
@@ -33,7 +39,7 @@ func NewMostKey(rule means.Ruler) *Search[Results] {
 // label1|label2|label3
 // keyword1|keyword2|keyword3|
 func NewWholeLabels(rule means.Ruler) *Search[LabelResults] {
-	return NewSearchWholeLabels(rule)
+	return NewSearchWholeLabels(rule, NewExportLabelLine(rule))
 }
 
 // NewLabel

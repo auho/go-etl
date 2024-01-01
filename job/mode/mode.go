@@ -2,9 +2,10 @@ package mode
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"sync/atomic"
+
+	strings2 "github.com/auho/go-toolkit/farmtools/convert/types/strings"
 )
 
 type Moder interface {
@@ -73,20 +74,10 @@ func (m *Mode) GetKeysContent(keys []string, item map[string]any) []string {
 }
 
 func (m *Mode) KeyValueToString(key string, item map[string]any) string {
-	keyValue := ""
-
-	switch item[key].(type) {
-	case string:
-		keyValue = item[key].(string)
-	case []uint8:
-		keyValue = string(item[key].([]uint8))
-	case int64:
-		keyValue = strconv.FormatInt(item[key].(int64), 10)
-	case nil:
-
-	default:
+	s, err := strings2.FromAny(item[key])
+	if err != nil {
 		panic(fmt.Sprintf("type is not string %T", item[key]))
 	}
 
-	return keyValue
+	return s
 }

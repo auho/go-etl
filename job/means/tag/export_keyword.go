@@ -55,3 +55,20 @@ func NewExportKeywordLine(rule means.Ruler) *ExportResults {
 		return results.ToLine(rule)
 	})
 }
+
+func NewExportKeywordFlag(rule means.Ruler) *ExportResults {
+	var keys []string
+	values := make(map[string]any)
+	for _, _ta := range rule.TagsAlias() {
+		keys = append(keys, _ta)
+		values[_ta] = ""
+	}
+
+	keys = append(keys, rule.KeywordNameAlias())
+	values[rule.KeywordNameAlias()] = ""
+	values[rule.NameAlias()] = 0
+
+	return NewExportKeyword(keys, values, func(results Results, rule means.Ruler) []map[string]any {
+		return results.ToLine(rule)
+	})
+}

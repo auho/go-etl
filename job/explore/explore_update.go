@@ -2,7 +2,7 @@ package explore
 
 import (
 	"github.com/auho/go-etl/v2/job/explore/collect"
-	"github.com/auho/go-etl/v2/job/explore/condition"
+	"github.com/auho/go-etl/v2/job/explore/expression"
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/mode"
 )
@@ -14,19 +14,19 @@ type Update struct {
 }
 
 func newUpdateFromExplore(e *Explore) *Update {
-	return NewUpdate(e.collect, e.search, e.condition)
+	return NewUpdate(e.collect, e.search, e.expression)
 }
 
-func NewUpdate(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Update {
+func NewUpdate(collect collect.Collector, search search.Searcher, expression expression.Operation) *Update {
 	return &Update{
-		Explore: newExplore(collect, search, condition),
+		Explore: newExplore(collect, search, expression),
 	}
 }
 
 func (u *Update) Do(item map[string]any) map[string]any {
 	u.AddTotal(1)
 
-	if !u.doCondition(item) {
+	if !u.expressionOperation(item) {
 		return nil
 	}
 

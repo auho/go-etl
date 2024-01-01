@@ -5,7 +5,7 @@ import (
 	"maps"
 
 	"github.com/auho/go-etl/v2/job/explore/collect"
-	"github.com/auho/go-etl/v2/job/explore/condition"
+	"github.com/auho/go-etl/v2/job/explore/expression"
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/mode"
 )
@@ -13,11 +13,11 @@ import (
 type Explore struct {
 	mode.Mode
 
-	collect   collect.Collector
-	search    search.Searcher
-	condition condition.Conditioner
+	collect    collect.Collector
+	search     search.Searcher
+	expression expression.Operation
 
-	hasCondition  bool
+	hasExpression bool
 	defaultValues map[string]any
 }
 
@@ -25,20 +25,20 @@ func GenExplore() *Explore {
 	return &Explore{}
 }
 
-func newExplore(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Explore {
+func newExplore(collect collect.Collector, search search.Searcher, expression expression.Operation) *Explore {
 	return &Explore{
-		collect:   collect,
-		search:    search,
-		condition: condition,
+		collect:    collect,
+		search:     search,
+		expression: expression,
 	}
 }
 
-func (e *Explore) doCondition(item map[string]any) bool {
-	if !e.hasCondition {
-		return false
+func (e *Explore) expressionOperation(item map[string]any) bool {
+	if !e.hasExpression {
+		return true
 	}
 
-	return e.condition.OK(item)
+	return e.expression(item)
 }
 
 func (e *Explore) GetTitle() string {
@@ -63,8 +63,8 @@ func (e *Explore) Prepare() error {
 		return err
 	}
 
-	if e.condition != nil {
-		e.hasCondition = true
+	if e.expression != nil {
+		e.hasExpression = true
 	}
 
 	e.defaultValues = e.search.GenExport().GetDefaultValues()
@@ -90,8 +90,8 @@ func (e *Explore) SetSearch(search search.Searcher) *Explore {
 	return e
 }
 
-func (e *Explore) SetCondition(condition condition.Conditioner) *Explore {
-	e.condition = condition
+func (e *Explore) SetExpression(expression expression.Operation) *Explore {
+	e.expression = expression
 
 	return e
 }

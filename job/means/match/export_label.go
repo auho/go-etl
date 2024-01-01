@@ -13,12 +13,7 @@ import (
 // keys []string, name of tokenize
 // df: map[string]any, defaultValues
 func NewExportLabel(keys []string, df map[string]any, fn func(LabelResults, means.Ruler) []map[string]any) *ExportLabelResults {
-	return &ExportLabelResults{
-		keys:           keys,
-		defaultValues:  df,
-		resultsToToken: fn,
-	}
-
+	return NewExport[LabelResults](keys, df, fn)
 }
 
 func NewExportLabelAll(rule means.Ruler) *ExportLabelResults {
@@ -67,6 +62,7 @@ func NewExportLabelFlag(rule means.Ruler) *ExportLabelResults {
 
 	keys = append(keys, rule.KeywordNameAlias())
 	values[rule.KeywordNameAlias()] = ""
+	values[rule.NameAlias()] = 0
 
 	return NewExportLabel(keys, values, func(results LabelResults, rule means.Ruler) []map[string]any {
 		return results.ToFlag(rule)
