@@ -5,7 +5,6 @@ import (
 	"maps"
 
 	"github.com/auho/go-etl/v2/job/explore/collect"
-	"github.com/auho/go-etl/v2/job/explore/expression"
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/mode"
 )
@@ -15,7 +14,7 @@ type Explore struct {
 
 	collect    collect.Collector
 	search     search.Searcher
-	expression expression.Operation
+	expression condition.Operation
 
 	hasExpression bool
 	defaultValues map[string]any
@@ -25,7 +24,7 @@ func GenExplore() *Explore {
 	return &Explore{}
 }
 
-func newExplore(collect collect.Collector, search search.Searcher, expression expression.Operation) *Explore {
+func newExplore(collect collect.Collector, search search.Searcher, expression condition.Operation) *Explore {
 	return &Explore{
 		collect:    collect,
 		search:     search,
@@ -90,7 +89,7 @@ func (e *Explore) SetSearch(search search.Searcher) *Explore {
 	return e
 }
 
-func (e *Explore) SetExpression(expression expression.Operation) *Explore {
+func (e *Explore) SetExpression(expression condition.Operation) *Explore {
 	e.expression = expression
 
 	return e

@@ -1,4 +1,4 @@
-package expression
+package condition
 
 import (
 	strings2 "strings"

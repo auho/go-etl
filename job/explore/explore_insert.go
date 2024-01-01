@@ -2,7 +2,6 @@ package explore
 
 import (
 	"github.com/auho/go-etl/v2/job/explore/collect"
-	"github.com/auho/go-etl/v2/job/explore/expression"
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/mode"
 )
@@ -17,7 +16,7 @@ func newInsertFromExplore(e *Explore) *Insert {
 	return NewInsert(e.collect, e.search, e.expression)
 }
 
-func NewInsert(collect collect.Collector, search search.Searcher, expression expression.Operation) *Insert {
+func NewInsert(collect collect.Collector, search search.Searcher, expression condition.Operation) *Insert {
 	return &Insert{
 		Explore: newExplore(collect, search, expression),
 	}

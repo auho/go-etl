@@ -1,4 +1,4 @@
-package expression
+package condition
 
 type Operation func(map[string]any) bool
 

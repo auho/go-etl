@@ -1,4 +1,4 @@
-package expression
+package condition
 
 import (
 	"github.com/auho/go-etl/v2/job/explore/collect"

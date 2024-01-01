@@ -2,7 +2,6 @@ package explore
 
 import (
 	"github.com/auho/go-etl/v2/job/explore/collect"
-	"github.com/auho/go-etl/v2/job/explore/expression"
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/mode"
 )
@@ -17,7 +16,7 @@ func newUpdateFromExplore(e *Explore) *Update {
 	return NewUpdate(e.collect, e.search, e.expression)
 }
 
-func NewUpdate(collect collect.Collector, search search.Searcher, expression expression.Operation) *Update {
+func NewUpdate(collect collect.Collector, search search.Searcher, expression condition.Operation) *Update {
 	return &Update{
 		Explore: newExplore(collect, search, expression),
 	}
