@@ -62,6 +62,7 @@ func (e *Export[T]) ToToken(results T, rule means.Ruler) search.Token {
 		token.SetTokenizerFunc(func() []map[string]any {
 			ret := e.resultsToToken(results, rule)
 
+			// for pluck
 			return maps2.PluckSliceMap(ret, e.keys)
 		})
 	}

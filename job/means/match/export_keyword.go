@@ -63,6 +63,6 @@ func NewExportKeywordFlag(rule means.Ruler) *ExportResults {
 	values[rule.NameAlias()] = 0
 
 	return NewExportKeyword(keys, values, func(results Results, rule means.Ruler) []map[string]any {
-		return results.ToLine(rule)
+		return results.ToFlag(rule)
 	})
 }

@@ -57,9 +57,17 @@ func (rs Results) ToAll(rule means.Ruler) []map[string]any {
 
 func (rs Results) ToLine(rule means.Ruler) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordNumNameAlias())
-	sm := rs.MergeKeysToWhole(rule)
+	m := rs.MergeKeysToWhole(rule)
 
-	return []map[string]any{maps.PluckMap(sm, keys)}
+	return []map[string]any{maps.PluckMap(m, keys)}
+}
+
+func (rs Results) ToFlag(rule means.Ruler) []map[string]any {
+	keys := append(rule.TagsAlias(), rule.KeywordNameAlias())
+	m := rs.MergeKeysToWhole(rule)
+	m[rule.NameAlias()] = 1
+
+	return []map[string]any{maps.PluckMap(m, keys)}
 }
 
 func (rs Results) MergeKeysToWhole(rule means.Ruler) map[string]any {
