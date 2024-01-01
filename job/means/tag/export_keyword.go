@@ -12,8 +12,8 @@ import (
 //
 // keys []string, name of tokenize
 // df: map[string]any, defaultValues
-func NewExportKeyword(keys []string, df map[string]any, fn func(Results, means.Ruler) []map[string]any) *Export[Results] {
-	e := &Export[Results]{
+func NewExportKeyword(keys []string, df map[string]any, fn func(Results, means.Ruler) []map[string]any) *ExportResults {
+	e := &ExportResults{
 		keys:           keys,
 		defaultValues:  df,
 		resultsToToken: fn,
@@ -22,7 +22,7 @@ func NewExportKeyword(keys []string, df map[string]any, fn func(Results, means.R
 	return e
 }
 
-func NewExportKeywordAll(rule means.Ruler) *Export[Results] {
+func NewExportKeywordAll(rule means.Ruler) *ExportResults {
 	var keys []string
 	values := make(map[string]any)
 	for _, _ta := range rule.TagsAlias() {
@@ -39,7 +39,7 @@ func NewExportKeywordAll(rule means.Ruler) *Export[Results] {
 	})
 }
 
-func NewExportKeywordLine(rule means.Ruler) *Export[Results] {
+func NewExportKeywordLine(rule means.Ruler) *ExportResults {
 	var keys []string
 	values := make(map[string]any)
 	for _, _ta := range rule.TagsAlias() {

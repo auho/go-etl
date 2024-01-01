@@ -7,6 +7,11 @@ import (
 
 var _ search.Exporter = (*Export[Results])(nil)
 var _ search.Exporter = (*Export[LabelResults])(nil)
+var _ search.Exporter = (*ExportResults)(nil)
+var _ search.Exporter = (*ExportLabelResults)(nil)
+
+type ExportResults = Export[Results]
+type ExportLabelResults = Export[LabelResults]
 
 type Export[T ResultsEntity] struct {
 	resultsToToken func(T, means.Ruler) []map[string]any

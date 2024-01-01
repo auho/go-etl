@@ -12,8 +12,8 @@ import (
 //
 // keys []string, name of tokenize
 // df: map[string]any, defaultValues
-func NewExportLabel(keys []string, df map[string]any, fn func(LabelResults, means.Ruler) []map[string]any) *Export[LabelResults] {
-	return &Export[LabelResults]{
+func NewExportLabel(keys []string, df map[string]any, fn func(LabelResults, means.Ruler) []map[string]any) *ExportLabelResults {
+	return &ExportLabelResults{
 		keys:           keys,
 		defaultValues:  df,
 		resultsToToken: fn,
@@ -21,7 +21,7 @@ func NewExportLabel(keys []string, df map[string]any, fn func(LabelResults, mean
 
 }
 
-func NewExportLabelAll(rule means.Ruler) *Export[LabelResults] {
+func NewExportLabelAll(rule means.Ruler) *ExportLabelResults {
 	var keys []string
 	values := make(map[string]any)
 	for _, _ta := range rule.TagsAlias() {
@@ -38,7 +38,7 @@ func NewExportLabelAll(rule means.Ruler) *Export[LabelResults] {
 	})
 }
 
-func NewExportLabelLine(rule means.Ruler) *Export[LabelResults] {
+func NewExportLabelLine(rule means.Ruler) *ExportLabelResults {
 	var keys []string
 	values := make(map[string]any)
 	for _, _ta := range rule.TagsAlias() {
@@ -57,7 +57,7 @@ func NewExportLabelLine(rule means.Ruler) *Export[LabelResults] {
 	})
 }
 
-func NewExportLabelFlag(rule means.Ruler) *Export[LabelResults] {
+func NewExportLabelFlag(rule means.Ruler) *ExportLabelResults {
 	var keys []string
 	values := make(map[string]any)
 	for _, _ta := range rule.TagsAlias() {
