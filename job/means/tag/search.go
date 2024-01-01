@@ -13,12 +13,14 @@ var _ search.Searcher = (*Search[LabelResults])(nil)
 var _ search.Searcher = (*SearchResults)(nil)
 var _ search.Searcher = (*SearchLabelResults)(nil)
 
+type SearchResults = Search[Results]
+type SearchLabelResults = Search[LabelResults]
+type SearchContextResults = SearchContext[Results]
+type SearchContextLabelResults = SearchContext[LabelResults]
+
 type ResultsEntity interface {
 	Results | LabelResults
 }
-
-type SearchResults = Search[Results]
-type SearchLabelResults = Search[LabelResults]
 
 type SearchResultsFun[T ResultsEntity] func(*SearchContext[T], []string) T
 type SearchContext[T ResultsEntity] struct {
