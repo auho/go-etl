@@ -21,12 +21,24 @@ type Explore struct {
 	defaultValues map[string]any
 }
 
+func GenExplore() *Explore {
+	return &Explore{}
+}
+
 func newExplore(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Explore {
 	return &Explore{
 		collect:   collect,
 		search:    search,
 		condition: condition,
 	}
+}
+
+func (e *Explore) doCondition(item map[string]any) bool {
+	if !e.hasCondition {
+		return false
+	}
+
+	return e.condition.OK(item)
 }
 
 func (e *Explore) GetTitle() string {
@@ -66,10 +78,28 @@ func (e *Explore) State() []string {
 	return []string{fmt.Sprintf("%s: %s", e.GetTitle(), e.GenCounter())}
 }
 
-func (e *Explore) doCondition(item map[string]any) bool {
-	if !e.hasCondition {
-		return false
-	}
+func (e *Explore) SetCollect(collect collect.Collector) *Explore {
+	e.collect = collect
 
-	return e.condition.OK(item)
+	return e
+}
+
+func (e *Explore) SetSearch(search search.Searcher) *Explore {
+	e.search = search
+
+	return e
+}
+
+func (e *Explore) SetCondition(condition condition.Conditioner) *Explore {
+	e.condition = condition
+
+	return e
+}
+
+func (e *Explore) ToInsert() *Insert {
+	return newInsertFromExplore(e)
+}
+
+func (e *Explore) ToUpdate() *Update {
+	return newUpdateFromExplore(e)
 }

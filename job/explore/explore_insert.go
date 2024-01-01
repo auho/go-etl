@@ -13,6 +13,10 @@ type Insert struct {
 	*Explore
 }
 
+func newInsertFromExplore(e *Explore) *Insert {
+	return NewInsert(e.collect, e.search, e.condition)
+}
+
 func NewInsert(collect collect.Collector, search search.Searcher, condition condition.Conditioner) *Insert {
 	return &Insert{
 		Explore: newExplore(collect, search, condition),
