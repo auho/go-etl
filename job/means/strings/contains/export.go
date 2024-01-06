@@ -8,6 +8,8 @@ import (
 	maps2 "github.com/auho/go-etl/v2/tool/maps"
 )
 
+var _ search.Exporter = (*Export)(nil)
+
 type Export struct {
 	resultsToToken func(Results, means.Ruler) []map[string]any
 

@@ -11,9 +11,11 @@ var _ UpdateMeans = (*Means)(nil)
 
 type Means struct {
 	search search.Searcher
+	export Exporter
 
 	keys          []string
 	defaultValues map[string]any
+	hasExport     bool
 }
 
 func NewMeans(s search.Searcher) *Means {
@@ -31,6 +33,11 @@ func (m *Means) Prepare() error {
 	_export := m.search.GenExport()
 	m.keys = _export.GetKeys()
 	m.defaultValues = _export.GetDefaultValues()
+	if m.export != nil {
+		m.hasExport = true
+		m.keys = m.export.GetKeys()
+		m.defaultValues = m.export.GetDefaultValues()
+	}
 
 	return nil
 }
@@ -54,6 +61,10 @@ func (m *Means) Insert(contents []string) []map[string]any {
 		return nil
 	}
 
+	if m.hasExport {
+		rets = m.export.Insert(rets)
+	}
+
 	return rets
 }
 
@@ -69,4 +80,10 @@ func (m *Means) Update(contents []string) map[string]any {
 
 func (m *Means) Close() error {
 	return m.search.Close()
+}
+
+func (m *Means) WithExport(e *Export) *Means {
+	m.export = e
+
+	return m
 }

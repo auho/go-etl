@@ -14,7 +14,7 @@ type Insert struct {
 }
 
 func newInsertFromExplore(e *Explore) *Insert {
-	return NewInsert(e.collect, e.search, e.expression)
+	return NewInsert(e.collect, e.search, e.condition)
 }
 
 func NewInsert(collect collect.Collector, search search.Searcher, expression condition.Operation) *Insert {

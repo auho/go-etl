@@ -9,7 +9,6 @@ import (
 )
 
 var _ search.Searcher = (*Contains)(nil)
-var _ search.Exporter = (*Export)(nil)
 
 type Contains struct {
 	rule   means.Ruler
@@ -26,6 +25,28 @@ func newContains(rule means.Ruler, subs []string, subMode func([]string) Results
 		subMode: subMode,
 		export:  export,
 	}
+}
+
+func (c *Contains) Prepare() error { return nil }
+
+func (c *Contains) GetTitle() string {
+	return fmt.Sprintf("Contains[%s]", c.rule.Name())
+}
+
+func (c *Contains) GenExport() search.Exporter {
+	return c.export
+}
+
+func (c *Contains) Do(contents []string) search.Token {
+	rets := c.subMode(contents)
+
+	return c.export.ToToken(c.rule, rets)
+}
+
+func (c *Contains) Close() error { return nil }
+
+func (c *Contains) ToMeans() *means.Means {
+	return means.NewMeans(c)
 }
 
 func NewContainsAll(rule means.Ruler, subs []string, export *Export) *Contains {
@@ -78,26 +99,4 @@ func NewContainsAny(rule means.Ruler, subs []string, export *Export) *Contains {
 
 		return results
 	}, export)
-}
-
-func (c *Contains) Prepare() error { return nil }
-
-func (c *Contains) GetTitle() string {
-	return fmt.Sprintf("Contains[%s]", c.rule.Name())
-}
-
-func (c *Contains) GenExport() search.Exporter {
-	return c.export
-}
-
-func (c *Contains) Do(contents []string) search.Token {
-	rets := c.subMode(contents)
-
-	return c.export.ToToken(c.rule, rets)
-}
-
-func (c *Contains) Close() error { return nil }
-
-func (c *Contains) ToMeans() *means.Means {
-	return means.NewMeans(c)
 }

@@ -14,7 +14,7 @@ type Update struct {
 }
 
 func newUpdateFromExplore(e *Explore) *Update {
-	return NewUpdate(e.collect, e.search, e.expression)
+	return NewUpdate(e.collect, e.search, e.condition)
 }
 
 func NewUpdate(collect collect.Collector, search search.Searcher, expression condition.Operation) *Update {

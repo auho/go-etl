@@ -13,9 +13,9 @@ import (
 type Explore struct {
 	mode.Mode
 
-	collect    collect.Collector
-	search     search.Searcher
-	expression condition.Operation
+	collect   collect.Collector
+	search    search.Searcher
+	condition condition.Operation
 
 	hasExpression bool
 	defaultValues map[string]any
@@ -27,9 +27,9 @@ func GenExplore() *Explore {
 
 func newExplore(collect collect.Collector, search search.Searcher, expression condition.Operation) *Explore {
 	return &Explore{
-		collect:    collect,
-		search:     search,
-		expression: expression,
+		collect:   collect,
+		search:    search,
+		condition: expression,
 	}
 }
 
@@ -38,7 +38,7 @@ func (e *Explore) expressionOperation(item map[string]any) bool {
 		return true
 	}
 
-	return e.expression(item)
+	return e.condition(item)
 }
 
 func (e *Explore) GetTitle() string {
@@ -63,7 +63,7 @@ func (e *Explore) Prepare() error {
 		return err
 	}
 
-	if e.expression != nil {
+	if e.condition != nil {
 		e.hasExpression = true
 	}
 
@@ -90,8 +90,8 @@ func (e *Explore) SetSearch(search search.Searcher) *Explore {
 	return e
 }
 
-func (e *Explore) SetExpression(expression condition.Operation) *Explore {
-	e.expression = expression
+func (e *Explore) SetCondition(operation condition.Operation) *Explore {
+	e.condition = operation
 
 	return e
 }

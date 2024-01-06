@@ -1,8 +1,8 @@
 package search
 
 type Searcher interface {
-	Prepare() error
 	GetTitle() string
+	Prepare() error
 	GenExport() Exporter
 	Do(s []string) Token
 	Close() error
