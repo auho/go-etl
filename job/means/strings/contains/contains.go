@@ -92,11 +92,11 @@ func NewContainsAny(rule means.Ruler, subs []string, export *Export) *Contains {
 						Amount: _c,
 					})
 
-					break
+					goto LOOP
 				}
 			}
 		}
-
+	LOOP:
 		return results
 	}, export)
 }

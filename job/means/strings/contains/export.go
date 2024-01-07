@@ -95,7 +95,7 @@ func NewExportLine(rule means.Ruler) *Export {
 }
 
 func NewExportFlag(rule means.Ruler) *Export {
-	keys := []string{rule.NameAlias(), rule.KeywordAmountNameAlias()}
+	keys := []string{rule.NameAlias(), rule.KeywordNameAlias()}
 	df := map[string]any{
 		rule.NameAlias():        0,
 		rule.KeywordNameAlias(): "",
