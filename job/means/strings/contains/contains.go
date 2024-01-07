@@ -49,6 +49,8 @@ func (c *Contains) ToMeans() *means.Means {
 	return means.NewMeans(c)
 }
 
+// NewContainsAll
+// all sub of all contents
 func NewContainsAll(rule means.Ruler, subs []string, export *Export) *Contains {
 	return newContains(rule, subs, func(contents []string) Results {
 		var results Results
@@ -80,6 +82,8 @@ func NewContainsAll(rule means.Ruler, subs []string, export *Export) *Contains {
 	}, export)
 }
 
+// NewContainsAny
+// first contain of contents
 func NewContainsAny(rule means.Ruler, subs []string, export *Export) *Contains {
 	return newContains(rule, subs, func(contents []string) Results {
 		var results Results

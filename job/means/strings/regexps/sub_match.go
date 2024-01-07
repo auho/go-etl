@@ -104,6 +104,8 @@ func _mergeResults(results Results) Results {
 	return newResults
 }
 
+// NewAllSubMatch
+// all sub match of all contents
 func NewAllSubMatch(rule means.Ruler, exs []string, export *Export) *SubMatch {
 	return NewSubMatch(rule, exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results
@@ -124,6 +126,8 @@ func NewAllSubMatch(rule means.Ruler, exs []string, export *Export) *SubMatch {
 	}, export)
 }
 
+// NewSubMatchAll
+// leftmost sub match of all contents
 func NewSubMatchAll(rule means.Ruler, exs []string, export *Export) *SubMatch {
 	return NewSubMatch(rule, exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results
@@ -140,6 +144,8 @@ func NewSubMatchAll(rule means.Ruler, exs []string, export *Export) *SubMatch {
 	}, export)
 }
 
+// NewSubMatchFirst
+// leftmost sub match of first match found content
 func NewSubMatchFirst(rule means.Ruler, exs []string, export *Export) *SubMatch {
 	return NewSubMatch(rule, exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results

@@ -1,10 +1,12 @@
 package regexps
 
 import (
+	"maps"
 	"strings"
 
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/means"
+	maps2 "github.com/auho/go-etl/v2/tool/maps"
 )
 
 var _ search.Exporter = (*Export)(nil)
@@ -36,6 +38,21 @@ func (e *Export) GetDefaultValues() map[string]any {
 	return e.defaultValues
 }
 
+func (e *Export) Pluck(keys []string) *Export {
+	df := maps.Clone(e.defaultValues)
+
+	e.keys = keys
+	e.defaultValues = make(map[string]any, len(e.keys))
+
+	for _, key := range e.keys {
+		e.defaultValues[key] = df[key]
+	}
+
+	df = nil
+
+	return e
+}
+
 func (e *Export) ToToken(results Results, rule means.Ruler) search.Token {
 	token := search.Token{}
 	if results == nil {
@@ -44,7 +61,10 @@ func (e *Export) ToToken(results Results, rule means.Ruler) search.Token {
 
 	token.SetOk()
 	token.SetTokenizerFunc(func() []map[string]any {
-		return e.resultsToToken(results, rule)
+		ret := e.resultsToToken(results, rule)
+
+		// for pluck
+		return maps2.PluckSliceMap(ret, e.keys)
 	})
 
 	return token

@@ -12,7 +12,7 @@ import (
 //
 // keys []string, name of tokenize
 // df: map[string]any, defaultValues
-func NewExportLabel(keys []string, df map[string]any, fn func(LabelResults, means.Ruler) []map[string]any) *ExportLabelResults {
+func NewExportLabel(keys []string, df map[string]any, fn func(ExportContextLabelResults) []map[string]any) *ExportLabelResults {
 	return NewExport[LabelResults](keys, df, fn)
 }
 
@@ -28,8 +28,8 @@ func NewExportLabelAll(rule means.Ruler) *ExportLabelResults {
 	values[rule.KeywordNameAlias()] = ""
 	values[rule.KeywordAmountNameAlias()] = 0
 
-	return NewExportLabel(keys, values, func(results LabelResults, rule means.Ruler) []map[string]any {
-		return results.ToAll(rule)
+	return NewExportLabel(keys, values, func(ctx ExportContextLabelResults) []map[string]any {
+		return ctx.Results.ToAll(rule, ctx.Format)
 	})
 }
 
@@ -47,8 +47,8 @@ func NewExportLabelLine(rule means.Ruler) *ExportLabelResults {
 	values[rule.KeywordNumNameAlias()] = 0
 	values[rule.KeywordAmountNameAlias()] = 0
 
-	return NewExportLabel(keys, values, func(results LabelResults, rule means.Ruler) []map[string]any {
-		return results.ToLine(rule)
+	return NewExportLabel(keys, values, func(ctx ExportContextLabelResults) []map[string]any {
+		return ctx.Results.ToLine(rule, ctx.Format)
 	})
 }
 
@@ -64,7 +64,7 @@ func NewExportLabelFlag(rule means.Ruler) *ExportLabelResults {
 	values[rule.KeywordNameAlias()] = ""
 	values[rule.NameAlias()] = 0
 
-	return NewExportLabel(keys, values, func(results LabelResults, rule means.Ruler) []map[string]any {
-		return results.ToFlag(rule)
+	return NewExportLabel(keys, values, func(ctx ExportContextLabelResults) []map[string]any {
+		return ctx.Results.ToFlag(rule, ctx.Format)
 	})
 }

@@ -12,6 +12,8 @@ type Wrap struct {
 	hasExport     bool
 }
 
+// NewWrap
+// Deprecated
 func NewWrap(m *Means, export *Export) *Wrap {
 	return &Wrap{
 		means:  m,
