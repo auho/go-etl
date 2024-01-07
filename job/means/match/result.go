@@ -9,7 +9,10 @@ import (
 	"github.com/auho/go-etl/v2/tool/maps"
 )
 
-var DefaultFormat = Format{Sep: ","}
+var DefaultFormat = Format{
+	WithKeyWordAmount: true,
+	Sep:               ",",
+}
 
 type Format struct {
 	WithKeyWordAmount bool
