@@ -60,7 +60,7 @@ func (e *Export) ToToken(results Results) search.Token {
 
 func NewExportAll() *Export {
 	return NewExport([]string{WordName}, map[string]any{WordName: ""}, func(ctx ExportContext) []map[string]any {
-		return ctx.Results.ToAll()
+		return ctx.Results.ToAll(ctx.Format)
 	})
 }
 

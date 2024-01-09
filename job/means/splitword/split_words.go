@@ -14,8 +14,8 @@ type SplitWords struct {
 	export *Export
 }
 
-func NewSplitWords(sep string) *SplitWords {
-	return &SplitWords{sep: sep}
+func NewSplitWords(sep string, export *Export) *SplitWords {
+	return &SplitWords{sep: sep, export: export}
 }
 
 func (s *SplitWords) GetTitle() string {
@@ -26,7 +26,11 @@ func (s *SplitWords) GenExport() search.Exporter {
 	return s.export
 }
 
-func (s *SplitWords) Prepare() error { return nil }
+func (s *SplitWords) Prepare() error {
+	s.export.format.check()
+
+	return nil
+}
 
 func (s *SplitWords) Do(contents []string) search.Token {
 	var results Results

@@ -7,20 +7,28 @@ import (
 const WordName = "word"
 
 var DefaultFormat = Format{
-	Sep: " ",
+	Name: WordName,
+	Sep:  " ",
 }
 
 type Format struct {
-	Sep string
+	Name string
+	Sep  string
+}
+
+func (f *Format) check() {
+	if f.Name == "" {
+		f.Name = WordName
+	}
 }
 
 type Results []string
 
-func (rs Results) ToAll() []map[string]any {
+func (rs Results) ToAll(format Format) []map[string]any {
 	var rets []map[string]any
 	for _, r := range rs {
 		rets = append(rets, map[string]any{
-			WordName: r,
+			format.Name: r,
 		})
 	}
 
@@ -29,6 +37,6 @@ func (rs Results) ToAll() []map[string]any {
 
 func (rs Results) ToLine(format Format) []map[string]any {
 	return []map[string]any{{
-		WordName: strings.Join(rs, format.Sep),
+		format.Name: strings.Join(rs, format.Sep),
 	}}
 }
