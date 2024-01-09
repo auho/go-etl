@@ -6,8 +6,6 @@ import (
 )
 
 var _ Conditioner = (*Condition)(nil)
-var _ Conditioner = (AND)(nil)
-var _ Conditioner = (OR)(nil)
 
 type Conditioner interface {
 	OK(map[string]any) bool

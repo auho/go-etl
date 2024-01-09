@@ -96,7 +96,7 @@ func TestContainsAny(t *testing.T) {
 				ss[i], ss[j] = ss[j], ss[i]
 			})
 
-			c := NewContainsAny(_rule, ss, NewExportAll(_rule))
+			c := NewContainsFirst(_rule, ss, NewExportAll(_rule))
 			err := c.Prepare()
 			if err != nil {
 				t.Fatal(err)

@@ -10,6 +10,14 @@ import (
 
 var _ search.Searcher = (*SubMatch)(nil)
 
+// regexp sub match
+//
+// - ab.*cd => 匹配 ab.*cd 部分
+// - a(b.*c)d => 匹配 b.*c 部分
+//
+
+// SubMatch
+// sub match
 type SubMatch struct {
 	rule        means.Ruler
 	expressions []string

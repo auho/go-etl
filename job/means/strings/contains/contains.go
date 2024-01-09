@@ -82,9 +82,9 @@ func NewContainsAll(rule means.Ruler, subs []string, export *Export) *Contains {
 	}, export)
 }
 
-// NewContainsAny
-// first contain of contents
-func NewContainsAny(rule means.Ruler, subs []string, export *Export) *Contains {
+// NewContainsFirst
+// first sub of contents
+func NewContainsFirst(rule means.Ruler, subs []string, export *Export) *Contains {
 	return newContains(rule, subs, func(contents []string) Results {
 		var results Results
 		for _, content := range contents {
