@@ -50,6 +50,16 @@ func TestNewFirstText(t *testing.T) {
 	_assertTag(t, _rule, rets[0], "b", 1)
 }
 
+func TestNewMostText(t *testing.T) {
+	_means := _genMeans(t, NewMostText)
+	rets := _means.Insert(_contents)
+	_outputResults(rets)
+
+	_assertTags(t, _rule, rets, 1, 12)
+
+	_assertTag(t, _rule, rets[0], "123", 12)
+}
+
 func TestNewKey(t *testing.T) {
 	_means := _genMeans(t, NewKey)
 	rets := _means.Insert(_contents)
@@ -70,6 +80,16 @@ func TestNewFirstKey(t *testing.T) {
 	_assertTags(t, _rule, rets, 1, 1)
 
 	_assertTag(t, _rule, rets[0], "123", 1)
+}
+
+func TestNewMostKey(t *testing.T) {
+	_means := _genMeans(t, NewMostKey)
+	rets := _means.Insert(_contents)
+	_outputResults(rets)
+
+	_assertTags(t, _rule, rets, 1, 21)
+
+	_assertTag(t, _rule, rets[0], "中_文", 21)
 }
 
 func TestNewWholeLabels(t *testing.T) {
