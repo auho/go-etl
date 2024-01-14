@@ -27,12 +27,12 @@ type baseRule struct {
 	keywordLength int
 	labels        map[string]int // map[label]label length
 
-	alias       map[string]string
-	aliasName   string            // alias name
-	aliasLabels map[string]int    // map[label alias]label alias length, alias labels
-	labelsAlias map[string]string // map[label]label alias
+	alias             map[string]string // map[origin name][alias name]
+	nameAlias         string            // alias of name
+	labelsAlias       map[string]string // map[label]label alias
+	labelsAliasLength map[string]int    // map[label alias]label alias length, alias labels
 
-	independentTableName string // ind
+	independentTableName string // independent table name
 }
 
 func newBaseRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) baseRule {
@@ -61,7 +61,7 @@ func (br *baseRule) GetDB() *simpleDb.SimpleDB {
 }
 
 func (br *baseRule) GetName() string {
-	return br.aliasName
+	return br.nameAlias
 }
 
 func (br *baseRule) GetNameLength() int {
@@ -77,7 +77,7 @@ func (br *baseRule) GetKeywordLength() int {
 }
 
 func (br *baseRule) GetLabels() map[string]int {
-	return br.aliasLabels
+	return br.labelsAliasLength
 }
 
 func (br *baseRule) TagsName() []string {
@@ -106,23 +106,23 @@ func (br *baseRule) LabelsAlias() map[string]string {
 }
 
 func (br *baseRule) LabelNumName() string {
-	return fmt.Sprintf("%s_%s", br.aliasName, NameLabelNum)
+	return fmt.Sprintf("%s_%s", br.nameAlias, NameLabelNum)
 }
 
 func (br *baseRule) KeywordName() string {
-	return fmt.Sprintf("%s_%s", br.aliasName, NameKeyword)
+	return fmt.Sprintf("%s_%s", br.nameAlias, NameKeyword)
 }
 
 func (br *baseRule) KeywordLenName() string {
-	return fmt.Sprintf("%s_%s", br.aliasName, NameKeywordLen)
+	return fmt.Sprintf("%s_%s", br.nameAlias, NameKeywordLen)
 }
 
 func (br *baseRule) KeywordNumName() string {
-	return fmt.Sprintf("%s_%s", br.aliasName, NameKeywordNum)
+	return fmt.Sprintf("%s_%s", br.nameAlias, NameKeywordNum)
 }
 
 func (br *baseRule) KeywordAmountName() string {
-	return fmt.Sprintf("%s_%s", br.aliasName, NameKeywordAmount)
+	return fmt.Sprintf("%s_%s", br.nameAlias, NameKeywordAmount)
 }
 
 func (br *baseRule) Config() assistant.RuleConfigure {
@@ -139,23 +139,23 @@ func (br *baseRule) handlerAlias(alias map[string]string) {
 	br.alias = alias
 
 	if v, ok := alias[br.name]; ok {
-		br.aliasName = v
+		br.nameAlias = v
 	} else {
-		br.aliasName = br.name
+		br.nameAlias = br.name
 	}
 
-	_aliasLabels := make(map[string]int, len(br.labels))
 	_labelsAlias := make(map[string]string, len(br.labels))
+	_labelsAliasLength := make(map[string]int, len(br.labels))
 	for label, length := range br.labels {
 		if v, ok := alias[label]; ok {
 			_labelsAlias[label] = v
-			_aliasLabels[v] = length
+			_labelsAliasLength[v] = length
 		} else {
 			_labelsAlias[label] = label
-			_aliasLabels[label] = length
+			_labelsAliasLength[label] = length
 		}
 	}
 
-	br.aliasLabels = _aliasLabels
 	br.labelsAlias = _labelsAlias
+	br.labelsAliasLength = _labelsAliasLength
 }

@@ -4,21 +4,25 @@ import (
 	"strings"
 )
 
-const WordName = "word"
+const NameWord = "word"
 
 var DefaultFormat = Format{
-	Name: WordName,
-	Sep:  " ",
+	WorkdName: NameWord,
+	Sep:       " ",
 }
 
 type Format struct {
-	Name string
-	Sep  string
+	WorkdName string
+	Sep       string
 }
 
 func (f *Format) check() {
-	if f.Name == "" {
-		f.Name = WordName
+	if f.WorkdName == "" {
+		f.WorkdName = NameWord
+	}
+
+	if f.Sep == "" {
+		f.Sep = " "
 	}
 }
 
@@ -28,7 +32,7 @@ func (rs Results) ToAll(format Format) []map[string]any {
 	var rets []map[string]any
 	for _, r := range rs {
 		rets = append(rets, map[string]any{
-			format.Name: r,
+			format.WorkdName: r,
 		})
 	}
 
@@ -37,6 +41,6 @@ func (rs Results) ToAll(format Format) []map[string]any {
 
 func (rs Results) ToLine(format Format) []map[string]any {
 	return []map[string]any{{
-		format.Name: strings.Join(rs, format.Sep),
+		format.WorkdName: strings.Join(rs, format.Sep),
 	}}
 }

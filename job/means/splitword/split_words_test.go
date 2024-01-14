@@ -42,7 +42,7 @@ func TestMeans(t *testing.T) {
 			t.Fatal()
 		}
 
-		if rets[0][WordName] != "1-2-3-4-5-6-7-8-9-1-2-3-4-5-6-7-8-9" {
+		if rets[0][NameWord] != "1-2-3-4-5-6-7-8-9-1-2-3-4-5-6-7-8-9" {
 			t.Fatal()
 		}
 	})
