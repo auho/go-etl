@@ -2,6 +2,7 @@ package segword
 
 import (
 	"github.com/auho/go-etl/v2/job/explore/search"
+	"github.com/auho/go-etl/v2/job/means"
 )
 
 var _ search.Searcher = (*SegWords)(nil)
@@ -9,6 +10,10 @@ var _ search.Searcher = (*SegWords)(nil)
 type SegWords struct {
 	seg    *Seg
 	export *Export
+}
+
+func NewDefaultSegWords() *SegWords {
+	return NewSegWords(NewExportAll())
 }
 
 func NewSegWords(export *Export) *SegWords {
@@ -37,4 +42,8 @@ func (sg *SegWords) Do(contents []string) search.Token {
 
 func (sg *SegWords) Close() error {
 	return sg.seg.Close()
+}
+
+func (sg *SegWords) ToMeans() *means.Means {
+	return means.NewMeans(sg)
 }

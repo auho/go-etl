@@ -1,5 +1,8 @@
 package condition
 
+var _ Conditioner = (*AND)(nil)
+var _ Conditioner = (*OR)(nil)
+
 type Operation func(map[string]any) bool
 
 type Expression []Operation
