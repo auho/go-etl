@@ -14,13 +14,17 @@ var _app *app.Application
 func Initial(parentCmd *cobra.Command) {
 	_app = app.APP
 
+	parentCmd.AddGroup(&cobra.Group{ID: "build", Title: "build"})
+	parentCmd.AddGroup(&cobra.Group{ID: "table", Title: "table"})
+	parentCmd.AddGroup(&cobra.Group{ID: "import", Title: "import"})
+	parentCmd.AddGroup(&cobra.Group{ID: "tag", Title: "tag"})
+	parentCmd.AddGroup(&cobra.Group{ID: "query", Title: "query"})
 	parentCmd.AddGroup(&cobra.Group{ID: "all", Title: "all"})
 
 	parentCmd.AddCommand(_stateCmd)
 
 	_app.AddPreRunE(func() error {
 		layout.Initial()
-
 		return nil
 	})
 

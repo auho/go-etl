@@ -13,7 +13,7 @@ import (
 
 var env = "develop"
 var version string
-var lastDate string
+var buildInfo string
 var confName string
 
 func main() {
@@ -41,19 +41,7 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use: "root",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if confName == "" {
-				confName = env
-				//panic("conf name is empty")
-			}
-
-			app.APP.Build(confName)
-			app.APP.PrintlnState()
-			err1 := app.APP.RunPreRunE(cmd)
-			if err1 != nil {
-				return err1
-			}
-
-			return nil
+			return app.APP.RunPreRunE(cmd)
 		},
 	}
 
@@ -68,17 +56,35 @@ func main() {
 }
 
 func initial(rootCmd *cobra.Command) {
-	rootCmd.PersistentFlags().StringVarP(&confName, "config", "c", "", "config")
-
 	// init app
 	app.NewApp()
 
 	rootCmd.Use = app.APP.Name
+	rootCmd.PersistentFlags().StringVarP(&confName, "config", "c", "", "config")
 
 	fmt.Println("env:", env)
 	fmt.Println("version:", version)
-	fmt.Println("last date:", lastDate)
+	fmt.Println("build info:", buildInfo)
 	fmt.Println()
+
+	// app start
+	app.APP.AddPreRunE(func() error {
+		_confName := ""
+		if confName != "" {
+			_confName = confName
+		} else {
+			if app.APP.ConfName != "" {
+				_confName = app.APP.ConfName
+			} else {
+				_confName = env
+			}
+		}
+
+		app.APP.Build(_confName)
+		app.APP.PrintlnState()
+
+		return nil
+	})
 
 	// initial demand
 	demand.Initial(rootCmd)
