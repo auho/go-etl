@@ -25,11 +25,11 @@ func GenExplore() *Explore {
 	return &Explore{}
 }
 
-func newExplore(collect collect.Collector, search search.Searcher, expression condition.Operation) *Explore {
+func newExplore(collect collect.Collector, search search.Searcher, operation condition.Operation) *Explore {
 	return &Explore{
 		collect:   collect,
 		search:    search,
-		condition: expression,
+		condition: operation,
 	}
 }
 
