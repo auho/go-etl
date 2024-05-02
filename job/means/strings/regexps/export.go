@@ -18,7 +18,12 @@ type Export struct {
 	resultsToToken func(Results, means.Ruler) []map[string]any
 }
 
-func NewExport(keys []string, df map[string]any, fn func(Results, means.Ruler) []map[string]any) *Export {
+func NewExport(df map[string]any, fn func(Results, means.Ruler) []map[string]any) *Export {
+	var keys []string
+	for k := range df {
+		keys = append(keys, k)
+	}
+
 	return &Export{
 		keys:           keys,
 		defaultValues:  df,
@@ -27,7 +32,7 @@ func NewExport(keys []string, df map[string]any, fn func(Results, means.Ruler) [
 }
 
 func NewExportDefault(name string, fn func(Results, means.Ruler) []map[string]any) *Export {
-	return NewExport([]string{name}, map[string]any{name: ""}, fn)
+	return NewExport(map[string]any{name: ""}, fn)
 }
 
 func (e *Export) GetKeys() []string {

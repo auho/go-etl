@@ -14,6 +14,10 @@ type SplitWords struct {
 	export *Export
 }
 
+func NewDefault(sep string) *SplitWords {
+	return NewSplitWords(sep, NewExportAll())
+}
+
 func NewSplitWords(sep string, export *Export) *SplitWords {
 	return &SplitWords{sep: sep, export: export}
 }

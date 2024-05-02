@@ -22,13 +22,11 @@ type Export struct {
 	resultsToToken func(ExportContext) []map[string]any
 	filterFunc     func(Result) bool
 
-	keys          []string
 	defaultValues map[string]any
 }
 
-func NewExport(keys []string, df map[string]any, fn func(ExportContext) []map[string]any) *Export {
+func NewExport(df map[string]any, fn func(ExportContext) []map[string]any) *Export {
 	return &Export{
-		keys:           keys,
 		defaultValues:  df,
 		resultsToToken: fn,
 		filterFunc:     DefaultFilterFunc,
@@ -37,7 +35,12 @@ func NewExport(keys []string, df map[string]any, fn func(ExportContext) []map[st
 }
 
 func (e *Export) GetKeys() []string {
-	return e.keys
+	var keys []string
+	for k := range e.defaultValues {
+		keys = append(keys, k)
+	}
+
+	return keys
 }
 
 func (e *Export) GetDefaultValues() map[string]any {
@@ -82,7 +85,6 @@ func NewExportAll() *Export {
 	format := DefaultFormat
 
 	return NewExport(
-		[]string{},
 		map[string]any{format.TokenName: "", format.FlagName: ""},
 		func(ctx ExportContext) []map[string]any {
 			return ctx.Results.ToAll(ctx.Format)
@@ -94,7 +96,6 @@ func NewExportLine() *Export {
 	format := DefaultFormat
 
 	return NewExport(
-		[]string{format.TokenName},
 		map[string]any{format.TokenName: ""},
 		func(ctx ExportContext) []map[string]any {
 			return ctx.Results.ToLine(ctx.Format)

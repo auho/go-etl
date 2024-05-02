@@ -15,13 +15,11 @@ type Export struct {
 	format         Format
 	resultsToToken func(ExportContext) []map[string]any
 
-	keys          []string
 	defaultValues map[string]any
 }
 
-func NewExport(keys []string, df map[string]any, fn func(ExportContext) []map[string]any) *Export {
+func NewExport(df map[string]any, fn func(ExportContext) []map[string]any) *Export {
 	return &Export{
-		keys:           keys,
 		defaultValues:  df,
 		resultsToToken: fn,
 		format:         DefaultFormat,
@@ -29,7 +27,12 @@ func NewExport(keys []string, df map[string]any, fn func(ExportContext) []map[st
 }
 
 func (e *Export) GetKeys() []string {
-	return e.keys
+	var keys []string
+	for k := range e.defaultValues {
+		keys = append(keys, k)
+	}
+
+	return keys
 }
 
 func (e *Export) GetDefaultValues() map[string]any {
@@ -61,7 +64,7 @@ func (e *Export) ToToken(results Results) search.Token {
 func NewExportAll() *Export {
 	format := DefaultFormat
 
-	return NewExport([]string{format.WorkdName}, map[string]any{format.WorkdName: ""}, func(ctx ExportContext) []map[string]any {
+	return NewExport(map[string]any{format.WordName: ""}, func(ctx ExportContext) []map[string]any {
 		return ctx.Results.ToAll(ctx.Format)
 	}).WithFormat(format)
 }
@@ -69,7 +72,7 @@ func NewExportAll() *Export {
 func NewExportLine() *Export {
 	format := DefaultFormat
 
-	return NewExport([]string{format.WorkdName}, map[string]any{format.WorkdName: ""}, func(ctx ExportContext) []map[string]any {
+	return NewExport(map[string]any{format.WordName: ""}, func(ctx ExportContext) []map[string]any {
 		return ctx.Results.ToLine(ctx.Format)
 	}).WithFormat(format)
 }

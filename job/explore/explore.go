@@ -7,11 +7,10 @@ import (
 	"github.com/auho/go-etl/v2/job/explore/collect"
 	"github.com/auho/go-etl/v2/job/explore/condition"
 	"github.com/auho/go-etl/v2/job/explore/search"
-	"github.com/auho/go-etl/v2/job/mode"
 )
 
 type Explore struct {
-	mode.Mode
+	base
 
 	collect   collect.Collector
 	search    search.Searcher
@@ -42,7 +41,7 @@ func (e *Explore) expressionOperation(item map[string]any) bool {
 }
 
 func (e *Explore) GetTitle() string {
-	return e.GenTitle(e.collect.GetTitle(), e.search.GetTitle())
+	return e.genTitle(e.collect.GetTitle(), e.search.GetTitle())
 }
 
 func (e *Explore) GetFields() []string {
@@ -50,7 +49,7 @@ func (e *Explore) GetFields() []string {
 }
 
 func (e *Explore) GetKeys() []string {
-	return nil // TODO
+	return e.search.GenExport().GetKeys()
 }
 
 func (e *Explore) DefaultValues() map[string]any {
@@ -75,7 +74,7 @@ func (e *Explore) Prepare() error {
 func (e *Explore) Close() error { return nil }
 
 func (e *Explore) State() []string {
-	return []string{fmt.Sprintf("%s: %s", e.GetTitle(), e.GenCounter())}
+	return []string{fmt.Sprintf("%s: %s", e.GetTitle(), e.genCounter())}
 }
 
 func (e *Explore) SetCollect(collect collect.Collector) *Explore {

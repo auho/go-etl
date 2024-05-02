@@ -32,7 +32,12 @@ type Export[T ResultsEntity] struct {
 	defaultValues  map[string]any
 }
 
-func NewExport[T ResultsEntity](keys []string, df map[string]any, fn func(ctx ExportContext[T]) []map[string]any) *Export[T] {
+func NewExport[T ResultsEntity](df map[string]any, fn func(ctx ExportContext[T]) []map[string]any) *Export[T] {
+	var keys []string
+	for k := range df {
+		keys = append(keys, k)
+	}
+
 	return &Export[T]{
 		keys:           keys,
 		defaultValues:  df,

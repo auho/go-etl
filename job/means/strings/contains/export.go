@@ -19,10 +19,14 @@ type Export struct {
 
 // NewExport
 //
-// keys: []string
 // df: map[string]any
 // fn: func(Results, means.Ruler) []map[string]any
-func NewExport(keys []string, df map[string]any, fn func(Results, means.Ruler) []map[string]any) *Export {
+func NewExport(df map[string]any, fn func(Results, means.Ruler) []map[string]any) *Export {
+	var keys []string
+	for k := range df {
+		keys = append(keys, k)
+	}
+
 	return &Export{
 		resultsToToken: fn,
 		keys:           keys,
@@ -70,38 +74,35 @@ func (e *Export) ToToken(rule means.Ruler, results Results) search.Token {
 }
 
 func NewExportAll(rule means.Ruler) *Export {
-	keys := []string{rule.NameAlias(), rule.KeywordAmountNameAlias()}
 	df := map[string]any{
 		rule.NameAlias():              "",
 		rule.KeywordAmountNameAlias(): 0,
 	}
 
-	return NewExport(keys, df, func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(df, func(results Results, rule means.Ruler) []map[string]any {
 		return results.ToAll(rule)
 	})
 }
 
 func NewExportLine(rule means.Ruler) *Export {
-	keys := []string{rule.NameAlias(), rule.KeywordAmountNameAlias()}
 	df := map[string]any{
 		rule.NameAlias():              "",
 		rule.KeywordNumNameAlias():    0,
 		rule.KeywordAmountNameAlias(): 0,
 	}
 
-	return NewExport(keys, df, func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(df, func(results Results, rule means.Ruler) []map[string]any {
 		return results.ToLine(rule)
 	})
 }
 
 func NewExportFlag(rule means.Ruler) *Export {
-	keys := []string{rule.NameAlias(), rule.KeywordNameAlias()}
 	df := map[string]any{
 		rule.NameAlias():        0,
 		rule.KeywordNameAlias(): "",
 	}
 
-	return NewExport(keys, df, func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(df, func(results Results, rule means.Ruler) []map[string]any {
 		return results.ToFlag(rule)
 	})
 }

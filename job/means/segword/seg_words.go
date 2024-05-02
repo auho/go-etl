@@ -12,7 +12,7 @@ type SegWords struct {
 	export *Export
 }
 
-func NewDefaultSegWords() *SegWords {
+func NewDefault() *SegWords {
 	return NewSegWords(NewExportAll())
 }
 

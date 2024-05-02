@@ -1,10 +1,11 @@
 package explore
 
 import (
+	"maps"
+
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
-// TODO need implement
 var _ mode.InsertModer = (*InsertCross)(nil)
 
 // InsertCross
@@ -18,44 +19,61 @@ var _ mode.InsertModer = (*InsertCross)(nil)
 // 2，3
 // 2，4
 type InsertCross struct {
+	baseInsert
 }
 
-func (ic *InsertCross) GetTitle() string {
-	//TODO implement me
-	panic("implement me")
+func NewInsertCross(is ...*Insert) *InsertCross {
+	return &InsertCross{
+		baseInsert{
+			name: "InsertCross",
+			is:   is,
+		},
+	}
 }
 
-func (ic *InsertCross) GetFields() []string {
-	//TODO implement me
-	panic("implement me")
-}
+func (ic *InsertCross) Do(item map[string]any) []map[string]any {
+	ic.AddTotal(1)
 
-func (ic *InsertCross) Prepare() error {
-	//TODO implement me
-	panic("implement me")
-}
+	var _allRet [][]map[string]any
+	for _, m := range ic.is {
+		_ret := m.Do(item)
+		if _ret == nil {
+			continue
+		}
 
-func (ic *InsertCross) Close() error {
-	//TODO implement me
-	panic("implement me")
-}
+		_allRet = append(_allRet, _ret)
+	}
 
-func (ic *InsertCross) GetKeys() []string {
-	//TODO implement me
-	panic("implement me")
-}
+	var isStart = true
+	var rets []map[string]any
+	var _tRets []map[string]any
+	for _, _ret := range _allRet {
+		rets = nil
 
-func (ic *InsertCross) DefaultValues() map[string]any {
-	//TODO implement me
-	panic("implement me")
-}
+		if isStart {
+			isStart = false
 
-func (ic *InsertCross) Do(contents map[string]any) []map[string]any {
-	//TODO implement me
-	panic("implement me")
-}
+			for _, _r := range _ret {
+				_tr := maps.Clone(ic.defaultValues)
+				maps.Copy(_tr, _r)
+				rets = append(rets, _tr)
+			}
+		} else {
+			for _, _tRet := range _tRets {
+				for _, _r := range _ret {
+					_tr := make(map[string]any)
+					maps.Copy(_tr, _tRet)
+					maps.Copy(_tr, _r)
 
-func (ic *InsertCross) State() []string {
-	//TODO implement me
-	panic("implement me")
+					rets = append(rets, _tr)
+				}
+			}
+		}
+
+		_tRets = rets
+	}
+
+	ic.AddAmount(int64(len(rets)))
+
+	return rets
 }
