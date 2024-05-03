@@ -86,6 +86,12 @@ func (s *Search[T]) ToMeans() *means.Means {
 	return means.NewMeans(s)
 }
 
+func (s *Search[T]) WithPluck(keys []string) *Search[T] {
+	s.export.Pluck(keys)
+
+	return s
+}
+
 func (s *Search[T]) WithIgnoreCase() *Search[T] {
 	s.matcherConfig.ignoreCase = true
 

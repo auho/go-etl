@@ -57,11 +57,14 @@ func (e *Export[T]) GetDefaultValues() map[string]any {
 func (e *Export[T]) Pluck(keys []string) *Export[T] {
 	df := maps.Clone(e.defaultValues)
 
-	e.keys = keys
-	e.defaultValues = make(map[string]any, len(e.keys))
+	e.keys = make([]string, 0)
+	e.defaultValues = make(map[string]any)
 
-	for _, key := range e.keys {
-		e.defaultValues[key] = df[key]
+	for _, key := range keys {
+		if v, ok := df[key]; ok {
+			e.keys = append(e.keys, key)
+			e.defaultValues[key] = v
+		}
 	}
 
 	df = nil

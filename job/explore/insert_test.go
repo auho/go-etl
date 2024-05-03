@@ -111,7 +111,7 @@ func Test_InsertMode(t *testing.T) {
 
 	retCross := _modeInsertCross.Do(_item)
 	if len(retCross) <= 0 {
-		t.Error(err)
+		t.Error("error")
 	}
 	fmt.Println(retCross)
 
@@ -139,5 +139,41 @@ func Test_InsertMode(t *testing.T) {
 
 	if len(retMostText)*len(retSegWords) != len(retCross) {
 		t.Error("error")
+	}
+
+	// insert spread
+	_modeKeys = NewInsert(collect.NewKeys([]string{_keyName}), tag.NewKey(_rule).WithPluck([]string{_rule.NameAlias()}), nil)
+	_modeInsertSpread := NewInsertSpread(_modeKeys, _modeSegWords)
+	err = _modeInsertSpread.Prepare()
+	if err != nil {
+		t.Error("error")
+	}
+
+	retSpread := _modeInsertSpread.Do(_item)
+	if len(retSpread) <= 0 {
+
+	}
+	fmt.Println(retSpread)
+
+	for _, v := range _modeInsertSpread.GetKeys() {
+		has := false
+
+		for _, v1 := range _modeKeys.GetKeys() {
+			if v == v1 {
+				has = true
+				break
+			}
+		}
+
+		for _, v1 := range _modeSegWords.GetKeys() {
+			if v == v1 {
+				has = true
+				break
+			}
+		}
+
+		if has == false {
+			t.Error(fmt.Sprintf("key[%s] is error", v))
+		}
 	}
 }
