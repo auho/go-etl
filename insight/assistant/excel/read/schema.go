@@ -159,5 +159,6 @@ func (s *Schema) detectColumnType(index int, rows [][]string) (reflect.Kind, int
 		return reflect.String, 0, 0
 	}
 
-	return maps.SorterByValueDesc(_types).Keys()[0], _len1, _len2
+	_kt, _ := maps.SortValueDesc(_types)
+	return _kt[0], _len1, _len2
 }
