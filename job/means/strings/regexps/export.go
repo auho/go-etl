@@ -2,7 +2,6 @@ package regexps
 
 import (
 	"maps"
-	"strings"
 
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/means"
@@ -79,54 +78,41 @@ func (e *Export) ToToken(results Results, rule means.Ruler) search.Token {
 }
 
 func NewExportAll(rule means.Ruler) *Export {
-	return NewExportDefault(rule.NameAlias(), func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(map[string]any{
+		rule.NameAlias():              "",
+		rule.KeywordAmountNameAlias(): 0,
+	}, func(results Results, rule means.Ruler) []map[string]any {
 		if results == nil {
 			return nil
 		}
 
-		var rets []map[string]any
-		for _, result := range results {
-			rets = append(rets, map[string]any{
-				rule.NameAlias():              result.Text,
-				rule.KeywordAmountNameAlias(): result.Amount,
-			})
-		}
-
-		return rets
+		return results.ToAll(rule)
 	})
 }
 
 func NewExportLine(rule means.Ruler) *Export {
-	return NewExportDefault(rule.NameAlias(), func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(map[string]any{
+		rule.NameAlias():              "",
+		rule.KeywordNumNameAlias():    0,
+		rule.KeywordAmountNameAlias(): 0,
+	}, func(results Results, rule means.Ruler) []map[string]any {
 		if results == nil {
 			return nil
 		}
 
-		var amount int
-		var ss []string
-		for _, result := range results {
-			ss = append(ss, result.Text)
-			amount += result.Amount
-		}
-
-		return []map[string]any{{
-			rule.NameAlias():              strings.Join(ss, "|"),
-			rule.KeywordAmountNameAlias(): amount,
-		}}
+		return results.ToLine(rule)
 	})
 }
 
 func NewExportFlag(rule means.Ruler) *Export {
-	return NewExportDefault(rule.NameAlias(), func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(map[string]any{
+		rule.NameAlias():        0,
+		rule.KeywordNameAlias(): "",
+	}, func(results Results, rule means.Ruler) []map[string]any {
 		if results == nil {
 			return nil
 		}
 
-		var ss []string
-		for _, result := range results {
-			ss = append(ss, result.Text)
-		}
-
-		return []map[string]any{{rule.NameAlias(): 1, rule.KeywordNameAlias(): strings.Join(ss, "|")}}
+		return results.ToFlag(rule)
 	})
 }
