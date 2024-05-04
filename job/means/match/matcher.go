@@ -2,11 +2,19 @@ package match
 
 import (
 	"fmt"
+	"maps"
+	"slices"
+	"sort"
 	"strings"
+	"unicode/utf8"
+
+	"github.com/auho/go-etl/v2/job/means"
 )
 
+type seekMode int
+
 const (
-	modeSequence = iota
+	modeSequence seekMode = iota
 	modePriorityAccurate
 	modePriorityFuzzy
 )
@@ -28,7 +36,7 @@ func (fc *FuzzyConfig) check() {
 
 type matcherConfig struct {
 	ignoreCase  bool
-	mode        int
+	mode        seekMode
 	enableFuzzy bool
 	fuzzyConfig FuzzyConfig
 	debug       bool
@@ -38,10 +46,20 @@ func (mc *matcherConfig) check() {
 	mc.fuzzyConfig.check()
 }
 
+func defaultMatcher(rule means.Ruler, config *matcherConfig) (*matcher, error) {
+	items, err := rule.ItemsAlias()
+	if err != nil {
+		return nil, fmt.Errorf("ItemsAlias error; %w", err)
+	}
+
+	return newMatcher(rule.KeywordNameAlias(), items, config), nil
+}
+
 type matcher struct {
-	keyName    string
-	labelsName []string
-	hasItems   bool
+	hasItems bool
+
+	keyName  string
+	tagsName []string
 
 	allSeek      []seeker
 	fuzzySeek    []seeker
@@ -65,12 +83,16 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 	if len(items) > 0 {
 		m.hasItems = true
 
-		// labels name
-		for k, _ := range items[0] {
+		// tags name
+		for k := range items[0] {
 			if k != keyName {
-				m.labelsName = append(m.labelsName, k)
+				m.tagsName = append(m.tagsName, k)
 			}
 		}
+
+		sort.SliceStable(m.tagsName, func(i, j int) bool {
+			return m.tagsName[i] < m.tagsName[j]
+		})
 
 		for _i, item := range items {
 			var _keyValue string
@@ -81,12 +103,12 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 				_keyValue = _originKeyValue
 			}
 
-			_labels := make(map[string]string)
-			for _, _ln := range m.labelsName {
-				_labels[_ln] = item[_ln]
+			_tags := make(map[string]string)
+			for _, _ln := range m.tagsName {
+				_tags[_ln] = item[_ln]
 			}
 
-			_seeker, _sm := newSeeker(_i, _originKeyValue, _keyValue, _labels, config)
+			_seeker, _sm := newSeeker(_i, _originKeyValue, _keyValue, _tags, config)
 			if config.mode == modeSequence {
 				m.allSeek = append(m.allSeek, _seeker)
 			} else {
@@ -97,12 +119,25 @@ func newMatcher(keyName string, items []map[string]string, config *matcherConfig
 				}
 			}
 		}
+
+		switch config.mode {
+		case modeSequence:
+		case modePriorityAccurate:
+			m.allSeek = append(m.accurateSeek, m.fuzzySeek...)
+		case modePriorityFuzzy:
+			m.allSeek = append(m.fuzzySeek, m.accurateSeek...)
+		default:
+			panic(fmt.Sprintf("mode [%d] error", config.mode))
+		}
 	}
 
 	return m
 }
 
-func (m *matcher) MatchKey(contents []string) Results {
+// Match
+// all matched
+// in key order
+func (m *matcher) Match(contents []string) Results {
 	items := m.findAll(contents)
 	if items == nil {
 		return nil
@@ -111,8 +146,11 @@ func (m *matcher) MatchKey(contents []string) Results {
 	return m.toResults(items)
 }
 
-func (m *matcher) MatchFirstKey(contents []string) Results {
-	items := m.findFirst(contents)
+// MatchInTextOrder
+// all matched
+// in matched text order
+func (m *matcher) MatchInTextOrder(contents []string) Results {
+	items := m.findAllInTextOrder(contents)
 	if items == nil {
 		return nil
 	}
@@ -120,6 +158,137 @@ func (m *matcher) MatchFirstKey(contents []string) Results {
 	return m.toResults(items)
 }
 
+// MatchText
+// match text 合并相同的 matched text
+func (m *matcher) MatchText(contents []string) Results {
+	items := m.findAllInTextOrder(contents)
+	if items == nil {
+		return nil
+	}
+
+	var results Results
+	resultIndex := make(map[string]int)
+
+	for _, item := range items {
+		text := item.text
+
+		if index, ok := resultIndex[text]; ok {
+			results[index].Texts[text] += 1
+			results[index].Amount += 1
+		} else {
+			results = append(results, m.toResult(item))
+			resultIndex[text] = len(results) - 1
+		}
+	}
+
+	return results
+}
+
+// MatchFirstText
+// the leftmost matched text
+func (m *matcher) MatchFirstText(contents []string) Results {
+	items := m.findAllInTextOrder(contents)
+	if items == nil {
+		return nil
+	}
+
+	rets := m.toResults(items)
+	return rets[0:1]
+}
+
+// MatchLastText
+// the rightmost matched text
+func (m *matcher) MatchLastText(contents []string) Results {
+	items := m.findAllInTextOrder(contents)
+	if items == nil {
+		return nil
+	}
+
+	return m.toResults(items[len(items)-1:])
+}
+
+// MatchMostText
+// the text that has been matched the most times
+func (m *matcher) MatchMostText(contents []string) Results {
+	results := m.MatchText(contents)
+	if results == nil {
+		return nil
+	}
+
+	sort.SliceStable(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
+
+	return results[0:1]
+}
+
+// MatchKey
+// match key 合并相同的 keyword（同时也合并 matched text）
+// in matched key order
+func (m *matcher) MatchKey(contents []string) Results {
+	items := m.findAll(contents)
+	if items == nil {
+		return nil
+	}
+
+	var results Results
+	resultIndex := make(map[string]int)
+
+	for _, item := range items {
+		key := item.keyword
+		text := item.text
+
+		if index, ok := resultIndex[key]; ok {
+			results[index].Texts[text] += 1
+			results[index].Amount += 1
+		} else {
+			results = append(results, m.toResult(item))
+			resultIndex[key] = len(results) - 1
+		}
+	}
+
+	return results
+}
+
+// MatchFirstKey
+// the first matched key
+func (m *matcher) MatchFirstKey(contents []string) Results {
+	results := m.findFirst(contents)
+	if results == nil {
+		return nil
+	}
+
+	return m.toResults(results)
+}
+
+// MatchLastKey
+// the last matched key
+func (m *matcher) MatchLastKey(contents []string) Results {
+	items := m.findAll(contents)
+	if items == nil {
+		return nil
+	}
+
+	return m.toResults(items[len(items)-1:])
+}
+
+// MatchMostKey
+// match most key 被匹配次数最多的 keyword
+func (m *matcher) MatchMostKey(contents []string) Results {
+	results := m.MatchKey(contents)
+	if results == nil {
+		return nil
+	}
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
+
+	return results[0:1]
+}
+
+// MatchLabel
+// match label 合并重复的 tags 组合
 func (m *matcher) MatchLabel(contents []string) LabelResults {
 	items := m.findAll(contents)
 	if items == nil {
@@ -129,208 +298,230 @@ func (m *matcher) MatchLabel(contents []string) LabelResults {
 	return m.toLabelResults(items)
 }
 
-func (m *matcher) MatchFirstLabel(contents []string) LabelResults {
-	items := m.findFirst(contents)
+// MatchLabelMostText
+// match label most text 合并重复的 tags 组合中，text 最多次数
+func (m *matcher) MatchLabelMostText(contents []string) LabelResults {
+	results := m.MatchLabel(contents)
+	if results == nil {
+		return nil
+	}
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
+
+	return results[0:1]
+}
+
+// findAllInTextOrder
+// all match, in matched text order
+// the leftmost text is at the front
+func (m *matcher) findAllInTextOrder(contents []string) seekResults {
+	items := m.seekContents(contents, false)
 	if items == nil {
 		return nil
 	}
 
-	return m.toLabelResults(items)
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].index < items[j].index {
+			return true
+		} else if items[i].index > items[j].index {
+			return false
+		} else {
+			return items[i].start < items[j].start
+		}
+	})
+
+	return items
 }
 
+// findAll
+// all match, in matched keyword order
 func (m *matcher) findAll(contents []string) seekResults {
-	if !m.hasItems {
-		return nil
-	}
-
-	var results seekResults
-	for _, content := range contents {
-		originContent := content
-
-		if m.config.ignoreCase {
-			content = strings.ToLower(content)
-		}
-
-		var ok bool
-		var _rts seekResults
-		switch m.config.mode {
-		case modeSequence:
-			_rts, content, ok = m.seekingAll(m.allSeek, content)
-			if ok {
-				results = append(results, _rts...)
-			}
-		case modePriorityAccurate:
-			_rts, content, ok = m.seekingAll(m.accurateSeek, content)
-			if ok {
-				results = append(results, _rts...)
-			}
-
-			_rts, _, ok = m.seekingAll(m.fuzzySeek, content)
-			if ok {
-				results = append(results, _rts...)
-			}
-		case modePriorityFuzzy:
-			_rts, content, ok = m.seekingAll(m.fuzzySeek, content)
-			if ok {
-				results = append(results, _rts...)
-			}
-
-			_rts, content, ok = m.seekingAll(m.accurateSeek, content)
-			if ok {
-				results = append(results, _rts...)
-			}
-		default:
-			panic("unknown mode")
-		}
-
-		if m.config.debug {
-			fmt.Println(originContent, content, results)
-		}
-	}
-
-	return results
+	return m.seekContents(contents, false)
 }
 
+// findMatchFirst
+// first matched keyword
 func (m *matcher) findFirst(contents []string) seekResults {
+	return m.seekContents(contents, true)
+}
+
+func (m *matcher) seekContents(contents []string, onlyFirst bool) seekResults {
 	if !m.hasItems {
 		return nil
 	}
 
 	var results seekResults
-	for _, content := range contents {
-		originContent := content
+	var isBreak bool
+	for i, content := range contents {
+		var contentResults seekResults
 
+		originContent := content
 		if m.config.ignoreCase {
 			content = strings.ToLower(content)
 		}
 
-		var ok bool
-		var _rts seekResults
-		switch m.config.mode {
-		case modeSequence:
-			_rts, content, ok = m.seekingFirst(m.allSeek, content)
-			if ok {
-				results = append(results, _rts...)
-			}
-		case modePriorityAccurate:
-			_rts, content, ok = m.seekingFirst(m.accurateSeek, content)
-			if ok {
-				results = append(results, _rts...)
-				break
-			}
-
-			_rts, content, ok = m.seekingFirst(m.fuzzySeek, content)
-			if ok {
-				results = append(results, _rts...)
-			}
-		case modePriorityFuzzy:
-			_rts, content, ok = m.seekingFirst(m.fuzzySeek, content)
-			if ok {
-				results = append(results, _rts...)
-				break
-			}
-
-			_rts, content, ok = m.seekingFirst(m.accurateSeek, content)
-			if ok {
-				results = append(results, _rts...)
-			}
-		default:
-			panic("unknown mode")
+		sc := seekContent{
+			maxSeekNum: -1,
+			index:      i,
+			origin:     originContent,
+			content:    content,
 		}
 
+		if onlyFirst {
+			sc.maxSeekNum = 1
+		}
+
+		var ok bool
+		var rets seekResults
+		rets, sc, ok = m.seeking(m.allSeek, sc, onlyFirst)
+		if ok {
+			if onlyFirst {
+				contentResults = rets[0:1]
+
+				isBreak = true
+				goto LOOP
+			} else {
+				contentResults = append(contentResults, rets...)
+			}
+		}
+	LOOP:
+
 		if m.config.debug {
-			m.debugInfo(originContent, content, results)
+			m.debugInfo(i, originContent, sc, contentResults)
+		}
+
+		results = append(results, contentResults...)
+
+		if isBreak {
+			break
 		}
 	}
 
 	return results
 }
 
-func (m *matcher) seekingAll(seekers []seeker, content string) (seekResults, string, bool) {
-	return m.seeking(seekers, content, false)
-}
-
-func (m *matcher) seekingFirst(seekers []seeker, content string) (seekResults, string, bool) {
-	return m.seeking(seekers, content, true)
-}
-
-func (m *matcher) seeking(seekers []seeker, content string, onlyFirst bool) (seekResults, string, bool) {
+func (m *matcher) seeking(seekers []seeker, sc seekContent, onlyFirst bool) (seekResults, seekContent, bool) {
 	var results seekResults
 
 	has := false
 	var ok bool
-	var _srt seekResult
+	var rets seekResults
 	for _, _seeker := range seekers {
-		_srt, content, ok = _seeker.seeking(content)
+		rets, sc, ok = _seeker.seeking(sc)
 		if ok {
-			results = append(results, _srt)
 			has = true
-
 			if onlyFirst {
+				results = rets[0:1]
+
 				break
+			} else {
+				results = append(results, rets...)
 			}
 		}
 	}
 
-	return results, content, has
+	return results, sc, has
 }
 
 func (m *matcher) toResults(items seekResults) Results {
 	var results Results
-	keysIndex := make(map[string]int)
 
 	for _, item := range items {
-		if _index, ok := keysIndex[m.keyName]; ok {
-			results[_index].Num += item.amount
-		} else {
-			result := NewResult()
-			result.Key = item.key
-			result.Num = item.amount
-			result.Labels = item.labels
-
-			results = append(results, result)
-		}
+		results = append(results, m.toResult(item))
 	}
 
 	return results
+}
+
+func (m *matcher) toResult(item seekResult) Result {
+	result := NewResult()
+	result.Keyword = item.keyword
+	result.Tags = maps.Clone(item.tags)
+	result.Texts = map[string]int{item.text: 1}
+	result.Amount = 1
+
+	return result
 }
 
 func (m *matcher) toLabelResults(items seekResults) LabelResults {
 	var results LabelResults
-	labelsIndex := make(map[string]int)
+	resultIndex := make(map[string]int)
 
 	for _, item := range items {
-		_labelsIdentity := ""
-		for _, _labelName := range m.labelsName {
-			_labelsIdentity += "-" + item.labels[_labelName]
+		key := item.keyword
+		text := item.text
+
+		tagsIdentity := ""
+		for _, _tn := range m.tagsName {
+			tagsIdentity += "-" + item.tags[_tn]
 		}
 
-		if _index, ok := labelsIndex[_labelsIdentity]; ok {
-			result := results[_index]
-			if _, ok1 := result.Match[item.key]; !ok1 {
-				result.Keys = append(result.Keys, item.key)
+		if index, ok := resultIndex[tagsIdentity]; ok {
+			result := results[index]
+			if _, ok1 := result.Match[key]; ok1 {
+				result.Match[key][text] += 1
+			} else {
+				result.Match[key] = map[string]int{text: 1}
+				result.Keywords = append(result.Keywords, key)
 			}
 
-			result.Match[item.key] += item.amount
-			result.MatchAmount += item.amount
+			result.Amount += 1
+			results[index] = result
 		} else {
 			result := NewLabelResult()
-			result.Identity = _labelsIdentity
-			result.Labels = item.labels
-			result.Keys = append(result.Keys, item.key)
-			result.Match[item.key] = item.amount
-			result.MatchAmount = item.amount
+			result.Identity = tagsIdentity
+			maps.Copy(result.Tags, item.tags)
+			result.Match[key] = map[string]int{text: 1}
+			result.Keywords = append(result.Keywords, key)
+			result.Amount += 1
 
 			results = append(results, result)
-			labelsIndex[_labelsIdentity] = len(results) - 1
+			resultIndex[tagsIdentity] = len(results) - 1
 		}
 	}
 
 	return results
 }
 
-func (m *matcher) debugInfo(os, s string, rts seekResults) {
-	fmt.Println(os)
-	fmt.Println(s)
-	fmt.Println(rts)
+func (m *matcher) debugInfo(index int, originContent string, sc seekContent, rets seekResults) {
+	newRest := slices.Clone(rets)
+	sort.SliceStable(newRest, func(i, j int) bool {
+		if newRest[i].index < newRest[j].index {
+			return true
+		} else if newRest[i].index > newRest[j].index {
+			return false
+		} else {
+			return newRest[i].start < newRest[j].start
+		}
+	})
+
+	debugContent := ""
+	preStart := 0
+	preStop := 0
+	for _, ret := range newRest {
+		debugContent += originContent[preStart:ret.start]
+
+		_len := len(ret.text)
+		_runeLen := utf8.RuneCountInString(ret.text)
+		_zhLen := (_len - _runeLen) / 2
+
+		debugContent += strings.Repeat(_placeholder, _runeLen+_zhLen)
+		preStart = ret.start + ret.width
+		preStop = ret.start + ret.width
+	}
+
+	debugContent += originContent[preStop:]
+	fmt.Println(fmt.Sprintf("%-16s", "index:"), index)
+	fmt.Println(fmt.Sprintf("%-16s", "origin:"), originContent)
+	fmt.Println(fmt.Sprintf("%-16s", "debug origin:"), debugContent)
+	fmt.Println(fmt.Sprintf("%-16s", "matched origin:"), sc.origin)
+	fmt.Println(fmt.Sprintf("%-16s", "matched content:"), sc.content)
+	fmt.Println("results:")
+	for i, rt := range rets {
+		fmt.Println(fmt.Sprintf("  %-3d%+v", i, rt))
+	}
+
+	fmt.Println()
 }

@@ -1,13 +1,13 @@
 package maps
 
-type keyEntity interface {
+type K interface {
 	string | int
 }
 
-type valueEntity interface {
-	string | int
+type V interface {
+	any | string | int
 }
 
-type comparatorEntity interface {
+type comparatorV interface {
 	any | string | int
 }

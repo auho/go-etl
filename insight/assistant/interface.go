@@ -41,9 +41,11 @@ type Ruler interface {
 	LabelsName() []string
 	LabelsAlias() map[string]string
 	LabelNumName() string
+	TagsName() []string
 	KeywordName() string
 	KeywordLenName() string
 	KeywordNumName() string
+	KeywordAmountName() string
 	ToOriginRule() Ruler
 	ToItems(opts ...func(items *RuleItems)) *RuleItems
 	Config() RuleConfigure

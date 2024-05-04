@@ -9,6 +9,7 @@ const NameSpiltWords = "spilt_words"
 const NameLabelNum = "label_num"
 const NameKeyword = "keyword"
 const NameKeywordNum = "keyword_num"
+const NameKeywordAmount = "keyword_amount"
 const NameKeywordLen = "keyword_len"
 
 const NameWord = "word"

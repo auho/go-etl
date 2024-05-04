@@ -43,6 +43,8 @@ func (t *RuleTable) build() {
 	t.Command.AddTimestamp("ctime", true, true)
 }
 
+// BuildLabels
+// labels
 func (t *RuleTable) BuildLabels(command *tablestructure.Command) {
 	command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
 
@@ -51,6 +53,8 @@ func (t *RuleTable) BuildLabels(command *tablestructure.Command) {
 	}
 }
 
+// BuildLabelsForWhole
+// labels for whole
 func (t *RuleTable) BuildLabelsForWhole(command *tablestructure.Command, length int) {
 	command.AddStringWithLength(t.rule.GetName(), length)
 
@@ -59,20 +63,27 @@ func (t *RuleTable) BuildLabelsForWhole(command *tablestructure.Command, length 
 	}
 }
 
+// BuildTags
+// tags
 func (t *RuleTable) BuildTags(command *tablestructure.Command) {
 	t.BuildLabels(command)
 	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
 }
 
+// BuildTagsForWhole
+// tags for whole
 func (t *RuleTable) BuildTagsForWhole(command *tablestructure.Command, length int) {
 	t.BuildLabelsForWhole(command, length)
 	command.AddStringWithLength(t.rule.KeywordName(), length)
 }
 
+// BuildForTag
+// for tag
 func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
 	t.BuildTags(command)
 
 	command.AddInt(t.rule.KeywordNumName())
+	command.AddInt(t.rule.KeywordAmountName())
 	command.AddInt(t.rule.LabelNumName())
 }
 

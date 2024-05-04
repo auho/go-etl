@@ -14,15 +14,15 @@ type Run struct {
 	preFun []func() error
 }
 
-// AddPreFunE
+// AddPreRunE
 // 需要在 Run 或 RunE 之前执行的 func
-func (r *Run) AddPreFunE(fn ...func() error) {
+func (r *Run) AddPreRunE(fn ...func() error) {
 	r.preFun = append(r.preFun, fn...)
 }
 
-// RunPreFunE
+// RunPreRunE
 // 在执行 Run 或 RunE 之前执行
-func (r *Run) RunPreFunE(cmd *cobra.Command) error {
+func (r *Run) RunPreRunE(cmd *cobra.Command) error {
 	fmt.Println(fmt.Sprintf("cmd[%s] run pre", cmd.Use))
 
 	_fns := slices.Clone(r.preFun)

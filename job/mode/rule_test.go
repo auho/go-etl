@@ -80,6 +80,14 @@ func (r *ruleTest) KeywordNumNameAlias() string {
 	return r.KeywordNumName()
 }
 
+func (r *ruleTest) KeywordAmountName() string {
+	return "a_keyword_Amount"
+}
+
+func (r *ruleTest) KeywordAmountNameAlias() string {
+	return r.KeywordAmountName()
+}
+
 func (r *ruleTest) Labels() []string {
 	return []string{"ab"}
 }
@@ -88,11 +96,19 @@ func (r *ruleTest) LabelsAlias() []string {
 	return r.Labels()
 }
 
-func (r *ruleTest) Fixed() map[string]any {
+func (r *ruleTest) Tags() []string {
+	return append([]string{r.Name()}, r.Labels()...)
+}
+
+func (r *ruleTest) TagsAlias() []string {
+	return append([]string{r.NameAlias()}, r.LabelsAlias()...)
+}
+
+func (r *ruleTest) Fixed() map[string]string {
 	return nil
 }
 
-func (r *ruleTest) FixedAlias() map[string]any {
+func (r *ruleTest) FixedAlias() map[string]string {
 	return nil
 }
 
