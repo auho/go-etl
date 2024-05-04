@@ -21,6 +21,7 @@ type TableCommand struct {
 	groupBy       *command.Entities
 	orderBy       *command.Entities
 	limit         []int
+	having        string
 	join          *command.Join
 	set           []*command.Set
 	asSql         string
@@ -189,7 +190,11 @@ func (c *TableCommand) BuildOrderBy() []string {
 
 	os := make([]string, 0)
 	for _, v := range c.orderBy.Get() {
-		os = append(os, fmt.Sprintf("%s %s", c.addSelfTablePrefix(c.addBackQuote(v.GetKey())), v.GetValue()))
+		if v.IsExpression() {
+			os = append(os, fmt.Sprintf("%s %s", c.addBackQuote(v.GetKey()), v.GetValue()))
+		} else {
+			os = append(os, fmt.Sprintf("%s %s", c.addSelfTablePrefix(c.addBackQuote(v.GetKey())), v.GetValue()))
+		}
 	}
 
 	return os
@@ -201,6 +206,24 @@ func (c *TableCommand) SetLimit(l []int) {
 
 func (c *TableCommand) Limit() string {
 	return c.LimitToString(c.limit)
+}
+
+func (c *TableCommand) SetHaving(s string) {
+	c.having = s
+}
+
+func (c *TableCommand) Having() string {
+	h := c.BuildHaving()
+
+	return c.HavingToString(h)
+}
+
+func (c *TableCommand) BuildHaving() []string {
+	if c.having == "" {
+		return nil
+	}
+
+	return []string{c.having}
 }
 
 func (c *TableCommand) SetSet(s []*command.Set) {
@@ -251,12 +274,13 @@ func (c *TableCommand) BuildSet() []string {
 }
 
 func (c *TableCommand) Query() string {
-	return fmt.Sprintf("%s%s%s%s%s%s",
+	return fmt.Sprintf("%s%s%s%s%s%s%s",
 		c.Select(),
 		c.From(),
 		c.Where(),
 		c.GroupBy(),
 		c.OrderBy(),
+		c.Having(),
 		c.Limit(),
 	)
 }

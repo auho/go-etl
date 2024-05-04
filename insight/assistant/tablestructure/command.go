@@ -8,6 +8,10 @@ type Command struct {
 	Table *mysql.Table
 }
 
+func NewCommandMysql() *Command {
+	return &Command{Table: mysql.NewTable()}
+}
+
 func (c *Command) TableName() string {
 	return c.Table.GetName()
 }
@@ -22,6 +26,10 @@ func (c *Command) SqlForAlterAdd() []string {
 
 func (c *Command) SqlForAlterChange() []string {
 	return c.Table.SqlForAlterChange()
+}
+
+func (c *Command) AddKey(name string, size int) {
+	c.Table.AddKey(name, size)
 }
 
 func (c *Command) AddPk(name string) {
@@ -84,8 +92,8 @@ func (c *Command) AddString(name string) {
 	c.Table.AddVarchar(name, 30, "")
 }
 
-func (c *Command) AddStringWithLength(name string, length int) {
-	c.Table.AddVarchar(name, length, "")
+func (c *Command) AddStringWithLength(name string, length int) *mysql.Field {
+	return c.Table.AddVarchar(name, length, "")
 }
 
 func (c *Command) AddText(name string) {

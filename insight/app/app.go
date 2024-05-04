@@ -12,12 +12,13 @@ import (
 
 var APP *Application
 
-func NewApp(cn string) {
-	APP = NewApplication(cn)
+func NewApp() {
+	APP = NewApplication()
 }
 
 type Application struct {
 	Run
+	Xlsx
 	DB       *simpleDb.SimpleDB
 	Name     string
 	ConfName string
@@ -27,13 +28,11 @@ type Application struct {
 	ConfDir  string
 }
 
-func NewApplication(cn string) *Application {
+func NewApplication() *Application {
 	a := &Application{}
-	a.ConfName = cn
 
 	a.buildWorkDir()
 	a.checkDir()
-	a.buildDb()
 
 	return a
 }
@@ -54,18 +53,8 @@ func (a *Application) buildWorkDir() {
 	a.DataDir = path.Join(a.WorkDir, "data")
 	a.XlsxDir = path.Join(a.WorkDir, "xlsx")
 	a.ConfDir = path.Join(a.WorkDir, "conf")
-}
 
-func (a *Application) buildDb() {
-	config, err := conf.LoadConfig(a.ConfDir, a.ConfName)
-	if err != nil {
-		panic(err)
-	}
-
-	a.DB, err = config.Db.BuildDB()
-	if err != nil {
-		panic(err)
-	}
+	a.Xlsx.XlsxDir = a.XlsxDir
 }
 
 func (a *Application) checkDir() {
@@ -80,12 +69,28 @@ func (a *Application) checkDir() {
 	}
 }
 
-func (a *Application) DataFilePath(name string) string {
-	return path.Join(a.DataDir, name)
+func (a *Application) Build(cn string) {
+	a.ConfName = cn
+
+	config, err := conf.LoadConfig(a.ConfDir, a.ConfName)
+	if err != nil {
+		a.PrintlnState()
+
+		panic(err)
+	}
+
+	a.DB, err = config.Db.BuildDB()
+	if err != nil {
+		a.PrintlnState()
+
+		panic(err)
+	}
 }
 
-func (a *Application) XlsxFilePath(name string) string {
-	return path.Join(a.XlsxDir, name)
+// DataFilePath
+// name with file suffix
+func (a *Application) DataFilePath(name string) string {
+	return path.Join(a.DataDir, name)
 }
 
 func (a *Application) State() []string {

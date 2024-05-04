@@ -1,148 +1,49 @@
 package tag
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ means.InsertMeans = (*Means)(nil)
-
-// Means
-// tag means
-type Means struct {
-	rule    Ruler
-	matcher *Matcher
-	fn      func(Ruler, *Matcher, []string) []map[string]any
-
-	keys          []string       // output name
-	defaultValues map[string]any // output default values
+// NewFirstText
+// the leftmost text matched
+func NewFirstText(rule means.Ruler) *SearchResults {
+	return NewSearchFirstText(NewExportKeywordAll(rule))
 }
 
-func NewMeans(rule Ruler, fn func(Ruler, *Matcher, []string) []map[string]any) *Means {
-	m := &Means{
-		rule: rule,
-		fn:   fn,
-	}
-
-	return m
-}
-
-func (m *Means) Prepare() error {
-	m.matcher = DefaultMatcher()
-
-	items, err := m.rule.ItemsForRegexp()
-	if err != nil {
-		return fmt.Errorf("ItemsForRegexp error; %w", err)
-	}
-
-	m.matcher.prepare(m.rule.KeywordNameAlias(), items)
-
-	m.keys = []string{
-		m.rule.NameAlias(),
-		m.rule.KeywordNameAlias(),
-		m.rule.KeywordNumNameAlias(),
-	}
-	m.keys = append(m.keys, m.rule.LabelsAlias()...)
-	m.keys = append(m.keys, m.rule.FixedKeysAlias()...)
-
-	m.defaultValues = map[string]any{
-		m.rule.NameAlias():           "",
-		m.rule.KeywordNameAlias():    "",
-		m.rule.KeywordNumNameAlias(): 0,
-	}
-	for _, _la := range m.rule.LabelsAlias() {
-		m.defaultValues[_la] = ""
-	}
-	for _, _fka := range m.rule.FixedKeysAlias() {
-		m.defaultValues[_fka] = ""
-	}
-
-	return nil
-}
-
-func (m *Means) GetTitle() string {
-	return fmt.Sprintf("Tag:%s{%s}", m.rule.Name(), strings.Join(m.rule.Labels(), ", "))
-}
-
-func (m *Means) GetKeys() []string {
-	return m.keys
-}
-
-func (m *Means) Close() error {
-	return nil
-}
-
-func (m *Means) Insert(contents []string) []map[string]any {
-	return m.fn(m.rule, m.matcher, contents)
-}
-
-func (m *Means) Update(contents []string) map[string]any {
-	results := m.fn(m.rule, m.matcher, contents)
-	if results == nil {
-		return nil
-	}
-
-	return results[0]
-}
-
-func (m *Means) DefaultValues() map[string]any {
-	return m.defaultValues
+// NewMostText
+// most text
+func NewMostText(rule means.Ruler) *SearchResults {
+	return NewSearchMostText(NewExportKeywordAll(rule))
 }
 
 // NewKey
 // keyword
-func NewKey(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
-		rs := m.MatchKey(c)
-		if rs == nil {
-			return nil
-		}
+func NewKey(rule means.Ruler) *SearchResults {
+	return NewSearchKey(NewExportKeywordAll(rule))
+}
 
-		return rs.toSliceMapAny(rule)
-	})
+// NewFirstKey
+// the first keyword matched
+func NewFirstKey(rule means.Ruler) *SearchResults {
+	return NewSearchFirstKey(NewExportKeywordAll(rule))
+}
 
-	return t
+// NewMostKey
+// most key
+func NewMostKey(rule means.Ruler) *SearchResults {
+	return NewSearchMostKey(NewExportKeywordAll(rule))
+}
+
+// NewWholeLabels
+// merge all labels together
+// label1|label2|label3
+// keyword1|keyword2|keyword3|
+func NewWholeLabels(rule means.Ruler) *SearchLabelResults {
+	return NewSearchWholeLabels(NewExportLabelLine(rule))
 }
 
 // NewLabel
 // label tags
-func NewLabel(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
-		rs := m.MatchLabel(c)
-		if rs == nil {
-			return nil
-		}
-
-		return rs.toSliceMapAny(rule)
-	})
-
-	return t
-}
-
-func NewMostText(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
-		rs := m.MatchMostText(c)
-		if rs == nil {
-			return nil
-		}
-
-		return rs.toSliceMapAny(rule)
-	})
-
-	return t
-}
-
-func NewMostKey(rule Ruler) *Means {
-	t := NewMeans(rule, func(rule Ruler, m *Matcher, c []string) []map[string]any {
-		rs := m.MatchMostKey(c)
-		if rs == nil {
-			return nil
-		}
-
-		return rs.toSliceMapAny(rule)
-	})
-
-	return t
+func NewLabel(rule means.Ruler) *SearchLabelResults {
+	return NewSearchLabels(NewExportLabelAll(rule))
 }

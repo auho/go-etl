@@ -2,6 +2,7 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/ddl/command/mysql"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
@@ -25,8 +26,15 @@ func (t *RuleTable) build() {
 	t.initCommand(t.rule.TableName())
 	t.Command.AddPkInt(t.rule.GetIdName())
 
-	t.buildRuleLabels(t.Command)
-	keywordFiled := t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetNameLength())
+	t.BuildLabels(t.Command)
+
+	var keywordFiled *mysql.Field
+	if t.rule.Config().AllowKeywordDuplicate() {
+		keywordFiled = t.Command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
+	} else {
+		keywordFiled = t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetKeywordLength())
+	}
+
 	keywordFiled.SetCollateUtf8mb4Bin()
 	t.Command.AddInt(t.rule.KeywordLenName())
 
@@ -35,7 +43,9 @@ func (t *RuleTable) build() {
 	t.Command.AddTimestamp("ctime", true, true)
 }
 
-func (t *RuleTable) buildRuleLabels(command *tablestructure.Command) {
+// BuildLabels
+// labels
+func (t *RuleTable) BuildLabels(command *tablestructure.Command) {
 	command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
 
 	for label, length := range t.rule.GetLabels() {
@@ -43,10 +53,38 @@ func (t *RuleTable) buildRuleLabels(command *tablestructure.Command) {
 	}
 }
 
+// BuildLabelsForWhole
+// labels for whole
+func (t *RuleTable) BuildLabelsForWhole(command *tablestructure.Command, length int) {
+	command.AddStringWithLength(t.rule.GetName(), length)
+
+	for label := range t.rule.GetLabels() {
+		command.AddStringWithLength(label, length)
+	}
+}
+
+// BuildTags
+// tags
+func (t *RuleTable) BuildTags(command *tablestructure.Command) {
+	t.BuildLabels(command)
+	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
+}
+
+// BuildTagsForWhole
+// tags for whole
+func (t *RuleTable) BuildTagsForWhole(command *tablestructure.Command, length int) {
+	t.BuildLabelsForWhole(command, length)
+	command.AddStringWithLength(t.rule.KeywordName(), length)
+}
+
+// BuildForTag
+// for tag
 func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
-	t.buildRuleLabels(command)
-	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetNameLength())
+	t.BuildTags(command)
+
 	command.AddInt(t.rule.KeywordNumName())
+	command.AddInt(t.rule.KeywordAmountName())
+	command.AddInt(t.rule.LabelNumName())
 }
 
 func (t *RuleTable) WithCommand(fn func(*tablestructure.Command)) *RuleTable {

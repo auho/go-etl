@@ -19,7 +19,7 @@ func ExampleRunImportToDb() {
 				IsRecreateTable: true,
 			},
 			Titles: Titles{
-				Titles: []string{"column1_name"},
+				Titles: []string{"column1_name"}, // save to db 的 columns; 从第一个 column 开始，连续不间断；此选择优
 			},
 			Rule: model.NewRuleSimple("rule_name", nil, nil),
 		},

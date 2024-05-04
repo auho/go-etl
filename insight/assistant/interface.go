@@ -1,6 +1,7 @@
 package assistant
 
 import (
+	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	"github.com/auho/go-simple-db/v2"
 )
@@ -10,6 +11,7 @@ type Rawer interface {
 	GetName() string
 	TableName() string
 	ExecCommand(*tablestructure.Command) // exec command func
+	DmlTable() *dml.Table
 }
 
 type Moder interface {
@@ -22,10 +24,14 @@ type Rowsor interface {
 }
 
 type Dataor interface {
-	Moder
+	Rowsor
 }
 
 var _ Moder = Ruler(nil)
+
+type RuleConfigure interface {
+	AllowKeywordDuplicate() bool
+}
 
 type Ruler interface {
 	Moder
@@ -34,8 +40,13 @@ type Ruler interface {
 	GetKeywordLength() int
 	LabelsName() []string
 	LabelsAlias() map[string]string
+	LabelNumName() string
+	TagsName() []string
 	KeywordName() string
 	KeywordLenName() string
 	KeywordNumName() string
+	KeywordAmountName() string
 	ToOriginRule() Ruler
+	ToItems(opts ...func(items *RuleItems)) *RuleItems
+	Config() RuleConfigure
 }

@@ -10,9 +10,15 @@ import (
 	"github.com/auho/go-toolkit/flow/storage/database/source"
 )
 
-func RunTask(aSource job.Source, actions []action.Actor, configOpts ...func(config *Config)) {
+type ConfigOption func(*Config)
+
+func RunTask(aSource job.Source, actions []action.Actor, configOpts ...ConfigOption) {
 	config := &Config{}
 	for _, opt := range configOpts {
+		if opt == nil {
+			continue
+		}
+
 		opt(config)
 	}
 

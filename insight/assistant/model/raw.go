@@ -9,6 +9,7 @@ var _ assistant.Rawer = (*Raw)(nil)
 
 type Raw struct {
 	model
+	extra
 	name string
 }
 
@@ -16,6 +17,9 @@ func NewRaw(name string, db *simpleDb.SimpleDB) *Raw {
 	r := &Raw{}
 	r.name = name
 	r.db = db
+	r.extra = extra{
+		model: r,
+	}
 
 	return r
 }

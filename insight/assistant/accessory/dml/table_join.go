@@ -7,6 +7,7 @@ import (
 var _ Tabler = (*TableJoin)(nil)
 
 type TableJoin struct {
+	manipulation
 	commander command.TableJoinCommander
 	tables    []*Table
 	limit     []int
@@ -16,6 +17,10 @@ type TableJoin struct {
 func newTableJoin(driver string) *TableJoin {
 	tj := &TableJoin{}
 	tj.commander = newTableJoinCommand(driver)
+	tj.manipulation = manipulation{
+		st:          tj.commander,
+		prepareFunc: tj.prepare,
+	}
 	tj.tables = make([]*Table, 0)
 	tj.limit = make([]int, 0)
 	tj.set = make([]*command.Set, 0)
@@ -31,6 +36,10 @@ func (tj *TableJoin) Table(t *Table) *TableJoin {
 	tj.addTable(t)
 
 	return tj
+}
+
+func (tj *TableJoin) LeftJoinDefault(rightTable *Table, fields []string) *TableJoin {
+	return tj.LeftJoin(rightTable, fields, nil, nil)
 }
 
 // LeftJoin
@@ -54,7 +63,7 @@ func (tj *TableJoin) LeftJoin(rightTable *Table, rightFields []string, leftTable
 		panic("left join fields not found")
 	}
 
-	rightTable.LeftJoin(rightFields, leftTable, leftFields)
+	rightTable.addLeftJoin(rightFields, leftTable, leftFields)
 	tj.addTable(rightTable)
 
 	return tj
@@ -106,36 +115,6 @@ func (tj *TableJoin) Limit(start int, offset int) *TableJoin {
 	tj.limit = []int{start, offset}
 
 	return tj
-}
-
-func (tj *TableJoin) Sql() string {
-	tj.prepare()
-
-	return tj.commander.Query()
-}
-
-func (tj *TableJoin) InsertSql(name string) string {
-	tj.prepare()
-
-	return tj.commander.InsertQuery(name)
-}
-
-func (tj *TableJoin) InsertWithFieldsSql(name string, fields []string) string {
-	tj.prepare()
-
-	return tj.commander.InsertWithFieldsQuery(name, fields)
-}
-
-func (tj *TableJoin) UpdateSql() string {
-	tj.prepare()
-
-	return tj.commander.UpdateQuery()
-}
-
-func (tj *TableJoin) DeleteSql() string {
-	tj.prepare()
-
-	return tj.commander.DeleteQuery()
 }
 
 func (tj *TableJoin) GetSelectFields() []string {

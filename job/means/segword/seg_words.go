@@ -1,49 +1,49 @@
 package segword
 
 import (
-	"strings"
-
-	"github.com/yanyiwu/gojieba"
+	"github.com/auho/go-etl/v2/job/explore/search"
+	"github.com/auho/go-etl/v2/job/means"
 )
 
+var _ search.Searcher = (*SegWords)(nil)
+
 type SegWords struct {
-	userHmm bool
-	jieBa   *gojieba.Jieba
+	seg    *Seg
+	export *Export
 }
 
-func (sw *SegWords) prepare() {
-	sw.userHmm = true
-	sw.jieBa = gojieba.NewJieba()
+func NewDefault() *SegWords {
+	return NewSegWords(NewExportAll())
 }
 
-// tag
-// return [[ word, flag ]]
-func (sw *SegWords) tag(contents []string) [][]string {
-	results := make([][]string, 0)
-	for _, content := range contents {
-		items := sw.jieBa.Tag(content)
-		if len(items) <= 0 {
-			continue
-		}
-
-		for _, item := range items {
-			results = append(results, strings.Split(item, "/"))
-		}
-	}
-
-	if len(results) <= 0 {
-		return nil
-	}
-
-	return results
+func NewSegWords(export *Export) *SegWords {
+	return &SegWords{export: export}
 }
 
-func (m *Means) Prepare() error {
+func (sg *SegWords) GetTitle() string {
+	return "Seg"
+}
+
+func (sg *SegWords) GenExport() search.Exporter {
+	return sg.export
+}
+
+func (sg *SegWords) Prepare() error {
+	sg.seg = NewSeg()
+
 	return nil
 }
 
-func (sw *SegWords) Close() error {
-	sw.jieBa.Free()
+func (sg *SegWords) Do(contents []string) search.Token {
+	results := sg.seg.tag(contents)
 
-	return nil
+	return sg.export.ToToken(results)
+}
+
+func (sg *SegWords) Close() error {
+	return sg.seg.Close()
+}
+
+func (sg *SegWords) ToMeans() *means.Means {
+	return means.NewMeans(sg)
 }

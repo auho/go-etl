@@ -32,10 +32,7 @@ func ExampleTable_GroupBy() {
 }
 
 func ExampleTable_GroupByAlias() {
-	_ = NewTable("one").GroupByAlias(map[string]string{
-		"a": "a_alias",
-		"b": "b_alias",
-	})
+	_ = NewTable("one").GroupByAlias("a", "a_alias", "b", "b_alias")
 }
 
 func ExampleTable_OrderBy() {
@@ -55,10 +52,6 @@ func ExampleTable_OrderByDesc() {
 
 func ExampleTable_Limit() {
 	_ = NewTable("one").Limit(0, 11)
-}
-
-func ExampleTable_LeftJoin() {
-	_ = NewTable("one").LeftJoin([]string{"a"}, NewTable("two"), []string{"two_a"})
 }
 
 func ExampleTable_SetField() {

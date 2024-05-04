@@ -3,6 +3,7 @@ package importtodb
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
@@ -42,25 +43,43 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 	for i, title := range rs.titlesKey {
 		if title == rs.Rule.KeywordName() {
 			keywordIndex = rs.titlesIndex[i]
-			rs.ColumnDropDuplicates = append(rs.ColumnDropDuplicates, i)
+
+			if !rs.Rule.Config().AllowKeywordDuplicate() {
+				rs.ColumnDropDuplicates = append(rs.ColumnDropDuplicates, i)
+			}
+
 			break
 		}
 	}
 
-	if keywordIndex < 0 {
-		return nil, fmt.Errorf("keyword index error")
-	}
+	//if keywordIndex < 0 {
+	//	return nil, fmt.Errorf("keyword index error")
+	//}
 
 	// keyword len of string
 	err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
 		rs.titlesKey = append(rs.titlesKey, rs.Rule.KeywordLenName())
 
-		for i, row := range rows {
-			row = append(row, strconv.Itoa(utf8.RuneCountInString(row[keywordIndex])))
-			rows[i] = row
+		var _newRows [][]string
+		for _, row := range rows {
+			keywordLen := "0"
+
+			if keywordIndex > -1 {
+				_ky := row[keywordIndex]
+				_ky = strings.TrimSpace(_ky)
+				if _ky == "" {
+					continue
+				}
+
+				row[keywordIndex] = _ky
+				keywordLen = strconv.Itoa(utf8.RuneCountInString(_ky))
+			}
+
+			row = append(row, keywordLen)
+			_newRows = append(_newRows, row)
 		}
 
-		return rows, nil
+		return _newRows, nil
 	})
 
 	if err != nil {

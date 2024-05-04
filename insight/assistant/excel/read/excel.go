@@ -52,7 +52,8 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 			continue
 		}
 
-		if _i > 0 && _i > config.EndRow {
+		// end row > 0 AND current > end row
+		if config.EndRow > 0 && _i > config.EndRow {
 			break
 		}
 
@@ -71,13 +72,18 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 	if len(config.ColsIndex) > 0 {
 		var newRows [][]string
 		for _, row := range rows {
-			if len(row) <= 0 {
+			rowLen := len(row)
+			if rowLen <= 0 {
 				continue
 			}
 
 			var newRow []string
 			for _, index := range config.ColsIndex {
-				newRow = append(newRow, row[index])
+				if index >= rowLen {
+					newRow = append(newRow, "")
+				} else {
+					newRow = append(newRow, row[index])
+				}
 			}
 
 			newRows = append(newRows, newRow)

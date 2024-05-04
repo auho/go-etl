@@ -13,11 +13,11 @@ type Actor interface {
 	GetFields() []string
 }
 
-type action struct {
+type Action struct {
 	task.Task
 }
 
-type targetAction struct {
-	action
+type TargetAction struct {
+	Action
 	target job.Target
 }

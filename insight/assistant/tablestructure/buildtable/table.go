@@ -1,6 +1,7 @@
 package buildtable
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
@@ -16,6 +17,7 @@ type Tabler interface {
 	GetCommand() *tablestructure.Command
 	Sql() string
 	Build() error
+	ExecCommand(func(*tablestructure.Command))
 
 	withConfig(Config)
 }
@@ -46,25 +48,34 @@ func (t *table) Build() error {
 	if t.config.Recreate {
 		err := t.db.Drop(t.TableName())
 		if err != nil {
-			return fmt.Errorf("drop error; %w", err)
+			return t.formatError(fmt.Errorf("drop error; %w", err))
 		}
 	} else if t.config.Truncate {
 		err := t.db.Truncate(t.TableName())
 		if err != nil {
-			return fmt.Errorf("truncate error; %w", err)
+			return t.formatError(fmt.Errorf("truncate error; %w", err))
 		}
 	}
 
 	sql := t.Sql()
 	if sql == "" {
-		return fmt.Errorf("sql empty error")
+		return t.formatError(errors.New("sql empty error"))
 	}
 
 	if t.db == nil {
-		return fmt.Errorf("db empty error")
+		return t.formatError(errors.New("db empty error"))
 	}
 
-	return t.db.Exec(sql).Error
+	err := t.db.Exec(sql).Error
+	if err != nil {
+		return t.formatError(err)
+	}
+
+	return nil
+}
+
+func (t *table) ExecCommand(fn func(*tablestructure.Command)) {
+	fn(t.Command)
 }
 
 func (t *table) withConfig(config Config) {
@@ -80,4 +91,8 @@ func (t *table) options(opts []TableOption) {
 // exec model command
 func (t *table) execRawCommandFunc(r assistant.Rawer) {
 	r.ExecCommand(t.Command)
+}
+
+func (t *table) formatError(err error) error {
+	return fmt.Errorf("%s; %w", t.TableName(), err)
 }

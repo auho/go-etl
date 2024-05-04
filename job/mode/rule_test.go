@@ -3,12 +3,53 @@ package mode
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/job/means/tag"
+	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ tag.Ruler = (*ruleTest)(nil)
+var _ means.Ruler = (*ruleTest)(nil)
 
 type ruleTest struct {
+}
+
+func (r *ruleTest) LabelNumName() string {
+	//TODO implement
+	panic("implement me")
+}
+
+func (r *ruleTest) LabelNumNameAlias() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (r *ruleTest) MeansKeys() []string {
+	var keys []string
+	keys = []string{
+		r.NameAlias(),
+		r.KeywordNameAlias(),
+		r.KeywordNumNameAlias(),
+	}
+	keys = append(keys, r.LabelsAlias()...)
+	keys = append(keys, r.FixedKeysAlias()...)
+
+	return keys
+}
+
+func (r *ruleTest) MeansDefaultValues() map[string]any {
+	defaultValues := map[string]any{
+		r.NameAlias():           "",
+		r.KeywordNameAlias():    "",
+		r.KeywordNumNameAlias(): 0,
+	}
+
+	for _, _la := range r.LabelsAlias() {
+		defaultValues[_la] = ""
+	}
+
+	for _, _fka := range r.FixedKeysAlias() {
+		defaultValues[_fka] = ""
+	}
+
+	return defaultValues
 }
 
 func (r *ruleTest) Name() string {
@@ -39,6 +80,14 @@ func (r *ruleTest) KeywordNumNameAlias() string {
 	return r.KeywordNumName()
 }
 
+func (r *ruleTest) KeywordAmountName() string {
+	return "a_keyword_Amount"
+}
+
+func (r *ruleTest) KeywordAmountNameAlias() string {
+	return r.KeywordAmountName()
+}
+
 func (r *ruleTest) Labels() []string {
 	return []string{"ab"}
 }
@@ -47,11 +96,19 @@ func (r *ruleTest) LabelsAlias() []string {
 	return r.Labels()
 }
 
-func (r *ruleTest) Fixed() map[string]any {
+func (r *ruleTest) Tags() []string {
+	return append([]string{r.Name()}, r.Labels()...)
+}
+
+func (r *ruleTest) TagsAlias() []string {
+	return append([]string{r.NameAlias()}, r.LabelsAlias()...)
+}
+
+func (r *ruleTest) Fixed() map[string]string {
 	return nil
 }
 
-func (r *ruleTest) FixedAlias() map[string]any {
+func (r *ruleTest) FixedAlias() map[string]string {
 	return nil
 }
 

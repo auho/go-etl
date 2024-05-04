@@ -12,6 +12,7 @@ var _ assistant.Moder = (*DataContentSpiltWords)(nil)
 
 type DataContentSpiltWords struct {
 	model
+	extra
 	data        assistant.Rowsor
 	contentName string
 }
@@ -21,6 +22,9 @@ func NewDataContentSpiltWords(data assistant.Rowsor, contentName string, db *sim
 	dc.data = data
 	dc.contentName = contentName
 	dc.db = db
+	dc.extra = extra{
+		model: dc,
+	}
 
 	return dc
 }
@@ -37,16 +41,16 @@ func (dc *DataContentSpiltWords) GetIdName() string {
 	return "id"
 }
 
+func (dc *DataContentSpiltWords) TableName() string {
+	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSpiltWords)
+}
+
 func (dc *DataContentSpiltWords) GetData() assistant.Rowsor {
 	return dc.data
 }
 
 func (dc *DataContentSpiltWords) GetContentName() string {
 	return dc.contentName
-}
-
-func (dc *DataContentSpiltWords) TableName() string {
-	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSpiltWords)
 }
 
 func (dc *DataContentSpiltWords) WordName() string {

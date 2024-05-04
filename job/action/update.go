@@ -38,7 +38,7 @@ func WithUpdateConfig(cc UpdateConfig) func(update *Update) {
 }
 
 type Update struct {
-	targetAction
+	TargetAction
 
 	source     job.Source
 	modes      []mode.UpdateModer
@@ -192,7 +192,16 @@ func (u *Update) PostDo() error {
 	return nil
 }
 
-func (u *Update) Close() error { return nil }
+func (u *Update) Close() error {
+	for _, m := range u.modes {
+		err := m.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 var _ destination.Destinationer[storage.MapEntry] = (*updateToDB)(nil)
 

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
@@ -21,11 +22,10 @@ func ExampleNewRuleSimple() {
 func ExampleNewRuleItems() {
 	_rule := NewRuleSimple("one", []string{"label1", "label2"}, nil)
 
-	_ = NewRuleItems(
+	_ = assistant.NewRuleItems(
 		_rule,
-		WithRuleItemsConfig(RuleItemsConfig{
+		assistant.WithRuleItemsConfig(assistant.RuleItemsConfig{
 			Alias:             map[string]string{"label1": "label1_alias", "label2": "label2_alias"},
-			Fixed:             map[string]any{"fixed1": 1},
 			KeywordFormatFunc: func(s string) string { return s },
 		}),
 	)

@@ -24,6 +24,8 @@ func RunImportToDb(xlsxPath string, sr ...Resourcer) error {
 }
 
 func (it *ImportToDb) Import() error {
+	fmt.Println(fmt.Sprintf("import start[%s]", it.xlsxPath))
+
 	var err error
 	it.excel, err = read.NewExcel(it.xlsxPath)
 	if err != nil {
@@ -31,6 +33,7 @@ func (it *ImportToDb) Import() error {
 	}
 
 	for _, resource := range it.resource {
+		fmt.Println(fmt.Sprintf("import resource[%s]", resource.GetName()))
 		err = it.importResource(resource)
 		if err != nil {
 			return fmt.Errorf("resource[%s] error; %w", resource.GetName(), err)
@@ -76,6 +79,7 @@ func (it *ImportToDb) buildResourceTable(resource Resourcer, table buildtable.Ta
 		fmt.Println(table.Sql())
 	}
 
+	// TODO Optimize 合并 recreate 至 table
 	isRecreateTable := resource.GetIsRecreateTable()
 	_, err := resource.GetDB().GetTableColumns(table.GetTableName())
 	if err != nil {
@@ -122,7 +126,7 @@ func (it *ImportToDb) importResourceToTable(resource Resourcer, table buildtable
 		}
 	}
 
-	err = resource.GetDB().BulkInsertFromSliceSlice(table.GetTableName(), resource.GetTitlesName(), sheetData.GetRowsWithAny(), 1000)
+	err = resource.GetDB().BulkInsertFromSliceSlice(table.GetTableName(), resource.GetTitlesName(), sheetData.GetRowsWithAny(), resource.GetBatchInsertSize())
 	if err != nil {
 		return err
 	}

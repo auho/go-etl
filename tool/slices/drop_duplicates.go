@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func SliceDropDuplicates[T comparatorEntity](s []T) []T {
+func SliceDropDuplicates[T comparatorV](s []T) []T {
 	result := make([]T, 0)
 	tempMap := make(map[any]bool, len(s))
 	for _, e := range s {
@@ -20,7 +20,7 @@ func SliceDropDuplicates[T comparatorEntity](s []T) []T {
 
 // SliceSliceDropDuplicates
 // indexes: index list
-func SliceSliceDropDuplicates[T comparatorEntity](s [][]T, indexes []int) [][]T {
+func SliceSliceDropDuplicates[T comparatorV](s [][]T, indexes []int) [][]T {
 	var newS [][]T
 	_sLen := len(s)
 	valuesFlag := make(map[string]struct{}, _sLen)

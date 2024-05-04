@@ -7,6 +7,7 @@ import (
 var _ Tabler = (*Table)(nil)
 
 type Table struct {
+	manipulation
 	commander command.TableCommander
 	name      string
 	fields    *command.Entities
@@ -14,6 +15,7 @@ type Table struct {
 	groupBy   *command.Entities
 	orderBy   *command.Entities
 	limit     []int
+	having    string
 	join      *command.Join
 	set       []*command.Set
 	asSql     string
@@ -54,6 +56,10 @@ func (t *Table) init(name string, driver string) {
 	t.set = make([]*command.Set, 0)
 
 	t.commander = newTableCommand(driver)
+	t.manipulation = manipulation{
+		st:          t.commander,
+		prepareFunc: t.prepare,
+	}
 }
 
 func (t *Table) GetName() string {
@@ -70,7 +76,7 @@ func (t *Table) Select(fields []string) *Table {
 
 func (t *Table) SelectAlias(alias map[string]string) *Table {
 	for k, v := range alias {
-		t.fields.AddEntry(k, v)
+		t.fields.AddEntryExpression(k, v)
 	}
 
 	return t
@@ -91,20 +97,45 @@ func (t *Table) GroupBy(g []string) *Table {
 	return t
 }
 
-func (t *Table) GroupByAlias(g map[string]string) *Table {
-	for k, v := range g {
-		t.groupBy.AddEntry(k, v)
-		t.fields.AddEntry(k, v)
+func (t *Table) GroupByAlias(g ...string) *Table {
+	g = g[0 : len(g)/2*2]
+	for i := 0; i < len(g); i += 2 {
+		t.groupBy.AddEntry(g[i], g[i+1])
+		t.fields.AddEntry(g[i], g[i+1])
+	}
+
+	return t
+}
+
+func (t *Table) GroupByWithoutField(g []string) *Table {
+	for _, v := range g {
+		t.groupBy.AddEntry(v, v)
+	}
+
+	return t
+}
+
+func (t *Table) addOrderBy(flag string, v ...string) *Table {
+	v = v[0 : len(v)/2*2]
+	for i := 0; i < len(v); i += 2 {
+		if flag == command.FlagExpression {
+			t.orderBy.AddEntryExpression(v[i], v[i+1])
+		} else {
+			t.orderBy.AddEntry(v[i], v[i+1])
+		}
 	}
 
 	return t
 }
 
 func (t *Table) OrderBy(v ...string) *Table {
-	v = v[0 : len(v)/2*2]
-	for i := 0; i < len(v); i += 2 {
-		t.orderBy.AddEntry(v[i], v[i+1])
-	}
+	t.addOrderBy(command.FlagField, v...)
+
+	return t
+}
+
+func (t *Table) OrderByExpression(v ...string) *Table {
+	t.addOrderBy(command.FlagExpression, v...)
 
 	return t
 }
@@ -115,8 +146,28 @@ func (t *Table) OrderByAsc(k string) *Table {
 	return t
 }
 
+func (t *Table) OrderByAscExpression(k string) *Table {
+	t.OrderByExpression(k, command.SortAsc)
+
+	return t
+}
+
 func (t *Table) OrderByDesc(k string) *Table {
 	t.OrderBy(k, command.SortDesc)
+
+	return t
+}
+
+// OrderByDescExpression
+// k: 为 aggregation expression 的 alias，如果是 expression 使用 SelectAlias
+func (t *Table) OrderByDescExpression(k string) *Table {
+	t.OrderByExpression(k, command.SortDesc)
+
+	return t
+}
+
+func (t *Table) Having(s string) *Table {
+	t.having = s
 
 	return t
 }
@@ -136,7 +187,7 @@ func (t *Table) Aggregation(a map[string]string) *Table {
 	return t
 }
 
-func (t *Table) LeftJoin(fields []string, rightTable *Table, rightFields []string) *Table {
+func (t *Table) addLeftJoin(fields []string, rightTable *Table, rightFields []string) *Table {
 	t.join = command.NewLeftJoin(t.GetName(), fields, rightTable.GetName(), rightFields)
 
 	return t
@@ -191,36 +242,6 @@ func (t *Table) SetSet(s *command.Set) {
 	t.set = append(t.set, s)
 }
 
-func (t *Table) Sql() string {
-	t.prepare()
-
-	return t.commander.Query()
-}
-
-func (t *Table) InsertSql(name string) string {
-	t.prepare()
-
-	return t.commander.InsertQuery(name)
-}
-
-func (t *Table) InsertWithFieldsSql(name string, fields []string) string {
-	t.prepare()
-
-	return t.commander.InsertWithFieldsQuery(name, fields)
-}
-
-func (t *Table) UpdateSql() string {
-	t.prepare()
-
-	return t.commander.UpdateQuery()
-}
-
-func (t *Table) DeleteSql() string {
-	t.prepare()
-
-	return t.commander.DeleteQuery()
-}
-
 func (t *Table) CreateJoin() *TableJoin {
 	return newTableJoin(t.commander.DriverName()).Table(t)
 }
@@ -234,6 +255,10 @@ func (t *Table) GetSelectFields() []string {
 	return fields
 }
 
+func (t *Table) ToSqlTable(name string) *Table {
+	return NewSqlTable(name, t.Sql())
+}
+
 func (t *Table) prepare() {
 	t.commander.SetTable(t.name, t.asSql)
 	t.commander.SetSelect(t.fields)
@@ -241,6 +266,7 @@ func (t *Table) prepare() {
 	t.commander.SetWhere(t.where)
 	t.commander.SetGroupBy(t.groupBy)
 	t.commander.SetOrderBy(t.orderBy)
+	t.commander.SetHaving(t.having)
 	t.commander.SetLimit(t.limit)
 	t.commander.SetSet(t.set)
 }

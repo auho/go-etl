@@ -6,9 +6,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Tag001Cmd = &cobra.Command{
-	Use: "001",
-	Run: func(cmd *cobra.Command, args []string) {
+var t001Cmd = &cobra.Command{
+	Use:     "001",
+	GroupID: "tag",
+	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println(cmd.Use)
+
+		return nil
 	},
 }

@@ -57,6 +57,14 @@ func (m *mysql) LimitToString(l []int) string {
 	return "LIMIT " + s
 }
 
+func (m *mysql) HavingToString(h []string) string {
+	if len(h) == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf("HAVING %s ", strings.Join(h, "AND"))
+}
+
 func (m *mysql) SetToString(s []string) string {
 	if len(s) == 0 {
 		return ""

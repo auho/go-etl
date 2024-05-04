@@ -4,25 +4,39 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
+	simpleDb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Dataor = (*DataContent)(nil)
 
 type DataContent struct {
-	*Data
+	model
+	extra
+	data        *Data
 	contentName string
 }
 
 func NewDataContent(data *Data, contentName string) *DataContent {
 	d := &DataContent{}
-	d.Data = data
+	d.data = data
 	d.contentName = contentName
+	d.extra = extra{
+		model: d,
+	}
 
 	return d
 }
 
+func (d *DataContent) GetDB() *simpleDb.SimpleDB {
+	return d.data.GetDB()
+}
+
 func (d *DataContent) GetName() string {
-	return fmt.Sprintf("%s_%s", d.name, d.contentName)
+	return fmt.Sprintf("%s_%s", d.data.name, d.contentName)
+}
+
+func (d *DataContent) GetIdName() string {
+	return d.data.GetIdName()
 }
 
 func (d *DataContent) TableName() string {

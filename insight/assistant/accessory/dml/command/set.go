@@ -44,19 +44,19 @@ func NewSetField(l string, lFields []string, r string, rFields []string) *Set {
 // NewSetExpression
 // 传入 field name => expression
 func NewSetExpression(l string, lFields []string, r string, expression []string) *Set {
-	return newSet(l, lFields, r, slices.SliceToAny(expression), flagExpression)
+	return newSet(l, lFields, r, slices.SliceToAny(expression), FlagExpression)
 }
 
 // NewSetValue
 // 传入 field name => value
 func NewSetValue(l string, lFields []string, r string, values []any) *Set {
-	return newSet(l, lFields, r, values, flagValue)
+	return newSet(l, lFields, r, values, FlagValue)
 }
 
 func (s *Set) IsExpression() bool {
-	return s.flag == flagExpression
+	return s.flag == FlagExpression
 }
 
 func (s *Set) IsValue() bool {
-	return s.flag == flagValue
+	return s.flag == FlagValue
 }

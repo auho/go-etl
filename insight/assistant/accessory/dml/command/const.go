@@ -11,5 +11,6 @@ const ReservedSet = "set"
 const SortDesc = "DESC"
 const SortAsc = "ASC"
 
-const flagValue = "value"
-const flagExpression = "expression"
+const FlagField = "field"
+const FlagValue = "value"
+const FlagExpression = "expression"

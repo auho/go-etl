@@ -160,5 +160,5 @@ func (f *Field) SqlForModify() string {
 }
 
 func (f *Field) SqlForChange(tableName string) string {
-	return fmt.Sprintf("ALTER TABLE `%s` MODIFY COLUMN `%s`", tableName, f.statement())
+	return fmt.Sprintf("ALTER TABLE `%s` MODIFY COLUMN %s", tableName, f.statement())
 }

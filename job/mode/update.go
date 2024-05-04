@@ -13,27 +13,27 @@ var _ UpdateModer = (*UpdateMode)(nil)
 // handle some keys of data for update
 type UpdateMode struct {
 	Mode
-	meanses []means.UpdateMeans
+	ms []means.UpdateMeans
 }
 
-func NewUpdate(keys []string, meanses ...means.UpdateMeans) *UpdateMode {
+func NewUpdate(keys []string, ms ...means.UpdateMeans) *UpdateMode {
 	um := &UpdateMode{}
-	um.keys = keys
-	um.meanses = meanses
+	um.Keys = keys
+	um.ms = ms
 
 	return um
 }
 
 func (um *UpdateMode) Prepare() error {
-	if len(um.keys) <= 0 {
+	if len(um.Keys) <= 0 {
 		return fmt.Errorf("update prepare keys is not exists error")
 	}
 
-	if len(um.meanses) <= 0 {
-		return fmt.Errorf("update prepare meanses error")
+	if len(um.ms) <= 0 {
+		return fmt.Errorf("update prepare ms error")
 	}
 
-	for _, m := range um.meanses {
+	for _, m := range um.ms {
 		err := m.Prepare()
 		if err != nil {
 			return fmt.Errorf("update prepare error; %w", err)
@@ -45,15 +45,15 @@ func (um *UpdateMode) Prepare() error {
 
 func (um *UpdateMode) GetTitle() string {
 	is := make([]string, 0)
-	for _, i := range um.meanses {
+	for _, i := range um.ms {
 		is = append(is, i.GetTitle())
 	}
 
-	return fmt.Sprintf("UpdateMode %s{%s}", um.Mode.getTitle(), strings.Join(is, ","))
+	return um.GenTitle("UpdateMode", strings.Join(is, ","))
 }
 
 func (um *UpdateMode) GetFields() []string {
-	return um.keys
+	return um.Keys
 }
 
 func (um *UpdateMode) Do(item map[string]any) map[string]any {
@@ -61,14 +61,14 @@ func (um *UpdateMode) Do(item map[string]any) map[string]any {
 		return nil
 	}
 
-	contents := um.GetKeysContent(um.keys, item)
+	contents := um.GetKeysContent(um.Keys, item)
 
 	if len(contents) <= 0 {
 		return nil
 	}
 
 	m := make(map[string]any)
-	for _, uMeans := range um.meanses {
+	for _, uMeans := range um.ms {
 		_m := uMeans.Update(contents)
 		for _k, _v := range _m {
 			m[_k] = _v
@@ -79,8 +79,8 @@ func (um *UpdateMode) Do(item map[string]any) map[string]any {
 }
 
 func (um *UpdateMode) Close() error {
-	for k := range um.meanses {
-		err := um.meanses[k].Close()
+	for k := range um.ms {
+		err := um.ms[k].Close()
 		if err != nil {
 			return fmt.Errorf("UpdateMode close error; %w", err)
 		}

@@ -43,7 +43,7 @@ func WithCleanConfig(cc CleanConfig) func(*Clean) {
 // Clean
 // filter
 type Clean struct {
-	action
+	Action
 
 	cleanTarget job.CleanResource
 	keys        []string
@@ -103,8 +103,7 @@ func (c *Clean) Title() string {
 	return fmt.Sprintf("Clean[%s, %s] {%s}",
 		c.cleanTarget.DataTarget().TableName(),
 		c.cleanTarget.DeletedTarget().TableName(),
-		strings.Join(s, ", "),
-	)
+		strings.Join(s, ", "))
 }
 
 func (c *Clean) Prepare() error {
@@ -187,7 +186,16 @@ func (c *Clean) PostDo() error {
 	return nil
 }
 
-func (c *Clean) Close() error { return nil }
+func (c *Clean) Close() error {
+	for _, m := range c.modes {
+		err := m.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 var _ destination.Destinationer[storage.MapEntry] = (*cleanToDB)(nil)
 

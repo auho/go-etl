@@ -11,10 +11,11 @@ import (
 var _ Actor = (*Insert)(nil)
 
 type InsertConfig struct {
-	NotTruncate bool
-	BatchSize   int
-	Concurrency int
-	ExtraKeys   []string // 附加写入到 target 的 source 字段
+	NotTruncate      bool
+	BatchSize        int
+	Concurrency      int
+	AllowInsertEmpty bool
+	ExtraKeys        []string // 附加写入到 target 的 source 字段
 }
 
 func (ic *InsertConfig) check() {
@@ -34,7 +35,7 @@ func WithInsertConfig(ic InsertConfig) func(*Insert) {
 }
 
 type Insert struct {
-	targetAction
+	TargetAction
 
 	mode mode.InsertModer
 
@@ -92,7 +93,11 @@ func (i *Insert) PreDo() error {
 func (i *Insert) Do(item map[string]any) ([]map[string]any, bool) {
 	newItems := i.mode.Do(item)
 	if len(newItems) <= 0 {
-		return nil, false
+		if i.config.AllowInsertEmpty {
+			newItems = []map[string]any{i.mode.DefaultValues()}
+		} else {
+			return nil, false
+		}
 	}
 
 	if len(i.config.ExtraKeys) > 0 {
@@ -107,7 +112,7 @@ func (i *Insert) Do(item map[string]any) ([]map[string]any, bool) {
 }
 
 func (i *Insert) PostBatchDo(items []map[string]any) {
-	err := i.target.GetDB().BulkInsertFromSliceMap(i.target.TableName(), items, batchSize)
+	err := i.target.GetDB().BulkInsertFromSliceMap(i.target.TableName(), items, i.config.BatchSize)
 	if err != nil {
 		s := err.Error()
 		if len(s) > 300 {
@@ -120,4 +125,12 @@ func (i *Insert) PostBatchDo(items []map[string]any) {
 
 func (i *Insert) Blink()        {}
 func (i *Insert) PostDo() error { return nil }
-func (i *Insert) Close() error  { return nil }
+func (i *Insert) Close() error {
+	for _, s := range i.mode.State() {
+		i.Println(s)
+	}
+
+	i.Println("")
+
+	return i.mode.Close()
+}
