@@ -13,7 +13,7 @@ type Wrap struct {
 }
 
 // NewWrap
-// Deprecated
+// Deprecated: change to using explore.Searcher
 func NewWrap(m *Means, export *Export) *Wrap {
 	return &Wrap{
 		means:  m,

@@ -18,6 +18,8 @@ type Means struct {
 	hasExport     bool
 }
 
+// NewMeans
+// Deprecated: change to using explore.Searcher
 func NewMeans(s search.Searcher) *Means {
 	m := &Means{search: s}
 

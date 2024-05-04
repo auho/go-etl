@@ -1,7 +1,7 @@
 package regexps
 
 func ExampleNewAllSubMatch() {
-	NewAllSubMatch(_rule, []string{
+	NewAllSubMatch([]string{
 		`a.{1,2}c`,
 		`\b(1)\b`,
 		`\b(a)\b`,
@@ -10,7 +10,7 @@ func ExampleNewAllSubMatch() {
 }
 
 func ExampleNewSubMatchAll() {
-	NewSubMatchAll(_rule, []string{
+	NewSubMatchAll([]string{
 		`a.{1,2}c`,
 		`\b(1)\b`,
 		`\b(a)\b`,
@@ -19,7 +19,7 @@ func ExampleNewSubMatchAll() {
 }
 
 func ExampleNewSubMatchFirst() {
-	NewSubMatchFirst(_rule, []string{
+	NewSubMatchFirst([]string{
 		`a.{1,2}c`,
 		`\b(1)\b`,
 		`\b(a)\b`,

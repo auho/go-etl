@@ -19,7 +19,6 @@ var _ search.Searcher = (*SubMatch)(nil)
 // SubMatch
 // sub match
 type SubMatch struct {
-	rule        means.Ruler
 	expressions []string
 	subMode     func([]*regexp.Regexp, []string) Results
 	export      *Export
@@ -27,9 +26,8 @@ type SubMatch struct {
 	regexps []*regexp.Regexp
 }
 
-func NewSubMatch(rule means.Ruler, exs []string, subMode func([]*regexp.Regexp, []string) Results, export *Export) *SubMatch {
+func NewSubMatch(exs []string, subMode func([]*regexp.Regexp, []string) Results, export *Export) *SubMatch {
 	return &SubMatch{
-		rule:        rule,
 		expressions: exs,
 		subMode:     subMode,
 		export:      export,
@@ -37,7 +35,7 @@ func NewSubMatch(rule means.Ruler, exs []string, subMode func([]*regexp.Regexp, 
 }
 
 func (r *SubMatch) GetTitle() string {
-	return "SubMatch"
+	return fmt.Sprintf("SubMatch[%s]", r.export.GetRule().Name())
 }
 
 func (r *SubMatch) Prepare() error {
@@ -61,7 +59,7 @@ func (r *SubMatch) Do(contents []string) search.Token {
 
 	rets := r.subMode(r.regexps, contents)
 
-	return r.export.ToToken(rets, r.rule)
+	return r.export.ToToken(rets)
 }
 
 func (r *SubMatch) Close() error { return nil }
@@ -114,8 +112,8 @@ func _mergeResults(results Results) Results {
 
 // NewAllSubMatch
 // all sub match of all contents
-func NewAllSubMatch(rule means.Ruler, exs []string, export *Export) *SubMatch {
-	return NewSubMatch(rule, exs, func(regexps []*regexp.Regexp, contents []string) Results {
+func NewAllSubMatch(exs []string, export *Export) *SubMatch {
+	return NewSubMatch(exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results
 		for _, content := range contents {
 			for _, re := range regexps {
@@ -136,8 +134,8 @@ func NewAllSubMatch(rule means.Ruler, exs []string, export *Export) *SubMatch {
 
 // NewSubMatchAll
 // leftmost sub match of all contents
-func NewSubMatchAll(rule means.Ruler, exs []string, export *Export) *SubMatch {
-	return NewSubMatch(rule, exs, func(regexps []*regexp.Regexp, contents []string) Results {
+func NewSubMatchAll(exs []string, export *Export) *SubMatch {
+	return NewSubMatch(exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results
 		for _, content := range contents {
 			for _, re := range regexps {
@@ -154,8 +152,8 @@ func NewSubMatchAll(rule means.Ruler, exs []string, export *Export) *SubMatch {
 
 // NewSubMatchFirst
 // leftmost sub match of first match found content
-func NewSubMatchFirst(rule means.Ruler, exs []string, export *Export) *SubMatch {
-	return NewSubMatch(rule, exs, func(regexps []*regexp.Regexp, contents []string) Results {
+func NewSubMatchFirst(exs []string, export *Export) *SubMatch {
+	return NewSubMatch(exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results
 		for _, content := range contents {
 			for _, re := range regexps {

@@ -9,7 +9,7 @@ import (
 )
 
 func TestMeans(t *testing.T) {
-	_means := means.NewMeans(NewSearchKey(_rule, NewExportKeywordAll(_rule)))
+	_means := means.NewMeans(NewSearchKey(NewExportKeywordAll(_rule)))
 	err := _means.Prepare()
 	if err != nil {
 		t.Fatal(err)

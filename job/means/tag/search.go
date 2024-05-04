@@ -28,7 +28,6 @@ type SearchContext[T ResultsEntity] struct {
 }
 
 type Search[T ResultsEntity] struct {
-	rule    means.Ruler
 	matcher *matcher
 	export  *Export[T]
 
@@ -39,9 +38,8 @@ type Search[T ResultsEntity] struct {
 	newMatcherFun func(means.Ruler, *matcherConfig) (*matcher, error)
 }
 
-func NewSearch[T ResultsEntity](rule means.Ruler, export *Export[T], fn SearchResultsFun[T]) *Search[T] {
+func NewSearch[T ResultsEntity](export *Export[T], fn SearchResultsFun[T]) *Search[T] {
 	return &Search[T]{
-		rule:             rule,
 		export:           export,
 		searchResultsFun: fn,
 		matcherConfig:    &matcherConfig{},
@@ -49,7 +47,7 @@ func NewSearch[T ResultsEntity](rule means.Ruler, export *Export[T], fn SearchRe
 }
 
 func (s *Search[T]) GetTitle() string {
-	return fmt.Sprintf("Search{%s}", strings.Join(s.GenExport().GetKeys(), ","))
+	return fmt.Sprintf("Search{%s:%s}", s.export.GetRule().Name(), strings.Join(s.export.GetKeys(), ","))
 }
 
 func (s *Search[T]) GenExport() search.Exporter {
@@ -59,7 +57,7 @@ func (s *Search[T]) GenExport() search.Exporter {
 func (s *Search[T]) Do(contents []string) search.Token {
 	rets := s.searchResultsFun(s.context, contents)
 
-	return s.export.ToToken(rets, s.rule)
+	return s.export.ToToken(rets)
 }
 
 func (s *Search[T]) Prepare() error {
@@ -68,7 +66,7 @@ func (s *Search[T]) Prepare() error {
 	}
 
 	var err error
-	s.matcher, err = s.newMatcherFun(s.rule, s.matcherConfig)
+	s.matcher, err = s.newMatcherFun(s.export.GetRule(), s.matcherConfig)
 	if err != nil {
 		return fmt.Errorf("prepare error; %w", err)
 	}

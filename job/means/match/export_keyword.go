@@ -11,8 +11,8 @@ import (
 // NewExportKeyword
 //
 // df: map[string]any, defaultValues
-func NewExportKeyword(df map[string]any, fn func(ExportContextResults) []map[string]any) *ExportResults {
-	return NewExport[Results](df, fn)
+func NewExportKeyword(rule means.Ruler, df map[string]any, fn func(ExportContextResults) []map[string]any) *ExportResults {
+	return NewExport[Results](rule, df, fn)
 }
 
 func NewExportKeywordAll(rule means.Ruler) *ExportResults {
@@ -24,7 +24,7 @@ func NewExportKeywordAll(rule means.Ruler) *ExportResults {
 	values[rule.KeywordNameAlias()] = ""
 	values[rule.KeywordAmountNameAlias()] = 0
 
-	return NewExportKeyword(values, func(ctx ExportContextResults) []map[string]any {
+	return NewExportKeyword(rule, values, func(ctx ExportContextResults) []map[string]any {
 		return ctx.Results.ToAll(rule)
 	})
 }
@@ -38,7 +38,7 @@ func NewExportKeywordLine(rule means.Ruler) *ExportResults {
 	values[rule.KeywordNameAlias()] = ""
 	values[rule.KeywordNumNameAlias()] = 0
 
-	return NewExportKeyword(values, func(ctx ExportContextResults) []map[string]any {
+	return NewExportKeyword(rule, values, func(ctx ExportContextResults) []map[string]any {
 		return ctx.Results.ToLine(rule, ctx.Format)
 	})
 }
@@ -52,7 +52,7 @@ func NewExportKeywordFlag(rule means.Ruler) *ExportResults {
 	values[rule.KeywordNameAlias()] = ""
 	values[rule.NameAlias()] = 0
 
-	return NewExportKeyword(values, func(ctx ExportContextResults) []map[string]any {
+	return NewExportKeyword(rule, values, func(ctx ExportContextResults) []map[string]any {
 		return ctx.Results.ToFlag(rule, ctx.Format)
 	})
 }

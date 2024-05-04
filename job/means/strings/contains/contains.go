@@ -11,16 +11,14 @@ import (
 var _ search.Searcher = (*Contains)(nil)
 
 type Contains struct {
-	rule   means.Ruler
 	subs   []string
 	export *Export
 
 	subMode func([]string) Results
 }
 
-func newContains(rule means.Ruler, subs []string, subMode func([]string) Results, export *Export) *Contains {
+func newContains(subs []string, subMode func([]string) Results, export *Export) *Contains {
 	return &Contains{
-		rule:    rule,
 		subs:    subs,
 		subMode: subMode,
 		export:  export,
@@ -30,7 +28,7 @@ func newContains(rule means.Ruler, subs []string, subMode func([]string) Results
 func (c *Contains) Prepare() error { return nil }
 
 func (c *Contains) GetTitle() string {
-	return fmt.Sprintf("Contains[%s]", c.rule.Name())
+	return fmt.Sprintf("Contains[%s]", c.export.GetRule().Name())
 }
 
 func (c *Contains) GenExport() search.Exporter {
@@ -40,7 +38,7 @@ func (c *Contains) GenExport() search.Exporter {
 func (c *Contains) Do(contents []string) search.Token {
 	rets := c.subMode(contents)
 
-	return c.export.ToToken(c.rule, rets)
+	return c.export.ToToken(rets)
 }
 
 func (c *Contains) Close() error { return nil }
@@ -51,8 +49,8 @@ func (c *Contains) ToMeans() *means.Means {
 
 // NewContainsAll
 // all sub of all contents
-func NewContainsAll(rule means.Ruler, subs []string, export *Export) *Contains {
-	return newContains(rule, subs, func(contents []string) Results {
+func NewContainsAll(subs []string, export *Export) *Contains {
+	return newContains(subs, func(contents []string) Results {
 		var results Results
 		for _, content := range contents {
 			for _, sub := range subs {
@@ -84,8 +82,8 @@ func NewContainsAll(rule means.Ruler, subs []string, export *Export) *Contains {
 
 // NewContainsFirst
 // first sub of contents
-func NewContainsFirst(rule means.Ruler, subs []string, export *Export) *Contains {
-	return newContains(rule, subs, func(contents []string) Results {
+func NewContainsFirst(subs []string, export *Export) *Contains {
+	return newContains(subs, func(contents []string) Results {
 		var results Results
 		for _, content := range contents {
 			for _, sub := range subs {

@@ -18,7 +18,7 @@ var _expressions = []string{
 }
 
 func TestAllSubMatch(t *testing.T) {
-	amm := NewAllSubMatch(_rule, _expressions, NewExportAll(_rule))
+	amm := NewAllSubMatch(_expressions, NewExportAll(_rule))
 	err := amm.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -46,7 +46,7 @@ func TestAllSubMatch(t *testing.T) {
 
 func TestSubMatchAll(t *testing.T) {
 	t.Run("all", func(t *testing.T) {
-		sma := NewSubMatchAll(_rule, _expressions, NewExportAll(_rule))
+		sma := NewSubMatchAll(_expressions, NewExportAll(_rule))
 		err := sma.Prepare()
 		if err != nil {
 			t.Fatal()
@@ -71,7 +71,7 @@ func TestSubMatchAll(t *testing.T) {
 	})
 
 	t.Run("line", func(t *testing.T) {
-		sma := NewSubMatchAll(_rule, _expressions, NewExportLine(_rule))
+		sma := NewSubMatchAll(_expressions, NewExportLine(_rule))
 		err := sma.Prepare()
 		if err != nil {
 			t.Fatal()
@@ -89,7 +89,7 @@ func TestSubMatchAll(t *testing.T) {
 	})
 
 	t.Run("flag", func(t *testing.T) {
-		sma := NewSubMatchAll(_rule, _expressions, NewExportFlag(_rule))
+		sma := NewSubMatchAll(_expressions, NewExportFlag(_rule))
 		err := sma.Prepare()
 		if err != nil {
 			t.Fatal()
@@ -108,7 +108,7 @@ func TestSubMatchAll(t *testing.T) {
 }
 
 func TestSubMatchFirst(t *testing.T) {
-	smf := NewSubMatchFirst(_rule, _expressions, NewExportAll(_rule))
+	smf := NewSubMatchFirst(_expressions, NewExportAll(_rule))
 	err := smf.Prepare()
 	if err != nil {
 		t.Fatal(err)

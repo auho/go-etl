@@ -15,7 +15,7 @@ func TestContainsAll(t *testing.T) {
 	subs := []string{"1", "2", "12", "ab"}
 
 	t.Run("all", func(t *testing.T) {
-		c := NewContainsAll(_rule, subs, NewExportAll(_rule))
+		c := NewContainsAll(subs, NewExportAll(_rule))
 		err := c.Prepare()
 		if err != nil {
 			t.Fatal(err)
@@ -43,7 +43,7 @@ func TestContainsAll(t *testing.T) {
 	})
 
 	t.Run("line", func(t *testing.T) {
-		c := NewContainsAll(_rule, subs, NewExportLine(_rule))
+		c := NewContainsAll(subs, NewExportLine(_rule))
 		err := c.Prepare()
 		if err != nil {
 			t.Fatal(err)
@@ -65,7 +65,7 @@ func TestContainsAll(t *testing.T) {
 	})
 
 	t.Run("flag", func(t *testing.T) {
-		c := NewContainsAll(_rule, subs, NewExportFlag(_rule))
+		c := NewContainsAll(subs, NewExportFlag(_rule))
 		err := c.Prepare()
 		if err != nil {
 			t.Fatal(err)
@@ -96,7 +96,7 @@ func TestContainsAny(t *testing.T) {
 				ss[i], ss[j] = ss[j], ss[i]
 			})
 
-			c := NewContainsFirst(_rule, ss, NewExportAll(_rule))
+			c := NewContainsFirst(ss, NewExportAll(_rule))
 			err := c.Prepare()
 			if err != nil {
 				t.Fatal(err)
