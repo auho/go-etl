@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
-	"github.com/auho/go-simple-db/v2/driver/driver"
 )
 
 var _ command.TableCommander = (*TableCommand)(nil)
@@ -32,7 +31,7 @@ func NewTableCommand() *TableCommand {
 }
 
 func (c *TableCommand) DriverName() string {
-	return driver.Mysql
+	return "mysql"
 }
 
 func (c *TableCommand) Name() string {

@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
@@ -54,7 +56,12 @@ func (e *extra) Truncate() error {
 }
 
 func (e *extra) CopyBuild(dst assistant.Rawer) error {
-	return e.model.GetDB().DropAndCopy(e.model.TableName(), dst.TableName())
+	err := dst.GetDB().Drop(dst.TableName())
+	if err != nil {
+		return err
+	}
+
+	return e.model.GetDB().Copy(e.model.TableName(), dst.TableName())
 }
 
 func (e *extra) CopyBuildAndData(dst assistant.Rawer) error {
@@ -63,7 +70,9 @@ func (e *extra) CopyBuildAndData(dst assistant.Rawer) error {
 		return err
 	}
 
-	return e.model.GetDB().CopyData(e.model.TableName(), dst.TableName())
+	return e.model.GetDB().DB.Exec(
+		fmt.Sprintf("INSERT INTO %s SELECT * FROM %s", dst.TableName(), e.model.TableName()),
+	).Error
 }
 
 func (e *extra) RawSqlAndScan(dst any, sql string, v ...any) error {

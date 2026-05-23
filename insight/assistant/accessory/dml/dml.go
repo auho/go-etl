@@ -5,16 +5,17 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command/mysql"
-	"github.com/auho/go-simple-db/v2/driver/driver"
 )
+
+const DriverMysql = "mysql"
 
 func newTableJoinCommand(_driver string) command.TableJoinCommander {
 	if _driver == "" {
-		_driver = driver.Mysql
+		_driver = DriverMysql
 	}
 
 	switch _driver {
-	case driver.Mysql:
+	case DriverMysql:
 		return mysql.NewTableJoinCommand()
 	default:
 		panic(fmt.Sprintf("_driver[%s] is not exists", _driver))
@@ -23,11 +24,11 @@ func newTableJoinCommand(_driver string) command.TableJoinCommander {
 
 func newTableCommand(_driver string) command.TableCommander {
 	if _driver == "" {
-		_driver = driver.Mysql
+		_driver = DriverMysql
 	}
 
 	switch _driver {
-	case driver.Mysql:
+	case DriverMysql:
 		return mysql.NewTableCommand()
 	default:
 		panic(fmt.Sprintf("driver[%s] is not exists", _driver))

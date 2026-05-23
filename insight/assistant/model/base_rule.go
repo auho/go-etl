@@ -94,7 +94,7 @@ func (br *baseRule) LabelsName() []string {
 		labels = append(labels, label)
 	}
 
-	sort.SliceIsSorted(labels, func(i, j int) bool {
+	sort.Slice(labels, func(i, j int) bool {
 		return labels[i] < labels[j]
 	})
 
