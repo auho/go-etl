@@ -2,7 +2,7 @@ package tool
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -31,7 +31,7 @@ func NewPython2Go(s string) *Python2Go {
 	p.path = f.Name()
 	p.f = f
 
-	b, err := ioutil.ReadAll(p.f)
+	b, err := io.ReadAll(p.f)
 	if err != nil {
 		panic(err)
 	}
