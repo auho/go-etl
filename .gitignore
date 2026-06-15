@@ -1,6 +1,8 @@
 .DS_Store
 .idea
 .vscode
+.trae
+
 /vendor
 /office/
 
