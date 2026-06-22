@@ -5,7 +5,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Dataor = (*Data)(nil)
@@ -17,7 +17,7 @@ type Data struct {
 	idName string
 }
 
-func NewData(name string, idName string, db *simpleDb.SimpleDB) *Data {
+func NewData(name string, idName string, db *simpledb.SimpleDB) *Data {
 	d := &Data{}
 	d.name = name
 	d.idName = idName
@@ -29,7 +29,7 @@ func NewData(name string, idName string, db *simpleDb.SimpleDB) *Data {
 	return d
 }
 
-func (d *Data) GetDB() *simpleDb.SimpleDB {
+func (d *Data) GetDB() *simpledb.SimpleDB {
 	return d.db
 }
 

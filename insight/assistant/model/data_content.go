@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Dataor = (*DataContent)(nil)
@@ -27,7 +27,7 @@ func NewDataContent(data *Data, contentName string) *DataContent {
 	return d
 }
 
-func (d *DataContent) GetDB() *simpleDb.SimpleDB {
+func (d *DataContent) GetDB() *simpledb.SimpleDB {
 	return d.data.GetDB()
 }
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Rowsor = (*Rows)(nil)
@@ -19,7 +19,7 @@ type Rows struct {
 	tableName string
 }
 
-func NewRowsFake(name, tableName, idName string, db *simpleDb.SimpleDB) *Rows {
+func NewRowsFake(name, tableName, idName string, db *simpledb.SimpleDB) *Rows {
 	r := &Rows{}
 	r.name = name
 	r.idName = idName
@@ -32,11 +32,11 @@ func NewRowsFake(name, tableName, idName string, db *simpleDb.SimpleDB) *Rows {
 	return r
 }
 
-func NewRows(name, idName string, db *simpleDb.SimpleDB) *Rows {
+func NewRows(name, idName string, db *simpledb.SimpleDB) *Rows {
 	return NewRowsFake(name, name, idName, db)
 }
 
-func (r *Rows) GetDB() *simpleDb.SimpleDB {
+func (r *Rows) GetDB() *simpledb.SimpleDB {
 	return r.db
 }
 

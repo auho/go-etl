@@ -5,9 +5,10 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime"
 	"time"
 
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 	"github.com/pelletier/go-toml"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -22,8 +23,9 @@ type DbConfig struct {
 	Dsn    string
 }
 
-func (dc *DbConfig) BuildDB() (*simpleDb.SimpleDB, error) {
-	var db *simpleDb.SimpleDB
+func (dc *DbConfig) BuildDB() (*simpledb.SimpleDB, *gorm.DB, error) {
+	var simpleDB *simpledb.SimpleDB
+	var gromDB *gorm.DB
 	var err error
 
 	newLogger := logger.New(
@@ -41,18 +43,30 @@ func (dc *DbConfig) BuildDB() (*simpleDb.SimpleDB, error) {
 
 	switch dc.Driver {
 	case "mysql":
-		db, err = simpleDb.NewMysql(dc.Dsn, dbc)
+		simpleDB, gromDB, err = simpledb.NewMySQLGorm(dc.Dsn, dbc)
+		if err != nil {
+			err = fmt.Errorf("NewMySQLGorm: %w", err)
+		}
 	case "clickhouse":
-		db, err = simpleDb.NewClickhouse(dc.Dsn, dbc)
+		simpleDB, gromDB, err = simpledb.NewClickHouseGorm(dc.Dsn, dbc)
+		if err != nil {
+			err = fmt.Errorf("NewClickHouseGorm: %w", err)
+		}
 	default:
 		err = fmt.Errorf("driver[%s] not found", dc.Driver)
 	}
 
-	if err != nil {
-		err = fmt.Errorf("driver[%s] [%s] build error", dc.Driver, dc.Dsn)
+	if simpleDB != nil {
+		sqldb := simpleDB.SqlDB()
+		if sqldb != nil {
+			conns := runtime.NumCPU() * 2
+			sqldb.SetMaxOpenConns(conns)
+			sqldb.SetMaxIdleConns(conns)
+			sqldb.SetConnMaxLifetime(5 * time.Minute)
+		}
 	}
 
-	return db, err
+	return simpleDB, gromDB, err
 }
 
 func LoadConfig(dir string, name string) (*Config, error) {

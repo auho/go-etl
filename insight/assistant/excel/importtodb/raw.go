@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Resourcer = (*RawResource)(nil)
@@ -20,7 +20,7 @@ type RawResource struct {
 	sheetData  *read.SheetDataWithTitle
 }
 
-func (rs *RawResource) GetDB() *simpleDb.SimpleDB {
+func (rs *RawResource) GetDB() *simpledb.SimpleDB {
 	return rs.Rows.GetDB()
 }
 

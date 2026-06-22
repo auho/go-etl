@@ -2,12 +2,12 @@ package model
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 type model struct {
 	commandFun func(command *tablestructure.Command)
-	db         *simpleDb.SimpleDB
+	db         *simpledb.SimpleDB
 }
 
 func (m *model) withCommand(fn func(command *tablestructure.Command)) {

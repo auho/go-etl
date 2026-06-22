@@ -4,7 +4,7 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Resourcer = (*RowsResource)(nil)
@@ -31,6 +31,6 @@ func (rs *RowsResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 	return rs.readSheetData(excel, rs.buildSheetConfig())
 }
 
-func (rs *RowsResource) GetDB() *simpleDb.SimpleDB {
+func (rs *RowsResource) GetDB() *simpledb.SimpleDB {
 	return rs.Rows.GetDB()
 }

@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Rawer = (*Raw)(nil)
@@ -13,7 +13,7 @@ type Raw struct {
 	name string
 }
 
-func NewRaw(name string, db *simpleDb.SimpleDB) *Raw {
+func NewRaw(name string, db *simpledb.SimpleDB) *Raw {
 	r := &Raw{}
 	r.name = name
 	r.db = db
@@ -24,7 +24,7 @@ func NewRaw(name string, db *simpleDb.SimpleDB) *Raw {
 	return r
 }
 
-func (r *Raw) GetDB() *simpleDb.SimpleDB {
+func (r *Raw) GetDB() *simpledb.SimpleDB {
 	return r.db
 }
 

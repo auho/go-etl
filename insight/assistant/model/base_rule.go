@@ -6,7 +6,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.RuleConfigure = (*RuleConfig)(nil)
@@ -35,7 +35,7 @@ type baseRule struct {
 	independentTableName string // independent table name
 }
 
-func newBaseRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) baseRule {
+func newBaseRule(name string, length, keywordLength int, labels map[string]int, db *simpledb.SimpleDB) baseRule {
 	br := baseRule{}
 	br.name = name
 	br.length = length
@@ -56,7 +56,7 @@ func newBaseRule(name string, length, keywordLength int, labels map[string]int, 
 	return br
 }
 
-func (br *baseRule) GetDB() *simpleDb.SimpleDB {
+func (br *baseRule) GetDB() *simpledb.SimpleDB {
 	return br.db
 }
 

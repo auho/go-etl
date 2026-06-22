@@ -14,10 +14,11 @@ type Target interface {
 	GetIdName() string
 	TableName() string
 	GetDB() *simpledb.SimpleDB
+	//GetGormDB() *gorm.DB
 }
 
 type CleanResource interface {
-	DataTarget() Target
-	DeletedTarget() Target
-	SourceTarget() Target
+	Data() Target
+	Deleted() Target
+	Source() Target
 }

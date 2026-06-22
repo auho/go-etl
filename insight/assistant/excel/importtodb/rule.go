@@ -9,7 +9,7 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Resourcer = (*RuleResource)(nil)
@@ -89,6 +89,6 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error
 	return sheetData, nil
 }
 
-func (rs *RuleResource) GetDB() *simpleDb.SimpleDB {
+func (rs *RuleResource) GetDB() *simpledb.SimpleDB {
 	return rs.Rule.GetDB()
 }

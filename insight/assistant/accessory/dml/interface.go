@@ -1,7 +1,7 @@
 package dml
 
 import (
-	"github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 type Tabler interface {
@@ -20,11 +20,11 @@ type statement interface {
 type Manipulationor interface {
 	Sql() string
 	InsertSql(name string) string
-	Insert(name string, db *go_simple_db.SimpleDB) (string, error)
+	Insert(name string, db *simpledb.SimpleDB) (string, error)
 	InsertWithFieldsSql(name string, fields []string) string
-	InsertWithField(name string, fields []string, db *go_simple_db.SimpleDB) (string, error)
+	InsertWithField(name string, fields []string, db *simpledb.SimpleDB) (string, error)
 	UpdateSql() string
-	Update(db *go_simple_db.SimpleDB) (string, error)
+	Update(db *simpledb.SimpleDB) (string, error)
 	DeleteSql() string
-	Delete(db *go_simple_db.SimpleDB) (string, error)
+	Delete(db *simpledb.SimpleDB) (string, error)
 }

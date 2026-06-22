@@ -7,7 +7,8 @@ import (
 	"testing"
 
 	"github.com/auho/go-etl/v2/insight/app/conf"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
+	"gorm.io/gorm"
 )
 
 var _dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
@@ -21,7 +22,8 @@ var _deletedDataTable = "deleted_data"               // for clean deleted
 var _tagATable = "tag_data_a"
 var _pkName = "did"
 var _keyName = "name"
-var _db *simpleDb.SimpleDB
+var _simpleDB *simpledb.SimpleDB
+var _gormDB *gorm.DB
 var _rule = &ruleTest{}
 var _source = &sourceTest{}
 var _targetTagA = &targetTagATest{}
@@ -46,12 +48,12 @@ func setUp() {
 	dbConfig.Driver = "mysql"
 	dbConfig.Dsn = _dsn
 
-	_db, err = dbConfig.BuildDB()
+	_simpleDB, _gormDB, err = dbConfig.BuildDB()
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Drop(_transferTable)
+	err = _simpleDB.Drop(_transferTable)
 	if err != nil {
 		panic(err)
 	}
@@ -66,12 +68,12 @@ func setUp() {
 		"`xyz` varchar(30) NOT NULL DEFAULT ''," +
 		"PRIMARY KEY (`did`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	err = _db.Exec(query).Error
+	err = _gormDB.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Drop(_dataTable)
+	err = _simpleDB.Drop(_dataTable)
 	if err != nil {
 		panic(err)
 	}
@@ -86,7 +88,7 @@ func setUp() {
 		"`xyz` varchar(30) NOT NULL DEFAULT ''," +
 		"PRIMARY KEY (`did`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	err = _db.Exec(query).Error
+	err = _gormDB.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -106,53 +108,53 @@ func setUp() {
 	}
 
 	for i := 0; i < maxB; i++ {
-		err = _db.BulkInsertFromSliceSlice(_dataTable, []string{"name"}, rows, 2000)
+		err = _simpleDB.BulkInsertFromSliceSlice(_dataTable, []string{"name"}, rows, 2000)
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	var count int64
-	err = _db.Table(_dataTable).Count(&count).Error
+	err = _gormDB.Table(_dataTable).Count(&count).Error
 	if err != nil {
 		panic(err)
 	}
 
 	if count != int64(maxA*maxB) {
-		panic(fmt.Sprintf("%d != %d", _db.RowsAffected, maxA))
+		panic(fmt.Sprintf("%d != %d", _gormDB.RowsAffected, maxA))
 	}
 
-	err = _db.Drop(_updateAndTransferTable)
+	err = _simpleDB.Drop(_updateAndTransferTable)
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Copy(_dataTable, _updateAndTransferTable)
+	err = _simpleDB.CopyStructure(_dataTable, _updateAndTransferTable)
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Drop(_cleanDataTable)
+	err = _simpleDB.Drop(_cleanDataTable)
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Copy(_dataTable, _cleanDataTable)
+	err = _simpleDB.CopyStructure(_dataTable, _cleanDataTable)
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Drop(_deletedDataTable)
+	err = _simpleDB.Drop(_deletedDataTable)
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Copy(_dataTable, _deletedDataTable)
+	err = _simpleDB.CopyStructure(_dataTable, _deletedDataTable)
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Drop(_ruleTable)
+	err = _simpleDB.Drop(_ruleTable)
 	if err != nil {
 		panic(err)
 	}
@@ -166,7 +168,7 @@ func setUp() {
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 
-	err = _db.Exec(query).Error
+	err = _gormDB.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -178,12 +180,12 @@ func setUp() {
 		"('ab','ab1','ab',1)," +
 		"('123','123','123',3)," +
 		"('中文','中文1','中文',2)"
-	err = _db.Exec(query).Error
+	err = _gormDB.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
 
-	err = _db.Drop(_tagATable)
+	err = _simpleDB.Drop(_tagATable)
 	if err != nil {
 		panic(err)
 	}
@@ -197,7 +199,7 @@ func setUp() {
 		"`a_keyword_num` int(11) NOT NULL DEFAULT '0'," +
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	err = _db.Exec(query).Error
+	err = _gormDB.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -205,11 +207,11 @@ func setUp() {
 }
 
 func tearDown() {
-	_ = _db.Drop(_ruleTable)
-	_ = _db.Drop(_dataTable)
-	_ = _db.Drop(_updateAndTransferTable)
-	_ = _db.Drop(_transferTable)
-	_ = _db.Drop(_cleanDataTable)
-	_ = _db.Drop(_deletedDataTable)
-	_ = _db.Drop(_tagATable)
+	_ = _simpleDB.Drop(_ruleTable)
+	_ = _simpleDB.Drop(_dataTable)
+	_ = _simpleDB.Drop(_updateAndTransferTable)
+	_ = _simpleDB.Drop(_transferTable)
+	_ = _simpleDB.Drop(_cleanDataTable)
+	_ = _simpleDB.Drop(_deletedDataTable)
+	_ = _simpleDB.Drop(_tagATable)
 }

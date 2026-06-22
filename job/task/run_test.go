@@ -4,20 +4,19 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/v2/job/action"
 	"github.com/auho/go-etl/v2/job/means/tag"
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
 func Test_Update(t *testing.T) {
 	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
-	ua := action.NewUpdate(_source, []mode.UpdateModer{m})
+	ua := NewUpdate(_source, []mode.UpdateModer{m})
 
-	RunTask(_source, []action.Actor{ua})
+	RunProducer(_source, []itemProducer{ua})
 	UpdateTask(_source, []mode.UpdateModer{m})
 
 	var count int64
-	err := _db.Table(_dataTable).Where(fmt.Sprintf("%s != ?", "a"), "").Count(&count).Error
+	err := _gormDB.Table(_dataTable).Where(fmt.Sprintf("%s != ?", "a"), "").Count(&count).Error
 	if err != nil {
 		t.Error(err)
 	}
@@ -41,30 +40,30 @@ func Test_UpdateAndTransfer(t *testing.T) {
 }
 
 func Test_Insert(t *testing.T) {
-	insertConfig := action.WithInsertConfig(action.InsertConfig{
+	insertConfig := WithInsertConfig(InsertConfig{
 		ExtraKeys: []string{_source.GetIdName()},
 	})
 
 	m := mode.NewInsert([]string{_keyName}, tag.NewKey(_rule).ToMeans())
-	ia := action.NewInsert(_targetTagA, m, insertConfig)
+	ia := NewInsert(_targetTagA, m, insertConfig)
 
-	_ = _db.Drop(_targetTagA1.TableName())
+	_ = _simpleDB.Drop(_targetTagA1.TableName())
 
-	err := _db.Copy(_targetTagA.TableName(), _targetTagA1.TableName())
+	err := _simpleDB.CopyStructure(_targetTagA.TableName(), _targetTagA1.TableName())
 	if err != nil {
 		t.Error(err)
 	}
 
-	_ = _db.Drop(_targetTagA2.TableName())
-	err = _db.Copy(_targetTagA.TableName(), _targetTagA2.TableName())
+	_ = _simpleDB.Drop(_targetTagA2.TableName())
+	err = _simpleDB.CopyStructure(_targetTagA.TableName(), _targetTagA2.TableName())
 	if err != nil {
 		t.Error(err)
 	}
 
-	ia1 := action.NewInsert(_targetTagA1, m, insertConfig)
-	ia2 := action.NewInsert(_targetTagA2, m, insertConfig)
+	ia1 := NewInsert(_targetTagA1, m, insertConfig)
+	ia2 := NewInsert(_targetTagA2, m, insertConfig)
 
-	RunTask(_source, []action.Actor{ia, ia1, ia2})
+	RunProducer(_source, []itemProducer{ia, ia1, ia2})
 	InsertTask(_source, _targetTagA, m, insertConfig)
 	InsertTask(_source, _targetTagA1, m, insertConfig)
 	InsertTask(_source, _targetTagA2, m, insertConfig)
@@ -87,8 +86,8 @@ func Test_Insert(t *testing.T) {
 		t.Error("tag count != count 1")
 	}
 
-	_ = _db.Drop(_targetTagA1.TableName())
-	_ = _db.Drop(_targetTagA2.TableName())
+	_ = _simpleDB.Drop(_targetTagA1.TableName())
+	_ = _simpleDB.Drop(_targetTagA2.TableName())
 }
 
 func Test_Transfer(t *testing.T) {
@@ -116,8 +115,8 @@ func Test_Clean(t *testing.T) {
 
 	CleanTask(_targetClean, []mode.UpdateModer{m})
 	dataCount := getAmount(_source.TableName(), t)
-	cDataCount := getAmount(_targetClean.DataTarget().TableName(), t)
-	cDeletedCount := getAmount(_targetClean.DeletedTarget().TableName(), t)
+	cDataCount := getAmount(_targetClean.Data().TableName(), t)
+	cDeletedCount := getAmount(_targetClean.Deleted().TableName(), t)
 	if cDeletedCount == 0 || cDataCount == 0 {
 		t.Errorf("data[%d], cData[%d], cDeletedCount[%d]", dataCount, cDataCount, cDeletedCount)
 	}
@@ -129,7 +128,7 @@ func Test_Clean(t *testing.T) {
 
 func getAmount(tableName string, t *testing.T) int64 {
 	var count int64
-	err := _db.Table(tableName).Count(&count).Error
+	err := _gormDB.Table(tableName).Count(&count).Error
 	if err != nil {
 		t.Error(err)
 	}
@@ -139,7 +138,7 @@ func getAmount(tableName string, t *testing.T) int64 {
 
 func getFieldAmount(tableName string, field string, value any, t *testing.T) int64 {
 	var count int64
-	err := _db.Table(tableName).Where(fmt.Sprintf("%s = ?", field), value).Count(&count).Error
+	err := _gormDB.Table(tableName).Where(fmt.Sprintf("%s = ?", field), value).Count(&count).Error
 	if err != nil {
 		t.Error(err)
 	}

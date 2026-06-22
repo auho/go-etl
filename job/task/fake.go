@@ -1,4 +1,4 @@
-package action
+package task
 
 import (
 	"fmt"
@@ -8,12 +8,12 @@ import (
 	"github.com/auho/go-etl/v2/tool/slices"
 )
 
-var _ Actor = (*Fake)(nil)
+var _ processor = (*Fake)(nil)
 
 // Fake
 // WIP
 type Fake struct {
-	Action
+	task
 
 	modes []mode.Moder
 }
@@ -48,9 +48,9 @@ func (f *Fake) Prepare() error {
 	return nil
 }
 
-func (f *Fake) PreDo() error { return nil }
+func (f *Fake) BeforeRun() error { return nil }
 
-func (f *Fake) Do(item map[string]any) ([]map[string]any, bool) {
+func (f *Fake) Exec(item map[string]any) ([]map[string]any, bool) {
 	for _, m := range f.modes {
 		_ = m
 	}
@@ -58,11 +58,11 @@ func (f *Fake) Do(item map[string]any) ([]map[string]any, bool) {
 	return nil, true
 }
 
-func (f *Fake) PostDo() error { return nil }
+func (f *Fake) AfterRun() error { return nil }
 
 func (f *Fake) PostBatchDo(items []map[string]any) {}
 
-func (f *Fake) Blink() {}
+func (f *Fake) AppendState() {}
 
 func (f *Fake) Close() error {
 	for _, m := range f.modes {

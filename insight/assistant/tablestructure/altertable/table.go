@@ -2,7 +2,7 @@ package altertable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 type Table struct {
@@ -16,11 +16,11 @@ func NewTable(tableName string) *Table {
 	return t
 }
 
-func (t *Table) Build(db *simpleDb.SimpleDB) error {
+func (t *Table) Build(db *simpledb.SimpleDB) error {
 	return t.build(t.Sql(), db)
 }
 
-func (t *Table) BuildChange(db *simpleDb.SimpleDB) error {
+func (t *Table) BuildChange(db *simpledb.SimpleDB) error {
 	return t.build(t.SqlForChange(), db)
 }
 

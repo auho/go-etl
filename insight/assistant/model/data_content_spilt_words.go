@@ -5,7 +5,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Moder = (*DataContentSpiltWords)(nil)
@@ -17,7 +17,7 @@ type DataContentSpiltWords struct {
 	contentName string
 }
 
-func NewDataContentSpiltWords(data assistant.Rowsor, contentName string, db *simpleDb.SimpleDB) *DataContentSpiltWords {
+func NewDataContentSpiltWords(data assistant.Rowsor, contentName string, db *simpledb.SimpleDB) *DataContentSpiltWords {
 	dc := &DataContentSpiltWords{}
 	dc.data = data
 	dc.contentName = contentName
@@ -29,7 +29,7 @@ func NewDataContentSpiltWords(data assistant.Rowsor, contentName string, db *sim
 	return dc
 }
 
-func (dc *DataContentSpiltWords) GetDB() *simpleDb.SimpleDB {
+func (dc *DataContentSpiltWords) GetDB() *simpledb.SimpleDB {
 	return dc.db
 }
 

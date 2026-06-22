@@ -5,7 +5,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Moder = (*TagDataRule)(nil)
@@ -17,7 +17,7 @@ type TagDataRule struct {
 	rule assistant.Ruler
 }
 
-func NewTagDataRule(data assistant.Rowsor, rule assistant.Ruler, db *simpleDb.SimpleDB) *TagDataRule {
+func NewTagDataRule(data assistant.Rowsor, rule assistant.Ruler, db *simpledb.SimpleDB) *TagDataRule {
 	t := &TagDataRule{}
 	t.data = data
 	t.rule = rule
@@ -41,7 +41,7 @@ func (t *TagDataRule) GetName() string {
 	return fmt.Sprintf("%s_%s", t.data.GetName(), t.rule.GetName())
 }
 
-func (t *TagDataRule) GetDB() *simpleDb.SimpleDB {
+func (t *TagDataRule) GetDB() *simpledb.SimpleDB {
 	return t.db
 }
 

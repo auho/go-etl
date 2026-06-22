@@ -4,7 +4,7 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 type Resourcer interface {
@@ -13,7 +13,7 @@ type Resourcer interface {
 	GetIsShowSql() bool
 	GetBatchInsertSize() int
 	GetColumnDropDuplicates() []int
-	GetDB() *simpleDb.SimpleDB
+	GetDB() *simpledb.SimpleDB
 
 	Prepare() error
 	GetName() string

@@ -24,7 +24,7 @@ func (s *manipulation) InsertSql(name string) string {
 func (s *manipulation) Insert(name string, db *simpledb.SimpleDB) (string, error) {
 	_sql := s.InsertSql(name)
 
-	return _sql, db.Exec(_sql).Error
+	return _sql, db.GormDB().Exec(_sql).Error
 }
 
 func (s *manipulation) InsertWithFieldsSql(name string, fields []string) string {
@@ -36,7 +36,7 @@ func (s *manipulation) InsertWithFieldsSql(name string, fields []string) string 
 func (s *manipulation) InsertWithField(name string, fields []string, db *simpledb.SimpleDB) (string, error) {
 	_sql := s.InsertWithFieldsSql(name, fields)
 
-	return _sql, db.Exec(_sql).Error
+	return _sql, db.GormDB().Exec(_sql).Error
 }
 
 func (s *manipulation) UpdateSql() string {
@@ -48,7 +48,7 @@ func (s *manipulation) UpdateSql() string {
 func (s *manipulation) Update(db *simpledb.SimpleDB) (string, error) {
 	_sql := s.UpdateSql()
 
-	return _sql, db.Exec(_sql).Error
+	return _sql, db.GormDB().Exec(_sql).Error
 }
 
 func (s *manipulation) DeleteSql() string {
@@ -60,5 +60,5 @@ func (s *manipulation) DeleteSql() string {
 func (s *manipulation) Delete(db *simpledb.SimpleDB) (string, error) {
 	_sql := s.DeleteSql()
 
-	return _sql, db.Exec(_sql).Error
+	return _sql, db.GormDB().Exec(_sql).Error
 }

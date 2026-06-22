@@ -7,7 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/auho/go-etl/v2/insight/app/conf"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
+	"gorm.io/gorm"
 )
 
 var APP *Application
@@ -19,7 +20,8 @@ func NewApp() {
 type Application struct {
 	Run
 	Xlsx
-	DB       *simpleDb.SimpleDB
+	DB       *simpledb.SimpleDB
+	GormDB   *gorm.DB
 	Name     string
 	ConfName string
 	WorkDir  string
@@ -79,7 +81,7 @@ func (a *Application) Build(cn string) {
 		panic(err)
 	}
 
-	a.DB, err = config.Db.BuildDB()
+	a.DB, a.GormDB, err = config.Db.BuildDB()
 	if err != nil {
 		a.PrintlnState()
 

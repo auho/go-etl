@@ -168,7 +168,7 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 
 	var rows []map[string]any
 	sql := table.Sql()
-	err := _rule.GetDB().Raw(sql).Scan(&rows).Error
+	err := _rule.GetDB().GormDB().Raw(sql).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("rows error; %w", err)
 	}

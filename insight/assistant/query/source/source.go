@@ -8,7 +8,7 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 	"github.com/auho/go-etl/v2/tool/maps"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 type Sourcer interface {
@@ -21,7 +21,7 @@ type Source struct {
 	HasNamePrefix bool // Add the name prefix before the item
 	Name          string
 	Table         dml.Tabler
-	DB            *simpleDb.SimpleDB
+	DB            *simpledb.SimpleDB
 }
 
 func (s *Source) itemValuesToIdentification(itemValues []string) string {
@@ -56,7 +56,7 @@ func (s *Source) querySql(sql string, fields []string) ([][]any, time.Duration, 
 	var rows []map[string]any
 
 	_start := time.Now()
-	err := s.DB.Raw(sql).Scan(&rows).Error
+	err := s.DB.GormDB().Raw(sql).Scan(&rows).Error
 	if err != nil {
 		return nil, 0, fmt.Errorf("raw error; %w", err)
 	}

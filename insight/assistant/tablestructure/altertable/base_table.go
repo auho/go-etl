@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 type baseTable struct {
@@ -37,9 +37,9 @@ func (bt *baseTable) SqlForChange() []string {
 	return bt.Command.SqlForAlterChange()
 }
 
-func (bt *baseTable) build(sqls []string, db *simpleDb.SimpleDB) error {
+func (bt *baseTable) build(sqls []string, db *simpledb.SimpleDB) error {
 	for _, sql := range sqls {
-		err := db.Exec(sql).Error
+		err := db.GormDB().Exec(sql).Error
 		if err != nil {
 			return fmt.Errorf("build[%s] exec error; %w", bt.TableName(), err)
 		}

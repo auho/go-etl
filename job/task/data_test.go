@@ -2,7 +2,7 @@ package task
 
 import (
 	"github.com/auho/go-etl/v2/job"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ job.Source = (*sourceTest)(nil)
@@ -26,8 +26,8 @@ func (s sourceTest) TableName() string {
 	return _dataTable
 }
 
-func (s sourceTest) GetDB() *simpleDb.SimpleDB {
-	return _db
+func (s sourceTest) GetDB() *simpledb.SimpleDB {
+	return _simpleDB
 }
 
 // targetTest
@@ -37,8 +37,8 @@ func (t targetTest) GetIdName() string {
 	return "id"
 }
 
-func (t targetTest) GetDB() *simpleDb.SimpleDB {
-	return _db
+func (t targetTest) GetDB() *simpledb.SimpleDB {
+	return _simpleDB
 }
 
 // targetTagATest
@@ -108,14 +108,14 @@ type targetCleanTest struct {
 	targetTest
 }
 
-func (t targetCleanTest) SourceTarget() job.Target {
+func (t targetCleanTest) Source() job.Target {
 	return &sourceTest{}
 }
 
-func (t targetCleanTest) DataTarget() job.Target {
+func (t targetCleanTest) Data() job.Target {
 	return &targetCleanDataTest{}
 }
 
-func (t targetCleanTest) DeletedTarget() job.Target {
+func (t targetCleanTest) Deleted() job.Target {
 	return &targetCleanDeletedTest{}
 }

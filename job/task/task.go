@@ -1,62 +1,47 @@
 package task
 
 import (
+	"runtime"
+
 	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-etl/v2/job/action"
-	"github.com/auho/go-etl/v2/tool/slices"
-	"github.com/auho/go-toolkit/flow/action/singleton"
-	"github.com/auho/go-toolkit/flow/flow"
-	"github.com/auho/go-toolkit/flow/storage/database"
-	"github.com/auho/go-toolkit/flow/storage/database/source"
+	"github.com/auho/go-toolkit-flow/processor/consumer"
+	"github.com/auho/go-toolkit-flow/processor/producer"
+	"github.com/auho/go-toolkit-flow/storage"
 )
 
-type ConfigOption func(*Config)
+const batchSize = 2000
 
-func RunTask(aSource job.Source, actions []action.Actor, configOpts ...ConfigOption) {
-	config := &Config{}
-	for _, opt := range configOpts {
-		if opt == nil {
-			continue
-		}
+type processor interface {
+	GetFields() []string
+}
 
-		opt(config)
-	}
+type itemConsumer interface {
+	processor
 
-	config.Check()
+	consumer.Item[storage.MapEntry]
+}
 
-	fields := []string{aSource.GetIdName()}
-	for _, a := range actions {
-		fields = append(fields, a.GetFields()...)
-	}
+type itemProducer interface {
+	processor
 
-	fields = slices.SliceDropDuplicates(fields)
+	producer.Item[storage.MapEntry, storage.MapEntry]
+}
 
-	dataSource, err := source.NewSectionSliceMap(&source.QueryConfig{
-		Config: source.Config{
-			Concurrency: config.sourceConfig.Concurrency,
-			PageSize:    config.sourceConfig.PageSize,
-			TableName:   aSource.TableName(),
-			IdName:      aSource.GetIdName(),
-			Maximum:     config.sourceConfig.Maximum,
-		},
-		Fields: fields,
-	}, func() (*database.DB, error) {
-		return database.NewFromSimpleDb(aSource.GetDB()), nil
-	})
-	if err != nil {
-		panic(err)
-	}
+type task struct{}
 
-	opts := []flow.Option[map[string]any]{
-		flow.WithSource[map[string]any](dataSource),
-	}
+func (t *task) Concurrency() int {
+	return runtime.NumCPU()
+}
 
-	for _, a := range actions {
-		opts = append(opts, flow.WithActor[map[string]any](singleton.NewActor[map[string]any](a)))
-	}
+type consumerTask struct {
+	task
 
-	err = flow.RunFlow[map[string]any](opts...)
-	if err != nil {
-		panic(err)
-	}
+	consumer.Processor
+}
+
+type producerTask struct {
+	task
+	target job.Target
+
+	producer.Processor
 }

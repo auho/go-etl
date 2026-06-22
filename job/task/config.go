@@ -4,13 +4,15 @@ import (
 	"runtime"
 )
 
+type ConfigOption func(*Config)
+
 type Config struct {
-	sourceConfig SourceConfig
-	targetConfig TargetConfig
+	source SourceConfig
+	target TargetConfig
 }
 
 func (c *Config) Check() {
-	c.sourceConfig.check()
+	c.source.check()
 }
 
 type SourceConfig struct {
@@ -29,21 +31,20 @@ func (sc *SourceConfig) check() {
 	}
 
 	if sc.PageSize <= 0 {
-		sc.PageSize = 2000
+		sc.PageSize = batchSize
 	}
 }
 
-type TargetConfig struct {
-}
+type TargetConfig struct{}
 
 func WithSourceConfig(sc SourceConfig) func(config *Config) {
 	return func(config *Config) {
-		config.sourceConfig = sc
+		config.source = sc
 	}
 }
 
 func WithTargetConfig(tc TargetConfig) func(config *Config) {
 	return func(config *Config) {
-		config.targetConfig = tc
+		config.target = tc
 	}
 }

@@ -122,7 +122,7 @@ func (r *ruleTest) FixedKeysAlias() []string {
 
 func (r *ruleTest) ItemsAlias() ([]map[string]string, error) {
 	var rows []map[string]any
-	err := _db.Raw(fmt.Sprintf("SELECT `a`, `ab`, `a_keyword` FROM %s", _ruleTableName)).Scan(&rows).Error
+	err := _gromDB.Raw(fmt.Sprintf("SELECT `a`, `ab`, `a_keyword` FROM %s", _ruleTableName)).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("scan error; %w", err)
 	}

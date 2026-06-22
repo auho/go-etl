@@ -12,15 +12,15 @@ import (
 	"github.com/auho/go-toolkit-flow/storage/database/destination"
 )
 
-var _ itemProducer = (*Update)(nil)
+var _ itemProducer = (*UpdateTransfer)(nil)
 
-type UpdateConfig struct {
-	NotTruncate bool
-	BatchSize   int
-	Concurrency int
+type UpdateTransferConfig struct {
+	NotTruncate bool // for update and transfer
+	BatchSize   int  // for update and transfer
+	Concurrency int  // for update and transfer
 }
 
-func (uc *UpdateConfig) check() {
+func (uc *UpdateTransferConfig) check() {
 	if uc.BatchSize <= 0 {
 		uc.BatchSize = batchSize
 	}
@@ -30,26 +30,27 @@ func (uc *UpdateConfig) check() {
 	}
 }
 
-func WithUpdateConfig(cc UpdateConfig) func(update *Update) {
-	return func(c *Update) {
+func WithUpdateTransferConfig(cc UpdateTransferConfig) func(update *UpdateTransfer) {
+	return func(c *UpdateTransfer) {
 		c.config = cc
 	}
 }
 
-type Update struct {
+type UpdateTransfer struct {
 	producerTask
 
 	source job.Source
 	modes  []mode.UpdateModer
 
-	config UpdateConfig
+	config UpdateTransferConfig
 	dst    *destination.Bulk[storage.MapEntry]
 }
 
-func NewUpdate(source job.Source, modes []mode.UpdateModer, opts ...func(*Update)) *Update {
-	u := &Update{}
+func NewUpdateAndTransfer(source job.Source, target job.Target, modes []mode.UpdateModer, opts ...func(*UpdateTransfer)) *UpdateTransfer {
+	u := &UpdateTransfer{}
 	u.source = source
 	u.modes = modes
+	u.target = target
 
 	for _, opt := range opts {
 		opt(u)
@@ -60,7 +61,7 @@ func NewUpdate(source job.Source, modes []mode.UpdateModer, opts ...func(*Update
 	return u
 }
 
-func (u *Update) GetFields() []string {
+func (u *UpdateTransfer) GetFields() []string {
 	fields := make([]string, 0)
 	fields = append(fields, u.source.GetIdName())
 
@@ -68,21 +69,27 @@ func (u *Update) GetFields() []string {
 		fields = append(fields, m.GetFields()...)
 	}
 
+	columns, err := u.target.GetDB().GetTableColumns(u.target.TableName())
+	if err != nil {
+		panic(err)
+	}
+
+	fields = append(fields, columns...)
 	fields = slices.SliceDropDuplicates(fields)
 
 	return fields
 }
 
-func (u *Update) Summary() string {
+func (u *UpdateTransfer) Summary() string {
 	s := make([]string, 0)
 	for _, m := range u.modes {
 		s = append(s, m.GetTitle())
 	}
 
-	return fmt.Sprintf("Update[%s] {%s}", u.source.TableName(), strings.Join(s, ", "))
+	return fmt.Sprintf("UpdateTransfer[%s] {%s}", u.source.TableName(), strings.Join(s, ", "))
 }
 
-func (u *Update) Prepare() error {
+func (u *UpdateTransfer) Prepare() error {
 	var err error
 	for _, m := range u.modes {
 		err = m.Prepare()
@@ -94,11 +101,9 @@ func (u *Update) Prepare() error {
 	return nil
 }
 
-func (u *Update) BeforeRun() error {
-	return nil
-}
+func (u *UpdateTransfer) BeforeRun() error { return nil }
 
-func (u *Update) Exec(item map[string]any) ([]map[string]any, bool, error) {
+func (u *UpdateTransfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
 	_does := make(map[string]any)
 	for _, m := range u.modes {
 		_do := m.Do(item)
@@ -111,21 +116,18 @@ func (u *Update) Exec(item map[string]any) ([]map[string]any, bool, error) {
 		return nil, false, nil
 	}
 
-	newItem := make(map[string]any)
-	newItem[u.source.GetIdName()] = item[u.source.GetIdName()]
-
 	for k, v := range _does {
-		newItem[k] = v
+		item[k] = v
 	}
 
-	return []map[string]any{newItem}, true, nil
+	return []map[string]any{item}, true, nil
 }
 
-func (u *Update) AppendState() {}
+func (u *UpdateTransfer) AppendState() {}
 
-func (u *Update) AfterRun() error { return nil }
+func (u *UpdateTransfer) AfterRun() error { return nil }
 
-func (u *Update) Close() error {
+func (u *UpdateTransfer) Close() error {
 	for _, m := range u.modes {
 		err := m.Close()
 		if err != nil {

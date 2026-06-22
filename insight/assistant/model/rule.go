@@ -6,7 +6,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ assistant.Ruler = (*Rule)(nil)
@@ -18,7 +18,7 @@ type Rule struct {
 	extra
 }
 
-func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
+func NewRuleSimple(name string, labels []string, db *simpledb.SimpleDB) *Rule {
 	_labels := make(map[string]int, len(labels))
 	for _, label := range labels {
 		_labels[label] = defaultStringLen
@@ -27,7 +27,7 @@ func NewRuleSimple(name string, labels []string, db *simpleDb.SimpleDB) *Rule {
 	return NewRule(name, defaultStringLen, defaultStringLen, _labels, db)
 }
 
-func NewRule(name string, length, keywordLength int, labels map[string]int, db *simpleDb.SimpleDB) *Rule {
+func NewRule(name string, length, keywordLength int, labels map[string]int, db *simpledb.SimpleDB) *Rule {
 	r := &Rule{}
 	r.baseRule = newBaseRule(name, length, keywordLength, labels, db)
 	r.extra = extra{

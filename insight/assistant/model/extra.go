@@ -61,7 +61,7 @@ func (e *extra) CopyBuild(dst assistant.Rawer) error {
 		return err
 	}
 
-	return e.model.GetDB().Copy(e.model.TableName(), dst.TableName())
+	return e.model.GetDB().CopyStructure(e.model.TableName(), dst.TableName())
 }
 
 func (e *extra) CopyBuildAndData(dst assistant.Rawer) error {
@@ -70,15 +70,15 @@ func (e *extra) CopyBuildAndData(dst assistant.Rawer) error {
 		return err
 	}
 
-	return e.model.GetDB().DB.Exec(
+	return e.model.GetDB().GormDB().Exec(
 		fmt.Sprintf("INSERT INTO %s SELECT * FROM %s", dst.TableName(), e.model.TableName()),
 	).Error
 }
 
 func (e *extra) RawSqlAndScan(dst any, sql string, v ...any) error {
-	return e.model.GetDB().Raw(sql, v...).Scan(dst).Error
+	return e.model.GetDB().GormDB().Raw(sql, v...).Scan(dst).Error
 }
 
 func (e *extra) ExecSql(sql string, v ...any) error {
-	return e.model.GetDB().Exec(sql, v...).Error
+	return e.model.GetDB().GormDB().Exec(sql, v...).Error
 }

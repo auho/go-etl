@@ -7,7 +7,7 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/ddl/command/mysql"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	simpleDb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 var _ Tabler = (*table)(nil)
@@ -25,7 +25,7 @@ type Tabler interface {
 type table struct {
 	*tablestructure.Command
 	config Config
-	db     *simpleDb.SimpleDB
+	db     *simpledb.SimpleDB
 }
 
 func (t *table) initCommand(name string) {
@@ -66,7 +66,7 @@ func (t *table) Build() error {
 		return t.formatError(errors.New("db empty error"))
 	}
 
-	err := t.db.Exec(sql).Error
+	err := t.db.GormDB().Exec(sql).Error
 	if err != nil {
 		return t.formatError(err)
 	}

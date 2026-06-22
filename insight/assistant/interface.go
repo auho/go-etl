@@ -3,11 +3,11 @@ package assistant
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	"github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 type Rawer interface {
-	GetDB() *go_simple_db.SimpleDB
+	GetDB() *simpledb.SimpleDB
 	GetName() string
 	TableName() string
 	ExecCommand(*tablestructure.Command) // exec command func
