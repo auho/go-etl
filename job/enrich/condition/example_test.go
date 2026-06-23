@@ -1,8 +1,8 @@
 package condition
 
 import (
-	"github.com/auho/go-etl/v2/job/explore/collect"
-	"github.com/auho/go-etl/v2/job/explore/search"
+	"github.com/auho/go-etl/v2/job/enrich/collect"
+	"github.com/auho/go-etl/v2/job/enrich/search"
 )
 
 func ExampleNewCondition() {

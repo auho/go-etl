@@ -1,7 +1,7 @@
 package segword
 
 import (
-	"github.com/auho/go-etl/v2/job/explore/search"
+	"github.com/auho/go-etl/v2/job/enrich/search"
 	"github.com/auho/go-etl/v2/job/extract"
 )
 

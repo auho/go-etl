@@ -3,7 +3,7 @@ package segword
 import (
 	"unicode/utf8"
 
-	"github.com/auho/go-etl/v2/job/explore/search"
+	"github.com/auho/go-etl/v2/job/enrich/search"
 )
 
 var _ search.Exporter = (*Export)(nil)

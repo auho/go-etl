@@ -3,7 +3,7 @@ package contains
 import (
 	"maps"
 
-	"github.com/auho/go-etl/v2/job/explore/search"
+	"github.com/auho/go-etl/v2/job/enrich/search"
 	"github.com/auho/go-etl/v2/job/extract"
 	maps2 "github.com/auho/go-etl/v2/tool/mapx"
 )

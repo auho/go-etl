@@ -1,9 +1,9 @@
-package explore
+package enrich
 
 import (
-	"github.com/auho/go-etl/v2/job/explore/collect"
-	"github.com/auho/go-etl/v2/job/explore/condition"
-	"github.com/auho/go-etl/v2/job/explore/search"
+	"github.com/auho/go-etl/v2/job/enrich/collect"
+	"github.com/auho/go-etl/v2/job/enrich/condition"
+	"github.com/auho/go-etl/v2/job/enrich/search"
 	"github.com/auho/go-etl/v2/job/transform"
 )
 

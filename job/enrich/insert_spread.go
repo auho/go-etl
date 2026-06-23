@@ -1,4 +1,4 @@
-package explore
+package enrich
 
 import "maps"
 

@@ -1,10 +1,10 @@
-package explore
+package enrich
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/v2/job/explore/collect"
+	"github.com/auho/go-etl/v2/job/enrich/collect"
 	"github.com/auho/go-etl/v2/job/extract/segword"
 	"github.com/auho/go-etl/v2/job/extract/tag"
 )
