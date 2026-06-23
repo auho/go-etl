@@ -22,7 +22,7 @@ type Manipulator interface {
 	InsertSQL(name string) string
 	Insert(name string, db *simpledb.SimpleDB) (string, error)
 	InsertWithFieldsSQL(name string, fields []string) string
-	InsertWithField(name string, fields []string, db *simpledb.SimpleDB) (string, error)
+	InsertWithFields(name string, fields []string, db *simpledb.SimpleDB) (string, error)
 	UpdateSQL() string
 	Update(db *simpledb.SimpleDB) (string, error)
 	DeleteSQL() string

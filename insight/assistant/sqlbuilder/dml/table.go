@@ -49,9 +49,9 @@ func NewSqlTable(name, sql string) *Table {
 
 func (t *Table) init(name string, driver string) {
 	t.name = name
-	t.fields = command.NewEntries()
-	t.groupBy = command.NewEntries()
-	t.orderBy = command.NewEntries()
+	t.fields = command.NewEntities()
+	t.groupBy = command.NewEntities()
+	t.orderBy = command.NewEntities()
 	t.limit = make([]int, 0)
 	t.set = make([]*command.Set, 0)
 

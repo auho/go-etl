@@ -33,7 +33,7 @@ func (s *manipulation) InsertWithFieldsSQL(name string, fields []string) string 
 	return s.st.InsertWithFieldsQuery(name, fields)
 }
 
-func (s *manipulation) InsertWithField(name string, fields []string, db *simpledb.SimpleDB) (string, error) {
+func (s *manipulation) InsertWithFields(name string, fields []string, db *simpledb.SimpleDB) (string, error) {
 	_sql := s.InsertWithFieldsSQL(name, fields)
 
 	return _sql, db.GormDB().Exec(_sql).Error

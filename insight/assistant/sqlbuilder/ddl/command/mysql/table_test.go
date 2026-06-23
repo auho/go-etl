@@ -11,7 +11,7 @@ func TestAll(t *testing.T) {
 	t1 := &Table{}
 
 	t1.setTable(_tableName, engineMyISAM, "", "")
-	t1.AddPkBigInt("id", 20)
+	t1.AddPKBigInt("id", 20)
 	t1.AddInt("int1", 11, 0, false)
 	t1.AddInt("int2", 11, 0, false)
 	t1.AddInt("int3", 11, 0, false)

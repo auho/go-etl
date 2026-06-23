@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	"github.com/auho/go-etl/v2/insight/assistant/schema/altertable"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
 )
 
 type extra struct {
@@ -27,11 +27,11 @@ func (e *extra) InsertWholeWithTable(table dml.Tabler) (string, error) {
 }
 
 func (e *extra) InsertWithTable(table dml.Tabler) (string, error) {
-	return table.InsertWithField(e.model.TableName(), table.GetSelectFields(), e.model.GetDB())
+	return table.InsertWithFields(e.model.TableName(), table.GetSelectFields(), e.model.GetDB())
 }
 
 func (e *extra) InsertWithTableField(table dml.Tabler, fields []string) (string, error) {
-	return table.InsertWithField(e.model.TableName(), fields, e.model.GetDB())
+	return table.InsertWithFields(e.model.TableName(), fields, e.model.GetDB())
 }
 
 func (e *extra) GetTableColumns() ([]string, error) {

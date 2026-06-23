@@ -81,7 +81,7 @@ func ExampleNewUpdate() {
 
 	_ = NewUpdate(&_jobSource{}, []transform.UpdateOperator{_mode})
 
-	_ = NewUpdateAndTransfer(&_jobSource{}, &_jobTarget{}, []transform.UpdateOperator{_mode}, WithUpdateTransferConfig(UpdateTransferConfig{
+	_ = NewUpdateTransfer(&_jobSource{}, &_jobTarget{}, []transform.UpdateOperator{_mode}, WithUpdateTransferConfig(UpdateTransferConfig{
 		NotTruncate: false,
 		BatchSize:   0,
 		Concurrency: 0,

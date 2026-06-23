@@ -27,9 +27,9 @@ func Test_Update(t *testing.T) {
 	}
 }
 
-func Test_UpdateAndTransfer(t *testing.T) {
+func Test_UpdateTransfer(t *testing.T) {
 	m := transform.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
-	UpdateAndTransferTask(_source, _targetUpdateTransfer, []transform.UpdateOperator{m})
+	UpdateTransferTask(_source, _targetUpdateTransfer, []transform.UpdateOperator{m})
 
 	dataCount := getAmount(_dataTable, t)
 	transferCount := getAmount(_updateAndTransferTable, t)

@@ -20,8 +20,8 @@ func TransferTask(source job.Source, target job.Target, moder transform.Transfer
 	RunProducer(source, []itemProducer{transfer})
 }
 
-func UpdateAndTransferTask(source job.Source, target job.Target, modes []transform.UpdateOperator) {
-	updateTransfer := NewUpdateAndTransfer(source, target, modes)
+func UpdateTransferTask(source job.Source, target job.Target, modes []transform.UpdateOperator) {
+	updateTransfer := NewUpdateTransfer(source, target, modes)
 	RunProducer(source, []itemProducer{updateTransfer})
 }
 

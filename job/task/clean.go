@@ -55,8 +55,8 @@ type Clean struct {
 	dataDest    *destination.Bulk[storage.MapEntry]
 	deletedDest *destination.Bulk[storage.MapEntry]
 
-	dataDstLine    int
-	deletedDstLine int
+	dataDestLine    int
+	deletedDestLine int
 }
 
 func NewClean(cr job.CleanResource, modes []transform.UpdateOperator, opts ...func(*Clean)) *Clean {

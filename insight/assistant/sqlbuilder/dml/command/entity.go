@@ -43,7 +43,7 @@ type Entities struct {
 	entries []*Entity
 }
 
-func NewEntries() *Entities {
+func NewEntities() *Entities {
 	es := &Entities{}
 	es.keys = make(map[string]int)
 	es.entries = make([]*Entity, 0)
@@ -76,13 +76,13 @@ func (es *Entities) Add(e *Entity) {
 	//sort.Sort(sortEntries(es.entries))
 }
 
-func (es *Entities) Len() int {
+func (es *Entities) Length() int {
 	return len(es.entries)
 }
 
 type sortEntries []*Entity
 
-func (se sortEntries) Len() int {
+func (se sortEntries) Length() int {
 	return len(se)
 }
 

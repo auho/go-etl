@@ -23,7 +23,7 @@ func NewDataTable(data assistant.Entity, opts ...TableOption) *DataTable {
 
 func (t *DataTable) build() {
 	t.initCommand(t.data.TableName())
-	t.AddPkBigInt(t.data.GetIDName())
+	t.AddPKBigInt(t.data.GetIDName())
 
 	t.execRawCommandFunc(t.data)
 }

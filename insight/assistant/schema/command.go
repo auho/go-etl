@@ -32,20 +32,20 @@ func (c *Command) AddKey(name string, size int) {
 	c.Table.AddKey(name, size)
 }
 
-func (c *Command) AddPk(name string) {
-	c.Table.AddPk(name)
+func (c *Command) AddPK(name string) {
+	c.Table.AddPK(name)
 }
 
-func (c *Command) AddPkBigInt(name string) {
-	c.Table.AddPkBigInt(name, 20)
+func (c *Command) AddPKBigInt(name string) {
+	c.Table.AddPKBigInt(name, 20)
 }
 
-func (c *Command) AddPkInt(name string) {
+func (c *Command) AddPKInt(name string) {
 	c.Table.AddPKInt(name, 11)
 }
 
-func (c *Command) AddPkString(name string, length int) {
-	c.Table.AddPkVarchar(name, length)
+func (c *Command) AddPKString(name string, length int) {
+	c.Table.AddPKVarchar(name, length)
 }
 
 func (c *Command) AddKeyBigInt(name string) {

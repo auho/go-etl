@@ -106,7 +106,7 @@ func (t *Table) AddPKInt(name string, length int) *Field {
 	return f
 }
 
-func (t *Table) AddPkBigInt(name string, length int) *Field {
+func (t *Table) AddPKBigInt(name string, length int) *Field {
 
 	f := t.AddBigInt(name, length, 0, true).SetExtra(extraAutoIncrement)
 	t.primaryKeys = append(t.primaryKeys, name)
@@ -114,7 +114,7 @@ func (t *Table) AddPkBigInt(name string, length int) *Field {
 	return f
 }
 
-func (t *Table) AddPkVarchar(name string, length int) *Field {
+func (t *Table) AddPKVarchar(name string, length int) *Field {
 	f := t.AddVarchar(name, length, "")
 	t.primaryKeys = append(t.primaryKeys, name)
 
@@ -165,7 +165,7 @@ func (t *Table) AddTimestamp(name string, onDefault, onUpdate bool) *Field {
 	return f
 }
 
-func (t *Table) AddPk(name string) {
+func (t *Table) AddPK(name string) {
 	t.primaryKeys = append(t.primaryKeys, name)
 }
 

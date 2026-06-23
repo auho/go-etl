@@ -159,7 +159,7 @@ func (c *TableCommand) GroupBy() string {
 }
 
 func (c *TableCommand) BuildGroupBy() []string {
-	if c.groupBy.Len() == 0 {
+	if c.groupBy.Length() == 0 {
 		return nil
 	}
 
@@ -183,7 +183,7 @@ func (c *TableCommand) OrderBy() string {
 }
 
 func (c *TableCommand) BuildOrderBy() []string {
-	if c.orderBy.Len() == 0 {
+	if c.orderBy.Length() == 0 {
 		return nil
 	}
 

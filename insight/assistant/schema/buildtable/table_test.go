@@ -27,7 +27,7 @@ var _dcSplitWords *model.DataContentSplitWords
 
 func TestRaw(t *testing.T) {
 	rt := NewRawTable(_raw)
-	rt.AddPkBigInt("id")
+	rt.AddPKBigInt("id")
 	rt.WithCommand(func(command *schema.Command) {
 		command.AddString("with")
 	})

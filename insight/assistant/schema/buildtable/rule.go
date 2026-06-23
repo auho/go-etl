@@ -2,8 +2,8 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/ddl/command/mysql"
 	"github.com/auho/go-etl/v2/insight/assistant/schema"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/ddl/command/mysql"
 )
 
 type RuleTable struct {
@@ -24,7 +24,7 @@ func NewRuleTable(rule assistant.Rule, opts ...TableOption) *RuleTable {
 
 func (t *RuleTable) build() {
 	t.initCommand(t.rule.TableName())
-	t.Command.AddPkInt(t.rule.GetIDName())
+	t.Command.AddPKInt(t.rule.GetIDName())
 
 	t.BuildLabels(t.Command)
 

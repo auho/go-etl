@@ -46,7 +46,7 @@ type UpdateTransfer struct {
 	dst    *destination.Bulk[storage.MapEntry]
 }
 
-func NewUpdateAndTransfer(source job.Source, target job.Target, modes []transform.UpdateOperator, opts ...func(*UpdateTransfer)) *UpdateTransfer {
+func NewUpdateTransfer(source job.Source, target job.Target, modes []transform.UpdateOperator, opts ...func(*UpdateTransfer)) *UpdateTransfer {
 	u := &UpdateTransfer{}
 	u.source = source
 	u.modes = modes
