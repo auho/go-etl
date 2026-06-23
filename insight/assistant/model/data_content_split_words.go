@@ -13,11 +13,11 @@ var _ assistant.Entity = (*DataContentSplitWords)(nil)
 type DataContentSplitWords struct {
 	model
 	extra
-	data        assistant.Rowser
+	data        assistant.Entity
 	contentName string
 }
 
-func NewDataContentSplitWords(data assistant.Rowser, contentName string, db *simpledb.SimpleDB) *DataContentSplitWords {
+func NewDataContentSplitWords(data assistant.Entity, contentName string, db *simpledb.SimpleDB) *DataContentSplitWords {
 	dc := &DataContentSplitWords{}
 	dc.data = data
 	dc.contentName = contentName
@@ -45,7 +45,7 @@ func (dc *DataContentSplitWords) TableName() string {
 	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSplitWords)
 }
 
-func (dc *DataContentSplitWords) GetData() assistant.Rowser {
+func (dc *DataContentSplitWords) GetData() assistant.Entity {
 	return dc.data
 }
 

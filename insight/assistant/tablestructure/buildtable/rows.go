@@ -7,10 +7,10 @@ import (
 
 type RowsTable struct {
 	table
-	rows assistant.Rowser
+	rows assistant.Entity
 }
 
-func NewRowsTable(rows assistant.Rowser, opts ...TableOption) *RowsTable {
+func NewRowsTable(rows assistant.Entity, opts ...TableOption) *RowsTable {
 	t := &RowsTable{}
 	t.rows = rows
 	t.db = rows.GetDB()

@@ -8,7 +8,7 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Dataer = (*Data)(nil)
+var _ assistant.Entity = (*Data)(nil)
 
 type Data struct {
 	model

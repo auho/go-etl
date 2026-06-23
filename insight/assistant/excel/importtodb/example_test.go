@@ -13,7 +13,7 @@ func ExampleRunImportToDb() {
 	err := RunImportToDb("one.xlsx",
 		// rule
 		&RuleResource{
-			Resource: Resource{
+			ResourceBase: ResourceBase{
 				SheetName:       "Sheet1",
 				StartRow:        2,
 				IsRecreateTable: true,
@@ -25,7 +25,7 @@ func ExampleRunImportToDb() {
 		},
 		// rows
 		&RowsResource{
-			Resource: Resource{
+			ResourceBase: ResourceBase{
 				SheetName:       "Sheet2",
 				StartRow:        2,
 				IsRecreateTable: true,
@@ -33,7 +33,7 @@ func ExampleRunImportToDb() {
 					command.AddString("two_1")
 					command.AddString("two_2")
 				},
-				PostFun: func(resource Resourcer) error {
+				PostFun: func(resource Resource) error {
 					err1 := resource.GetDB().GormDB().
 						Table(resource.GetTable().GetTableName()).
 						Where(fmt.Sprintf("`%s` = ?", "two_1"), "value").

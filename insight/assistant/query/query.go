@@ -11,7 +11,7 @@ import (
 )
 
 type subQuery struct {
-	source      source.Sourcer
+	source      source.Source
 	datasetMode dataset.MergeMode
 	state       sqlState
 }
@@ -71,17 +71,17 @@ func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
 
 // AddAppend
 // add append dataset
-func (q *Query) AddAppend(source source.Sourcer) {
+func (q *Query) AddAppend(source source.Source) {
 	q.add(dataset.ModeAppend, source)
 }
 
 // AddSpread
 // add spread dataset
-func (q *Query) AddSpread(source source.Sourcer) {
+func (q *Query) AddSpread(source source.Source) {
 	q.add(dataset.ModeSpread, source)
 }
 
-func (q *Query) add(dm dataset.MergeMode, s source.Sourcer) {
+func (q *Query) add(dm dataset.MergeMode, s source.Source) {
 	q.queries = append(q.queries, &subQuery{
 		source:      s,
 		datasetMode: dm,

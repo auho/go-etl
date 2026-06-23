@@ -6,18 +6,18 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 )
 
-var _ Sourcer = (*PlaceholderSource)(nil)
+var _ Source = (*PlaceholderSource)(nil)
 
 type PlaceholderSource struct {
-	Source
+	SourceBase
 	baseCross
 	basePlaceHolder
 	items []map[string]any // []map[field][field value]
 }
 
-func NewPlaceholder(s Source) *PlaceholderSource {
+func NewPlaceholder(s SourceBase) *PlaceholderSource {
 	return &PlaceholderSource{
-		Source: s,
+		SourceBase: s,
 	}
 }
 
@@ -74,7 +74,7 @@ func (ps *PlaceholderSource) Dataset() (*dataset.Dataset, error) {
 	sql := ps.Table.SQL()
 	keys := ps.buildKeys(sql)
 
-	itemsId, itemsSql := ps.buildPlaceholderItemsSqlSet(ps.Source, sql, keys, ps.items)
+	itemsId, itemsSql := ps.buildPlaceholderItemsSqlSet(ps.SourceBase, sql, keys, ps.items)
 	sets, err := ps.queryItemsSet(fields, itemsId, itemsSql)
 	if err != nil {
 		return nil, fmt.Errorf("queryItemsSet error; %w", err)

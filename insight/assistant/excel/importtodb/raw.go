@@ -9,12 +9,12 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Resourcer = (*RawResource)(nil)
+var _ Resource = (*RawResource)(nil)
 
 type RawResource struct {
-	Resource
+	ResourceBase
 
-	Rows assistant.Rowser
+	Rows assistant.Entity
 
 	titlesName []string
 	sheetData  *read.SheetDataWithTitle

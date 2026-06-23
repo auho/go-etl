@@ -19,14 +19,6 @@ type Entity interface {
 	GetIDName() string
 }
 
-type Rowser interface {
-	Entity
-}
-
-type Dataer interface {
-	Rowser
-}
-
 var _ Entity = Rule(nil)
 
 type RuleConfig interface {

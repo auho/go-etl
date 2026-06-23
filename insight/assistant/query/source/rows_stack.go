@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 )
 
-var _ Sourcer = (*RowsStackSource)(nil)
+var _ Source = (*RowsStackSource)(nil)
 
 // RowsStackSource
 // general stack queries
@@ -15,7 +15,7 @@ type RowsStackSource struct {
 	rss  []*RowsSource
 }
 
-func NewRowsStack(name string, ss ...Source) *RowsStackSource {
+func NewRowsStack(name string, ss ...SourceBase) *RowsStackSource {
 	rs := &RowsStackSource{}
 	rs.name = name
 

@@ -7,12 +7,12 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Resourcer = (*RowsResource)(nil)
+var _ Resource = (*RowsResource)(nil)
 
 type RowsResource struct {
-	Resource
+	ResourceBase
 	Titles // column title of save to db
-	Rows   assistant.Rowser
+	Rows   assistant.Entity
 }
 
 func (rs *RowsResource) Prepare() error {

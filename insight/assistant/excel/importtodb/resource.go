@@ -7,7 +7,7 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-type Resourcer interface {
+type Resource interface {
 	GetIsRecreateTable() bool
 	GetIsAppendData() bool
 	GetIsShowSql() bool
@@ -23,10 +23,10 @@ type Resourcer interface {
 	GetSheetData(*read.Excel) (read.SheetDataReader, error)
 
 	CommandExec(*tablestructure.Command)
-	PostDo(Resourcer) error
+	PostDo(Resource) error
 }
 
-type Resource struct {
+type ResourceBase struct {
 	SheetName            string
 	SheetIndex           int                           // sheet index，从 1 开始
 	StartRow             int                           // 数据开始的行数，从 1 开始
@@ -37,10 +37,10 @@ type Resource struct {
 	IsShowSql            bool                          // 是否显示 sql
 	ColumnDropDuplicates []int                         // [column index] drop duplicates for column
 	CommandFun           func(*tablestructure.Command) // recreate table 时执行的 func
-	PostFun              func(Resourcer) error         // 导入后的执行的 func
+	PostFun              func(Resource) error          // 导入后的执行的 func
 }
 
-func (s *Resource) buildSheetConfig() read.Config {
+func (s *ResourceBase) buildSheetConfig() read.Config {
 	return read.Config{
 		SheetName:  s.SheetName,
 		SheetIndex: s.SheetIndex,
@@ -49,13 +49,13 @@ func (s *Resource) buildSheetConfig() read.Config {
 	}
 }
 
-func (s *Resource) CommandExec(command *tablestructure.Command) {
+func (s *ResourceBase) CommandExec(command *tablestructure.Command) {
 	if s.CommandFun != nil {
 		s.CommandFun(command)
 	}
 }
 
-func (s *Resource) PostDo(resource Resourcer) error {
+func (s *ResourceBase) PostDo(resource Resource) error {
 	if s.PostFun != nil {
 		return s.PostFun(resource)
 	}
@@ -63,19 +63,19 @@ func (s *Resource) PostDo(resource Resourcer) error {
 	return nil
 }
 
-func (s *Resource) GetIsRecreateTable() bool {
+func (s *ResourceBase) GetIsRecreateTable() bool {
 	return s.IsRecreateTable
 }
 
-func (s *Resource) GetIsAppendData() bool {
+func (s *ResourceBase) GetIsAppendData() bool {
 	return s.IsAppendData
 }
 
-func (s *Resource) GetIsShowSql() bool {
+func (s *ResourceBase) GetIsShowSql() bool {
 	return s.IsShowSql
 }
 
-func (s *Resource) GetBatchInsertSize() int {
+func (s *ResourceBase) GetBatchInsertSize() int {
 	if s.BatchInsertSize <= 0 {
 		s.BatchInsertSize = 2000
 	}
@@ -83,6 +83,6 @@ func (s *Resource) GetBatchInsertSize() int {
 	return s.BatchInsertSize
 }
 
-func (s *Resource) GetColumnDropDuplicates() []int {
+func (s *ResourceBase) GetColumnDropDuplicates() []int {
 	return s.ColumnDropDuplicates
 }

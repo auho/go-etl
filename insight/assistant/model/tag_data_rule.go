@@ -13,11 +13,11 @@ var _ assistant.Entity = (*TagDataRule)(nil)
 type TagDataRule struct {
 	model
 	extra
-	data assistant.Rowser
+	data assistant.Entity
 	rule assistant.Rule
 }
 
-func NewTagDataRule(data assistant.Rowser, rule assistant.Rule, db *simpledb.SimpleDB) *TagDataRule {
+func NewTagDataRule(data assistant.Entity, rule assistant.Rule, db *simpledb.SimpleDB) *TagDataRule {
 	t := &TagDataRule{}
 	t.data = data
 	t.rule = rule
@@ -29,7 +29,7 @@ func NewTagDataRule(data assistant.Rowser, rule assistant.Rule, db *simpledb.Sim
 	return t
 }
 
-func (t *TagDataRule) GetData() assistant.Rowser {
+func (t *TagDataRule) GetData() assistant.Entity {
 	return t.data
 }
 

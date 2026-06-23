@@ -7,10 +7,10 @@ import (
 
 type DataTable struct {
 	table
-	data assistant.Dataer
+	data assistant.Entity
 }
 
-func NewDataTable(data assistant.Dataer, opts ...TableOption) *DataTable {
+func NewDataTable(data assistant.Entity, opts ...TableOption) *DataTable {
 	t := &DataTable{}
 	t.data = data
 	t.db = t.data.GetDB()

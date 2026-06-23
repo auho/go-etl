@@ -13,11 +13,11 @@ var _ assistant.Entity = (*DataContentSegWords)(nil)
 type DataContentSegWords struct {
 	model
 	extra
-	data        assistant.Rowser
+	data        assistant.Entity
 	contentName string
 }
 
-func NewDataContentSegWords(data assistant.Rowser, contentName string, db *simpledb.SimpleDB) *DataContentSegWords {
+func NewDataContentSegWords(data assistant.Entity, contentName string, db *simpledb.SimpleDB) *DataContentSegWords {
 	dc := &DataContentSegWords{}
 	dc.data = data
 	dc.contentName = contentName
@@ -41,7 +41,7 @@ func (dc *DataContentSegWords) GetIDName() string {
 	return "id"
 }
 
-func (dc *DataContentSegWords) GetData() assistant.Rowser {
+func (dc *DataContentSegWords) GetData() assistant.Entity {
 	return dc.data
 }
 

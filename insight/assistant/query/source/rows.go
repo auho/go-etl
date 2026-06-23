@@ -6,16 +6,16 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 )
 
-var _ Sourcer = (*RowsSource)(nil)
+var _ Source = (*RowsSource)(nil)
 
 // RowsSource
 // general queries
 type RowsSource struct {
-	Source
+	SourceBase
 }
 
-func NewRows(s Source) *RowsSource {
-	return &RowsSource{Source: s}
+func NewRows(s SourceBase) *RowsSource {
+	return &RowsSource{SourceBase: s}
 }
 
 func (ts *RowsSource) Dataset() (*dataset.Dataset, error) {

@@ -7,7 +7,7 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Dataer = (*DataContent)(nil)
+var _ assistant.Entity = (*DataContent)(nil)
 
 type DataContent struct {
 	model

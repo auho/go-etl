@@ -11,20 +11,20 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-type Sourcer interface {
+type Source interface {
 	Dataset() (*dataset.Dataset, error)
 }
 
-// Source
+// SourceBase
 // select data from db
-type Source struct {
+type SourceBase struct {
 	HasNamePrefix bool // Add the name prefix before the item
 	Name          string
 	Table         dml.Tabler
 	DB            *simpledb.SimpleDB
 }
 
-func (s *Source) itemValuesToIdentification(itemValues []string) string {
+func (s *SourceBase) itemValuesToIdentification(itemValues []string) string {
 	id := s.keysToIdentification(itemValues)
 	if s.HasNamePrefix {
 		id = fmt.Sprintf("%s_%s", s.Name, id)
@@ -33,11 +33,11 @@ func (s *Source) itemValuesToIdentification(itemValues []string) string {
 	return id
 }
 
-func (s *Source) keysToIdentification(keys []string) string {
+func (s *SourceBase) keysToIdentification(keys []string) string {
 	return strings.Join(keys, "_")
 }
 
-func (s *Source) queryItemsSet(fields, itemsId []string, itemsSql map[string]string) ([]dataset.Set, error) {
+func (s *SourceBase) queryItemsSet(fields, itemsId []string, itemsSql map[string]string) ([]dataset.Set, error) {
 	var sets []dataset.Set
 
 	for _, itemId := range itemsId {
@@ -52,7 +52,7 @@ func (s *Source) queryItemsSet(fields, itemsId []string, itemsSql map[string]str
 	return sets, nil
 }
 
-func (s *Source) querySql(sql string, fields []string) ([][]any, time.Duration, error) {
+func (s *SourceBase) querySql(sql string, fields []string) ([][]any, time.Duration, error) {
 	var rows []map[string]any
 
 	_start := time.Now()

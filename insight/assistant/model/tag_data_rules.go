@@ -14,11 +14,11 @@ type TagDataRules struct {
 	model
 	extra
 	name  string
-	data  assistant.Rowser
+	data  assistant.Entity
 	rules []assistant.Rule
 }
 
-func NewTagDataRules(name string, data assistant.Rowser, rules []assistant.Rule, db *simpledb.SimpleDB) *TagDataRules {
+func NewTagDataRules(name string, data assistant.Entity, rules []assistant.Rule, db *simpledb.SimpleDB) *TagDataRules {
 	t := &TagDataRules{}
 	t.name = name
 	t.data = data
@@ -31,7 +31,7 @@ func NewTagDataRules(name string, data assistant.Rowser, rules []assistant.Rule,
 	return t
 }
 
-func (t *TagDataRules) GetData() assistant.Rowser {
+func (t *TagDataRules) GetData() assistant.Entity {
 	return t.data
 }
 

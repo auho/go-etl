@@ -10,11 +10,11 @@ import (
 
 type ImportToDB struct {
 	xlsxPath string
-	resource []Resourcer
+	resource []Resource
 	excel    *read.Excel
 }
 
-func RunImportToDb(xlsxPath string, sr ...Resourcer) error {
+func RunImportToDb(xlsxPath string, sr ...Resource) error {
 	e := &ImportToDB{
 		xlsxPath: xlsxPath,
 		resource: sr,
@@ -48,7 +48,7 @@ func (it *ImportToDB) Import() error {
 	return nil
 }
 
-func (it *ImportToDB) importResource(resource Resourcer) error {
+func (it *ImportToDB) importResource(resource Resource) error {
 	err := resource.Prepare()
 	if err != nil {
 		return fmt.Errorf("prepare error; %w", err)
@@ -74,7 +74,7 @@ func (it *ImportToDB) importResource(resource Resourcer) error {
 	return nil
 }
 
-func (it *ImportToDB) buildResourceTable(resource Resourcer, table buildtable.Tabler) error {
+func (it *ImportToDB) buildResourceTable(resource Resource, table buildtable.Tabler) error {
 	if resource.GetIsShowSql() {
 		fmt.Println(table.SQL())
 	}
@@ -105,7 +105,7 @@ func (it *ImportToDB) buildResourceTable(resource Resourcer, table buildtable.Ta
 	return nil
 }
 
-func (it *ImportToDB) importResourceToTable(resource Resourcer, table buildtable.Tabler, sheetData read.SheetDataReader) error {
+func (it *ImportToDB) importResourceToTable(resource Resource, table buildtable.Tabler, sheetData read.SheetDataReader) error {
 	var err error
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {

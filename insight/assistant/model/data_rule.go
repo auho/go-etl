@@ -12,11 +12,11 @@ var _ assistant.Rule = (*DataRule)(nil)
 type DataRule struct {
 	baseRule
 	extra
-	data assistant.Dataer
+	data assistant.Entity
 	rule *Rule
 }
 
-func NewDataRule(data assistant.Dataer, rule *Rule) *DataRule {
+func NewDataRule(data assistant.Entity, rule *Rule) *DataRule {
 	dr := &DataRule{}
 	dr.data = data
 	dr.baseRule = rule.baseRule
@@ -63,7 +63,7 @@ func (dr *DataRule) ToAliasRule(alias map[string]string) *DataRule {
 	return _rule
 }
 
-func (dr *DataRule) GetData() assistant.Dataer {
+func (dr *DataRule) GetData() assistant.Entity {
 	return dr.data
 }
 

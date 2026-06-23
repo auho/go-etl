@@ -21,7 +21,7 @@ func (bph *basePlaceHolder) buildKeys(sql string) []string {
 
 // []string []item id
 // map[string]string map[item id]sql
-func (bph *basePlaceHolder) buildPlaceholderItemsSqlSet(s Source, sql string, keys []string, items []map[string]any) ([]string, map[string]string) {
+func (bph *basePlaceHolder) buildPlaceholderItemsSqlSet(s SourceBase, sql string, keys []string, items []map[string]any) ([]string, map[string]string) {
 	var itemsId []string
 	itemsSql := make(map[string]string, len(items))
 

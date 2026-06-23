@@ -12,10 +12,10 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ Resourcer = (*RuleResource)(nil)
+var _ Resource = (*RuleResource)(nil)
 
 type RuleResource struct {
-	Resource
+	ResourceBase
 	Titles // column title of save to db
 	Rule   assistant.Rule
 }
