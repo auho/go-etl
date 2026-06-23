@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
+	"github.com/auho/go-etl/v2/insight/assistant/schema/buildtable"
 	"github.com/auho/go-toolkit/farmtools/sort/maps"
 )
 

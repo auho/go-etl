@@ -5,7 +5,7 @@ import (
 	"sort"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -129,7 +129,7 @@ func (br *baseRule) Config() assistant.RuleConfig {
 	return br.config
 }
 
-func (br *baseRule) WithCommand(fn func(command *tablestructure.Command)) *baseRule {
+func (br *baseRule) WithCommand(fn func(command *schema.Command)) *baseRule {
 	br.withCommand(fn)
 
 	return br

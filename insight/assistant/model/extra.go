@@ -5,8 +5,8 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/altertable"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
+	"github.com/auho/go-etl/v2/insight/assistant/schema/altertable"
 )
 
 type extra struct {
@@ -17,7 +17,7 @@ func (e *extra) DMLTable() *dml.Table {
 	return dml.NewTable(e.model.TableName())
 }
 
-func (e *extra) AlterTable(fn func(*tablestructure.Command)) ([]string, error) {
+func (e *extra) AlterTable(fn func(*schema.Command)) ([]string, error) {
 	at := altertable.NewModelTable(e.model).WithCommand(fn)
 	return at.BuildAffixSql()
 }

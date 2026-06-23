@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/auho/go-etl/v2/insight/assistant/model"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 func ExampleRunImportToDb() {
@@ -29,7 +29,7 @@ func ExampleRunImportToDb() {
 				SheetName:       "Sheet2",
 				StartRow:        2,
 				IsRecreateTable: true,
-				CommandFun: func(command *tablestructure.Command) {
+				CommandFun: func(command *schema.Command) {
 					command.AddString("two_1")
 					command.AddString("two_2")
 				},

@@ -2,7 +2,7 @@ package altertable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -37,7 +37,7 @@ func (m *ModelTable) BuildChangeAffixSql() ([]string, error) {
 	return _sql, m.build(_sql, m.db)
 }
 
-func (m *ModelTable) WithCommand(fn func(command *tablestructure.Command)) *ModelTable {
+func (m *ModelTable) WithCommand(fn func(command *schema.Command)) *ModelTable {
 	m.commandFunc = fn
 
 	return m

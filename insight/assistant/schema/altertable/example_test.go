@@ -2,7 +2,7 @@ package altertable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -11,7 +11,7 @@ var _raw assistant.Raw
 
 func ExampleNewTable() {
 	_ = NewTable("tableName").
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			command.AddInt("int1")
 			command.AddString("s1")
 		}).Build(_db)
@@ -24,7 +24,7 @@ func ExampleNewTable() {
 
 func ExampleNewModelTable() {
 	_ = NewModelTable(_raw).
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			command.AddInt("int1")
 		}).Build()
 

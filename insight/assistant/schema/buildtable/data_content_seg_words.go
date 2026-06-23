@@ -2,7 +2,7 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/model"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 type DataContentSegWordsTable struct {
@@ -33,7 +33,7 @@ func (t *DataContentSegWordsTable) build() {
 	t.execRawCommandFunc(t.dataContentSegWords)
 }
 
-func (t *DataContentSegWordsTable) WithCommand(fn func(*tablestructure.Command)) *DataContentSegWordsTable {
+func (t *DataContentSegWordsTable) WithCommand(fn func(*schema.Command)) *DataContentSegWordsTable {
 	fn(t.Command)
 
 	return t

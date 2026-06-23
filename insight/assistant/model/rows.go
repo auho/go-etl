@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -52,7 +52,7 @@ func (r *Rows) TableName() string {
 	return r.tableName
 }
 
-func (r *Rows) WithCommand(fn func(command *tablestructure.Command)) *Rows {
+func (r *Rows) WithCommand(fn func(command *schema.Command)) *Rows {
 	r.withCommand(fn)
 
 	return r

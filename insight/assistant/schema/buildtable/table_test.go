@@ -6,7 +6,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/model"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 var _tableName = "table1"
@@ -28,7 +28,7 @@ var _dcSplitWords *model.DataContentSplitWords
 func TestRaw(t *testing.T) {
 	rt := NewRawTable(_raw)
 	rt.AddPkBigInt("id")
-	rt.WithCommand(func(command *tablestructure.Command) {
+	rt.WithCommand(func(command *schema.Command) {
 		command.AddString("with")
 	})
 
@@ -50,7 +50,7 @@ func TestData(t *testing.T) {
 	dt.AddTimestamp("ts3", true, false)
 	dt.AddTimestamp("ts4", true, true)
 	dt.AddText("t1")
-	dt.WithCommand(func(command *tablestructure.Command) {
+	dt.WithCommand(func(command *schema.Command) {
 		command.AddString("with")
 	})
 
@@ -60,7 +60,7 @@ func TestData(t *testing.T) {
 
 func TestRule(t *testing.T) {
 	rt := NewRuleTable(_rule).
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			command.AddString("with")
 		})
 
@@ -85,7 +85,7 @@ func TestRule(t *testing.T) {
 
 func TestTag(t *testing.T) {
 	tr := NewTagDataRuleTable(_tagRule).
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			command.AddString("with")
 		})
 
@@ -97,7 +97,7 @@ func TestTag(t *testing.T) {
 	fmt.Println(sql)
 
 	trs := NewTagDataRulesTable(_tagRules).
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			command.AddString("with")
 		})
 
@@ -111,7 +111,7 @@ func TestTag(t *testing.T) {
 
 func TestDataContent(t *testing.T) {
 	dcSeg := NewDataContentSegWordsTable(_dcSegWords).
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			command.AddString("with")
 		})
 
@@ -119,7 +119,7 @@ func TestDataContent(t *testing.T) {
 	fmt.Println(sql)
 
 	dcSplit := NewDataContentSplitWordsTable(_dcSplitWords).
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			command.AddString("with")
 		})
 

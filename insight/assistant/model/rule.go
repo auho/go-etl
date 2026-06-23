@@ -5,7 +5,7 @@ import (
 	"maps"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -58,7 +58,7 @@ func (r *Rule) ToItems(opts ...func(items *assistant.RuleItems)) *assistant.Rule
 	return assistant.NewRuleItems(r, opts...)
 }
 
-func (r *Rule) WithCommand(fn func(command *tablestructure.Command)) *Rule {
+func (r *Rule) WithCommand(fn func(command *schema.Command)) *Rule {
 	r.withCommand(fn)
 
 	return r

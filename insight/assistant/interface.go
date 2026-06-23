@@ -2,7 +2,7 @@ package assistant
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -10,7 +10,7 @@ type Raw interface {
 	GetDB() *simpledb.SimpleDB
 	GetName() string
 	TableName() string
-	ExecCommand(*tablestructure.Command) // exec command func
+	ExecCommand(*schema.Command) // exec command func
 	DMLTable() *dml.Table
 }
 

@@ -2,7 +2,7 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 type DataTable struct {
@@ -28,11 +28,11 @@ func (t *DataTable) build() {
 	t.execRawCommandFunc(t.data)
 }
 
-func (t *DataTable) BuildForTag(command *tablestructure.Command) {
+func (t *DataTable) BuildForTag(command *schema.Command) {
 	command.AddKeyBigInt(t.data.GetIDName())
 }
 
-func (t *DataTable) WithCommand(fn func(*tablestructure.Command)) *DataTable {
+func (t *DataTable) WithCommand(fn func(*schema.Command)) *DataTable {
 	fn(t.Command)
 
 	return t

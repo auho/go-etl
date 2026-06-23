@@ -1,7 +1,7 @@
 package altertable
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -24,7 +24,7 @@ func (t *Table) BuildChange(db *simpledb.SimpleDB) error {
 	return t.build(t.SqlForChange(), db)
 }
 
-func (t *Table) WithCommand(fn func(command *tablestructure.Command)) *Table {
+func (t *Table) WithCommand(fn func(command *schema.Command)) *Table {
 	t.commandFunc = fn
 
 	return t

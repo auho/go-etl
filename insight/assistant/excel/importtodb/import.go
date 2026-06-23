@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
+	"github.com/auho/go-etl/v2/insight/assistant/schema/buildtable"
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 

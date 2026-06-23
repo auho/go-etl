@@ -6,7 +6,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/ddl/command/mysql"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -14,25 +14,25 @@ var _ Tabler = (*table)(nil)
 
 type Tabler interface {
 	GetTableName() string
-	GetCommand() *tablestructure.Command
+	GetCommand() *schema.Command
 	SQL() string
 	Build() error
-	ExecCommand(func(*tablestructure.Command))
+	ExecCommand(func(*schema.Command))
 
 	withConfig(Config)
 }
 
 type table struct {
-	*tablestructure.Command
+	*schema.Command
 	config Config
 	db     *simpledb.SimpleDB
 }
 
 func (t *table) initCommand(name string) {
-	t.Command = &tablestructure.Command{Table: mysql.NewTableSimple(name)}
+	t.Command = &schema.Command{Table: mysql.NewTableSimple(name)}
 }
 
-func (t *table) GetCommand() *tablestructure.Command {
+func (t *table) GetCommand() *schema.Command {
 	return t.Command
 }
 
@@ -74,7 +74,7 @@ func (t *table) Build() error {
 	return nil
 }
 
-func (t *table) ExecCommand(fn func(*tablestructure.Command)) {
+func (t *table) ExecCommand(fn func(*schema.Command)) {
 	fn(t.Command)
 }
 

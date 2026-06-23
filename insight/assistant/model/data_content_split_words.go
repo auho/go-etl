@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -57,7 +57,7 @@ func (dc *DataContentSplitWords) WordName() string {
 	return NameWord
 }
 
-func (dc *DataContentSplitWords) WithCommand(fn func(command *tablestructure.Command)) *DataContentSplitWords {
+func (dc *DataContentSplitWords) WithCommand(fn func(command *schema.Command)) *DataContentSplitWords {
 	dc.withCommand(fn)
 
 	return dc

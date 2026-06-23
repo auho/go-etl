@@ -1,7 +1,7 @@
 package buildtable
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 func ExampleNewTagDataRuleTable() {
@@ -11,7 +11,7 @@ func ExampleNewTagDataRuleTable() {
 			Recreate: true,
 			Truncate: true,
 		})).
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			// add columns
 			command.AddString("a")
 			command.AddString("b")
@@ -25,7 +25,7 @@ func ExampleNewTagDataRulesTable() {
 			Recreate: true,
 			Truncate: true,
 		})).
-		WithCommand(func(command *tablestructure.Command) {
+		WithCommand(func(command *schema.Command) {
 			// add columns
 			command.AddString("a")
 			command.AddString("b")

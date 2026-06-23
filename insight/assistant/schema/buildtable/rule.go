@@ -3,7 +3,7 @@ package buildtable
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/ddl/command/mysql"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 type RuleTable struct {
@@ -45,7 +45,7 @@ func (t *RuleTable) build() {
 
 // BuildLabels
 // labels
-func (t *RuleTable) BuildLabels(command *tablestructure.Command) {
+func (t *RuleTable) BuildLabels(command *schema.Command) {
 	command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
 
 	for label, length := range t.rule.GetLabels() {
@@ -55,7 +55,7 @@ func (t *RuleTable) BuildLabels(command *tablestructure.Command) {
 
 // BuildLabelsForWhole
 // labels for whole
-func (t *RuleTable) BuildLabelsForWhole(command *tablestructure.Command, length int) {
+func (t *RuleTable) BuildLabelsForWhole(command *schema.Command, length int) {
 	command.AddStringWithLength(t.rule.GetName(), length)
 
 	for label := range t.rule.GetLabels() {
@@ -65,21 +65,21 @@ func (t *RuleTable) BuildLabelsForWhole(command *tablestructure.Command, length 
 
 // BuildTags
 // tags
-func (t *RuleTable) BuildTags(command *tablestructure.Command) {
+func (t *RuleTable) BuildTags(command *schema.Command) {
 	t.BuildLabels(command)
 	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
 }
 
 // BuildTagsForWhole
 // tags for whole
-func (t *RuleTable) BuildTagsForWhole(command *tablestructure.Command, length int) {
+func (t *RuleTable) BuildTagsForWhole(command *schema.Command, length int) {
 	t.BuildLabelsForWhole(command, length)
 	command.AddStringWithLength(t.rule.KeywordName(), length)
 }
 
 // BuildForTag
 // for tag
-func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
+func (t *RuleTable) BuildForTag(command *schema.Command) {
 	t.BuildTags(command)
 
 	command.AddInt(t.rule.KeywordNumName())
@@ -87,7 +87,7 @@ func (t *RuleTable) BuildForTag(command *tablestructure.Command) {
 	command.AddInt(t.rule.LabelNumName())
 }
 
-func (t *RuleTable) WithCommand(fn func(*tablestructure.Command)) *RuleTable {
+func (t *RuleTable) WithCommand(fn func(*schema.Command)) *RuleTable {
 	fn(t.Command)
 
 	return t

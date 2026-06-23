@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 var _ assistant.Rule = (*DataRule)(nil)
@@ -44,7 +44,7 @@ func (dr *DataRule) ToItems(opts ...func(items *assistant.RuleItems)) *assistant
 	return assistant.NewRuleItems(dr, opts...)
 }
 
-func (dr *DataRule) WithCommand(fn func(command *tablestructure.Command)) *DataRule {
+func (dr *DataRule) WithCommand(fn func(command *schema.Command)) *DataRule {
 	dr.withCommand(fn)
 
 	return dr

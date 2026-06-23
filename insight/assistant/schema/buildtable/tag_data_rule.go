@@ -2,7 +2,7 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/model"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 type TagDataRuleTable struct {
@@ -31,7 +31,7 @@ func (t *TagDataRuleTable) build() {
 	t.execRawCommandFunc(t.tag)
 }
 
-func (t *TagDataRuleTable) WithCommand(fn func(*tablestructure.Command)) *TagDataRuleTable {
+func (t *TagDataRuleTable) WithCommand(fn func(*schema.Command)) *TagDataRuleTable {
 	fn(t.Command)
 
 	return t

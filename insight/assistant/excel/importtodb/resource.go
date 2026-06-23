@@ -2,8 +2,8 @@ package importtodb
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
+	"github.com/auho/go-etl/v2/insight/assistant/schema/buildtable"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -22,7 +22,7 @@ type Resource interface {
 	GetTitlesIndex() []int
 	GetSheetData(*read.Excel) (read.SheetDataReader, error)
 
-	CommandExec(*tablestructure.Command)
+	CommandExec(*schema.Command)
 	PostDo(Resource) error
 }
 
@@ -36,7 +36,7 @@ type ResourceBase struct {
 	IsAppendData         bool                          // true: append data; false truncate table
 	IsShowSql            bool                          // 是否显示 sql
 	ColumnDropDuplicates []int                         // [column index] drop duplicates for column
-	CommandFun           func(*tablestructure.Command) // recreate table 时执行的 func
+	CommandFun           func(*schema.Command) // recreate table 时执行的 func
 	PostFun              func(Resource) error          // 导入后的执行的 func
 }
 
@@ -49,7 +49,7 @@ func (s *ResourceBase) buildSheetConfig() read.Config {
 	}
 }
 
-func (s *ResourceBase) CommandExec(command *tablestructure.Command) {
+func (s *ResourceBase) CommandExec(command *schema.Command) {
 	if s.CommandFun != nil {
 		s.CommandFun(command)
 	}

@@ -2,7 +2,7 @@ package buildtable
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/model"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 )
 
 type DataContentSplitWordsTable struct {
@@ -31,7 +31,7 @@ func (t *DataContentSplitWordsTable) build() {
 	t.execRawCommandFunc(t.dataContentSplitWords)
 }
 
-func (t *DataContentSplitWordsTable) WithCommand(fn func(*tablestructure.Command)) *DataContentSplitWordsTable {
+func (t *DataContentSplitWordsTable) WithCommand(fn func(*schema.Command)) *DataContentSplitWordsTable {
 	fn(t.Command)
 
 	return t

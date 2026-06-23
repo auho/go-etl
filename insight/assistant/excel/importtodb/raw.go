@@ -5,7 +5,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant"
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
+	"github.com/auho/go-etl/v2/insight/assistant/schema/buildtable"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 

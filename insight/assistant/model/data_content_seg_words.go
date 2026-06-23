@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -65,7 +65,7 @@ func (dc *DataContentSegWords) NumName() string {
 	return NameNum
 }
 
-func (dc *DataContentSegWords) WithCommand(fn func(command *tablestructure.Command)) *DataContentSegWords {
+func (dc *DataContentSegWords) WithCommand(fn func(command *schema.Command)) *DataContentSegWords {
 	dc.withCommand(fn)
 
 	return dc

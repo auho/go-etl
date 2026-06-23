@@ -1,4 +1,4 @@
-package tablestructure
+package schema
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/ddl/command/mysql"

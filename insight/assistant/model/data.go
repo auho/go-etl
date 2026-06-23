@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -45,7 +45,7 @@ func (d *Data) TableName() string {
 	return fmt.Sprintf("%s_%s", NameData, d.name)
 }
 
-func (d *Data) WithCommand(fn func(command *tablestructure.Command)) *Data {
+func (d *Data) WithCommand(fn func(command *schema.Command)) *Data {
 	d.withCommand(fn)
 
 	return d

@@ -3,13 +3,13 @@ package altertable
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
+	"github.com/auho/go-etl/v2/insight/assistant/schema"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
 type baseTable struct {
-	*tablestructure.Command
-	commandFunc func(*tablestructure.Command)
+	*schema.Command
+	commandFunc func(*schema.Command)
 }
 
 func newBaseTable(tableName string) baseTable {
@@ -17,7 +17,7 @@ func newBaseTable(tableName string) baseTable {
 		Command: nil,
 	}
 
-	bt.Command = tablestructure.NewCommandMysql()
+	bt.Command = schema.NewCommandMysql()
 	bt.Command.Table.SetName(tableName)
 
 	return bt
