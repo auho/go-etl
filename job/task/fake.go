@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/job/transform"
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 

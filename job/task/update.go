@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/job/transform"
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 	"github.com/auho/go-toolkit-flow/storage"
 	"github.com/auho/go-toolkit-flow/storage/database/destination"

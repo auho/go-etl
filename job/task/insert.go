@@ -5,7 +5,7 @@ import (
 	"runtime"
 
 	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/job/transform"
 )
 
 type InsertConfig struct {

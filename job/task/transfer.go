@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/job/transform"
 )
 
 var _ itemProducer = (*Transfer)(nil)

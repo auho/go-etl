@@ -4,7 +4,7 @@ import (
 	"github.com/auho/go-etl/v2/job/explore/collect"
 	"github.com/auho/go-etl/v2/job/explore/condition"
 	"github.com/auho/go-etl/v2/job/explore/search"
-	"github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/job/transform"
 )
 
 var _ mode.InsertOperator = (*Insert)(nil)

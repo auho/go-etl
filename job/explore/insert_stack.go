@@ -3,7 +3,7 @@ package explore
 import (
 	"maps"
 
-	"github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/job/transform"
 )
 
 var _ mode.InsertOperator = (*InsertStack)(nil)

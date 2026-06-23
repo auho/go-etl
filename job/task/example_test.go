@@ -4,7 +4,7 @@ import (
 	"github.com/auho/go-etl/v2/job"
 	"github.com/auho/go-etl/v2/job/extract"
 	"github.com/auho/go-etl/v2/job/extract/tag"
-	"github.com/auho/go-etl/v2/job/mode"
+	"github.com/auho/go-etl/v2/job/transform"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
