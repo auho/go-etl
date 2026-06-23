@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/ddl/command/mysql"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/ddl/command/mysql"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpledb "github.com/auho/go-simple-db/v2"
 )

@@ -1,7 +1,7 @@
 package assistant
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	simpledb "github.com/auho/go-simple-db/v2"
 )

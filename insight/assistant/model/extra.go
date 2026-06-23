@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/altertable"
 )

@@ -5,7 +5,7 @@ import (
 )
 
 type Tabler interface {
-	Manipulationor
+	Manipulator
 	GetSelectFields() []string
 }
 
@@ -17,7 +17,7 @@ type statement interface {
 	DeleteQuery() string
 }
 
-type Manipulationor interface {
+type Manipulator interface {
 	SQL() string
 	InsertSQL(name string) string
 	Insert(name string, db *simpledb.SimpleDB) (string, error)

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml/command"
 	"github.com/auho/go-etl/v2/job/means"
 )
 

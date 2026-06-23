@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml/command"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml/command"
 )
 
 func TestMain(t *testing.M) {

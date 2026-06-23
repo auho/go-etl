@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
 	maps "github.com/auho/go-etl/v2/tool/mapx"
 	simpledb "github.com/auho/go-simple-db/v2"
