@@ -7,7 +7,7 @@ import (
 	"github.com/auho/go-etl/v2/job/transform"
 )
 
-var _ mode.UpdateOperator = (*Update)(nil)
+var _ transform.UpdateOperator = (*Update)(nil)
 
 type Update struct {
 	*Explore

@@ -43,8 +43,8 @@ func (c *Contains) Do(contents []string) search.Token {
 
 func (c *Contains) Close() error { return nil }
 
-func (c *Contains) ToMeans() *means.Means {
-	return means.NewMeans(c)
+func (c *Contains) ToMeans() *extract.Means {
+	return extract.NewMeans(c)
 }
 
 // NewContainsAll

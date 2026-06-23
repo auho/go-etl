@@ -13,10 +13,10 @@ var _ UpdateOperator = (*UpdateMode)(nil)
 // handle some keys of data for update
 type UpdateMode struct {
 	Mode
-	ms []means.Updater
+	ms []extract.Updater
 }
 
-func NewUpdate(keys []string, ms ...means.Updater) *UpdateMode {
+func NewUpdate(keys []string, ms ...extract.Updater) *UpdateMode {
 	um := &UpdateMode{}
 	um.Keys = keys
 	um.ms = ms

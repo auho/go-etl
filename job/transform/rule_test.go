@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/extract"
 )
 
-var _ means.Rule = (*ruleTest)(nil)
+var _ extract.Rule = (*ruleTest)(nil)
 
 type ruleTest struct {
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/transform"
 )
 
-var _ mode.InsertOperator = (*InsertStack)(nil)
+var _ transform.InsertOperator = (*InsertStack)(nil)
 
 // InsertStack
 // 多个 insert 的所有结果 concat(上下拼接)

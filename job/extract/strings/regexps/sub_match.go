@@ -64,8 +64,8 @@ func (r *SubMatch) Do(contents []string) search.Token {
 
 func (r *SubMatch) Close() error { return nil }
 
-func (r *SubMatch) ToMeans() *means.Means {
-	return means.NewMeans(r)
+func (r *SubMatch) ToMeans() *extract.Means {
+	return extract.NewMeans(r)
 }
 
 func _subMatch(ret []string) (Result, bool) {

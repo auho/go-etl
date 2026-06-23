@@ -15,7 +15,7 @@ type InsertSpreadMode struct {
 	insertHorizontalMode
 }
 
-func NewInsertSpread(keys []string, ms ...means.Inserter) *InsertSpreadMode {
+func NewInsertSpread(keys []string, ms ...extract.Inserter) *InsertSpreadMode {
 	return &InsertSpreadMode{
 		insertHorizontalMode: newInsertHorizontal(keys, ms...),
 	}

@@ -22,7 +22,7 @@ type InsertCrossMode struct {
 	insertHorizontalMode
 }
 
-func NewInsertCross(keys []string, ms ...means.Inserter) *InsertCrossMode {
+func NewInsertCross(keys []string, ms ...extract.Inserter) *InsertCrossMode {
 	return &InsertCrossMode{
 		insertHorizontalMode: newInsertHorizontal(keys, ms...),
 	}

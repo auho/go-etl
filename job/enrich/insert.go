@@ -7,7 +7,7 @@ import (
 	"github.com/auho/go-etl/v2/job/transform"
 )
 
-var _ mode.InsertOperator = (*Insert)(nil)
+var _ transform.InsertOperator = (*Insert)(nil)
 
 type Insert struct {
 	*Explore

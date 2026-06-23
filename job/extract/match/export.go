@@ -17,7 +17,7 @@ type ExportContextResults = ExportContext[Results]
 type ExportContextLabelResults = ExportContext[LabelResults]
 
 type ExportContext[T ResultsEntity] struct {
-	Rule    means.Rule
+	Rule    extract.Rule
 	Results T
 	Format  Format
 }
@@ -26,14 +26,14 @@ type ExportResults = Export[Results]
 type ExportLabelResults = Export[LabelResults]
 
 type Export[T ResultsEntity] struct {
-	rule           means.Rule
+	rule           extract.Rule
 	resultsToToken func(ctx ExportContext[T]) []map[string]any
 	format         Format
 	keys           []string
 	defaultValues  map[string]any
 }
 
-func NewExport[T ResultsEntity](rule means.Rule, df map[string]any, fn func(ctx ExportContext[T]) []map[string]any) *Export[T] {
+func NewExport[T ResultsEntity](rule extract.Rule, df map[string]any, fn func(ctx ExportContext[T]) []map[string]any) *Export[T] {
 	var keys []string
 	for k := range df {
 		keys = append(keys, k)
@@ -56,7 +56,7 @@ func (e *Export[T]) GetDefaultValues() map[string]any {
 	return e.defaultValues
 }
 
-func (e *Export[T]) GetRule() means.Rule {
+func (e *Export[T]) GetRule() extract.Rule {
 	return e.rule
 }
 

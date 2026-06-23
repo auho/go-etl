@@ -44,6 +44,6 @@ func (sg *SegWords) Close() error {
 	return sg.seg.Close()
 }
 
-func (sg *SegWords) ToMeans() *means.Means {
-	return means.NewMeans(sg)
+func (sg *SegWords) ToMeans() *extract.Means {
+	return extract.NewMeans(sg)
 }

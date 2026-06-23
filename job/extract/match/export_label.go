@@ -11,11 +11,11 @@ import (
 // NewExportLabel
 //
 // df: map[string]any, defaultValues
-func NewExportLabel(rule means.Rule, df map[string]any, fn func(ExportContextLabelResults) []map[string]any) *ExportLabelResults {
+func NewExportLabel(rule extract.Rule, df map[string]any, fn func(ExportContextLabelResults) []map[string]any) *ExportLabelResults {
 	return NewExport[LabelResults](rule, df, fn)
 }
 
-func NewExportLabelAll(rule means.Rule) *ExportLabelResults {
+func NewExportLabelAll(rule extract.Rule) *ExportLabelResults {
 	values := make(map[string]any)
 	for _, _ta := range rule.TagsAlias() {
 		values[_ta] = ""
@@ -29,7 +29,7 @@ func NewExportLabelAll(rule means.Rule) *ExportLabelResults {
 	})
 }
 
-func NewExportLabelLine(rule means.Rule) *ExportLabelResults {
+func NewExportLabelLine(rule extract.Rule) *ExportLabelResults {
 	values := make(map[string]any)
 	for _, _ta := range rule.TagsAlias() {
 		values[_ta] = ""
@@ -45,7 +45,7 @@ func NewExportLabelLine(rule means.Rule) *ExportLabelResults {
 	})
 }
 
-func NewExportLabelFlag(rule means.Rule) *ExportLabelResults {
+func NewExportLabelFlag(rule extract.Rule) *ExportLabelResults {
 	values := make(map[string]any)
 	for _, _ta := range rule.TagsAlias() {
 		values[_ta] = ""

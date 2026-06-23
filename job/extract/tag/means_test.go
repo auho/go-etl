@@ -9,7 +9,7 @@ import (
 )
 
 func TestMeans(t *testing.T) {
-	_means := means.NewMeans(NewSearchKey(NewExportKeywordAll(_rule)))
+	_means := extract.NewMeans(NewSearchKey(NewExportKeywordAll(_rule)))
 	err := _means.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -21,8 +21,8 @@ func TestMeans(t *testing.T) {
 	}
 }
 
-func _genMeans[T ResultsEntity](t *testing.T, fn func(means.Rule) *Search[T]) *means.Means {
-	_means := means.NewMeans(fn(_rule))
+func _genMeans[T ResultsEntity](t *testing.T, fn func(extract.Rule) *Search[T]) *extract.Means {
+	_means := extract.NewMeans(fn(_rule))
 	err := _means.Prepare()
 	if err != nil {
 		t.Fatal(err, t.Name())
@@ -125,7 +125,7 @@ func TestNewLabel(t *testing.T) {
 	_assertTagLabel(t, _rule, rets[3], "中_文", 17)
 }
 
-func _assertTag(t *testing.T, rule means.Rule, m map[string]any, keyword string, expectAmount int) {
+func _assertTag(t *testing.T, rule extract.Rule, m map[string]any, keyword string, expectAmount int) {
 	if m[rule.KeywordNameAlias()] != keyword {
 		t.Fatal(fmt.Sprintf("keyword[%s != %s]", keyword, m[rule.KeywordNameAlias()]), t.Name())
 	}
@@ -135,7 +135,7 @@ func _assertTag(t *testing.T, rule means.Rule, m map[string]any, keyword string,
 	}
 }
 
-func _assertTagLabel(t *testing.T, rule means.Rule, m map[string]any, keyword string, expectAmount int) {
+func _assertTagLabel(t *testing.T, rule extract.Rule, m map[string]any, keyword string, expectAmount int) {
 	_ky := fmt.Sprintf("%s %d", keyword, expectAmount)
 	if m[rule.KeywordNameAlias()] != _ky {
 		t.Fatal(fmt.Sprintf("keyword[%s != %s]", keyword, m[rule.KeywordNameAlias()]), t.Name())
@@ -146,7 +146,7 @@ func _assertTagLabel(t *testing.T, rule means.Rule, m map[string]any, keyword st
 	}
 }
 
-func _assertTags(t *testing.T, rule means.Rule, sm []map[string]any, expectNum, expectAmount int) {
+func _assertTags(t *testing.T, rule extract.Rule, sm []map[string]any, expectNum, expectAmount int) {
 	amount := 0
 	for _, m := range sm {
 		amount += m[rule.KeywordAmountNameAlias()].(int)

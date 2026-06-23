@@ -35,7 +35,7 @@ type Search[T ResultsEntity] struct {
 	searchResultsFun SearchResultsFunc[T]
 
 	matcherConfig *matcherConfig
-	newMatcherFun func(means.Rule, *matcherConfig) (*matcher, error)
+	newMatcherFun func(extract.Rule, *matcherConfig) (*matcher, error)
 }
 
 func NewSearch[T ResultsEntity](export *Export[T], fn SearchResultsFunc[T]) *Search[T] {
@@ -80,8 +80,8 @@ func (s *Search[T]) Prepare() error {
 
 func (s *Search[T]) Close() error { return nil }
 
-func (s *Search[T]) ToMeans() *means.Means {
-	return means.NewMeans(s)
+func (s *Search[T]) ToMeans() *extract.Means {
+	return extract.NewMeans(s)
 }
 
 func (s *Search[T]) WithPluck(keys []string) *Search[T] {
@@ -110,7 +110,7 @@ func (s *Search[T]) WithPriorityFuzzy() *Search[T] {
 }
 
 func (m *Search[T]) WithMatcher(keyName string, items []map[string]string) *Search[T] {
-	m.newMatcherFun = func(rule means.Rule, config *matcherConfig) (*matcher, error) {
+	m.newMatcherFun = func(rule extract.Rule, config *matcherConfig) (*matcher, error) {
 		return newMatcher(keyName, items, config), nil
 	}
 

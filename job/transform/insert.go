@@ -13,10 +13,10 @@ var _ InsertOperator = (*InsertMode)(nil)
 // single means
 type InsertMode struct {
 	Mode
-	means means.Inserter
+	means extract.Inserter
 }
 
-func NewInsert(keys []string, means means.Inserter) *InsertMode {
+func NewInsert(keys []string, means extract.Inserter) *InsertMode {
 	im := &InsertMode{}
 	im.Keys = keys
 	im.means = means

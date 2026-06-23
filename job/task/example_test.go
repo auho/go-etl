@@ -12,7 +12,7 @@ var _ job.Source = (*_jobSource)(nil)
 var _ job.Target = (*_jobTarget)(nil)
 var _ job.CleanResource = (*_cleanResource)(nil)
 
-var _ruler means.Rule
+var _ruler extract.Rule
 
 type _jobSource struct{}
 
@@ -33,10 +33,10 @@ func (_ _cleanResource) Data() job.Target    { return &_jobTarget{} }
 func (_ _cleanResource) Deleted() job.Target { return &_jobTarget{} }
 
 func ExampleNewClean() {
-	_mode := mode.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans())
+	_mode := transform.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans())
 	_ = NewClean(
 		&_cleanResource{},
-		[]mode.UpdateOperator{_mode},
+		[]transform.UpdateOperator{_mode},
 		WithCleanConfig(CleanConfig{
 			NotTruncate:  false,
 			AddExtraTags: false,
@@ -49,10 +49,10 @@ func ExampleNewClean() {
 
 func ExampleNewInsert() {
 
-	_mode := mode.NewInsert([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans())
-	_modeMulti := mode.NewInsertStack([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans(), tag.NewLabel(_ruler).ToMeans())
-	_modeCross := mode.NewInsertCross([]string{"key1", "key2"}, tag.NewMostKey(_ruler).ToMeans(), tag.NewMostText(_ruler).ToMeans())
-	_modeSpread := mode.NewInsertSpread([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans(), tag.NewKey(_ruler).ToMeans())
+	_mode := transform.NewInsert([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans())
+	_modeMulti := transform.NewInsertStack([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans(), tag.NewLabel(_ruler).ToMeans())
+	_modeCross := transform.NewInsertCross([]string{"key1", "key2"}, tag.NewMostKey(_ruler).ToMeans(), tag.NewMostText(_ruler).ToMeans())
+	_modeSpread := transform.NewInsertSpread([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans(), tag.NewKey(_ruler).ToMeans())
 
 	_ = NewInsert(&_jobTarget{}, _mode, WithInsertConfig(InsertConfig{
 		NotTruncate: false,
@@ -67,7 +67,7 @@ func ExampleNewInsert() {
 }
 
 func ExampleNewTransfer() {
-	_mode := mode.NewTransfer(
+	_mode := transform.NewTransfer(
 		[]string{"key1", "key2"},
 		map[string]string{"key1": "alias1"},
 		map[string]any{"fixed1": "fixed value"},
@@ -77,11 +77,11 @@ func ExampleNewTransfer() {
 }
 
 func ExampleNewUpdate() {
-	_mode := mode.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans(), tag.NewLabel(_ruler).ToMeans())
+	_mode := transform.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans(), tag.NewLabel(_ruler).ToMeans())
 
-	_ = NewUpdate(&_jobSource{}, []mode.UpdateOperator{_mode})
+	_ = NewUpdate(&_jobSource{}, []transform.UpdateOperator{_mode})
 
-	_ = NewUpdateAndTransfer(&_jobSource{}, &_jobTarget{}, []mode.UpdateOperator{_mode}, WithUpdateTransferConfig(UpdateTransferConfig{
+	_ = NewUpdateAndTransfer(&_jobSource{}, &_jobTarget{}, []transform.UpdateOperator{_mode}, WithUpdateTransferConfig(UpdateTransferConfig{
 		NotTruncate: false,
 		BatchSize:   0,
 		Concurrency: 0,

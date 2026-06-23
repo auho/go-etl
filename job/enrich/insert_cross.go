@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/transform"
 )
 
-var _ mode.InsertOperator = (*InsertCross)(nil)
+var _ transform.InsertOperator = (*InsertCross)(nil)
 
 // InsertCross
 // cross means 交叉

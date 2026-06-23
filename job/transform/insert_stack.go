@@ -16,13 +16,13 @@ var _ InsertOperator = (*InsertStackMode)(nil)
 // 多个 means append(上下拼接)，使用相同 column name
 type InsertStackMode struct {
 	Mode
-	ms []means.Inserter
+	ms []extract.Inserter
 
 	insertKeys    []string
 	defaultValues map[string]any
 }
 
-func NewInsertStack(keys []string, ms ...means.Inserter) *InsertStackMode {
+func NewInsertStack(keys []string, ms ...extract.Inserter) *InsertStackMode {
 	im := &InsertStackMode{}
 	im.Keys = keys
 	im.ms = ms

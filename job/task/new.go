@@ -5,27 +5,27 @@ import (
 	"github.com/auho/go-etl/v2/job/transform"
 )
 
-func CleanTask(resource job.CleanResource, modes []mode.UpdateOperator, opts ...func(clean *Clean)) {
+func CleanTask(resource job.CleanResource, modes []transform.UpdateOperator, opts ...func(clean *Clean)) {
 	clean := NewClean(resource, modes, opts...)
 	RunConsumer(resource.Source(), []itemConsumer{clean})
 }
 
-func InsertTask(source job.Source, target job.Target, moder mode.InsertOperator, opts ...func(*Insert)) {
+func InsertTask(source job.Source, target job.Target, moder transform.InsertOperator, opts ...func(*Insert)) {
 	insert := NewInsert(target, moder, opts...)
 	RunProducer(source, []itemProducer{insert})
 }
 
-func TransferTask(source job.Source, target job.Target, moder mode.TransferOperator) {
+func TransferTask(source job.Source, target job.Target, moder transform.TransferOperator) {
 	transfer := NewTransfer(target, moder)
 	RunProducer(source, []itemProducer{transfer})
 }
 
-func UpdateAndTransferTask(source job.Source, target job.Target, modes []mode.UpdateOperator) {
+func UpdateAndTransferTask(source job.Source, target job.Target, modes []transform.UpdateOperator) {
 	updateTransfer := NewUpdateAndTransfer(source, target, modes)
 	RunProducer(source, []itemProducer{updateTransfer})
 }
 
-func UpdateTask(source job.Source, modes []mode.UpdateOperator) {
+func UpdateTask(source job.Source, modes []transform.UpdateOperator) {
 	update := NewUpdate(source, modes)
 	RunProducer(source, []itemProducer{update})
 }

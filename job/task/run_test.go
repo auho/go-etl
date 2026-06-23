@@ -9,11 +9,11 @@ import (
 )
 
 func Test_Update(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
-	ua := NewUpdate(_source, []mode.UpdateOperator{m})
+	m := transform.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
+	ua := NewUpdate(_source, []transform.UpdateOperator{m})
 
 	RunProducer(_source, []itemProducer{ua})
-	UpdateTask(_source, []mode.UpdateOperator{m})
+	UpdateTask(_source, []transform.UpdateOperator{m})
 
 	var count int64
 	err := _gormDB.Table(_dataTable).Where(fmt.Sprintf("%s != ?", "a"), "").Count(&count).Error
@@ -28,8 +28,8 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_UpdateAndTransfer(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
-	UpdateAndTransferTask(_source, _targetUpdateTransfer, []mode.UpdateOperator{m})
+	m := transform.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
+	UpdateAndTransferTask(_source, _targetUpdateTransfer, []transform.UpdateOperator{m})
 
 	dataCount := getAmount(_dataTable, t)
 	transferCount := getAmount(_updateAndTransferTable, t)
@@ -44,7 +44,7 @@ func Test_Insert(t *testing.T) {
 		ExtraKeys: []string{_source.GetIDName()},
 	})
 
-	m := mode.NewInsert([]string{_keyName}, tag.NewKey(_rule).ToMeans())
+	m := transform.NewInsert([]string{_keyName}, tag.NewKey(_rule).ToMeans())
 	ia := NewInsert(_targetTagA, m, insertConfig)
 
 	_ = _simpleDB.Drop(_targetTagA1.TableName())
@@ -100,7 +100,7 @@ func Test_Transfer(t *testing.T) {
 		"a_keyword_num": "a_keyword_num",
 	}
 
-	m := mode.NewTransfer(nil, alias, map[string]any{"xyz": "xyz1"})
+	m := transform.NewTransfer(nil, alias, map[string]any{"xyz": "xyz1"})
 	TransferTask(_source, _targetTransfer, m)
 	dataCount := getAmount(_source.TableName(), t)
 	tDataCount := getAmount(_targetTransfer.TableName(), t)
@@ -111,9 +111,9 @@ func Test_Transfer(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
+	m := transform.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
 
-	CleanTask(_targetClean, []mode.UpdateOperator{m})
+	CleanTask(_targetClean, []transform.UpdateOperator{m})
 	dataCount := getAmount(_source.TableName(), t)
 	cDataCount := getAmount(_targetClean.Data().TableName(), t)
 	cDeletedCount := getAmount(_targetClean.Deleted().TableName(), t)

@@ -37,14 +37,14 @@ var _ itemProducer = (*Insert)(nil)
 type Insert struct {
 	producerTask
 
-	mode mode.InsertOperator
+	mode transform.InsertOperator
 
 	config InsertConfig
 }
 
 // NewInsert
 // insert
-func NewInsert(target job.Target, moder mode.InsertOperator, opts ...func(*Insert)) *Insert {
+func NewInsert(target job.Target, moder transform.InsertOperator, opts ...func(*Insert)) *Insert {
 	i := &Insert{}
 	i.mode = moder
 	i.target = target
@@ -61,17 +61,17 @@ func NewInsert(target job.Target, moder mode.InsertOperator, opts ...func(*Inser
 // GetFields
 // source data filed
 func (i *Insert) GetFields() []string {
-	return append(i.mode.GetFields(), i.config.ExtraKeys...)
+	return append(i.transform.GetFields(), i.config.ExtraKeys...)
 }
 
 func (i *Insert) Summary() string {
-	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.mode.GetTitle())
+	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.transform.GetTitle())
 }
 
 func (i *Insert) Prepare() error {
-	err := i.mode.Prepare()
+	err := i.transform.Prepare()
 	if err != nil {
-		return fmt.Errorf("mode.Prepare: %w", err)
+		return fmt.Errorf("transform.Prepare: %w", err)
 	}
 
 	return nil
@@ -82,10 +82,10 @@ func (i *Insert) BeforeRun() error {
 }
 
 func (i *Insert) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	newItems := i.mode.Do(item)
+	newItems := i.transform.Do(item)
 	if len(newItems) <= 0 {
 		if i.config.AllowInsertEmpty {
-			newItems = []map[string]any{i.mode.DefaultValues()}
+			newItems = []map[string]any{i.transform.DefaultValues()}
 		} else {
 			return nil, false, nil
 		}

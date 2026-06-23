@@ -12,13 +12,13 @@ import (
 // 多个 means horizontal
 type insertHorizontalMode struct {
 	Mode
-	ms []means.Inserter
+	ms []extract.Inserter
 
 	insertKeys    []string
 	defaultValues map[string]any
 }
 
-func newInsertHorizontal(keys []string, ms ...means.Inserter) insertHorizontalMode {
+func newInsertHorizontal(keys []string, ms ...extract.Inserter) insertHorizontalMode {
 	ih := insertHorizontalMode{}
 	ih.Keys = keys
 	ih.ms = ms

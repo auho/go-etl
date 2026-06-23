@@ -48,7 +48,7 @@ type Clean struct {
 
 	cleanTarget job.CleanResource
 	keys        []string
-	modes       []mode.UpdateOperator
+	modes       []transform.UpdateOperator
 
 	config CleanConfig
 
@@ -59,7 +59,7 @@ type Clean struct {
 	deletedDstLine int
 }
 
-func NewClean(cr job.CleanResource, modes []mode.UpdateOperator, opts ...func(*Clean)) *Clean {
+func NewClean(cr job.CleanResource, modes []transform.UpdateOperator, opts ...func(*Clean)) *Clean {
 	c := &Clean{}
 	c.cleanTarget = cr
 	c.modes = modes

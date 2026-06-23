@@ -9,7 +9,7 @@ import (
 	"github.com/auho/go-etl/v2/job/extract"
 )
 
-var _ means.Rule = (*RuleItems)(nil)
+var _ extract.Rule = (*RuleItems)(nil)
 
 // RuleItemsConfig
 // rule items config

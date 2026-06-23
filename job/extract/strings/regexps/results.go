@@ -13,7 +13,7 @@ type Result struct {
 
 type Results []Result
 
-func (rs Results) ToAll(rule means.Rule) []map[string]any {
+func (rs Results) ToAll(rule extract.Rule) []map[string]any {
 	var results []map[string]any
 	for _, _r := range rs {
 		results = append(results, map[string]any{
@@ -25,7 +25,7 @@ func (rs Results) ToAll(rule means.Rule) []map[string]any {
 	return results
 }
 
-func (rs Results) ToLine(rule means.Rule) []map[string]any {
+func (rs Results) ToLine(rule extract.Rule) []map[string]any {
 	var ss []string
 	var num, amount int
 	for _, _r := range rs {
@@ -43,7 +43,7 @@ func (rs Results) ToLine(rule means.Rule) []map[string]any {
 	}
 }
 
-func (rs Results) ToFlag(rule means.Rule) []map[string]any {
+func (rs Results) ToFlag(rule extract.Rule) []map[string]any {
 	var ss []string
 	var num, amount int
 	for _, _r := range rs {
