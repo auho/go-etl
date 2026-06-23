@@ -50,7 +50,7 @@ func (tm *TransferMode) initFixed(fixed map[string]any) {
 	tm.fixed = fixed
 }
 
-func (tm *TransferMode) GetTitle() string {
+func (tm *TransferMode) Title() string {
 	return tm.GenTitle("TransferMode", "")
 }
 

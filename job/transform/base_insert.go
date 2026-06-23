@@ -49,10 +49,10 @@ func (ih *insertHorizontalMode) Prepare() error {
 	return nil
 }
 
-func (ih *insertHorizontalMode) GetTitle() string {
+func (ih *insertHorizontalMode) Title() string {
 	var ss []string
 	for _, m := range ih.ms {
-		ss = append(ss, m.GetTitle())
+		ss = append(ss, m.Title())
 	}
 
 	return ih.GenTitle("insertHorizontalMode", strings.Join(ss, ","))
@@ -71,7 +71,7 @@ func (ih *insertHorizontalMode) DefaultValues() map[string]any {
 }
 
 func (ih *insertHorizontalMode) State() []string {
-	return []string{fmt.Sprintf("%s: %s", ih.GetTitle(), ih.GenCounter())}
+	return []string{fmt.Sprintf("%s: %s", ih.Title(), ih.GenCounter())}
 }
 
 func (ih *insertHorizontalMode) Close() error {

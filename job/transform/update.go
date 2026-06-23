@@ -43,10 +43,10 @@ func (um *UpdateMode) Prepare() error {
 	return nil
 }
 
-func (um *UpdateMode) GetTitle() string {
+func (um *UpdateMode) Title() string {
 	is := make([]string, 0)
 	for _, i := range um.ms {
-		is = append(is, i.GetTitle())
+		is = append(is, i.Title())
 	}
 
 	return um.GenTitle("UpdateMode", strings.Join(is, ","))

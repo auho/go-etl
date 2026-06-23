@@ -1,7 +1,7 @@
 package extract
 
 type Inserter interface {
-	GetTitle() string
+	Title() string
 	GetKeys() []string
 	DefaultValues() map[string]any
 	Insert([]string) []map[string]any
@@ -10,7 +10,7 @@ type Inserter interface {
 }
 
 type Updater interface {
-	GetTitle() string
+	Title() string
 	Update([]string) map[string]any
 	Prepare() error
 	Close() error

@@ -34,7 +34,7 @@ func NewSubMatch(exs []string, subMode func([]*regexp.Regexp, []string) Results,
 	}
 }
 
-func (r *SubMatch) GetTitle() string {
+func (r *SubMatch) Title() string {
 	return fmt.Sprintf("SubMatch[%s]", r.export.GetRule().Name())
 }
 

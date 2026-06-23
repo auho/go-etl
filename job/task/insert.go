@@ -65,7 +65,7 @@ func (i *Insert) GetFields() []string {
 }
 
 func (i *Insert) Summary() string {
-	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.mode.GetTitle())
+	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.mode.Title())
 }
 
 func (i *Insert) Prepare() error {

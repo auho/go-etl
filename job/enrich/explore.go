@@ -40,8 +40,8 @@ func (e *Explore) expressionOperation(item map[string]any) bool {
 	return e.condition(item)
 }
 
-func (e *Explore) GetTitle() string {
-	return e.genTitle(e.collect.GetTitle(), e.search.GetTitle())
+func (e *Explore) Title() string {
+	return e.genTitle(e.collect.Title(), e.search.Title())
 }
 
 func (e *Explore) GetFields() []string {
@@ -74,7 +74,7 @@ func (e *Explore) Prepare() error {
 func (e *Explore) Close() error { return nil }
 
 func (e *Explore) State() []string {
-	return []string{fmt.Sprintf("%s: %s", e.GetTitle(), e.genCounter())}
+	return []string{fmt.Sprintf("%s: %s", e.Title(), e.genCounter())}
 }
 
 func (e *Explore) SetCollect(collect collect.Collector) *Explore {

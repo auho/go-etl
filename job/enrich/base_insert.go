@@ -17,10 +17,10 @@ type baseInsert struct {
 	defaultValues map[string]any
 }
 
-func (bi *baseInsert) GetTitle() string {
+func (bi *baseInsert) Title() string {
 	var ss []string
 	for _, _i := range bi.is {
-		ss = append(ss, _i.GetTitle())
+		ss = append(ss, _i.Title())
 	}
 
 	return bi.genTitle(bi.name, strings.Join(ss, ","))
@@ -47,7 +47,7 @@ func (bi *baseInsert) DefaultValues() map[string]any {
 }
 
 func (bi *baseInsert) State() []string {
-	return []string{fmt.Sprintf("%s: %s", bi.GetTitle(), bi.genCounter())}
+	return []string{fmt.Sprintf("%s: %s", bi.Title(), bi.genCounter())}
 }
 
 func (bi *baseInsert) Prepare() error {

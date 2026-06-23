@@ -55,10 +55,10 @@ func (im *InsertStackMode) Prepare() error {
 	return nil
 }
 
-func (im *InsertStackMode) GetTitle() string {
+func (im *InsertStackMode) Title() string {
 	is := make([]string, 0)
 	for _, i := range im.ms {
-		is = append(is, i.GetTitle())
+		is = append(is, i.Title())
 	}
 
 	return im.GenTitle("InsertStackMode", strings.Join(is, ","))
@@ -109,7 +109,7 @@ func (im *InsertStackMode) Do(item map[string]any) []map[string]any {
 }
 
 func (im *InsertStackMode) State() []string {
-	return []string{fmt.Sprintf("%s: %s", im.GetTitle(), im.GenCounter())}
+	return []string{fmt.Sprintf("%s: %s", im.Title(), im.GenCounter())}
 }
 
 func (im *InsertStackMode) Close() error {

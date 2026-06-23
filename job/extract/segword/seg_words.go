@@ -20,7 +20,7 @@ func NewSegWords(export *Export) *SegWords {
 	return &SegWords{export: export}
 }
 
-func (sg *SegWords) GetTitle() string {
+func (sg *SegWords) Title() string {
 	return "Seg"
 }
 

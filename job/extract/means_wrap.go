@@ -21,8 +21,8 @@ func NewWrap(m *Means, export *Export) *Wrap {
 	}
 }
 
-func (w *Wrap) GetTitle() string {
-	return w.means.GetTitle()
+func (w *Wrap) Title() string {
+	return w.means.Title()
 }
 
 func (w *Wrap) GetKeys() []string {

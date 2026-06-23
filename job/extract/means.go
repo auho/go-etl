@@ -44,8 +44,8 @@ func (m *Means) Prepare() error {
 	return nil
 }
 
-func (m *Means) GetTitle() string {
-	return fmt.Sprintf("means:%s ", m.search.GetTitle())
+func (m *Means) Title() string {
+	return fmt.Sprintf("means:%s ", m.search.Title())
 }
 
 func (m *Means) GetKeys() []string {

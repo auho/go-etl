@@ -9,7 +9,7 @@ import (
 )
 
 type Operator interface {
-	GetTitle() string
+	Title() string
 	GetFields() []string // source data 里的 key name
 	Prepare() error
 	Close() error

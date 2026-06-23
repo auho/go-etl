@@ -76,7 +76,7 @@ func (u *Update) GetFields() []string {
 func (u *Update) Summary() string {
 	s := make([]string, 0)
 	for _, m := range u.modes {
-		s = append(s, m.GetTitle())
+		s = append(s, m.Title())
 	}
 
 	return fmt.Sprintf("Update[%s] {%s}", u.source.TableName(), strings.Join(s, ", "))

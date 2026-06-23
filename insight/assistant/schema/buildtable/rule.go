@@ -30,9 +30,9 @@ func (t *RuleTable) build() {
 
 	var keywordFiled *mysql.Field
 	if t.rule.Config().AllowKeywordDuplicate() {
-		keywordFiled = t.Command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
+		keywordFiled = t.Command.AddStringWithLength(t.rule.KeywordName(), t.rule.KeywordLength())
 	} else {
-		keywordFiled = t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.GetKeywordLength())
+		keywordFiled = t.Command.AddUniqueString(t.rule.KeywordName(), t.rule.KeywordLength())
 	}
 
 	keywordFiled.SetCollateUtf8mb4Bin()
@@ -46,9 +46,9 @@ func (t *RuleTable) build() {
 // BuildLabels
 // labels
 func (t *RuleTable) BuildLabels(command *schema.Command) {
-	command.AddStringWithLength(t.rule.GetName(), t.rule.GetNameLength())
+	command.AddStringWithLength(t.rule.GetName(), t.rule.NameLength())
 
-	for label, length := range t.rule.GetLabels() {
+	for label, length := range t.rule.Labels() {
 		command.AddStringWithLength(label, length)
 	}
 }
@@ -58,7 +58,7 @@ func (t *RuleTable) BuildLabels(command *schema.Command) {
 func (t *RuleTable) BuildLabelsForWhole(command *schema.Command, length int) {
 	command.AddStringWithLength(t.rule.GetName(), length)
 
-	for label := range t.rule.GetLabels() {
+	for label := range t.rule.Labels() {
 		command.AddStringWithLength(label, length)
 	}
 }
@@ -67,7 +67,7 @@ func (t *RuleTable) BuildLabelsForWhole(command *schema.Command, length int) {
 // tags
 func (t *RuleTable) BuildTags(command *schema.Command) {
 	t.BuildLabels(command)
-	command.AddStringWithLength(t.rule.KeywordName(), t.rule.GetKeywordLength())
+	command.AddStringWithLength(t.rule.KeywordName(), t.rule.KeywordLength())
 }
 
 // BuildTagsForWhole

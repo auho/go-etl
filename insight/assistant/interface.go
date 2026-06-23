@@ -1,8 +1,8 @@
 package assistant
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/schema"
+	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
@@ -27,9 +27,9 @@ type RuleConfig interface {
 
 type Rule interface {
 	Entity
-	GetNameLength() int
-	GetLabels() map[string]int
-	GetKeywordLength() int
+	NameLength() int
+	Labels() map[string]int
+	KeywordLength() int
 	LabelsName() []string
 	LabelsAlias() map[string]string
 	LabelNumName() string

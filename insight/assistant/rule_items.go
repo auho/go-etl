@@ -95,7 +95,7 @@ func (ri *RuleItems) initName() {
 
 func (ri *RuleItems) initLabels() {
 	var labels []string
-	for label := range ri.rule.GetLabels() {
+	for label := range ri.rule.Labels() {
 		labels = append(labels, label)
 	}
 

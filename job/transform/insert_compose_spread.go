@@ -28,10 +28,10 @@ func NewInsertComposeSpread(modes ...InsertOperator) *InsertComposeSpreadMode {
 	return ic
 }
 
-func (ic *InsertComposeSpreadMode) GetTitle() string {
+func (ic *InsertComposeSpreadMode) Title() string {
 	var ss []string
 	for _, m := range ic.modes {
-		ss = append(ss, m.GetTitle())
+		ss = append(ss, m.Title())
 	}
 
 	return ic.GenTitle("InsertComposeSpreadMode", strings.Join(ss, ";"))

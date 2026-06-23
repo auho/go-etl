@@ -1,7 +1,7 @@
 package search
 
 type Searcher interface {
-	GetTitle() string
+	Title() string
 	Prepare() error
 	GenExport() FieldSpec
 	Do(s []string) Token

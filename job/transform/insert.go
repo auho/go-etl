@@ -37,8 +37,8 @@ func (im *InsertMode) Prepare() error {
 	return nil
 }
 
-func (im *InsertMode) GetTitle() string {
-	return im.GenTitle("InsertMode", im.means.GetTitle())
+func (im *InsertMode) Title() string {
+	return im.GenTitle("InsertMode", im.means.Title())
 }
 
 func (im *InsertMode) GetFields() []string {
@@ -72,7 +72,7 @@ func (im *InsertMode) Do(item map[string]any) []map[string]any {
 }
 
 func (im *InsertMode) State() []string {
-	return []string{fmt.Sprintf("%s: %s", im.GetTitle(), im.GenCounter())}
+	return []string{fmt.Sprintf("%s: %s", im.Title(), im.GenCounter())}
 }
 
 func (im *InsertMode) Close() error {

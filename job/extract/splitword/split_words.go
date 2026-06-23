@@ -22,7 +22,7 @@ func NewSplitWords(sep string, export *Export) *SplitWords {
 	return &SplitWords{sep: sep, export: export}
 }
 
-func (s *SplitWords) GetTitle() string {
+func (s *SplitWords) Title() string {
 	return fmt.Sprintf("SplitWords[%s]", s.sep)
 }
 

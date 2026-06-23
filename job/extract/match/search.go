@@ -46,7 +46,7 @@ func NewSearch[T ResultsEntity](export *Export[T], fn SearchResultsFunc[T]) *Sea
 	}
 }
 
-func (s *Search[T]) GetTitle() string {
+func (s *Search[T]) Title() string {
 	return fmt.Sprintf("Search{%s:%s}", s.export.GetRule().Name(), strings.Join(s.export.GetKeys(), ","))
 }
 

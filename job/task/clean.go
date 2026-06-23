@@ -94,7 +94,7 @@ func (c *Clean) GetFields() []string {
 func (c *Clean) Summary() string {
 	s := make([]string, 0)
 	for _, m := range c.modes {
-		s = append(s, m.GetTitle())
+		s = append(s, m.Title())
 	}
 
 	return fmt.Sprintf("Clean[%s, %s] {%s}",

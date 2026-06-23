@@ -83,7 +83,7 @@ func (u *UpdateTransfer) GetFields() []string {
 func (u *UpdateTransfer) Summary() string {
 	s := make([]string, 0)
 	for _, m := range u.modes {
-		s = append(s, m.GetTitle())
+		s = append(s, m.Title())
 	}
 
 	return fmt.Sprintf("UpdateTransfer[%s] {%s}", u.source.TableName(), strings.Join(s, ", "))

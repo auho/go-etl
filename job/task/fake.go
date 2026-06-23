@@ -21,7 +21,7 @@ type Fake struct {
 func (f *Fake) Title() string {
 	ss := make([]string, 0)
 	for _, m := range f.modes {
-		ss = append(ss, m.GetTitle())
+		ss = append(ss, m.Title())
 	}
 
 	return fmt.Sprintf("Fake {%s}", strings.Join(ss, ", "))

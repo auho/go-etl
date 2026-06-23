@@ -6,7 +6,7 @@ import (
 )
 
 type Collector interface {
-	GetTitle() string
+	Title() string
 	GetKeys() []string // for source select data row
 	Do(item map[string]any, search search.Searcher) search.Token
 }

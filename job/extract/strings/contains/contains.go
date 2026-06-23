@@ -27,7 +27,7 @@ func newContains(subs []string, subMode func([]string) Results, export *Export) 
 
 func (c *Contains) Prepare() error { return nil }
 
-func (c *Contains) GetTitle() string {
+func (c *Contains) Title() string {
 	return fmt.Sprintf("Contains[%s]", c.export.GetRule().Name())
 }
 

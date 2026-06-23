@@ -64,7 +64,7 @@ func (br *baseRule) GetName() string {
 	return br.nameAlias
 }
 
-func (br *baseRule) GetNameLength() int {
+func (br *baseRule) NameLength() int {
 	return br.length
 }
 
@@ -72,11 +72,11 @@ func (br *baseRule) GetIDName() string {
 	return "id"
 }
 
-func (br *baseRule) GetKeywordLength() int {
+func (br *baseRule) KeywordLength() int {
 	return br.keywordLength
 }
 
-func (br *baseRule) GetLabels() map[string]int {
+func (br *baseRule) Labels() map[string]int {
 	return br.labelsAliasLength
 }
 
@@ -90,7 +90,7 @@ func (br *baseRule) TagsName() []string {
 
 func (br *baseRule) LabelsName() []string {
 	var labels []string
-	for label, _ := range br.GetLabels() {
+	for label, _ := range br.Labels() {
 		labels = append(labels, label)
 	}
 

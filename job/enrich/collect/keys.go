@@ -42,7 +42,7 @@ func newKeys(keys []string, way int) *Keys {
 	}
 }
 
-func (k *Keys) GetTitle() string {
+func (k *Keys) Title() string {
 	return fmt.Sprintf("keys{%s}", strings.Join(k.keys, ","))
 }
 
