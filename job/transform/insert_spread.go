@@ -28,7 +28,7 @@ func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	contents := is.GetKeysContent(is.Keys, item)
+	contents := is.GetKeysContent(is.keys, item)
 	if len(contents) <= 0 {
 		return nil
 	}

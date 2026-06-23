@@ -25,7 +25,7 @@ func (w *Wrap) Title() string {
 	return w.means.Title()
 }
 
-func (w *Wrap) GetKeys() []string {
+func (w *Wrap) Keys() []string {
 	return w.keys
 }
 
@@ -39,11 +39,11 @@ func (w *Wrap) Prepare() error {
 		return err
 	}
 
-	w.keys = w.means.GetKeys()
+	w.keys = w.means.Keys()
 	w.defaultValues = w.means.DefaultValues()
 	if w.export != nil {
 		w.hasExport = true
-		w.keys = w.export.GetKeys()
+		w.keys = w.export.Keys()
 		w.defaultValues = w.export.GetDefaultValues()
 	}
 

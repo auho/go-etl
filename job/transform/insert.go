@@ -18,14 +18,14 @@ type InsertMode struct {
 
 func NewInsert(keys []string, means extract.Inserter) *InsertMode {
 	im := &InsertMode{}
-	im.Keys = keys
+	im.keys = keys
 	im.means = means
 
 	return im
 }
 
 func (im *InsertMode) Prepare() error {
-	if len(im.Keys) <= 0 {
+	if len(im.keys) <= 0 {
 		return fmt.Errorf("InsertMode Prepare keys not exists error")
 	}
 
@@ -42,11 +42,11 @@ func (im *InsertMode) Title() string {
 }
 
 func (im *InsertMode) GetFields() []string {
-	return im.Keys
+	return im.keys
 }
 
-func (im *InsertMode) GetKeys() []string {
-	return im.means.GetKeys()
+func (im *InsertMode) Keys() []string {
+	return im.means.Keys()
 }
 
 func (im *InsertMode) DefaultValues() map[string]any {
@@ -60,7 +60,7 @@ func (im *InsertMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	contents := im.GetKeysContent(im.Keys, item)
+	contents := im.GetKeysContent(im.keys, item)
 	if len(contents) <= 0 {
 		return nil
 	}

@@ -33,11 +33,11 @@ func (m *Means) Prepare() error {
 	}
 
 	_export := m.search.GenExport()
-	m.keys = _export.GetKeys()
+	m.keys = _export.Keys()
 	m.defaultValues = _export.GetDefaultValues()
 	if m.export != nil {
 		m.hasExport = true
-		m.keys = m.export.GetKeys()
+		m.keys = m.export.Keys()
 		m.defaultValues = m.export.GetDefaultValues()
 	}
 
@@ -48,7 +48,7 @@ func (m *Means) Title() string {
 	return fmt.Sprintf("means:%s ", m.search.Title())
 }
 
-func (m *Means) GetKeys() []string {
+func (m *Means) Keys() []string {
 	return m.keys
 }
 

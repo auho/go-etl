@@ -22,7 +22,7 @@ type SingleOperator interface {
 
 type InsertOperator interface {
 	Operator
-	GetKeys() []string             // 处理后的 key name
+	Keys() []string                // 处理后的 key name
 	DefaultValues() map[string]any // 需要 implement clone important!
 	Do(map[string]any) []map[string]any
 	State() []string
@@ -37,7 +37,7 @@ type TransferOperator interface {
 }
 
 type Mode struct {
-	Keys   []string // 要被处理的 key name
+	keys   []string // 要被处理的 key name
 	total  int64
 	amount int64
 }
@@ -55,7 +55,7 @@ func (m *Mode) GenCounter() string {
 }
 
 func (m *Mode) GenTitle(name string, means string) string {
-	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.Keys, ", ")+"]", means)
+	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.keys, ", ")+"]", means)
 }
 
 func (m *Mode) GetKeyContent(key string, item map[string]any) string {

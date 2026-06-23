@@ -30,11 +30,11 @@ func (bi *baseInsert) GetFields() []string {
 	return bi.keys
 }
 
-func (bi *baseInsert) GetKeys() []string {
+func (bi *baseInsert) Keys() []string {
 	var keys []string
 
 	for _, _i := range bi.is {
-		keys = append(keys, _i.GetKeys()...)
+		keys = append(keys, _i.Keys()...)
 	}
 
 	keys = slices.SliceDropDuplicates(keys)

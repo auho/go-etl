@@ -39,15 +39,15 @@ func (ic *InsertComposeSpreadMode) Title() string {
 
 func (ic *InsertComposeSpreadMode) GetFields() []string {
 	for _, m := range ic.modes {
-		ic.Keys = append(ic.Keys, m.GetFields()...)
+		ic.keys = append(ic.keys, m.GetFields()...)
 	}
 
-	ic.Keys = slices.SliceDropDuplicates(ic.Keys)
+	ic.keys = slices.SliceDropDuplicates(ic.keys)
 
-	return slices2.Clone(ic.Keys)
+	return slices2.Clone(ic.keys)
 }
 
-func (ic *InsertComposeSpreadMode) GetKeys() []string {
+func (ic *InsertComposeSpreadMode) Keys() []string {
 	return ic.insertKeys
 }
 
@@ -64,7 +64,7 @@ func (ic *InsertComposeSpreadMode) Prepare() error {
 			return err
 		}
 
-		ic.insertKeys = append(ic.insertKeys, m.GetKeys()...)
+		ic.insertKeys = append(ic.insertKeys, m.Keys()...)
 
 		maps.Copy(ic.defaultValues, m.DefaultValues())
 	}

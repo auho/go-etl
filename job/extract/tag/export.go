@@ -48,7 +48,7 @@ func NewExport[T ResultsEntity](rule extract.Rule, df map[string]any, fn func(ct
 	}
 }
 
-func (e *Export[T]) GetKeys() []string {
+func (e *Export[T]) Keys() []string {
 	return e.keys
 }
 

@@ -20,14 +20,14 @@ type insertHorizontalMode struct {
 
 func newInsertHorizontal(keys []string, ms ...extract.Inserter) insertHorizontalMode {
 	ih := insertHorizontalMode{}
-	ih.Keys = keys
+	ih.keys = keys
 	ih.ms = ms
 
 	return ih
 }
 
 func (ih *insertHorizontalMode) Prepare() error {
-	if len(ih.Keys) <= 0 {
+	if len(ih.keys) <= 0 {
 		return fmt.Errorf("insertHorizontalMode Prepare keys not exists error")
 	}
 
@@ -41,7 +41,7 @@ func (ih *insertHorizontalMode) Prepare() error {
 	ih.defaultValues = make(map[string]any)
 
 	for _, m := range ih.ms {
-		ih.insertKeys = append(ih.insertKeys, m.GetKeys()...)
+		ih.insertKeys = append(ih.insertKeys, m.Keys()...)
 
 		maps.Copy(ih.defaultValues, m.DefaultValues())
 	}
@@ -59,10 +59,10 @@ func (ih *insertHorizontalMode) Title() string {
 }
 
 func (ih *insertHorizontalMode) GetFields() []string {
-	return ih.Keys
+	return ih.keys
 }
 
-func (ih *insertHorizontalMode) GetKeys() []string {
+func (ih *insertHorizontalMode) Keys() []string {
 	return ih.insertKeys
 }
 

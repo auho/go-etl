@@ -76,17 +76,17 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(retStack)
 
-	for _, v := range _modeInsertStack.GetKeys() {
+	for _, v := range _modeInsertStack.Keys() {
 		has := false
 
-		for _, v1 := range _modeKeys.GetKeys() {
+		for _, v1 := range _modeKeys.Keys() {
 			if v == v1 {
 				has = true
 				break
 			}
 		}
 
-		for _, v1 := range _modeSegWords.GetKeys() {
+		for _, v1 := range _modeSegWords.Keys() {
 			if v == v1 {
 				has = true
 				break
@@ -115,17 +115,17 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(retCross)
 
-	for _, v := range _modeInsertStack.GetKeys() {
+	for _, v := range _modeInsertStack.Keys() {
 		has := false
 
-		for _, v1 := range _modeMostText.GetKeys() {
+		for _, v1 := range _modeMostText.Keys() {
 			if v == v1 {
 				has = true
 				break
 			}
 		}
 
-		for _, v1 := range _modeSegWords.GetKeys() {
+		for _, v1 := range _modeSegWords.Keys() {
 			if v == v1 {
 				has = true
 				break
@@ -155,17 +155,17 @@ func Test_InsertMode(t *testing.T) {
 	}
 	fmt.Println(retSpread)
 
-	for _, v := range _modeInsertSpread.GetKeys() {
+	for _, v := range _modeInsertSpread.Keys() {
 		has := false
 
-		for _, v1 := range _modeKeys.GetKeys() {
+		for _, v1 := range _modeKeys.Keys() {
 			if v == v1 {
 				has = true
 				break
 			}
 		}
 
-		for _, v1 := range _modeSegWords.GetKeys() {
+		for _, v1 := range _modeSegWords.Keys() {
 			if v == v1 {
 				has = true
 				break

@@ -36,7 +36,7 @@ func NewExport(rule extract.Rule, df map[string]any, fn func(Results, extract.Ru
 	}
 }
 
-func (e *Export) GetKeys() []string {
+func (e *Export) Keys() []string {
 	return e.keys
 }
 

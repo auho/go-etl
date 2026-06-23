@@ -26,7 +26,7 @@ func NewExport(df map[string]any, fn func(ExportContext) []map[string]any) *Expo
 	}
 }
 
-func (e *Export) GetKeys() []string {
+func (e *Export) Keys() []string {
 	var keys []string
 	for k := range e.defaultValues {
 		keys = append(keys, k)

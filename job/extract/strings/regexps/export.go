@@ -36,7 +36,7 @@ func NewExportDefault(rule extract.Rule, fn func(Results, extract.Rule) []map[st
 	return NewExport(rule, map[string]any{rule.NameAlias(): ""}, fn)
 }
 
-func (e *Export) GetKeys() []string {
+func (e *Export) Keys() []string {
 	return e.keys
 }
 

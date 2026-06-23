@@ -45,11 +45,11 @@ func (e *Explore) Title() string {
 }
 
 func (e *Explore) GetFields() []string {
-	return e.collect.GetKeys()
+	return e.collect.Keys()
 }
 
-func (e *Explore) GetKeys() []string {
-	return e.search.GenExport().GetKeys()
+func (e *Explore) Keys() []string {
+	return e.search.GenExport().Keys()
 }
 
 func (e *Explore) DefaultValues() map[string]any {

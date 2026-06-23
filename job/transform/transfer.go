@@ -16,7 +16,7 @@ type TransferMode struct {
 
 func NewTransfer(keys []string, alias map[string]string, fixed map[string]any) *TransferMode {
 	tm := &TransferMode{}
-	tm.Keys = keys
+	tm.keys = keys
 	tm.alias = alias
 	tm.fixed = fixed
 
@@ -55,7 +55,7 @@ func (tm *TransferMode) Title() string {
 }
 
 func (tm *TransferMode) GetFields() []string {
-	return tm.Keys
+	return tm.keys
 }
 
 func (tm *TransferMode) Prepare() error {
@@ -64,7 +64,7 @@ func (tm *TransferMode) Prepare() error {
 
 func (tm *TransferMode) Do(item map[string]any) map[string]any {
 	newItem := make(map[string]any)
-	for _, field := range tm.Keys {
+	for _, field := range tm.keys {
 		if ka, ok := tm.alias[field]; ok {
 			newItem[ka] = item[field]
 		} else {

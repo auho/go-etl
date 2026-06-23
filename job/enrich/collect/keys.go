@@ -46,7 +46,7 @@ func (k *Keys) Title() string {
 	return fmt.Sprintf("keys{%s}", strings.Join(k.keys, ","))
 }
 
-func (k *Keys) GetKeys() []string {
+func (k *Keys) Keys() []string {
 	return k.keys
 }
 

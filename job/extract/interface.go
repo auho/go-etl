@@ -2,7 +2,7 @@ package extract
 
 type Inserter interface {
 	Title() string
-	GetKeys() []string
+	Keys() []string
 	DefaultValues() map[string]any
 	Insert([]string) []map[string]any
 	Prepare() error

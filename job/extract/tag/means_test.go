@@ -15,7 +15,7 @@ func TestMeans(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	keys := _means.GetKeys()
+	keys := _means.Keys()
 	if len(keys) < 3 {
 		t.Fatal()
 	}

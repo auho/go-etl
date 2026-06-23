@@ -35,7 +35,7 @@ func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	contents := ic.GetKeysContent(ic.Keys, item)
+	contents := ic.GetKeysContent(ic.keys, item)
 	if len(contents) <= 0 {
 		return nil
 	}

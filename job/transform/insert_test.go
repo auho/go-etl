@@ -76,9 +76,9 @@ func Test_InsertMode(t *testing.T) {
 		t.Error("error")
 	}
 
-	for _, v := range ti5.GetKeys() {
+	for _, v := range ti5.Keys() {
 		has := false
-		for _, v1 := range tSegWords.GetKeys() {
+		for _, v1 := range tSegWords.Keys() {
 			if v == v1 {
 				has = true
 				break

@@ -24,14 +24,14 @@ type InsertStackMode struct {
 
 func NewInsertStack(keys []string, ms ...extract.Inserter) *InsertStackMode {
 	im := &InsertStackMode{}
-	im.Keys = keys
+	im.keys = keys
 	im.ms = ms
 
 	return im
 }
 
 func (im *InsertStackMode) Prepare() error {
-	if len(im.Keys) <= 0 {
+	if len(im.keys) <= 0 {
 		return fmt.Errorf("InsertStackMode Prepare keys not exists error")
 	}
 
@@ -45,7 +45,7 @@ func (im *InsertStackMode) Prepare() error {
 	im.defaultValues = make(map[string]any)
 
 	for _, m := range im.ms {
-		im.insertKeys = append(im.insertKeys, m.GetKeys()...)
+		im.insertKeys = append(im.insertKeys, m.Keys()...)
 
 		maps.Copy(im.defaultValues, m.DefaultValues())
 	}
@@ -65,10 +65,10 @@ func (im *InsertStackMode) Title() string {
 }
 
 func (im *InsertStackMode) GetFields() []string {
-	return im.Keys
+	return im.keys
 }
 
-func (im *InsertStackMode) GetKeys() []string {
+func (im *InsertStackMode) Keys() []string {
 	return im.insertKeys
 }
 
@@ -83,7 +83,7 @@ func (im *InsertStackMode) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	contents := im.GetKeysContent(im.Keys, item)
+	contents := im.GetKeysContent(im.keys, item)
 	if len(contents) <= 0 {
 		return nil
 	}
