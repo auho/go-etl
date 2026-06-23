@@ -20,11 +20,11 @@ func NewModelTable(m assistant.Rawer) *ModelTable {
 }
 
 func (m *ModelTable) Build() error {
-	return m.build(m.Sql(), m.db)
+	return m.build(m.SQL(), m.db)
 }
 
 func (m *ModelTable) BuildAffixSql() ([]string, error) {
-	_sql := m.Sql()
+	_sql := m.SQL()
 	return _sql, m.build(_sql, m.db)
 }
 

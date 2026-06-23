@@ -11,12 +11,12 @@ type Rawer interface {
 	GetName() string
 	TableName() string
 	ExecCommand(*tablestructure.Command) // exec command func
-	DmlTable() *dml.Table
+	DMLTable() *dml.Table
 }
 
 type Moder interface {
 	Rawer
-	GetIdName() string
+	GetIDName() string
 }
 
 type Rowsor interface {

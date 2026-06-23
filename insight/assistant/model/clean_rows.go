@@ -18,7 +18,7 @@ type CleanRows struct {
 func NewCleanRows(newName string, raw assistant.Moder) *CleanRows {
 	cd := &CleanRows{}
 	cd.raw = raw
-	cd.rows = NewRows(newName, raw.GetIdName(), raw.GetDB())
+	cd.rows = NewRows(newName, raw.GetIDName(), raw.GetDB())
 	cd.deleted = cd.rows.ToDeletedRows()
 
 	return cd

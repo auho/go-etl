@@ -71,7 +71,7 @@ func (ps *PlaceholderSource) Dataset() (*dataset.Dataset, error) {
 	}
 
 	fields := ps.Table.GetSelectFields()
-	sql := ps.Table.Sql()
+	sql := ps.Table.SQL()
 	keys := ps.buildKeys(sql)
 
 	itemsId, itemsSql := ps.buildPlaceholderItemsSqlSet(ps.Source, sql, keys, ps.items)

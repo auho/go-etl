@@ -32,7 +32,7 @@ func (rs *RawSource) Dataset() (*dataset.Dataset, error) {
 	}
 
 	itemsId := []string{rs.Name}
-	itemsSql := map[string]string{rs.Name: rs.Raw.DmlTable().Select([]string{"*"}).Sql()}
+	itemsSql := map[string]string{rs.Name: rs.Raw.DMLTable().Select([]string{"*"}).SQL()}
 
 	sets, err := rs.source.queryItemsSet(
 		fields,

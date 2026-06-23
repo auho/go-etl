@@ -32,7 +32,7 @@ func TestRaw(t *testing.T) {
 		command.AddString("with")
 	})
 
-	sql := rt.Sql()
+	sql := rt.SQL()
 	fmt.Println(sql)
 }
 
@@ -54,7 +54,7 @@ func TestData(t *testing.T) {
 		command.AddString("with")
 	})
 
-	sql := dt.Sql()
+	sql := dt.SQL()
 	fmt.Println(sql)
 }
 
@@ -64,22 +64,22 @@ func TestRule(t *testing.T) {
 			command.AddString("with")
 		})
 
-	sql := rt.Sql()
+	sql := rt.SQL()
 	fmt.Println(sql)
 
 	rt1 := NewRuleTable(_rule1)
 
-	sql = rt1.Sql()
+	sql = rt1.SQL()
 	fmt.Println(sql)
 
 	dr := NewRuleTable(_dataRule)
 
-	sql = dr.Sql()
+	sql = dr.SQL()
 	fmt.Println(sql)
 
 	dr1 := NewRuleTable(_dataRule1)
 
-	sql = dr1.Sql()
+	sql = dr1.SQL()
 	fmt.Println(sql)
 }
 
@@ -89,11 +89,11 @@ func TestTag(t *testing.T) {
 			command.AddString("with")
 		})
 
-	sql := tr.Sql()
+	sql := tr.SQL()
 	fmt.Println(sql)
 
 	tr1 := NewTagDataRuleTable(_tagRule1)
-	sql = tr1.Sql()
+	sql = tr1.SQL()
 	fmt.Println(sql)
 
 	trs := NewTagDataRulesTable(_tagRules).
@@ -101,11 +101,11 @@ func TestTag(t *testing.T) {
 			command.AddString("with")
 		})
 
-	sql = trs.Sql()
+	sql = trs.SQL()
 	fmt.Println(sql)
 
 	trs1 := NewTagDataRulesTable(_tagRules1)
-	sql = trs1.Sql()
+	sql = trs1.SQL()
 	fmt.Println(sql)
 }
 
@@ -115,7 +115,7 @@ func TestDataContent(t *testing.T) {
 			command.AddString("with")
 		})
 
-	sql := dcSeg.Sql()
+	sql := dcSeg.SQL()
 	fmt.Println(sql)
 
 	dcSplit := NewDataContentSplitWordsTable(_dcSplitWords).
@@ -123,7 +123,7 @@ func TestDataContent(t *testing.T) {
 			command.AddString("with")
 		})
 
-	sql = dcSplit.Sql()
+	sql = dcSplit.SQL()
 	fmt.Println(sql)
 }
 

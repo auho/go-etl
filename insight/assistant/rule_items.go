@@ -164,10 +164,10 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 		}
 	}
 
-	table.OrderBy(_originRule.KeywordLenName(), command.SortDesc, _originRule.GetIdName(), command.SortAsc)
+	table.OrderBy(_originRule.KeywordLenName(), command.SortDesc, _originRule.GetIDName(), command.SortAsc)
 
 	var rows []map[string]any
-	sql := table.Sql()
+	sql := table.SQL()
 	err := _rule.GetDB().GormDB().Raw(sql).Scan(&rows).Error
 	if err != nil {
 		return nil, fmt.Errorf("rows error; %w", err)

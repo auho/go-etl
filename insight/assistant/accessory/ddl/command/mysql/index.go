@@ -29,7 +29,7 @@ func (i *Index) AddField(field string, size int) *Index {
 	return i
 }
 
-func (i *Index) SqlForCreateTable() string {
+func (i *Index) SQLForCreateTable() string {
 	var ss []string
 	for _, field := range i.fields {
 		ss = append(ss, fmt.Sprintf("%s", field))
@@ -39,5 +39,5 @@ func (i *Index) SqlForCreateTable() string {
 }
 
 func (i *Index) SqlForAdd(tableName string) string {
-	return fmt.Sprintf("ALTER TABLE `%s` ADD %s", tableName, i.SqlForCreateTable())
+	return fmt.Sprintf("ALTER TABLE `%s` ADD %s", tableName, i.SQLForCreateTable())
 }

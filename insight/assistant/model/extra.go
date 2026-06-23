@@ -13,7 +13,7 @@ type extra struct {
 	model assistant.Rawer
 }
 
-func (e *extra) DmlTable() *dml.Table {
+func (e *extra) DMLTable() *dml.Table {
 	return dml.NewTable(e.model.TableName())
 }
 

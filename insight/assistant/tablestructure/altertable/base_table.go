@@ -27,14 +27,14 @@ func (bt *baseTable) GetTableName() string {
 	return bt.Command.TableName()
 }
 
-func (bt *baseTable) Sql() []string {
+func (bt *baseTable) SQL() []string {
 	bt.execCommand()
-	return bt.Command.SqlForAlterAdd()
+	return bt.Command.SQLForAlterAdd()
 }
 
 func (bt *baseTable) SqlForChange() []string {
 	bt.execCommand()
-	return bt.Command.SqlForAlterChange()
+	return bt.Command.SQLForAlterChange()
 }
 
 func (bt *baseTable) build(sqls []string, db *simpledb.SimpleDB) error {

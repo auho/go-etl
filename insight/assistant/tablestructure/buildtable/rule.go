@@ -24,7 +24,7 @@ func NewRuleTable(rule assistant.Ruler, opts ...TableOption) *RuleTable {
 
 func (t *RuleTable) build() {
 	t.initCommand(t.rule.TableName())
-	t.Command.AddPkInt(t.rule.GetIdName())
+	t.Command.AddPkInt(t.rule.GetIDName())
 
 	t.BuildLabels(t.Command)
 

@@ -15,15 +15,15 @@ import (
 )
 
 type Config struct {
-	Db *DbConfig
+	DB *DBConfig
 }
 
-type DbConfig struct {
+type DBConfig struct {
 	Driver string
-	Dsn    string
+	DSN    string
 }
 
-func (dc *DbConfig) BuildDB() (*simpledb.SimpleDB, *gorm.DB, error) {
+func (dc *DBConfig) BuildDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 	var simpleDB *simpledb.SimpleDB
 	var gormDB *gorm.DB
 	var err error
@@ -43,12 +43,12 @@ func (dc *DbConfig) BuildDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 
 	switch dc.Driver {
 	case "mysql":
-		simpleDB, gormDB, err = simpledb.NewMySQLGorm(dc.Dsn, dbc)
+		simpleDB, gormDB, err = simpledb.NewMySQLGorm(dc.DSN, dbc)
 		if err != nil {
 			err = fmt.Errorf("NewMySQLGorm: %w", err)
 		}
 	case "clickhouse":
-		simpleDB, gormDB, err = simpledb.NewClickHouseGorm(dc.Dsn, dbc)
+		simpleDB, gormDB, err = simpledb.NewClickHouseGorm(dc.DSN, dbc)
 		if err != nil {
 			err = fmt.Errorf("NewClickHouseGorm: %w", err)
 		}
@@ -57,12 +57,12 @@ func (dc *DbConfig) BuildDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 	}
 
 	if simpleDB != nil {
-		sqldb := simpleDB.SqlDB()
-		if sqldb != nil {
+		sqlDB := simpleDB.SqlDB()
+		if sqlDB != nil {
 			conns := runtime.NumCPU() * 2
-			sqldb.SetMaxOpenConns(conns)
-			sqldb.SetMaxIdleConns(conns)
-			sqldb.SetConnMaxLifetime(5 * time.Minute)
+			sqlDB.SetMaxOpenConns(conns)
+			sqlDB.SetMaxIdleConns(conns)
+			sqlDB.SetConnMaxLifetime(5 * time.Minute)
 		}
 	}
 

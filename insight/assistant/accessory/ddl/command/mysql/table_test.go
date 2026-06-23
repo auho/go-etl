@@ -28,5 +28,5 @@ func TestAll(t *testing.T) {
 	t1.AddKey("vc2", 10)
 	t1.AddUniqueKey("vc3")
 
-	fmt.Println(t1.SqlForCreate())
+	fmt.Println(t1.SQLForCreate())
 }

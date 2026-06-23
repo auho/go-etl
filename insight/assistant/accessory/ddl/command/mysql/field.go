@@ -141,11 +141,11 @@ func (f *Field) statement() string {
 	return fmt.Sprintf("%s%s%s%s%s%s%s", name, _type, flag, collate, null, _default, extra)
 }
 
-func (f *Field) SqlForCreateTable() string {
+func (f *Field) SQLForCreateTable() string {
 	return f.statement()
 }
 
-func (f *Field) SqlForAdd(tableName string) string {
+func (f *Field) SQLForAdd(tableName string) string {
 	_after := ""
 	if f.after != "" {
 		_after = fmt.Sprintf(" AFTER `%s`", f.after)
@@ -159,6 +159,6 @@ func (f *Field) SqlForModify() string {
 	return ""
 }
 
-func (f *Field) SqlForChange(tableName string) string {
+func (f *Field) SQLForChange(tableName string) string {
 	return fmt.Sprintf("ALTER TABLE `%s` MODIFY COLUMN %s", tableName, f.statement())
 }

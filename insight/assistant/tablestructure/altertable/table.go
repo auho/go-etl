@@ -17,7 +17,7 @@ func NewTable(tableName string) *Table {
 }
 
 func (t *Table) Build(db *simpledb.SimpleDB) error {
-	return t.build(t.Sql(), db)
+	return t.build(t.SQL(), db)
 }
 
 func (t *Table) BuildChange(db *simpledb.SimpleDB) error {

@@ -15,7 +15,7 @@ var _ Tabler = (*table)(nil)
 type Tabler interface {
 	GetTableName() string
 	GetCommand() *tablestructure.Command
-	Sql() string
+	SQL() string
 	Build() error
 	ExecCommand(func(*tablestructure.Command))
 
@@ -40,8 +40,8 @@ func (t *table) GetTableName() string {
 	return t.Command.TableName()
 }
 
-func (t *table) Sql() string {
-	return t.Command.SqlForCreate()
+func (t *table) SQL() string {
+	return t.Command.SQLForCreate()
 }
 
 func (t *table) Build() error {
@@ -57,7 +57,7 @@ func (t *table) Build() error {
 		}
 	}
 
-	sql := t.Sql()
+	sql := t.SQL()
 	if sql == "" {
 		return t.formatError(errors.New("sql empty error"))
 	}

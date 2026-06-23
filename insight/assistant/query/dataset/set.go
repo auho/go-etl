@@ -8,7 +8,7 @@ type Query struct {
 	Amount   int
 	Duration time.Duration
 	Name     string
-	Sql      string
+	SQL      string
 }
 
 type Set struct {
@@ -24,7 +24,7 @@ func NewSetWithQuery(name string, sql string, d time.Duration, rows [][]any) Set
 		Amount:   len(rows),
 		Duration: d,
 		Name:     name,
-		Sql:      sql,
+		SQL:      sql,
 	}
 
 	s := Set{Name: name}

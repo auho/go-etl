@@ -21,7 +21,7 @@ func NewRows(s Source) *RowsSource {
 func (ts *RowsSource) Dataset() (*dataset.Dataset, error) {
 	fields := ts.Table.GetSelectFields()
 	itemsId := []string{ts.Name}
-	itemsSql := map[string]string{ts.Name: ts.Table.Sql()}
+	itemsSql := map[string]string{ts.Name: ts.Table.SQL()}
 
 	sets, err := ts.queryItemsSet(
 		fields,

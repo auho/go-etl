@@ -16,16 +16,16 @@ func (c *Command) TableName() string {
 	return c.Table.GetName()
 }
 
-func (c *Command) SqlForCreate() string {
-	return c.Table.SqlForCreate()
+func (c *Command) SQLForCreate() string {
+	return c.Table.SQLForCreate()
 }
 
-func (c *Command) SqlForAlterAdd() []string {
-	return c.Table.SqlForAlterAdd()
+func (c *Command) SQLForAlterAdd() []string {
+	return c.Table.SQLForAlterAdd()
 }
 
-func (c *Command) SqlForAlterChange() []string {
-	return c.Table.SqlForAlterChange()
+func (c *Command) SQLForAlterChange() []string {
+	return c.Table.SQLForAlterChange()
 }
 
 func (c *Command) AddKey(name string, size int) {

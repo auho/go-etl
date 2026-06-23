@@ -18,13 +18,13 @@ type statement interface {
 }
 
 type Manipulationor interface {
-	Sql() string
-	InsertSql(name string) string
+	SQL() string
+	InsertSQL(name string) string
 	Insert(name string, db *simpledb.SimpleDB) (string, error)
-	InsertWithFieldsSql(name string, fields []string) string
+	InsertWithFieldsSQL(name string, fields []string) string
 	InsertWithField(name string, fields []string, db *simpledb.SimpleDB) (string, error)
-	UpdateSql() string
+	UpdateSQL() string
 	Update(db *simpledb.SimpleDB) (string, error)
-	DeleteSql() string
+	DeleteSQL() string
 	Delete(db *simpledb.SimpleDB) (string, error)
 }

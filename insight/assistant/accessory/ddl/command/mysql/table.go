@@ -216,10 +216,10 @@ func (t *Table) SetField(filed *Field) *Table {
 	return t
 }
 
-func (t *Table) SqlForAlterAdd() []string {
+func (t *Table) SQLForAlterAdd() []string {
 	var as []string
 	for _, field := range t.fields {
-		as = append(as, field.SqlForAdd(t.name))
+		as = append(as, field.SQLForAdd(t.name))
 	}
 
 	for _, index := range t.indexes {
@@ -229,19 +229,19 @@ func (t *Table) SqlForAlterAdd() []string {
 	return as
 }
 
-func (t *Table) SqlForAlterChange() []string {
+func (t *Table) SQLForAlterChange() []string {
 	var as []string
 	for _, field := range t.fields {
-		as = append(as, field.SqlForChange(t.name))
+		as = append(as, field.SQLForChange(t.name))
 	}
 
 	return as
 }
 
-func (t *Table) SqlForCreate() string {
+func (t *Table) SQLForCreate() string {
 	var columnStringList []string
 	for _, field := range t.fields {
-		columnStringList = append(columnStringList, field.SqlForCreateTable())
+		columnStringList = append(columnStringList, field.SQLForCreateTable())
 	}
 
 	if len(t.primaryKeys) > 0 {
@@ -254,7 +254,7 @@ func (t *Table) SqlForCreate() string {
 	}
 
 	for _, index := range t.indexes {
-		columnStringList = append(columnStringList, index.SqlForCreateTable())
+		columnStringList = append(columnStringList, index.SQLForCreateTable())
 	}
 
 	if t.charset == "" || t.collate == "" {

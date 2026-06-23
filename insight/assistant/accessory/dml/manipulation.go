@@ -9,56 +9,56 @@ type manipulation struct {
 	prepareFunc func()
 }
 
-func (s *manipulation) Sql() string {
+func (s *manipulation) SQL() string {
 	s.prepareFunc()
 
 	return s.st.Query()
 }
 
-func (s *manipulation) InsertSql(name string) string {
+func (s *manipulation) InsertSQL(name string) string {
 	s.prepareFunc()
 
 	return s.st.InsertQuery(name)
 }
 
 func (s *manipulation) Insert(name string, db *simpledb.SimpleDB) (string, error) {
-	_sql := s.InsertSql(name)
+	_sql := s.InsertSQL(name)
 
 	return _sql, db.GormDB().Exec(_sql).Error
 }
 
-func (s *manipulation) InsertWithFieldsSql(name string, fields []string) string {
+func (s *manipulation) InsertWithFieldsSQL(name string, fields []string) string {
 	s.prepareFunc()
 
 	return s.st.InsertWithFieldsQuery(name, fields)
 }
 
 func (s *manipulation) InsertWithField(name string, fields []string, db *simpledb.SimpleDB) (string, error) {
-	_sql := s.InsertWithFieldsSql(name, fields)
+	_sql := s.InsertWithFieldsSQL(name, fields)
 
 	return _sql, db.GormDB().Exec(_sql).Error
 }
 
-func (s *manipulation) UpdateSql() string {
+func (s *manipulation) UpdateSQL() string {
 	s.prepareFunc()
 
 	return s.st.UpdateQuery()
 }
 
 func (s *manipulation) Update(db *simpledb.SimpleDB) (string, error) {
-	_sql := s.UpdateSql()
+	_sql := s.UpdateSQL()
 
 	return _sql, db.GormDB().Exec(_sql).Error
 }
 
-func (s *manipulation) DeleteSql() string {
+func (s *manipulation) DeleteSQL() string {
 	s.prepareFunc()
 
 	return s.st.DeleteQuery()
 }
 
 func (s *manipulation) Delete(db *simpledb.SimpleDB) (string, error) {
-	_sql := s.DeleteSql()
+	_sql := s.DeleteSQL()
 
 	return _sql, db.GormDB().Exec(_sql).Error
 }

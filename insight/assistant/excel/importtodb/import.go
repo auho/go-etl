@@ -8,14 +8,14 @@ import (
 	"github.com/auho/go-etl/v2/tool/slices"
 )
 
-type ImportToDb struct {
+type ImportToDB struct {
 	xlsxPath string
 	resource []Resourcer
 	excel    *read.Excel
 }
 
 func RunImportToDb(xlsxPath string, sr ...Resourcer) error {
-	e := &ImportToDb{
+	e := &ImportToDB{
 		xlsxPath: xlsxPath,
 		resource: sr,
 	}
@@ -23,7 +23,7 @@ func RunImportToDb(xlsxPath string, sr ...Resourcer) error {
 	return e.Import()
 }
 
-func (it *ImportToDb) Import() error {
+func (it *ImportToDB) Import() error {
 	fmt.Println(fmt.Sprintf("import start[%s]", it.xlsxPath))
 
 	var err error
@@ -48,7 +48,7 @@ func (it *ImportToDb) Import() error {
 	return nil
 }
 
-func (it *ImportToDb) importResource(resource Resourcer) error {
+func (it *ImportToDB) importResource(resource Resourcer) error {
 	err := resource.Prepare()
 	if err != nil {
 		return fmt.Errorf("prepare error; %w", err)
@@ -74,9 +74,9 @@ func (it *ImportToDb) importResource(resource Resourcer) error {
 	return nil
 }
 
-func (it *ImportToDb) buildResourceTable(resource Resourcer, table buildtable.Tabler) error {
+func (it *ImportToDB) buildResourceTable(resource Resourcer, table buildtable.Tabler) error {
 	if resource.GetIsShowSql() {
-		fmt.Println(table.Sql())
+		fmt.Println(table.SQL())
 	}
 
 	// TODO Optimize 合并 recreate 至 table
@@ -105,7 +105,7 @@ func (it *ImportToDb) buildResourceTable(resource Resourcer, table buildtable.Ta
 	return nil
 }
 
-func (it *ImportToDb) importResourceToTable(resource Resourcer, table buildtable.Tabler, sheetData read.SheetDataor) error {
+func (it *ImportToDB) importResourceToTable(resource Resourcer, table buildtable.Tabler, sheetData read.SheetDataor) error {
 	var err error
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {

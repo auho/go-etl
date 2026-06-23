@@ -135,7 +135,7 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 	}
 
 	fields := pss.Table.GetSelectFields()
-	keys := pss.buildKeys(pss.Table.Sql())
+	keys := pss.buildKeys(pss.Table.SQL())
 
 	// remove duplicates
 	_categoryIdMap := make(map[string]struct{})
@@ -144,7 +144,7 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 	for _, _category := range pss.categories {
 		var _items []map[string]any
 
-		_categoryId := pss.categoryToId(_category, keys)
+		_categoryId := pss.categoryToID(_category, keys)
 		if _, ok := _categoryIdMap[_categoryId]; ok {
 			continue
 		}
@@ -170,7 +170,7 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 			return nil, fmt.Errorf("dataset error; %w", err)
 		}
 
-		_sets = append(_sets, dataset.NewSetWithSets(pss.categoryToId(_category, _psDs.Keys), _psDs.Sets))
+		_sets = append(_sets, dataset.NewSetWithSets(pss.categoryToID(_category, _psDs.Keys), _psDs.Sets))
 	}
 
 	return &dataset.Dataset{
@@ -180,7 +180,7 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 	}, nil
 }
 
-func (pss *PlaceholderStackSource) categoryToId(category map[string]any, keys []string) string {
+func (pss *PlaceholderStackSource) categoryToID(category map[string]any, keys []string) string {
 	var values []string
 
 	_keysMap := make(map[string]struct{}, len(keys))
@@ -192,7 +192,7 @@ func (pss *PlaceholderStackSource) categoryToId(category map[string]any, keys []
 		if _, ok := _keysMap[_ck]; ok {
 			values = append(values, fmt.Sprintf("%v", _cv))
 		} else {
-			//panic(fmt.Sprintf("categoryToId category[%s] value not found", _ck))
+			//panic(fmt.Sprintf("categoryToID category[%s] value not found", _ck))
 		}
 	}
 
