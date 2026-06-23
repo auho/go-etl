@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/v2/job/means/tag"
+	"github.com/auho/go-etl/v2/job/extract/tag"
 	"github.com/auho/go-etl/v2/job/mode"
 )
 

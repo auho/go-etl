@@ -5,7 +5,7 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/auho/go-etl/v2/job/means"
+	"github.com/auho/go-etl/v2/job/extract"
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 

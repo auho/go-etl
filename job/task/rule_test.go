@@ -3,7 +3,7 @@ package task
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/job/means"
+	"github.com/auho/go-etl/v2/job/extract"
 )
 
 var _ means.Rule = (*ruleTest)(nil)

@@ -3,7 +3,7 @@ package mode
 import (
 	"maps"
 
-	"github.com/auho/go-etl/v2/job/means"
+	"github.com/auho/go-etl/v2/job/extract"
 )
 
 var _ InsertOperator = (*InsertSpreadMode)(nil)

@@ -2,8 +2,8 @@ package task
 
 import (
 	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-etl/v2/job/means"
-	"github.com/auho/go-etl/v2/job/means/tag"
+	"github.com/auho/go-etl/v2/job/extract"
+	"github.com/auho/go-etl/v2/job/extract/tag"
 	"github.com/auho/go-etl/v2/job/mode"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
