@@ -8,10 +8,10 @@ import (
 
 type RuleTable struct {
 	table
-	rule assistant.Ruler
+	rule assistant.Rule
 }
 
-func NewRuleTable(rule assistant.Ruler, opts ...TableOption) *RuleTable {
+func NewRuleTable(rule assistant.Rule, opts ...TableOption) *RuleTable {
 	t := &RuleTable{}
 	t.rule = rule
 	t.db = rule.GetDB()

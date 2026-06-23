@@ -4,7 +4,7 @@ import (
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
-var _ Moder = (*AppendMode)(nil)
+var _ Mode = (*AppendMode)(nil)
 
 // AppendMode
 // append dataset

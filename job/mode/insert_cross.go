@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ InsertModer = (*InsertCrossMode)(nil)
+var _ InsertOperator = (*InsertCrossMode)(nil)
 
 // InsertCrossMode
 // cross means 交叉
@@ -22,7 +22,7 @@ type InsertCrossMode struct {
 	insertHorizontalMode
 }
 
-func NewInsertCross(keys []string, ms ...means.InsertMeans) *InsertCrossMode {
+func NewInsertCross(keys []string, ms ...means.Inserter) *InsertCrossMode {
 	return &InsertCrossMode{
 		insertHorizontalMode: newInsertHorizontal(keys, ms...),
 	}

@@ -1,6 +1,6 @@
 package read
 
-type SheetDataor interface {
+type SheetDataReader interface {
 	ReadData() error
 	HandlerRows(fn func(rows [][]string) ([][]string, error)) error
 	GetRows() [][]string

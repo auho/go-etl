@@ -105,7 +105,7 @@ func (it *ImportToDB) buildResourceTable(resource Resourcer, table buildtable.Ta
 	return nil
 }
 
-func (it *ImportToDB) importResourceToTable(resource Resourcer, table buildtable.Tabler, sheetData read.SheetDataor) error {
+func (it *ImportToDB) importResourceToTable(resource Resourcer, table buildtable.Tabler, sheetData read.SheetDataReader) error {
 	var err error
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {

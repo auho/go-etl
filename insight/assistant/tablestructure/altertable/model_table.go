@@ -12,7 +12,7 @@ type ModelTable struct {
 	db *simpledb.SimpleDB
 }
 
-func NewModelTable(m assistant.Rawer) *ModelTable {
+func NewModelTable(m assistant.Raw) *ModelTable {
 	return &ModelTable{
 		baseTable: newBaseTable(m.TableName()),
 		db:        m.GetDB(),

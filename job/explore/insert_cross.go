@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
-var _ mode.InsertModer = (*InsertCross)(nil)
+var _ mode.InsertOperator = (*InsertCross)(nil)
 
 // InsertCross
 // cross means 交叉

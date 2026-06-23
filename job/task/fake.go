@@ -15,7 +15,7 @@ var _ processor = (*Fake)(nil)
 type Fake struct {
 	task
 
-	modes []mode.Moder
+	modes []mode.Operator
 }
 
 func (f *Fake) Title() string {

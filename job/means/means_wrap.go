@@ -1,7 +1,7 @@
 package means
 
-var _ InsertMeans = (*Wrap)(nil)
-var _ UpdateMeans = (*Wrap)(nil)
+var _ Inserter = (*Wrap)(nil)
+var _ Updater = (*Wrap)(nil)
 
 type Wrap struct {
 	means  *Means

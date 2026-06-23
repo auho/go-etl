@@ -5,9 +5,9 @@ import (
 	"github.com/auho/go-etl/v2/job/explore/search"
 )
 
-var _ Conditioner = (*Condition)(nil)
+var _ Filter = (*Condition)(nil)
 
-type Conditioner interface {
+type Filter interface {
 	OK(map[string]any) bool
 	ToOperation() Operation
 }

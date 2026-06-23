@@ -1,6 +1,6 @@
 package means
 
-type InsertMeans interface {
+type Inserter interface {
 	GetTitle() string
 	GetKeys() []string
 	DefaultValues() map[string]any
@@ -9,14 +9,14 @@ type InsertMeans interface {
 	Close() error
 }
 
-type UpdateMeans interface {
+type Updater interface {
 	GetTitle() string
 	Update([]string) map[string]any
 	Prepare() error
 	Close() error
 }
 
-type Ruler interface {
+type Rule interface {
 	Name() string
 	NameAlias() string
 	TableName() string

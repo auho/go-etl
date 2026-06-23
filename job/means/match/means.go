@@ -6,31 +6,31 @@ import (
 
 // NewFirstText
 // the leftmost text matched
-func NewFirstText(rule means.Ruler) *SearchResults {
+func NewFirstText(rule means.Rule) *SearchResults {
 	return NewSearchFirstText(NewExportKeywordAll(rule))
 }
 
 // NewMostText
 // most text
-func NewMostText(rule means.Ruler) *SearchResults {
+func NewMostText(rule means.Rule) *SearchResults {
 	return NewSearchMostText(NewExportKeywordAll(rule))
 }
 
 // NewKey
 // keyword
-func NewKey(rule means.Ruler) *SearchResults {
+func NewKey(rule means.Rule) *SearchResults {
 	return NewSearchKey(NewExportKeywordAll(rule))
 }
 
 // NewFirstKey
 // the first keyword matched
-func NewFirstKey(rule means.Ruler) *SearchResults {
+func NewFirstKey(rule means.Rule) *SearchResults {
 	return NewSearchFirstKey(NewExportKeywordAll(rule))
 }
 
 // NewMostKey
 // most key
-func NewMostKey(rule means.Ruler) *SearchResults {
+func NewMostKey(rule means.Rule) *SearchResults {
 	return NewSearchMostKey(NewExportKeywordAll(rule))
 }
 
@@ -38,12 +38,12 @@ func NewMostKey(rule means.Ruler) *SearchResults {
 // merge all labels together
 // label1|label2|label3
 // keyword1|keyword2|keyword3|
-func NewWholeLabels(rule means.Ruler) *SearchLabelResults {
+func NewWholeLabels(rule means.Rule) *SearchLabelResults {
 	return NewSearchWholeLabels(NewExportLabelLine(rule))
 }
 
 // NewLabel
 // label tags
-func NewLabel(rule means.Ruler) *SearchLabelResults {
+func NewLabel(rule means.Rule) *SearchLabelResults {
 	return NewSearchLabels(NewExportLabelAll(rule))
 }

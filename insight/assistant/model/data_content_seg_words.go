@@ -8,16 +8,16 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Moder = (*DataContentSegWords)(nil)
+var _ assistant.Entity = (*DataContentSegWords)(nil)
 
 type DataContentSegWords struct {
 	model
 	extra
-	data        assistant.Rowsor
+	data        assistant.Rowser
 	contentName string
 }
 
-func NewDataContentSegWords(data assistant.Rowsor, contentName string, db *simpledb.SimpleDB) *DataContentSegWords {
+func NewDataContentSegWords(data assistant.Rowser, contentName string, db *simpledb.SimpleDB) *DataContentSegWords {
 	dc := &DataContentSegWords{}
 	dc.data = data
 	dc.contentName = contentName
@@ -41,7 +41,7 @@ func (dc *DataContentSegWords) GetIDName() string {
 	return "id"
 }
 
-func (dc *DataContentSegWords) GetData() assistant.Rowsor {
+func (dc *DataContentSegWords) GetData() assistant.Rowser {
 	return dc.data
 }
 

@@ -1,7 +1,7 @@
 package condition
 
-var _ Conditioner = (*AND)(nil)
-var _ Conditioner = (*OR)(nil)
+var _ Filter = (*AND)(nil)
+var _ Filter = (*OR)(nil)
 
 type Operation func(map[string]any) bool
 

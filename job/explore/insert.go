@@ -7,7 +7,7 @@ import (
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
-var _ mode.InsertModer = (*Insert)(nil)
+var _ mode.InsertOperator = (*Insert)(nil)
 
 type Insert struct {
 	*Explore

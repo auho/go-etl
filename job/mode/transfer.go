@@ -4,7 +4,7 @@ import (
 	"sort"
 )
 
-var _ TransferModer = (*TransferMode)(nil)
+var _ TransferOperator = (*TransferMode)(nil)
 
 type TransferMode struct {
 	Mode

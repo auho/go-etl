@@ -9,19 +9,19 @@ import (
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
-var _ InsertModer = (*InsertComposeSpreadMode)(nil)
+var _ InsertOperator = (*InsertComposeSpreadMode)(nil)
 
 // InsertComposeSpreadMode
 // compose spread 取第一个 spread
 type InsertComposeSpreadMode struct {
 	Mode
-	modes []InsertModer
+	modes []InsertOperator
 
 	insertKeys    []string
 	defaultValues map[string]any
 }
 
-func NewInsertComposeSpread(modes ...InsertModer) *InsertComposeSpreadMode {
+func NewInsertComposeSpread(modes ...InsertOperator) *InsertComposeSpreadMode {
 	ic := &InsertComposeSpreadMode{}
 	ic.modes = modes
 

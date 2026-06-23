@@ -6,8 +6,8 @@ import (
 	"github.com/auho/go-etl/v2/job/explore/search"
 )
 
-var _ InsertMeans = (*Means)(nil)
-var _ UpdateMeans = (*Means)(nil)
+var _ Inserter = (*Means)(nil)
+var _ Updater = (*Means)(nil)
 
 type Means struct {
 	search search.Searcher

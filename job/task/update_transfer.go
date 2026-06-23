@@ -40,13 +40,13 @@ type UpdateTransfer struct {
 	producerTask
 
 	source job.Source
-	modes  []mode.UpdateModer
+	modes  []mode.UpdateOperator
 
 	config UpdateTransferConfig
 	dst    *destination.Bulk[storage.MapEntry]
 }
 
-func NewUpdateAndTransfer(source job.Source, target job.Target, modes []mode.UpdateModer, opts ...func(*UpdateTransfer)) *UpdateTransfer {
+func NewUpdateAndTransfer(source job.Source, target job.Target, modes []mode.UpdateOperator, opts ...func(*UpdateTransfer)) *UpdateTransfer {
 	u := &UpdateTransfer{}
 	u.source = source
 	u.modes = modes

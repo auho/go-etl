@@ -17,7 +17,7 @@ var _ Resourcer = (*RuleResource)(nil)
 type RuleResource struct {
 	Resource
 	Titles // column title of save to db
-	Rule   assistant.Ruler
+	Rule   assistant.Rule
 }
 
 func (rs *RuleResource) Prepare() error {
@@ -32,7 +32,7 @@ func (rs *RuleResource) GetTable() buildtable.Tabler {
 	return buildtable.NewRuleTable(rs.Rule)
 }
 
-func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error) {
+func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, error) {
 	sheetData, err := rs.readSheetData(excel, rs.buildSheetConfig())
 	if err != nil {
 		return nil, fmt.Errorf("readSheetData error; %w", err)

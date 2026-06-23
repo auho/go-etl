@@ -5,7 +5,7 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Rawer = (*Raw)(nil)
+var _ assistant.Raw = (*Raw)(nil)
 
 type Raw struct {
 	model

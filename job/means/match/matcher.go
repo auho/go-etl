@@ -46,7 +46,7 @@ func (mc *matcherConfig) check() {
 	mc.fuzzyConfig.check()
 }
 
-func defaultMatcher(rule means.Ruler, config *matcherConfig) (*matcher, error) {
+func defaultMatcher(rule means.Rule, config *matcherConfig) (*matcher, error) {
 	items, err := rule.ItemsAlias()
 	if err != nil {
 		return nil, fmt.Errorf("ItemsAlias error; %w", err)

@@ -9,7 +9,7 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.RuleConfigure = (*RuleConfig)(nil)
+var _ assistant.RuleConfig = (*RuleConfig)(nil)
 
 type RuleConfig struct {
 	allowKeywordDuplicate bool
@@ -125,7 +125,7 @@ func (br *baseRule) KeywordAmountName() string {
 	return fmt.Sprintf("%s_%s", br.nameAlias, NameKeywordAmount)
 }
 
-func (br *baseRule) Config() assistant.RuleConfigure {
+func (br *baseRule) Config() assistant.RuleConfig {
 	return br.config
 }
 

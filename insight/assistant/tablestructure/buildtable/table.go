@@ -89,7 +89,7 @@ func (t *table) options(opts []TableOption) {
 }
 
 // exec model command
-func (t *table) execRawCommandFunc(r assistant.Rawer) {
+func (t *table) execRawCommandFunc(r assistant.Raw) {
 	r.ExecCommand(t.Command)
 }
 

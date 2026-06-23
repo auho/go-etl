@@ -9,12 +9,12 @@ import (
 
 type RawSource struct {
 	Name string
-	Raw  assistant.Rawer
+	Raw  assistant.Raw
 
 	source Source
 }
 
-func NewRaw(name string, raw assistant.Rawer) *RawSource {
+func NewRaw(name string, raw assistant.Raw) *RawSource {
 	return &RawSource{
 		Name: name,
 		Raw:  raw,

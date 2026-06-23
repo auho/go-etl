@@ -8,32 +8,32 @@ import (
 	strings2 "github.com/auho/go-toolkit/farmtools/convert/types/strings"
 )
 
-type Moder interface {
+type Operator interface {
 	GetTitle() string
 	GetFields() []string // source data 里的 key name
 	Prepare() error
 	Close() error
 }
 
-type VoidModer interface {
-	Moder
+type SingleOperator interface {
+	Operator
 	Do(map[string]any) map[string]any
 }
 
-type InsertModer interface {
-	Moder
+type InsertOperator interface {
+	Operator
 	GetKeys() []string             // 处理后的 key name
 	DefaultValues() map[string]any // 需要 implement clone important!
 	Do(map[string]any) []map[string]any
 	State() []string
 }
 
-type UpdateModer interface {
-	VoidModer
+type UpdateOperator interface {
+	SingleOperator
 }
 
-type TransferModer interface {
-	VoidModer
+type TransferOperator interface {
+	SingleOperator
 }
 
 type Mode struct {

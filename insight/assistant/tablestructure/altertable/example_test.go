@@ -7,7 +7,7 @@ import (
 )
 
 var _db *simpledb.SimpleDB
-var _raw assistant.Rawer
+var _raw assistant.Raw
 
 func ExampleNewTable() {
 	_ = NewTable("tableName").

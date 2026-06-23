@@ -20,7 +20,7 @@ type Resourcer interface {
 	GetTable() buildtable.Tabler
 	GetTitlesName() []string
 	GetTitlesIndex() []int
-	GetSheetData(*read.Excel) (read.SheetDataor, error)
+	GetSheetData(*read.Excel) (read.SheetDataReader, error)
 
 	CommandExec(*tablestructure.Command)
 	PostDo(Resourcer) error

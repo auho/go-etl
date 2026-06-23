@@ -9,20 +9,20 @@ import (
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
-var _ InsertModer = (*InsertStackMode)(nil)
+var _ InsertOperator = (*InsertStackMode)(nil)
 
 // InsertStackMode
 // stack means
 // 多个 means append(上下拼接)，使用相同 column name
 type InsertStackMode struct {
 	Mode
-	ms []means.InsertMeans
+	ms []means.Inserter
 
 	insertKeys    []string
 	defaultValues map[string]any
 }
 
-func NewInsertStack(keys []string, ms ...means.InsertMeans) *InsertStackMode {
+func NewInsertStack(keys []string, ms ...means.Inserter) *InsertStackMode {
 	im := &InsertStackMode{}
 	im.Keys = keys
 	im.ms = ms

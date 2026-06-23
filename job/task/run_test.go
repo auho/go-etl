@@ -10,10 +10,10 @@ import (
 
 func Test_Update(t *testing.T) {
 	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
-	ua := NewUpdate(_source, []mode.UpdateModer{m})
+	ua := NewUpdate(_source, []mode.UpdateOperator{m})
 
 	RunProducer(_source, []itemProducer{ua})
-	UpdateTask(_source, []mode.UpdateModer{m})
+	UpdateTask(_source, []mode.UpdateOperator{m})
 
 	var count int64
 	err := _gormDB.Table(_dataTable).Where(fmt.Sprintf("%s != ?", "a"), "").Count(&count).Error
@@ -29,7 +29,7 @@ func Test_Update(t *testing.T) {
 
 func Test_UpdateAndTransfer(t *testing.T) {
 	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
-	UpdateAndTransferTask(_source, _targetUpdateTransfer, []mode.UpdateModer{m})
+	UpdateAndTransferTask(_source, _targetUpdateTransfer, []mode.UpdateOperator{m})
 
 	dataCount := getAmount(_dataTable, t)
 	transferCount := getAmount(_updateAndTransferTable, t)
@@ -113,7 +113,7 @@ func Test_Transfer(t *testing.T) {
 func Test_Clean(t *testing.T) {
 	m := mode.NewUpdate([]string{_keyName}, tag.NewMostKey(_rule).ToMeans())
 
-	CleanTask(_targetClean, []mode.UpdateModer{m})
+	CleanTask(_targetClean, []mode.UpdateOperator{m})
 	dataCount := getAmount(_source.TableName(), t)
 	cDataCount := getAmount(_targetClean.Data().TableName(), t)
 	cDeletedCount := getAmount(_targetClean.Deleted().TableName(), t)

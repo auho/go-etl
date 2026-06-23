@@ -35,7 +35,7 @@ type Search[T ResultsEntity] struct {
 	searchResultsFun SearchResultsFunc[T]
 
 	matcherConfig *matcherConfig
-	newMatcherFun func(means.Ruler, *matcherConfig) (*matcher, error)
+	newMatcherFun func(means.Rule, *matcherConfig) (*matcher, error)
 }
 
 func NewSearch[T ResultsEntity](export *Export[T], fn SearchResultsFunc[T]) *Search[T] {

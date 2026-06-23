@@ -12,7 +12,7 @@ var _ Resourcer = (*RowsResource)(nil)
 type RowsResource struct {
 	Resource
 	Titles // column title of save to db
-	Rows   assistant.Rowsor
+	Rows   assistant.Rowser
 }
 
 func (rs *RowsResource) Prepare() error {
@@ -27,7 +27,7 @@ func (rs *RowsResource) GetTable() buildtable.Tabler {
 	return buildtable.NewRowsTable(rs.Rows)
 }
 
-func (rs *RowsResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error) {
+func (rs *RowsResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, error) {
 	return rs.readSheetData(excel, rs.buildSheetConfig())
 }
 

@@ -7,7 +7,7 @@ import (
 	"github.com/auho/go-etl/v2/job/mode"
 )
 
-var _ mode.UpdateModer = (*Update)(nil)
+var _ mode.UpdateOperator = (*Update)(nil)
 
 type Update struct {
 	*Explore

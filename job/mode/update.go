@@ -7,16 +7,16 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ UpdateModer = (*UpdateMode)(nil)
+var _ UpdateOperator = (*UpdateMode)(nil)
 
 // UpdateMode
 // handle some keys of data for update
 type UpdateMode struct {
 	Mode
-	ms []means.UpdateMeans
+	ms []means.Updater
 }
 
-func NewUpdate(keys []string, ms ...means.UpdateMeans) *UpdateMode {
+func NewUpdate(keys []string, ms ...means.Updater) *UpdateMode {
 	um := &UpdateMode{}
 	um.Keys = keys
 	um.ms = ms

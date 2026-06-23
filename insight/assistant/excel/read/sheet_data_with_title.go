@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-var _ SheetDataor = (*SheetDataWithTitle)(nil)
+var _ SheetDataReader = (*SheetDataWithTitle)(nil)
 
 type SheetDataWithTitle struct {
 	sheetData

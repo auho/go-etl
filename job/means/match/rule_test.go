@@ -4,8 +4,8 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ means.Ruler = (*ruleTest)(nil)
-var _ means.Ruler = (*ruleAliasFixedTest)(nil)
+var _ means.Rule = (*ruleTest)(nil)
+var _ means.Rule = (*ruleAliasFixedTest)(nil)
 
 // ruleTest
 // rule

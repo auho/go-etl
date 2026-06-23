@@ -37,14 +37,14 @@ var _ itemProducer = (*Insert)(nil)
 type Insert struct {
 	producerTask
 
-	mode mode.InsertModer
+	mode mode.InsertOperator
 
 	config InsertConfig
 }
 
 // NewInsert
 // insert
-func NewInsert(target job.Target, moder mode.InsertModer, opts ...func(*Insert)) *Insert {
+func NewInsert(target job.Target, moder mode.InsertOperator, opts ...func(*Insert)) *Insert {
 	i := &Insert{}
 	i.mode = moder
 	i.target = target

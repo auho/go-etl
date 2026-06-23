@@ -7,16 +7,16 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ InsertModer = (*InsertMode)(nil)
+var _ InsertOperator = (*InsertMode)(nil)
 
 // InsertMode
 // single means
 type InsertMode struct {
 	Mode
-	means means.InsertMeans
+	means means.Inserter
 }
 
-func NewInsert(keys []string, means means.InsertMeans) *InsertMode {
+func NewInsert(keys []string, means means.Inserter) *InsertMode {
 	im := &InsertMode{}
 	im.Keys = keys
 	im.means = means

@@ -9,7 +9,7 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Rowsor = (*Rows)(nil)
+var _ assistant.Rowser = (*Rows)(nil)
 
 type Rows struct {
 	model

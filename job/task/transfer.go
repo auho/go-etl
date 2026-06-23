@@ -12,10 +12,10 @@ var _ itemProducer = (*Transfer)(nil)
 type Transfer struct {
 	producerTask
 
-	mode mode.TransferModer
+	mode mode.TransferOperator
 }
 
-func NewTransfer(target job.Target, moder mode.TransferModer) *Transfer {
+func NewTransfer(target job.Target, moder mode.TransferOperator) *Transfer {
 	t := &Transfer{}
 	t.target = target
 	t.mode = moder

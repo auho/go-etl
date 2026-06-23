@@ -6,7 +6,7 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-type Rawer interface {
+type Raw interface {
 	GetDB() *simpledb.SimpleDB
 	GetName() string
 	TableName() string
@@ -14,27 +14,27 @@ type Rawer interface {
 	DMLTable() *dml.Table
 }
 
-type Moder interface {
-	Rawer
+type Entity interface {
+	Raw
 	GetIDName() string
 }
 
-type Rowsor interface {
-	Moder
+type Rowser interface {
+	Entity
 }
 
-type Dataor interface {
-	Rowsor
+type Dataer interface {
+	Rowser
 }
 
-var _ Moder = Ruler(nil)
+var _ Entity = Rule(nil)
 
-type RuleConfigure interface {
+type RuleConfig interface {
 	AllowKeywordDuplicate() bool
 }
 
-type Ruler interface {
-	Moder
+type Rule interface {
+	Entity
 	GetNameLength() int
 	GetLabels() map[string]int
 	GetKeywordLength() int
@@ -46,7 +46,7 @@ type Ruler interface {
 	KeywordLenName() string
 	KeywordNumName() string
 	KeywordAmountName() string
-	ToOriginRule() Ruler
+	ToOriginRule() Rule
 	ToItems(opts ...func(items *RuleItems)) *RuleItems
-	Config() RuleConfigure
+	Config() RuleConfig
 }

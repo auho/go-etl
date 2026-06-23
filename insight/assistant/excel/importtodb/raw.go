@@ -14,7 +14,7 @@ var _ Resourcer = (*RawResource)(nil)
 type RawResource struct {
 	Resource
 
-	Rows assistant.Rowsor
+	Rows assistant.Rowser
 
 	titlesName []string
 	sheetData  *read.SheetDataWithTitle
@@ -49,7 +49,7 @@ func (rs *RawResource) GetTitlesIndex() []int {
 	return indexes
 }
 
-func (rs *RawResource) GetSheetData(excel *read.Excel) (read.SheetDataor, error) {
+func (rs *RawResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, error) {
 	var err error
 	rs.sheetData, err = rs.readSheetData(excel, rs.buildSheetConfig())
 

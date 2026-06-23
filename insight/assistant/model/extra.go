@@ -10,7 +10,7 @@ import (
 )
 
 type extra struct {
-	model assistant.Rawer
+	model assistant.Raw
 }
 
 func (e *extra) DMLTable() *dml.Table {
@@ -55,7 +55,7 @@ func (e *extra) Truncate() error {
 	return e.model.GetDB().Truncate(e.model.TableName())
 }
 
-func (e *extra) CopyBuild(dst assistant.Rawer) error {
+func (e *extra) CopyBuild(dst assistant.Raw) error {
 	err := dst.GetDB().Drop(dst.TableName())
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (e *extra) CopyBuild(dst assistant.Rawer) error {
 	return e.model.GetDB().CopyStructure(e.model.TableName(), dst.TableName())
 }
 
-func (e *extra) CopyBuildAndData(dst assistant.Rawer) error {
+func (e *extra) CopyBuildAndData(dst assistant.Raw) error {
 	err := e.CopyBuild(dst)
 	if err != nil {
 		return err

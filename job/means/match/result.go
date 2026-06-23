@@ -36,7 +36,7 @@ func NewResult() Result {
 	return m
 }
 
-func (r *Result) ToTag(rule means.Ruler) map[string]any {
+func (r *Result) ToTag(rule means.Rule) map[string]any {
 	item := make(map[string]any)
 
 	for _k, _v := range r.Tags {
@@ -54,7 +54,7 @@ func (r *Result) ToTag(rule means.Ruler) map[string]any {
 // result
 type Results []Result
 
-func (rs Results) ToAll(rule means.Ruler) []map[string]any {
+func (rs Results) ToAll(rule means.Rule) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
 
 	items := make([]map[string]any, 0, len(rs))
@@ -65,14 +65,14 @@ func (rs Results) ToAll(rule means.Ruler) []map[string]any {
 	return items
 }
 
-func (rs Results) ToLine(rule means.Ruler, format Format) []map[string]any {
+func (rs Results) ToLine(rule means.Rule, format Format) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordNumNameAlias())
 	m := rs.MergeKeysToWhole(rule, format)
 
 	return []map[string]any{maps.PluckMap(m, keys)}
 }
 
-func (rs Results) ToFlag(rule means.Ruler, format Format) []map[string]any {
+func (rs Results) ToFlag(rule means.Rule, format Format) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias())
 	m := rs.MergeKeysToWhole(rule, format)
 	m[rule.NameAlias()] = 1
@@ -80,7 +80,7 @@ func (rs Results) ToFlag(rule means.Ruler, format Format) []map[string]any {
 	return []map[string]any{maps.PluckMap(m, keys)}
 }
 
-func (rs Results) MergeKeysToWhole(rule means.Ruler, format Format) map[string]any {
+func (rs Results) MergeKeysToWhole(rule means.Rule, format Format) map[string]any {
 	keyNum := 0
 	keyAmount := 0
 	tagsValues := make(map[string][]string)
@@ -131,7 +131,7 @@ func NewLabelResult() LabelResult {
 	return l
 }
 
-func (lr *LabelResult) ToTag(rule means.Ruler, format Format) map[string]any {
+func (lr *LabelResult) ToTag(rule means.Rule, format Format) map[string]any {
 	m := make(map[string]any)
 
 	for _tn, _tv := range lr.Tags {
@@ -171,7 +171,7 @@ func (lr *LabelResult) ToTag(rule means.Ruler, format Format) map[string]any {
 // label results
 type LabelResults []LabelResult
 
-func (lrs LabelResults) ToAll(rule means.Ruler, format Format) []map[string]any {
+func (lrs LabelResults) ToAll(rule means.Rule, format Format) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())
 
 	items := make([]map[string]any, 0, len(lrs))
@@ -182,14 +182,14 @@ func (lrs LabelResults) ToAll(rule means.Ruler, format Format) []map[string]any 
 	return items
 }
 
-func (lrs LabelResults) ToLine(rule means.Ruler, format Format) []map[string]any {
+func (lrs LabelResults) ToLine(rule means.Rule, format Format) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.LabelNumNameAlias(), rule.KeywordNumNameAlias(), rule.KeywordAmountNameAlias())
 	m := lrs.MergeLabelsToWhole(rule, format)
 
 	return []map[string]any{maps.PluckMap(m, keys)}
 }
 
-func (lrs LabelResults) ToFlag(rule means.Ruler, format Format) []map[string]any {
+func (lrs LabelResults) ToFlag(rule means.Rule, format Format) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias())
 	m := lrs.MergeLabelsToWhole(rule, format)
 	m[rule.NameAlias()] = 1
@@ -197,7 +197,7 @@ func (lrs LabelResults) ToFlag(rule means.Ruler, format Format) []map[string]any
 	return []map[string]any{maps.PluckMap(m, keys)}
 }
 
-func (lrs LabelResults) MergeLabelsToWhole(rule means.Ruler, format Format) map[string]any {
+func (lrs LabelResults) MergeLabelsToWhole(rule means.Rule, format Format) map[string]any {
 	sort.SliceStable(lrs, func(i, j int) bool {
 		return lrs[i].Identity < lrs[j].Identity
 	})

@@ -4,21 +4,21 @@ import (
 	"fmt"
 )
 
-type Mode string
+type MergeMode string
 
-const ModeAppend Mode = "append"
-const ModeSpread Mode = "spread"
+const ModeAppend MergeMode = "append"
+const ModeSpread MergeMode = "spread"
 
-// Moder
+// Mode
 // how to merge datasets
-type Moder interface {
+type Mode interface {
 	Data() (*Data, error)
 	Name() string
 	Sets() []Set
 }
 
-func NewMode(mode Mode, ds *Dataset) (Moder, error) {
-	var dsMode Moder
+func NewMode(mode MergeMode, ds *Dataset) (Mode, error) {
+	var dsMode Mode
 	switch mode {
 	case ModeAppend:
 		dsMode = NewAppendMode(ds)

@@ -11,14 +11,14 @@ import (
 var _ search.Exporter = (*Export)(nil)
 
 type Export struct {
-	rule          means.Ruler
+	rule          means.Rule
 	keys          []string
 	defaultValues map[string]any
 
-	resultsToToken func(Results, means.Ruler) []map[string]any
+	resultsToToken func(Results, means.Rule) []map[string]any
 }
 
-func NewExport(rule means.Ruler, df map[string]any, fn func(Results, means.Ruler) []map[string]any) *Export {
+func NewExport(rule means.Rule, df map[string]any, fn func(Results, means.Rule) []map[string]any) *Export {
 	var keys []string
 	for k := range df {
 		keys = append(keys, k)
@@ -32,7 +32,7 @@ func NewExport(rule means.Ruler, df map[string]any, fn func(Results, means.Ruler
 	}
 }
 
-func NewExportDefault(rule means.Ruler, fn func(Results, means.Ruler) []map[string]any) *Export {
+func NewExportDefault(rule means.Rule, fn func(Results, means.Rule) []map[string]any) *Export {
 	return NewExport(rule, map[string]any{rule.NameAlias(): ""}, fn)
 }
 
@@ -44,7 +44,7 @@ func (e *Export) GetDefaultValues() map[string]any {
 	return e.defaultValues
 }
 
-func (e *Export) GetRule() means.Ruler {
+func (e *Export) GetRule() means.Rule {
 	return e.rule
 }
 
@@ -83,13 +83,13 @@ func (e *Export) ToToken(results Results) search.Token {
 	return token
 }
 
-func NewExportAll(rule means.Ruler) *Export {
+func NewExportAll(rule means.Rule) *Export {
 	df := map[string]any{
 		rule.NameAlias():              "",
 		rule.KeywordAmountNameAlias(): 0,
 	}
 
-	return NewExport(rule, df, func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(rule, df, func(results Results, rule means.Rule) []map[string]any {
 		if results == nil {
 			return nil
 		}
@@ -98,14 +98,14 @@ func NewExportAll(rule means.Ruler) *Export {
 	})
 }
 
-func NewExportLine(rule means.Ruler) *Export {
+func NewExportLine(rule means.Rule) *Export {
 	df := map[string]any{
 		rule.NameAlias():              "",
 		rule.KeywordNumNameAlias():    0,
 		rule.KeywordAmountNameAlias(): 0,
 	}
 
-	return NewExport(rule, df, func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(rule, df, func(results Results, rule means.Rule) []map[string]any {
 		if results == nil {
 			return nil
 		}
@@ -114,13 +114,13 @@ func NewExportLine(rule means.Ruler) *Export {
 	})
 }
 
-func NewExportFlag(rule means.Ruler) *Export {
+func NewExportFlag(rule means.Rule) *Export {
 	df := map[string]any{
 		rule.NameAlias():        0,
 		rule.KeywordNameAlias(): "",
 	}
 
-	return NewExport(rule, df, func(results Results, rule means.Ruler) []map[string]any {
+	return NewExport(rule, df, func(results Results, rule means.Rule) []map[string]any {
 		if results == nil {
 			return nil
 		}

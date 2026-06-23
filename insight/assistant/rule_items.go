@@ -9,7 +9,7 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ means.Ruler = (*RuleItems)(nil)
+var _ means.Rule = (*RuleItems)(nil)
 
 // RuleItemsConfig
 // rule items config
@@ -29,7 +29,7 @@ func WithRuleItemsConfig(config RuleItemsConfig) func(*RuleItems) {
 // alias: [data name] => [output name]
 // keywordFormatFunc: [data keyword value] => [regexp keyword value]
 type RuleItems struct {
-	rule              Ruler
+	rule              Rule
 	alias             map[string]string
 	keywordFormatFunc func(string) string
 
@@ -54,7 +54,7 @@ type RuleItems struct {
 	keywordAmountNameAlias string
 }
 
-func NewRuleItems(rule Ruler, opts ...func(items *RuleItems)) *RuleItems {
+func NewRuleItems(rule Rule, opts ...func(items *RuleItems)) *RuleItems {
 	ri := &RuleItems{}
 	ri.rule = rule
 

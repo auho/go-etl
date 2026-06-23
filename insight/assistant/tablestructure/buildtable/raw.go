@@ -7,10 +7,10 @@ import (
 
 type RawTable struct {
 	table
-	raw assistant.Rawer
+	raw assistant.Raw
 }
 
-func NewRawTable(raw assistant.Rawer, opts ...TableOption) *RawTable {
+func NewRawTable(raw assistant.Raw, opts ...TableOption) *RawTable {
 	t := &RawTable{}
 	t.raw = raw
 	t.db = raw.GetDB()

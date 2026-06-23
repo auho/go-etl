@@ -9,7 +9,7 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Ruler = (*Rule)(nil)
+var _ assistant.Rule = (*Rule)(nil)
 
 const defaultStringLen = 30
 
@@ -50,7 +50,7 @@ func (r *Rule) TableName() string {
 	return fmt.Sprintf("%s_%s", NameRule, _n)
 }
 
-func (r *Rule) ToOriginRule() assistant.Ruler {
+func (r *Rule) ToOriginRule() assistant.Rule {
 	return r.handlerOrigin()
 }
 

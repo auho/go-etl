@@ -4,7 +4,7 @@ import (
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
-var _ Moder = (*SpreadMode)(nil)
+var _ Mode = (*SpreadMode)(nil)
 
 // SpreadMode
 // spread dataset

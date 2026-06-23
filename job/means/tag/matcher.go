@@ -50,7 +50,7 @@ func defaultMatcherKeyFormatFunc(s string) string {
 	}
 }
 
-func defaultMatcher(rule means.Ruler, config *matcherConfig) (*matcher, error) {
+func defaultMatcher(rule means.Rule, config *matcherConfig) (*matcher, error) {
 	items, err := rule.ItemsForRegexp()
 	if err != nil {
 		return nil, fmt.Errorf("ItemsForRegexp error; %w", err)

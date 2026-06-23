@@ -12,7 +12,7 @@ import (
 
 type subQuery struct {
 	source      source.Sourcer
-	datasetMode dataset.Mode
+	datasetMode dataset.MergeMode
 	state       sqlState
 }
 
@@ -81,7 +81,7 @@ func (q *Query) AddSpread(source source.Sourcer) {
 	q.add(dataset.ModeSpread, source)
 }
 
-func (q *Query) add(dm dataset.Mode, s source.Sourcer) {
+func (q *Query) add(dm dataset.MergeMode, s source.Sourcer) {
 	q.queries = append(q.queries, &subQuery{
 		source:      s,
 		datasetMode: dm,

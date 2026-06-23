@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/means"
 )
 
-var _ InsertModer = (*InsertSpreadMode)(nil)
+var _ InsertOperator = (*InsertSpreadMode)(nil)
 
 // InsertSpreadMode
 // spread means
@@ -15,7 +15,7 @@ type InsertSpreadMode struct {
 	insertHorizontalMode
 }
 
-func NewInsertSpread(keys []string, ms ...means.InsertMeans) *InsertSpreadMode {
+func NewInsertSpread(keys []string, ms ...means.Inserter) *InsertSpreadMode {
 	return &InsertSpreadMode{
 		insertHorizontalMode: newInsertHorizontal(keys, ms...),
 	}

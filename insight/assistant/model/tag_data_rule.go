@@ -8,16 +8,16 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Moder = (*TagDataRule)(nil)
+var _ assistant.Entity = (*TagDataRule)(nil)
 
 type TagDataRule struct {
 	model
 	extra
-	data assistant.Rowsor
-	rule assistant.Ruler
+	data assistant.Rowser
+	rule assistant.Rule
 }
 
-func NewTagDataRule(data assistant.Rowsor, rule assistant.Ruler, db *simpledb.SimpleDB) *TagDataRule {
+func NewTagDataRule(data assistant.Rowser, rule assistant.Rule, db *simpledb.SimpleDB) *TagDataRule {
 	t := &TagDataRule{}
 	t.data = data
 	t.rule = rule
@@ -29,11 +29,11 @@ func NewTagDataRule(data assistant.Rowsor, rule assistant.Ruler, db *simpledb.Si
 	return t
 }
 
-func (t *TagDataRule) GetData() assistant.Rowsor {
+func (t *TagDataRule) GetData() assistant.Rowser {
 	return t.data
 }
 
-func (t *TagDataRule) GetRule() assistant.Ruler {
+func (t *TagDataRule) GetRule() assistant.Rule {
 	return t.rule
 }
 

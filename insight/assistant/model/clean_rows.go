@@ -10,12 +10,12 @@ var _ job.CleanResource = (*CleanRows)(nil)
 type CleanRows struct {
 	model
 
-	raw     assistant.Moder
+	raw     assistant.Entity
 	rows    *Rows
 	deleted *Rows
 }
 
-func NewCleanRows(newName string, raw assistant.Moder) *CleanRows {
+func NewCleanRows(newName string, raw assistant.Entity) *CleanRows {
 	cd := &CleanRows{}
 	cd.raw = raw
 	cd.rows = NewRows(newName, raw.GetIDName(), raw.GetDB())

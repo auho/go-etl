@@ -1,6 +1,6 @@
 package read
 
-var _ SheetDataor = (*SheetDataNoTitle)(nil)
+var _ SheetDataReader = (*SheetDataNoTitle)(nil)
 
 type SheetDataNoTitle struct {
 	sheetData

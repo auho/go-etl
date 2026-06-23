@@ -7,16 +7,16 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
-var _ assistant.Ruler = (*DataRule)(nil)
+var _ assistant.Rule = (*DataRule)(nil)
 
 type DataRule struct {
 	baseRule
 	extra
-	data assistant.Dataor
+	data assistant.Dataer
 	rule *Rule
 }
 
-func NewDataRule(data assistant.Dataor, rule *Rule) *DataRule {
+func NewDataRule(data assistant.Dataer, rule *Rule) *DataRule {
 	dr := &DataRule{}
 	dr.data = data
 	dr.baseRule = rule.baseRule
@@ -36,7 +36,7 @@ func (dr *DataRule) TableName() string {
 	return fmt.Sprintf("%s_%s_%s", NameRule, dr.data.GetName(), dr.GetName())
 }
 
-func (dr *DataRule) ToOriginRule() assistant.Ruler {
+func (dr *DataRule) ToOriginRule() assistant.Rule {
 	return dr.handlerOrigin()
 }
 
@@ -63,7 +63,7 @@ func (dr *DataRule) ToAliasRule(alias map[string]string) *DataRule {
 	return _rule
 }
 
-func (dr *DataRule) GetData() assistant.Dataor {
+func (dr *DataRule) GetData() assistant.Dataer {
 	return dr.data
 }
 

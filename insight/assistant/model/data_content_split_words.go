@@ -8,16 +8,16 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ assistant.Moder = (*DataContentSplitWords)(nil)
+var _ assistant.Entity = (*DataContentSplitWords)(nil)
 
 type DataContentSplitWords struct {
 	model
 	extra
-	data        assistant.Rowsor
+	data        assistant.Rowser
 	contentName string
 }
 
-func NewDataContentSplitWords(data assistant.Rowsor, contentName string, db *simpledb.SimpleDB) *DataContentSplitWords {
+func NewDataContentSplitWords(data assistant.Rowser, contentName string, db *simpledb.SimpleDB) *DataContentSplitWords {
 	dc := &DataContentSplitWords{}
 	dc.data = data
 	dc.contentName = contentName
@@ -45,7 +45,7 @@ func (dc *DataContentSplitWords) TableName() string {
 	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSplitWords)
 }
 
-func (dc *DataContentSplitWords) GetData() assistant.Rowsor {
+func (dc *DataContentSplitWords) GetData() assistant.Rowser {
 	return dc.data
 }
 

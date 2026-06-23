@@ -12,7 +12,7 @@ var _ job.Source = (*_jobSource)(nil)
 var _ job.Target = (*_jobTarget)(nil)
 var _ job.CleanResource = (*_cleanResource)(nil)
 
-var _ruler means.Ruler
+var _ruler means.Rule
 
 type _jobSource struct{}
 
@@ -36,7 +36,7 @@ func ExampleNewClean() {
 	_mode := mode.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans())
 	_ = NewClean(
 		&_cleanResource{},
-		[]mode.UpdateModer{_mode},
+		[]mode.UpdateOperator{_mode},
 		WithCleanConfig(CleanConfig{
 			NotTruncate:  false,
 			AddExtraTags: false,
@@ -79,9 +79,9 @@ func ExampleNewTransfer() {
 func ExampleNewUpdate() {
 	_mode := mode.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans(), tag.NewLabel(_ruler).ToMeans())
 
-	_ = NewUpdate(&_jobSource{}, []mode.UpdateModer{_mode})
+	_ = NewUpdate(&_jobSource{}, []mode.UpdateOperator{_mode})
 
-	_ = NewUpdateAndTransfer(&_jobSource{}, &_jobTarget{}, []mode.UpdateModer{_mode}, WithUpdateTransferConfig(UpdateTransferConfig{
+	_ = NewUpdateAndTransfer(&_jobSource{}, &_jobTarget{}, []mode.UpdateOperator{_mode}, WithUpdateTransferConfig(UpdateTransferConfig{
 		NotTruncate: false,
 		BatchSize:   0,
 		Concurrency: 0,
