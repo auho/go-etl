@@ -1,4 +1,4 @@
-package importtodb
+package dbimport
 
 import (
 	"fmt"

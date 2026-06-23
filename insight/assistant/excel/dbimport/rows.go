@@ -1,4 +1,4 @@
-package importtodb
+package dbimport
 
 import (
 	"github.com/auho/go-etl/v2/insight/assistant"
