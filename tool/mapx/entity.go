@@ -1,4 +1,4 @@
-package maps
+package mapx
 
 type K interface {
 	string | int

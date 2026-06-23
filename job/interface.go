@@ -11,7 +11,7 @@ type Source interface {
 }
 
 type Target interface {
-	GetIdName() string
+	GetIDName() string
 	TableName() string
 	GetDB() *simpledb.SimpleDB
 	//GetGormDB() *gorm.DB

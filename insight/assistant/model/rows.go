@@ -44,7 +44,7 @@ func (r *Rows) GetName() string {
 	return r.name
 }
 
-func (r *Rows) GetIdName() string {
+func (r *Rows) GetIDName() string {
 	return r.idName
 }
 

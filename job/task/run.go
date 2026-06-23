@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-etl/v2/tool/slices"
+	slices "github.com/auho/go-etl/v2/tool/slicex"
 	"github.com/auho/go-toolkit-flow/flow"
 	"github.com/auho/go-toolkit-flow/storage"
 	"github.com/auho/go-toolkit-flow/storage/database/source"

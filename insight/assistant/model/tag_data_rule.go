@@ -45,7 +45,7 @@ func (t *TagDataRule) GetDB() *simpledb.SimpleDB {
 	return t.db
 }
 
-func (t *TagDataRule) GetIdName() string {
+func (t *TagDataRule) GetIDName() string {
 	return "id"
 }
 

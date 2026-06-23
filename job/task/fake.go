@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v2/job/mode"
-	"github.com/auho/go-etl/v2/tool/slices"
+	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
 var _ processor = (*Fake)(nil)

@@ -1,4 +1,4 @@
-package slices
+package slicex
 
 type V interface {
 	string | int

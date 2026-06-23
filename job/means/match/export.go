@@ -5,7 +5,7 @@ import (
 
 	"github.com/auho/go-etl/v2/job/explore/search"
 	"github.com/auho/go-etl/v2/job/means"
-	maps2 "github.com/auho/go-etl/v2/tool/maps"
+	maps2 "github.com/auho/go-etl/v2/tool/mapx"
 )
 
 var _ search.Exporter = (*Export[Results])(nil)

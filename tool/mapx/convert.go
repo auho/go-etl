@@ -1,4 +1,4 @@
-package maps
+package mapx
 
 func SliceMapStringAnyToSliceSliceAny(sm []map[string]any, keys []string) [][]any {
 	var ss [][]any

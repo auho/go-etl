@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v2/job/means"
-	"github.com/auho/go-etl/v2/tool/maps"
+	maps "github.com/auho/go-etl/v2/tool/mapx"
 )
 
 var DefaultFormat = Format{

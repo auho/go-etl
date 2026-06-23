@@ -5,7 +5,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure/buildtable"
-	"github.com/auho/go-etl/v2/tool/slices"
+	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
 type ImportToDB struct {

@@ -23,7 +23,7 @@ func NewTagDataRulesTable(tag *model.TagDataRules, opts ...TableOption) *TagData
 
 func (t *TagDataRulesTable) build() {
 	t.initCommand(t.tag.TableName())
-	t.Command.AddPkInt(t.tag.GetIdName())
+	t.Command.AddPkInt(t.tag.GetIDName())
 
 	NewDataTable(t.tag.GetData()).BuildForTag(t.Command)
 	for _, rule := range t.tag.GetRules() {

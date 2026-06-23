@@ -1,4 +1,4 @@
-package slices
+package slicex
 
 func SliceToAny[T V](s []T) []any {
 	var newS []any

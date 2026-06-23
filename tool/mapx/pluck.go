@@ -1,4 +1,4 @@
-package maps
+package mapx
 
 func PluckSliceMap[KT K, VT V](sm []map[KT]VT, keys []KT) []map[KT]VT {
 	var nsm []map[KT]VT

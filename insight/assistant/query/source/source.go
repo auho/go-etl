@@ -7,7 +7,7 @@ import (
 
 	"github.com/auho/go-etl/v2/insight/assistant/accessory/dml"
 	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
-	"github.com/auho/go-etl/v2/tool/maps"
+	maps "github.com/auho/go-etl/v2/tool/mapx"
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 

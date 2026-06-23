@@ -68,7 +68,7 @@ func (br *baseRule) GetNameLength() int {
 	return br.length
 }
 
-func (br *baseRule) GetIdName() string {
+func (br *baseRule) GetIDName() string {
 	return "id"
 }
 

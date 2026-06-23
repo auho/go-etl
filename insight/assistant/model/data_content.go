@@ -35,8 +35,8 @@ func (d *DataContent) GetName() string {
 	return fmt.Sprintf("%s_%s", d.data.name, d.contentName)
 }
 
-func (d *DataContent) GetIdName() string {
-	return d.data.GetIdName()
+func (d *DataContent) GetIDName() string {
+	return d.data.GetIDName()
 }
 
 func (d *DataContent) TableName() string {

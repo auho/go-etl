@@ -1,7 +1,7 @@
 package dataset
 
 import (
-	"github.com/auho/go-etl/v2/tool/slices"
+	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
 var _ Moder = (*AppendMode)(nil)
