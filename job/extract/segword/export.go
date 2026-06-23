@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v2/job/enrich/search"
 )
 
-var _ search.Exporter = (*Export)(nil)
+var _ search.FieldSpec = (*Export)(nil)
 
 var DefaultFilterFunc = func(result Result) bool {
 	return utf8.RuneCountInString(result.Token) < 2 || result.Flag == "eng" || result.Flag == "m"
@@ -69,7 +69,7 @@ func (e *Export) ToToken(results Results) search.Token {
 	}
 
 	if len(newResults) > 0 {
-		token.SetOk()
+		token.SetOK()
 		token.SetTokenizerFunc(func() []map[string]any {
 			return e.resultsToToken(ExportContext{
 				Results: newResults,

@@ -26,7 +26,7 @@ func NewCondition(collect collect.Collector, search search.Searcher) Operation {
 func (c *Condition) OK(item map[string]any) bool {
 	token := c.collect.Do(item, c.search)
 
-	return token.IsOk()
+	return token.IsOK()
 }
 
 func (c *Condition) ToOperation() Operation {

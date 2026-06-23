@@ -3,7 +3,7 @@ package search
 type Searcher interface {
 	GetTitle() string
 	Prepare() error
-	GenExport() Exporter
+	GenExport() FieldSpec
 	Do(s []string) Token
 	Close() error
 }

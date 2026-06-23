@@ -50,7 +50,7 @@ func (s *Search[T]) GetTitle() string {
 	return fmt.Sprintf("Search{%s:%s}", s.export.GetRule().Name(), strings.Join(s.export.GetKeys(), ","))
 }
 
-func (s *Search[T]) GenExport() search.Exporter {
+func (s *Search[T]) GenExport() search.FieldSpec {
 	return s.export
 }
 

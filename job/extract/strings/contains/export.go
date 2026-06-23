@@ -8,7 +8,7 @@ import (
 	maps2 "github.com/auho/go-etl/v2/tool/mapx"
 )
 
-var _ search.Exporter = (*Export)(nil)
+var _ search.FieldSpec = (*Export)(nil)
 
 type Export struct {
 	rule           extract.Rule
@@ -70,7 +70,7 @@ func (e *Export) ToToken(results Results) search.Token {
 	token := search.Token{}
 
 	if len(results) > 0 {
-		token.SetOk()
+		token.SetOK()
 		token.SetTokenizerFunc(func() []map[string]any {
 			ret := e.resultsToToken(results, e.rule)
 

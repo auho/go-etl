@@ -24,7 +24,7 @@ func (sg *SegWords) GetTitle() string {
 	return "Seg"
 }
 
-func (sg *SegWords) GenExport() search.Exporter {
+func (sg *SegWords) GenExport() search.FieldSpec {
 	return sg.export
 }
 

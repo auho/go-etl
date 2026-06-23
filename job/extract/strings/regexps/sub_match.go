@@ -46,7 +46,7 @@ func (r *SubMatch) Prepare() error {
 	return nil
 }
 
-func (r *SubMatch) GenExport() search.Exporter {
+func (r *SubMatch) GenExport() search.FieldSpec {
 	return r.export
 }
 

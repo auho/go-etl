@@ -26,7 +26,7 @@ func (s *SplitWords) GetTitle() string {
 	return fmt.Sprintf("SplitWords[%s]", s.sep)
 }
 
-func (s *SplitWords) GenExport() search.Exporter {
+func (s *SplitWords) GenExport() search.FieldSpec {
 	return s.export
 }
 

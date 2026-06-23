@@ -5,7 +5,7 @@ type Token struct {
 	tokenizerFunc func() []map[string]any
 }
 
-func (t *Token) SetOk() {
+func (t *Token) SetOK() {
 	t.ok = true
 }
 
@@ -13,7 +13,7 @@ func (t *Token) SetTokenizerFunc(fn func() []map[string]any) {
 	t.tokenizerFunc = fn
 }
 
-func (t *Token) IsOk() bool {
+func (t *Token) IsOK() bool {
 	return t.ok
 }
 

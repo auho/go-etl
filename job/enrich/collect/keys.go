@@ -75,7 +75,7 @@ func (k *Keys) doAny(item map[string]any, searcher search.Searcher) search.Token
 	for _, _key := range k.keys {
 		_v := k.GetKeyContent(_key, item)
 		st = searcher.Do([]string{_v})
-		if st.IsOk() {
+		if st.IsOK() {
 			break
 		}
 	}

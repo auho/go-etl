@@ -31,7 +31,7 @@ func (i *Insert) Do(item map[string]any) []map[string]any {
 	}
 
 	token := i.collect.Do(item, i.search)
-	if !token.IsOk() {
+	if !token.IsOK() {
 		return nil
 	}
 

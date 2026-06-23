@@ -31,7 +31,7 @@ func (c *Contains) GetTitle() string {
 	return fmt.Sprintf("Contains[%s]", c.export.GetRule().Name())
 }
 
-func (c *Contains) GenExport() search.Exporter {
+func (c *Contains) GenExport() search.FieldSpec {
 	return c.export
 }
 

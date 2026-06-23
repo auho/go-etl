@@ -1,6 +1,6 @@
 package search
 
-type Exporter interface {
+type FieldSpec interface {
 	GetKeys() []string
 	GetDefaultValues() map[string]any
 }

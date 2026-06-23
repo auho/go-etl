@@ -22,7 +22,7 @@ func TestContainsAll(t *testing.T) {
 		}
 
 		token := c.Do(_content)
-		if !token.IsOk() {
+		if !token.IsOK() {
 			t.Fatal()
 		}
 
@@ -50,7 +50,7 @@ func TestContainsAll(t *testing.T) {
 		}
 
 		token := c.Do(_content)
-		if !token.IsOk() {
+		if !token.IsOK() {
 			t.Fatal()
 		}
 
@@ -72,7 +72,7 @@ func TestContainsAll(t *testing.T) {
 		}
 
 		token := c.Do(_content)
-		if !token.IsOk() {
+		if !token.IsOK() {
 			t.Fatal()
 		}
 
@@ -103,7 +103,7 @@ func TestContainsAny(t *testing.T) {
 			}
 
 			token := c.Do(_content)
-			if !token.IsOk() {
+			if !token.IsOK() {
 				t.Fatal()
 			}
 

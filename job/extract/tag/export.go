@@ -8,10 +8,10 @@ import (
 	maps2 "github.com/auho/go-etl/v2/tool/mapx"
 )
 
-var _ search.Exporter = (*Export[Results])(nil)
-var _ search.Exporter = (*Export[LabelResults])(nil)
-var _ search.Exporter = (*ExportResults)(nil)
-var _ search.Exporter = (*ExportLabelResults)(nil)
+var _ search.FieldSpec = (*Export[Results])(nil)
+var _ search.FieldSpec = (*Export[LabelResults])(nil)
+var _ search.FieldSpec = (*ExportResults)(nil)
+var _ search.FieldSpec = (*ExportLabelResults)(nil)
 
 type ExportContextResults = ExportContext[Results]
 type ExportContextLabelResults = ExportContext[LabelResults]
@@ -88,7 +88,7 @@ func (e *Export[T]) ToToken(results T) search.Token {
 	token := search.Token{}
 
 	if len(results) > 0 {
-		token.SetOk()
+		token.SetOK()
 		token.SetTokenizerFunc(func() []map[string]any {
 			ret := e.resultsToToken(ExportContext[T]{
 				Rule:    e.rule,

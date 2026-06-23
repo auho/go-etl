@@ -9,7 +9,7 @@ type ExportContext struct {
 	Format  Format
 }
 
-var _ search.Exporter = (*Export)(nil)
+var _ search.FieldSpec = (*Export)(nil)
 
 type Export struct {
 	format         Format
@@ -49,7 +49,7 @@ func (e *Export) ToToken(results Results) search.Token {
 	token := search.Token{}
 
 	if len(results) > 0 {
-		token.SetOk()
+		token.SetOK()
 		token.SetTokenizerFunc(func() []map[string]any {
 			return e.resultsToToken(ExportContext{
 				Results: results,

@@ -31,7 +31,7 @@ func (u *Update) Do(item map[string]any) map[string]any {
 	}
 
 	token := u.collect.Do(item, u.search)
-	if !token.IsOk() {
+	if !token.IsOK() {
 		return nil
 	}
 

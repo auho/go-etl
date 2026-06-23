@@ -16,7 +16,7 @@ func TestMeans(t *testing.T) {
 
 		token := s.Do([]string{content, content})
 		rets := token.ToToken()
-		if !token.IsOk() {
+		if !token.IsOK() {
 			t.Fatal()
 		}
 
@@ -34,7 +34,7 @@ func TestMeans(t *testing.T) {
 
 		token := s.Do([]string{content, content})
 		rets := token.ToToken()
-		if !token.IsOk() {
+		if !token.IsOK() {
 			t.Fatal()
 		}
 
