@@ -79,7 +79,7 @@ func (t *Titles) buildTitlesKey() {
 
 func (t *Titles) check() error {
 	if len(t.titlesKey) <= 0 {
-		return fmt.Errorf("titles key no exists")
+		return fmt.Errorf("titles key does not exist")
 	}
 
 	for i, index := range t.titlesIndex {

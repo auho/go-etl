@@ -26,7 +26,7 @@ func (s *state) add(ss sqlState) {
 }
 
 func (s *state) overview() string {
-	return fmt.Sprintf("source: %s, dateset: %s, toSheet: %s <= queries: %s, save: %s, total: %s, amount: %d",
+	return fmt.Sprintf("source: %s, dataset: %s, toSheet: %s <= queries: %s, save: %s, total: %s, amount: %d",
 		timing.PrettyDuration(s.sourceDuration),
 		timing.PrettyDuration(s.datasetDuration),
 		timing.PrettyDuration(s.toSheetDuration),
@@ -46,7 +46,7 @@ type sqlState struct {
 }
 
 func (ss *sqlState) overview() string {
-	return fmt.Sprintf("source: %s, dateset: %s, toSheet: %s, total: %s, amount: %d",
+	return fmt.Sprintf("source: %s, dataset: %s, toSheet: %s, total: %s, amount: %d",
 		timing.PrettyDuration(ss.sourceDuration),
 		timing.PrettyDuration(ss.datasetDuration),
 		timing.PrettyDuration(ss.toSheetDuration),

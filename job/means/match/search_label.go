@@ -1,6 +1,6 @@
 package match
 
-func NewSearchLabel(export *ExportLabelResults, srf SearchResultsFun[LabelResults]) *SearchLabelResults {
+func NewSearchLabel(export *ExportLabelResults, srf SearchResultsFunc[LabelResults]) *SearchLabelResults {
 	return NewSearch[LabelResults](export, srf)
 }
 

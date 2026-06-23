@@ -25,7 +25,7 @@ func (t *Table) BuildChange(db *simpledb.SimpleDB) error {
 }
 
 func (t *Table) WithCommand(fn func(command *tablestructure.Command)) *Table {
-	t.commandFun = fn
+	t.commandFunc = fn
 
 	return t
 }

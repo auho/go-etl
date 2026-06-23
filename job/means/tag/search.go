@@ -22,7 +22,7 @@ type ResultsEntity interface {
 	Results | LabelResults
 }
 
-type SearchResultsFun[T ResultsEntity] func(*SearchContext[T], []string) T
+type SearchResultsFunc[T ResultsEntity] func(*SearchContext[T], []string) T
 type SearchContext[T ResultsEntity] struct {
 	Matcher *matcher
 }
@@ -32,13 +32,13 @@ type Search[T ResultsEntity] struct {
 	export  *Export[T]
 
 	context          *SearchContext[T]
-	searchResultsFun SearchResultsFun[T]
+	searchResultsFun SearchResultsFunc[T]
 
 	matcherConfig *matcherConfig
 	newMatcherFun func(means.Ruler, *matcherConfig) (*matcher, error)
 }
 
-func NewSearch[T ResultsEntity](export *Export[T], fn SearchResultsFun[T]) *Search[T] {
+func NewSearch[T ResultsEntity](export *Export[T], fn SearchResultsFunc[T]) *Search[T] {
 	return &Search[T]{
 		export:           export,
 		searchResultsFun: fn,

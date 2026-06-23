@@ -6,39 +6,39 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-type ModeTable struct {
+type ModelTable struct {
 	baseTable
 
 	db *simpledb.SimpleDB
 }
 
-func NewModelTable(m assistant.Rawer) *ModeTable {
-	return &ModeTable{
+func NewModelTable(m assistant.Rawer) *ModelTable {
+	return &ModelTable{
 		baseTable: newBaseTable(m.TableName()),
 		db:        m.GetDB(),
 	}
 }
 
-func (m *ModeTable) Build() error {
+func (m *ModelTable) Build() error {
 	return m.build(m.Sql(), m.db)
 }
 
-func (m *ModeTable) BuildAffixSql() ([]string, error) {
+func (m *ModelTable) BuildAffixSql() ([]string, error) {
 	_sql := m.Sql()
 	return _sql, m.build(_sql, m.db)
 }
 
-func (m *ModeTable) BuildChange() error {
+func (m *ModelTable) BuildChange() error {
 	return m.build(m.SqlForChange(), m.db)
 }
 
-func (m *ModeTable) BuildChangeAffixSql() ([]string, error) {
+func (m *ModelTable) BuildChangeAffixSql() ([]string, error) {
 	_sql := m.SqlForChange()
 	return _sql, m.build(_sql, m.db)
 }
 
-func (m *ModeTable) WithCommand(fn func(command *tablestructure.Command)) *ModeTable {
-	m.commandFun = fn
+func (m *ModelTable) WithCommand(fn func(command *tablestructure.Command)) *ModelTable {
+	m.commandFunc = fn
 
 	return m
 }

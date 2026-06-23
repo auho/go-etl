@@ -28,7 +28,7 @@ func newInsertHorizontal(keys []string, ms ...means.InsertMeans) insertHorizonta
 
 func (ih *insertHorizontalMode) Prepare() error {
 	if len(ih.Keys) <= 0 {
-		return fmt.Errorf("insertHorizontalMode Prepare kyes not exists error")
+		return fmt.Errorf("insertHorizontalMode Prepare keys not exists error")
 	}
 
 	for _, m := range ih.ms {

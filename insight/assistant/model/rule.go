@@ -92,7 +92,7 @@ func (r *Rule) ToAliasRule(alias map[string]string) *Rule {
 func (r *Rule) Clone(name string) *Rule {
 	return NewRule(name, r.length, r.keywordLength, r.labels, r.db).
 		ToAliasRule(r.alias).
-		WithCommand(r.commandFun)
+		WithCommand(r.commandFunc)
 }
 
 func (r *Rule) CloneSuffix(suffix string) *Rule {

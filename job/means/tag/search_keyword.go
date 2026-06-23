@@ -1,6 +1,6 @@
 package tag
 
-func NewSearchKeyword(export *ExportResults, ste SearchResultsFun[Results]) *SearchResults {
+func NewSearchKeyword(export *ExportResults, ste SearchResultsFunc[Results]) *SearchResults {
 	return NewSearch[Results](export, ste)
 }
 

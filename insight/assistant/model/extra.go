@@ -30,7 +30,7 @@ func (e *extra) InsertWithTable(table dml.Tabler) (string, error) {
 	return table.InsertWithField(e.model.TableName(), table.GetSelectFields(), e.model.GetDB())
 }
 
-func (e *extra) InsertWithTableFiled(table dml.Tabler, fields []string) (string, error) {
+func (e *extra) InsertWithTableField(table dml.Tabler, fields []string) (string, error) {
 	return table.InsertWithField(e.model.TableName(), fields, e.model.GetDB())
 }
 

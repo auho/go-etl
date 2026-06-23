@@ -32,7 +32,7 @@ func NewInsertStack(keys []string, ms ...means.InsertMeans) *InsertStackMode {
 
 func (im *InsertStackMode) Prepare() error {
 	if len(im.Keys) <= 0 {
-		return fmt.Errorf("InsertStackMode Prepare kyes not exists error")
+		return fmt.Errorf("InsertStackMode Prepare keys not exists error")
 	}
 
 	for _, m := range im.ms {

@@ -13,7 +13,7 @@ var _ruleName = "a"
 var _ruleTableName = "rule_" + _ruleName
 var _keyName = "name"
 var _simpleDB *simpledb.SimpleDB
-var _gromDB *gorm.DB
+var _gormDB *gorm.DB
 var _content = "b一ab一bc一abc一ab一123b一b123一中文一123一中文一一0123一1234一01234-a-ab-123-中文一b一中文一a"
 var _item = map[string]any{_keyName: _content}
 var _rule = &ruleTest{}
@@ -27,7 +27,7 @@ func TestMain(m *testing.M) {
 
 func setUp() {
 	var err error
-	_simpleDB, _gromDB, err = simpledb.NewMySQLGorm(_dsn)
+	_simpleDB, _gormDB, err = simpledb.NewMySQLGorm(_dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +46,7 @@ func setUp() {
 		"`a_keyword_len` int(11) NOT NULL DEFAULT '0'," +
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-	err = _gromDB.Exec(query).Error
+	err = _gormDB.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +58,7 @@ func setUp() {
 		"('ab','ab1','ab',1)," +
 		"('123','123','123',3)," +
 		"('中文','中文1','中文',2)"
-	err = _gromDB.Exec(query).Error
+	err = _gormDB.Exec(query).Error
 	if err != nil {
 		panic(err)
 	}

@@ -23,7 +23,7 @@ var _tagRule1 *model.TagDataRule
 var _tagRules *model.TagDataRules
 var _tagRules1 *model.TagDataRules
 var _dcSegWords *model.DataContentSegWords
-var _dcSpiltWords *model.DataContentSpiltWords
+var _dcSplitWords *model.DataContentSplitWords
 
 func TestRaw(t *testing.T) {
 	rt := NewRawTable(_raw)
@@ -118,7 +118,7 @@ func TestDataContent(t *testing.T) {
 	sql := dcSeg.Sql()
 	fmt.Println(sql)
 
-	dcSplit := NewDataContentSpiltWordsTable(_dcSpiltWords).
+	dcSplit := NewDataContentSplitWordsTable(_dcSplitWords).
 		WithCommand(func(command *tablestructure.Command) {
 			command.AddString("with")
 		})
@@ -139,5 +139,5 @@ func init() {
 	_tagRules = model.NewTagDataRules("abc", _data, []assistant.Ruler{_rule, _rule1}, nil)
 	_tagRules1 = model.NewTagDataRules("abc", _data, []assistant.Ruler{_rule1, _rule}, nil)
 	_dcSegWords = model.NewDataContentSegWords(_data, "abc", nil)
-	_dcSpiltWords = model.NewDataContentSpiltWords(_data, "abc", nil)
+	_dcSplitWords = model.NewDataContentSplitWords(_data, "abc", nil)
 }

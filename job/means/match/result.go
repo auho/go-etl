@@ -10,12 +10,12 @@ import (
 )
 
 var DefaultFormat = Format{
-	WithKeyWordAmount: true,
+	WithKeywordAmount: true,
 	Sep:               ",",
 }
 
 type Format struct {
-	WithKeyWordAmount bool
+	WithKeywordAmount bool
 	Sep               string
 }
 
@@ -93,7 +93,7 @@ func (rs Results) MergeKeysToWhole(rule means.Ruler, format Format) map[string]a
 		keyAmount += _r.Amount
 
 		var keywordText string
-		if format.WithKeyWordAmount {
+		if format.WithKeywordAmount {
 			keywordText = fmt.Sprintf("%s %d", _r.Keyword, _r.Amount)
 		} else {
 			keywordText = _r.Keyword
@@ -151,7 +151,7 @@ func (lr *LabelResult) ToTag(rule means.Ruler, format Format) map[string]any {
 		keyAmount += _textAmount
 
 		var keyText string
-		if format.WithKeyWordAmount {
+		if format.WithKeywordAmount {
 			keyText = fmt.Sprintf("%s %d", _key, _textAmount)
 		} else {
 			keyText = _key

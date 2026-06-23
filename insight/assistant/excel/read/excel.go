@@ -28,7 +28,7 @@ func NewExcel(path string) (*Excel, error) {
 func (e *Excel) readSheet(config Config) ([][]string, error) {
 	if config.SheetName == "" {
 		if config.SheetIndex <= 0 {
-			return nil, errors.New("sheet name or index no exists")
+			return nil, errors.New("sheet name or index does not exist")
 		}
 
 		sheetList := e.excelFile.GetSheetList()
@@ -36,7 +36,7 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 	}
 
 	if config.SheetName == "" {
-		return nil, errors.New("sheet name or index no exists")
+		return nil, errors.New("sheet name or index does not exist")
 	}
 
 	rowsScan, err := e.excelFile.Rows(config.SheetName)

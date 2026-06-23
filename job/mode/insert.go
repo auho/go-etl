@@ -26,7 +26,7 @@ func NewInsert(keys []string, means means.InsertMeans) *InsertMode {
 
 func (im *InsertMode) Prepare() error {
 	if len(im.Keys) <= 0 {
-		return fmt.Errorf("InsertMode Prepare kyes not exists error")
+		return fmt.Errorf("InsertMode Prepare keys not exists error")
 	}
 
 	err := im.means.Prepare()

@@ -9,7 +9,7 @@ import (
 
 type baseTable struct {
 	*tablestructure.Command
-	commandFun func(*tablestructure.Command)
+	commandFunc func(*tablestructure.Command)
 }
 
 func newBaseTable(tableName string) baseTable {
@@ -49,7 +49,7 @@ func (bt *baseTable) build(sqls []string, db *simpledb.SimpleDB) error {
 }
 
 func (bt *baseTable) execCommand() {
-	if bt.commandFun != nil {
-		bt.commandFun(bt.Command)
+	if bt.commandFunc != nil {
+		bt.commandFunc(bt.Command)
 	}
 }

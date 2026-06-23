@@ -6,18 +6,18 @@ import (
 )
 
 type model struct {
-	commandFun func(command *tablestructure.Command)
-	db         *simpledb.SimpleDB
+	commandFunc func(command *tablestructure.Command)
+	db          *simpledb.SimpleDB
 }
 
 func (m *model) withCommand(fn func(command *tablestructure.Command)) {
-	m.commandFun = fn
+	m.commandFunc = fn
 }
 
 // ExecCommand
 // exec model table command
 func (m *model) ExecCommand(command *tablestructure.Command) {
-	if m.commandFun != nil {
-		m.commandFun(command)
+	if m.commandFunc != nil {
+		m.commandFunc(command)
 	}
 }

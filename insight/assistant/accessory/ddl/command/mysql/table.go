@@ -206,7 +206,7 @@ func (t *Table) GetFieldByName(name string) *Field {
 	}
 }
 
-func (t *Table) SetFiled(filed *Field) *Table {
+func (t *Table) SetField(filed *Field) *Table {
 	if fi, ok := t.fieldsIndex[filed.name]; ok {
 		t.fields[fi] = filed
 	} else {

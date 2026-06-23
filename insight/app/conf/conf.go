@@ -25,7 +25,7 @@ type DbConfig struct {
 
 func (dc *DbConfig) BuildDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 	var simpleDB *simpledb.SimpleDB
-	var gromDB *gorm.DB
+	var gormDB *gorm.DB
 	var err error
 
 	newLogger := logger.New(
@@ -43,12 +43,12 @@ func (dc *DbConfig) BuildDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 
 	switch dc.Driver {
 	case "mysql":
-		simpleDB, gromDB, err = simpledb.NewMySQLGorm(dc.Dsn, dbc)
+		simpleDB, gormDB, err = simpledb.NewMySQLGorm(dc.Dsn, dbc)
 		if err != nil {
 			err = fmt.Errorf("NewMySQLGorm: %w", err)
 		}
 	case "clickhouse":
-		simpleDB, gromDB, err = simpledb.NewClickHouseGorm(dc.Dsn, dbc)
+		simpleDB, gormDB, err = simpledb.NewClickHouseGorm(dc.Dsn, dbc)
 		if err != nil {
 			err = fmt.Errorf("NewClickHouseGorm: %w", err)
 		}
@@ -66,7 +66,7 @@ func (dc *DbConfig) BuildDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 		}
 	}
 
-	return simpleDB, gromDB, err
+	return simpleDB, gormDB, err
 }
 
 func LoadConfig(dir string, name string) (*Config, error) {

@@ -67,7 +67,7 @@ func (r *Rows) ToRaw() *Raw {
 }
 
 func (r *Rows) Clone(name string) *Rows {
-	return NewRows(name, r.idName, r.db).WithCommand(r.commandFun)
+	return NewRows(name, r.idName, r.db).WithCommand(r.commandFunc)
 }
 
 func (r *Rows) CloneSuffix(suffix ...string) *Rows {

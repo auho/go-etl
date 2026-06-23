@@ -5,14 +5,14 @@ import (
 	"github.com/auho/go-etl/v2/insight/assistant/tablestructure"
 )
 
-type DataContentSpiltWordsTable struct {
+type DataContentSplitWordsTable struct {
 	table
-	dataContentSpiltWords *model.DataContentSpiltWords
+	dataContentSplitWords *model.DataContentSplitWords
 }
 
-func NewDataContentSpiltWordsTable(d *model.DataContentSpiltWords, opts ...TableOption) *DataContentSpiltWordsTable {
-	t := &DataContentSpiltWordsTable{}
-	t.dataContentSpiltWords = d
+func NewDataContentSplitWordsTable(d *model.DataContentSplitWords, opts ...TableOption) *DataContentSplitWordsTable {
+	t := &DataContentSplitWordsTable{}
+	t.dataContentSplitWords = d
 	t.db = d.GetDB()
 
 	t.options(opts)
@@ -21,17 +21,17 @@ func NewDataContentSpiltWordsTable(d *model.DataContentSpiltWords, opts ...Table
 	return t
 }
 
-func (t *DataContentSpiltWordsTable) build() {
-	t.initCommand(t.dataContentSpiltWords.TableName())
+func (t *DataContentSplitWordsTable) build() {
+	t.initCommand(t.dataContentSplitWords.TableName())
 
-	t.Command.AddPkInt(t.dataContentSpiltWords.GetIdName())
-	t.Command.AddKeyBigInt(t.dataContentSpiltWords.GetData().GetIdName())
-	t.Command.AddStringWithLength(t.dataContentSpiltWords.WordName(), 30)
+	t.Command.AddPkInt(t.dataContentSplitWords.GetIdName())
+	t.Command.AddKeyBigInt(t.dataContentSplitWords.GetData().GetIdName())
+	t.Command.AddStringWithLength(t.dataContentSplitWords.WordName(), 30)
 
-	t.execRawCommandFunc(t.dataContentSpiltWords)
+	t.execRawCommandFunc(t.dataContentSplitWords)
 }
 
-func (t *DataContentSpiltWordsTable) WithCommand(fn func(*tablestructure.Command)) *DataContentSpiltWordsTable {
+func (t *DataContentSplitWordsTable) WithCommand(fn func(*tablestructure.Command)) *DataContentSplitWordsTable {
 	fn(t.Command)
 
 	return t
