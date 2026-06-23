@@ -61,15 +61,15 @@ func NewInsert(target job.Target, moder transform.InsertOperator, opts ...func(*
 // GetFields
 // source data filed
 func (i *Insert) GetFields() []string {
-	return append(i.transform.GetFields(), i.config.ExtraKeys...)
+	return append(i.mode.GetFields(), i.config.ExtraKeys...)
 }
 
 func (i *Insert) Summary() string {
-	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.transform.GetTitle())
+	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.mode.GetTitle())
 }
 
 func (i *Insert) Prepare() error {
-	err := i.transform.Prepare()
+	err := i.mode.Prepare()
 	if err != nil {
 		return fmt.Errorf("transform.Prepare: %w", err)
 	}
@@ -82,10 +82,10 @@ func (i *Insert) BeforeRun() error {
 }
 
 func (i *Insert) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	newItems := i.transform.Do(item)
+	newItems := i.mode.Do(item)
 	if len(newItems) <= 0 {
 		if i.config.AllowInsertEmpty {
-			newItems = []map[string]any{i.transform.DefaultValues()}
+			newItems = []map[string]any{i.mode.DefaultValues()}
 		} else {
 			return nil, false, nil
 		}

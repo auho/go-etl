@@ -24,7 +24,7 @@ func NewTransfer(target job.Target, moder transform.TransferOperator) *Transfer 
 }
 
 func (t *Transfer) GetFields() []string {
-	return t.transform.GetFields()
+	return t.mode.GetFields()
 }
 
 func (t *Transfer) Summary() string {
@@ -36,12 +36,12 @@ func (t *Transfer) Prepare() error {
 }
 
 func (t *Transfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	return []map[string]any{t.transform.Do(item)}, true, nil
+	return []map[string]any{t.mode.Do(item)}, true, nil
 }
 
 func (t *Transfer) AppendState()     {}
 func (t *Transfer) BeforeRun() error { return nil }
 func (t *Transfer) AfterRun() error  { return nil }
 func (t *Transfer) Close() error {
-	return t.transform.Close()
+	return t.mode.Close()
 }
