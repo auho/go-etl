@@ -7,24 +7,24 @@ import (
 	"github.com/auho/go-etl/v2/job/extract"
 )
 
-var _ UpdateOperator = (*UpdateMode)(nil)
+var _ UpdateOperator = (*Update)(nil)
 
-// UpdateMode
+// Update
 // handle some keys of data for update
-type UpdateMode struct {
+type Update struct {
 	Mode
 	ms []extract.Updater
 }
 
-func NewUpdate(keys []string, ms ...extract.Updater) *UpdateMode {
-	um := &UpdateMode{}
+func NewUpdate(keys []string, ms ...extract.Updater) *Update {
+	um := &Update{}
 	um.keys = keys
 	um.ms = ms
 
 	return um
 }
 
-func (um *UpdateMode) Prepare() error {
+func (um *Update) Prepare() error {
 	if len(um.keys) <= 0 {
 		return fmt.Errorf("update prepare keys is not exists error")
 	}
@@ -43,20 +43,20 @@ func (um *UpdateMode) Prepare() error {
 	return nil
 }
 
-func (um *UpdateMode) Title() string {
+func (um *Update) Title() string {
 	is := make([]string, 0)
 	for _, i := range um.ms {
 		is = append(is, i.Title())
 	}
 
-	return um.GenTitle("UpdateMode", strings.Join(is, ","))
+	return um.GenTitle("Update", strings.Join(is, ","))
 }
 
-func (um *UpdateMode) GetFields() []string {
+func (um *Update) GetFields() []string {
 	return um.keys
 }
 
-func (um *UpdateMode) Do(item map[string]any) map[string]any {
+func (um *Update) Do(item map[string]any) map[string]any {
 	if item == nil {
 		return nil
 	}
@@ -78,11 +78,11 @@ func (um *UpdateMode) Do(item map[string]any) map[string]any {
 	return m
 }
 
-func (um *UpdateMode) Close() error {
+func (um *Update) Close() error {
 	for k := range um.ms {
 		err := um.ms[k].Close()
 		if err != nil {
-			return fmt.Errorf("UpdateMode close error; %w", err)
+			return fmt.Errorf("Update close error; %w", err)
 		}
 	}
 

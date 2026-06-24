@@ -43,7 +43,7 @@ func (e *Export) Keys() []string {
 	return keys
 }
 
-func (e *Export) GetDefaultValues() map[string]any {
+func (e *Export) DefaultValues() map[string]any {
 	return e.defaultValues
 }
 

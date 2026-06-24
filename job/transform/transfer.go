@@ -4,9 +4,9 @@ import (
 	"sort"
 )
 
-var _ TransferOperator = (*TransferMode)(nil)
+var _ TransferOperator = (*Transfer)(nil)
 
-type TransferMode struct {
+type Transfer struct {
 	Mode
 	alias     map[string]string // alias map[table data name]output name
 	aliasKeys []string          // alias data []key
@@ -14,8 +14,8 @@ type TransferMode struct {
 	fixedKeys []string          // fixed data []key
 }
 
-func NewTransfer(keys []string, alias map[string]string, fixed map[string]any) *TransferMode {
-	tm := &TransferMode{}
+func NewTransfer(keys []string, alias map[string]string, fixed map[string]any) *Transfer {
+	tm := &Transfer{}
 	tm.keys = keys
 	tm.alias = alias
 	tm.fixed = fixed
@@ -26,7 +26,7 @@ func NewTransfer(keys []string, alias map[string]string, fixed map[string]any) *
 	return tm
 }
 
-func (tm *TransferMode) initAlias(alias map[string]string) {
+func (tm *Transfer) initAlias(alias map[string]string) {
 	for k := range alias {
 		tm.aliasKeys = append(tm.aliasKeys, k)
 	}
@@ -38,7 +38,7 @@ func (tm *TransferMode) initAlias(alias map[string]string) {
 	tm.alias = alias
 }
 
-func (tm *TransferMode) initFixed(fixed map[string]any) {
+func (tm *Transfer) initFixed(fixed map[string]any) {
 	for k := range fixed {
 		tm.fixedKeys = append(tm.fixedKeys, k)
 	}
@@ -50,19 +50,19 @@ func (tm *TransferMode) initFixed(fixed map[string]any) {
 	tm.fixed = fixed
 }
 
-func (tm *TransferMode) Title() string {
-	return tm.GenTitle("TransferMode", "")
+func (tm *Transfer) Title() string {
+	return tm.GenTitle("Transfer", "")
 }
 
-func (tm *TransferMode) GetFields() []string {
+func (tm *Transfer) GetFields() []string {
 	return tm.keys
 }
 
-func (tm *TransferMode) Prepare() error {
+func (tm *Transfer) Prepare() error {
 	return nil
 }
 
-func (tm *TransferMode) Do(item map[string]any) map[string]any {
+func (tm *Transfer) Do(item map[string]any) map[string]any {
 	newItem := make(map[string]any)
 	for _, field := range tm.keys {
 		if ka, ok := tm.alias[field]; ok {
@@ -83,6 +83,6 @@ func (tm *TransferMode) Do(item map[string]any) map[string]any {
 	return newItem
 }
 
-func (tm *TransferMode) Close() error {
+func (tm *Transfer) Close() error {
 	return nil
 }

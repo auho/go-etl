@@ -9,7 +9,7 @@ import (
 )
 
 var _ command.TableCommander = (*TableCommand)(nil)
-var _ command.Query = (*TableCommand)(nil)
+var _ command.QueryBuilder = (*TableCommand)(nil)
 
 type TableCommand struct {
 	mysql

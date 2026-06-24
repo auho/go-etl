@@ -9,11 +9,11 @@ import (
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
-var _ InsertOperator = (*InsertComposeSpreadMode)(nil)
+var _ InsertOperator = (*InsertComposeSpread)(nil)
 
-// InsertComposeSpreadMode
+// InsertComposeSpread
 // compose spread 取第一个 spread
-type InsertComposeSpreadMode struct {
+type InsertComposeSpread struct {
 	Mode
 	modes []InsertOperator
 
@@ -21,23 +21,23 @@ type InsertComposeSpreadMode struct {
 	defaultValues map[string]any
 }
 
-func NewInsertComposeSpread(modes ...InsertOperator) *InsertComposeSpreadMode {
-	ic := &InsertComposeSpreadMode{}
+func NewInsertComposeSpread(modes ...InsertOperator) *InsertComposeSpread {
+	ic := &InsertComposeSpread{}
 	ic.modes = modes
 
 	return ic
 }
 
-func (ic *InsertComposeSpreadMode) Title() string {
+func (ic *InsertComposeSpread) Title() string {
 	var ss []string
 	for _, m := range ic.modes {
 		ss = append(ss, m.Title())
 	}
 
-	return ic.GenTitle("InsertComposeSpreadMode", strings.Join(ss, ";"))
+	return ic.GenTitle("InsertComposeSpread", strings.Join(ss, ";"))
 }
 
-func (ic *InsertComposeSpreadMode) GetFields() []string {
+func (ic *InsertComposeSpread) GetFields() []string {
 	for _, m := range ic.modes {
 		ic.keys = append(ic.keys, m.GetFields()...)
 	}
@@ -47,15 +47,15 @@ func (ic *InsertComposeSpreadMode) GetFields() []string {
 	return slices2.Clone(ic.keys)
 }
 
-func (ic *InsertComposeSpreadMode) Keys() []string {
+func (ic *InsertComposeSpread) Keys() []string {
 	return ic.insertKeys
 }
 
-func (ic *InsertComposeSpreadMode) DefaultValues() map[string]any {
+func (ic *InsertComposeSpread) DefaultValues() map[string]any {
 	return maps.Clone(ic.defaultValues)
 }
 
-func (ic *InsertComposeSpreadMode) Prepare() error {
+func (ic *InsertComposeSpread) Prepare() error {
 	ic.defaultValues = make(map[string]any)
 
 	for _, m := range ic.modes {
@@ -74,7 +74,7 @@ func (ic *InsertComposeSpreadMode) Prepare() error {
 	return nil
 }
 
-func (ic *InsertComposeSpreadMode) Do(item map[string]any) []map[string]any {
+func (ic *InsertComposeSpread) Do(item map[string]any) []map[string]any {
 	ic.AddTotal(1)
 
 	_has := false
@@ -98,9 +98,9 @@ func (ic *InsertComposeSpreadMode) Do(item map[string]any) []map[string]any {
 	}
 }
 
-func (ic *InsertComposeSpreadMode) State() []string {
+func (ic *InsertComposeSpread) State() []string {
 	var ss []string
-	ss = append(ss, fmt.Sprintf("InsertComposeSpreadMode: %s", ic.GenCounter()))
+	ss = append(ss, fmt.Sprintf("InsertComposeSpread: %s", ic.GenCounter()))
 	for i, m := range ic.modes {
 		var mss []string
 		for _i, _ms := range m.State() {
@@ -120,7 +120,7 @@ func (ic *InsertComposeSpreadMode) State() []string {
 	return ss
 }
 
-func (ic *InsertComposeSpreadMode) Close() error {
+func (ic *InsertComposeSpread) Close() error {
 	for _, m := range ic.modes {
 		err := m.Close()
 		if err != nil {

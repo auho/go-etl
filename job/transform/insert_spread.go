@@ -6,22 +6,22 @@ import (
 	"github.com/auho/go-etl/v2/job/extract"
 )
 
-var _ InsertOperator = (*InsertSpreadMode)(nil)
+var _ InsertOperator = (*InsertSpread)(nil)
 
-// InsertSpreadMode
+// InsertSpread
 // spread means
 // 取每个 mean 结果的第一个，spread
-type InsertSpreadMode struct {
-	insertHorizontalMode
+type InsertSpread struct {
+	insertHorizontal
 }
 
-func NewInsertSpread(keys []string, ms ...extract.Inserter) *InsertSpreadMode {
-	return &InsertSpreadMode{
-		insertHorizontalMode: newInsertHorizontal(keys, ms...),
+func NewInsertSpread(keys []string, ms ...extract.Inserter) *InsertSpread {
+	return &InsertSpread{
+		insertHorizontal: newInsertHorizontal(keys, ms...),
 	}
 }
 
-func (is *InsertSpreadMode) Do(item map[string]any) []map[string]any {
+func (is *InsertSpread) Do(item map[string]any) []map[string]any {
 	is.AddTotal(1)
 
 	if item == nil {

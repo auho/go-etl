@@ -52,7 +52,7 @@ func (e *Export[T]) Keys() []string {
 	return e.keys
 }
 
-func (e *Export[T]) GetDefaultValues() map[string]any {
+func (e *Export[T]) DefaultValues() map[string]any {
 	return e.defaultValues
 }
 

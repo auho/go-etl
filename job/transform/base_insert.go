@@ -8,9 +8,9 @@ import (
 	"github.com/auho/go-etl/v2/job/extract"
 )
 
-// insertHorizontalMode
+// insertHorizontal
 // 多个 means horizontal
-type insertHorizontalMode struct {
+type insertHorizontal struct {
 	Mode
 	ms []extract.Inserter
 
@@ -18,17 +18,17 @@ type insertHorizontalMode struct {
 	defaultValues map[string]any
 }
 
-func newInsertHorizontal(keys []string, ms ...extract.Inserter) insertHorizontalMode {
-	ih := insertHorizontalMode{}
+func newInsertHorizontal(keys []string, ms ...extract.Inserter) insertHorizontal {
+	ih := insertHorizontal{}
 	ih.keys = keys
 	ih.ms = ms
 
 	return ih
 }
 
-func (ih *insertHorizontalMode) Prepare() error {
+func (ih *insertHorizontal) Prepare() error {
 	if len(ih.keys) <= 0 {
-		return fmt.Errorf("insertHorizontalMode Prepare keys not exists error")
+		return fmt.Errorf("insertHorizontal Prepare keys not exists error")
 	}
 
 	for _, m := range ih.ms {
@@ -49,32 +49,32 @@ func (ih *insertHorizontalMode) Prepare() error {
 	return nil
 }
 
-func (ih *insertHorizontalMode) Title() string {
+func (ih *insertHorizontal) Title() string {
 	var ss []string
 	for _, m := range ih.ms {
 		ss = append(ss, m.Title())
 	}
 
-	return ih.GenTitle("insertHorizontalMode", strings.Join(ss, ","))
+	return ih.GenTitle("insertHorizontal", strings.Join(ss, ","))
 }
 
-func (ih *insertHorizontalMode) GetFields() []string {
+func (ih *insertHorizontal) GetFields() []string {
 	return ih.keys
 }
 
-func (ih *insertHorizontalMode) Keys() []string {
+func (ih *insertHorizontal) Keys() []string {
 	return ih.insertKeys
 }
 
-func (ih *insertHorizontalMode) DefaultValues() map[string]any {
+func (ih *insertHorizontal) DefaultValues() map[string]any {
 	return maps.Clone(ih.defaultValues)
 }
 
-func (ih *insertHorizontalMode) State() []string {
+func (ih *insertHorizontal) State() []string {
 	return []string{fmt.Sprintf("%s: %s", ih.Title(), ih.GenCounter())}
 }
 
-func (ih *insertHorizontalMode) Close() error {
+func (ih *insertHorizontal) Close() error {
 	for _, m := range ih.ms {
 		err := m.Close()
 		if err != nil {

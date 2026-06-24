@@ -1,6 +1,6 @@
 package command
 
-type Query interface {
+type QueryBuilder interface {
 	BuildFieldsForInsert() []string
 	Query() string
 }

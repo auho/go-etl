@@ -9,12 +9,12 @@ import (
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
-var _ InsertOperator = (*InsertStackMode)(nil)
+var _ InsertOperator = (*InsertStack)(nil)
 
-// InsertStackMode
+// InsertStack
 // stack means
 // 多个 means append(上下拼接)，使用相同 column name
-type InsertStackMode struct {
+type InsertStack struct {
 	Mode
 	ms []extract.Inserter
 
@@ -22,23 +22,23 @@ type InsertStackMode struct {
 	defaultValues map[string]any
 }
 
-func NewInsertStack(keys []string, ms ...extract.Inserter) *InsertStackMode {
-	im := &InsertStackMode{}
+func NewInsertStack(keys []string, ms ...extract.Inserter) *InsertStack {
+	im := &InsertStack{}
 	im.keys = keys
 	im.ms = ms
 
 	return im
 }
 
-func (im *InsertStackMode) Prepare() error {
+func (im *InsertStack) Prepare() error {
 	if len(im.keys) <= 0 {
-		return fmt.Errorf("InsertStackMode Prepare keys not exists error")
+		return fmt.Errorf("InsertStack Prepare keys not exists error")
 	}
 
 	for _, m := range im.ms {
 		err := m.Prepare()
 		if err != nil {
-			return fmt.Errorf("InsertStackMode prepare error; %w", err)
+			return fmt.Errorf("InsertStack prepare error; %w", err)
 		}
 	}
 
@@ -55,28 +55,28 @@ func (im *InsertStackMode) Prepare() error {
 	return nil
 }
 
-func (im *InsertStackMode) Title() string {
+func (im *InsertStack) Title() string {
 	is := make([]string, 0)
 	for _, i := range im.ms {
 		is = append(is, i.Title())
 	}
 
-	return im.GenTitle("InsertStackMode", strings.Join(is, ","))
+	return im.GenTitle("InsertStack", strings.Join(is, ","))
 }
 
-func (im *InsertStackMode) GetFields() []string {
+func (im *InsertStack) GetFields() []string {
 	return im.keys
 }
 
-func (im *InsertStackMode) Keys() []string {
+func (im *InsertStack) Keys() []string {
 	return im.insertKeys
 }
 
-func (im *InsertStackMode) DefaultValues() map[string]any {
+func (im *InsertStack) DefaultValues() map[string]any {
 	return maps.Clone(im.defaultValues)
 }
 
-func (im *InsertStackMode) Do(item map[string]any) []map[string]any {
+func (im *InsertStack) Do(item map[string]any) []map[string]any {
 	im.AddTotal(1)
 
 	if item == nil {
@@ -108,15 +108,15 @@ func (im *InsertStackMode) Do(item map[string]any) []map[string]any {
 	return items
 }
 
-func (im *InsertStackMode) State() []string {
+func (im *InsertStack) State() []string {
 	return []string{fmt.Sprintf("%s: %s", im.Title(), im.GenCounter())}
 }
 
-func (im *InsertStackMode) Close() error {
+func (im *InsertStack) Close() error {
 	for _, m := range im.ms {
 		err := m.Close()
 		if err != nil {
-			return fmt.Errorf("InsertStackMode close error; %w", err)
+			return fmt.Errorf("InsertStack close error; %w", err)
 		}
 	}
 

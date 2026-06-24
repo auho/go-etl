@@ -7,53 +7,53 @@ import (
 	"github.com/auho/go-etl/v2/job/extract"
 )
 
-var _ InsertOperator = (*InsertMode)(nil)
+var _ InsertOperator = (*Insert)(nil)
 
-// InsertMode
+// Insert
 // single means
-type InsertMode struct {
+type Insert struct {
 	Mode
 	means extract.Inserter
 }
 
-func NewInsert(keys []string, means extract.Inserter) *InsertMode {
-	im := &InsertMode{}
+func NewInsert(keys []string, means extract.Inserter) *Insert {
+	im := &Insert{}
 	im.keys = keys
 	im.means = means
 
 	return im
 }
 
-func (im *InsertMode) Prepare() error {
+func (im *Insert) Prepare() error {
 	if len(im.keys) <= 0 {
-		return fmt.Errorf("InsertMode Prepare keys not exists error")
+		return fmt.Errorf("Insert Prepare keys not exists error")
 	}
 
 	err := im.means.Prepare()
 	if err != nil {
-		return fmt.Errorf("InsertMode Prepare error; %w", err)
+		return fmt.Errorf("Insert Prepare error; %w", err)
 	}
 
 	return nil
 }
 
-func (im *InsertMode) Title() string {
-	return im.GenTitle("InsertMode", im.means.Title())
+func (im *Insert) Title() string {
+	return im.GenTitle("Insert", im.means.Title())
 }
 
-func (im *InsertMode) GetFields() []string {
+func (im *Insert) GetFields() []string {
 	return im.keys
 }
 
-func (im *InsertMode) Keys() []string {
+func (im *Insert) Keys() []string {
 	return im.means.Keys()
 }
 
-func (im *InsertMode) DefaultValues() map[string]any {
+func (im *Insert) DefaultValues() map[string]any {
 	return maps.Clone(im.means.DefaultValues())
 }
 
-func (im *InsertMode) Do(item map[string]any) []map[string]any {
+func (im *Insert) Do(item map[string]any) []map[string]any {
 	im.AddTotal(1)
 
 	if item == nil {
@@ -71,14 +71,14 @@ func (im *InsertMode) Do(item map[string]any) []map[string]any {
 	return rt
 }
 
-func (im *InsertMode) State() []string {
+func (im *Insert) State() []string {
 	return []string{fmt.Sprintf("%s: %s", im.Title(), im.GenCounter())}
 }
 
-func (im *InsertMode) Close() error {
+func (im *Insert) Close() error {
 	err := im.means.Close()
 	if err != nil {
-		return fmt.Errorf("InsertMode close error; %w", err)
+		return fmt.Errorf("Insert close error; %w", err)
 	}
 
 	return nil

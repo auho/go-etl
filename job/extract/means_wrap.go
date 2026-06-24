@@ -44,7 +44,7 @@ func (w *Wrap) Prepare() error {
 	if w.export != nil {
 		w.hasExport = true
 		w.keys = w.export.Keys()
-		w.defaultValues = w.export.GetDefaultValues()
+		w.defaultValues = w.export.DefaultValues()
 	}
 
 	return nil

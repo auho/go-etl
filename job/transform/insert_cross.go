@@ -6,9 +6,9 @@ import (
 	"github.com/auho/go-etl/v2/job/extract"
 )
 
-var _ InsertOperator = (*InsertCrossMode)(nil)
+var _ InsertOperator = (*InsertCross)(nil)
 
-// InsertCrossMode
+// InsertCross
 // cross means 交叉
 //
 // 1，2
@@ -18,17 +18,17 @@ var _ InsertOperator = (*InsertCrossMode)(nil)
 // 1，4
 // 2，3
 // 2，4
-type InsertCrossMode struct {
-	insertHorizontalMode
+type InsertCross struct {
+	insertHorizontal
 }
 
-func NewInsertCross(keys []string, ms ...extract.Inserter) *InsertCrossMode {
-	return &InsertCrossMode{
-		insertHorizontalMode: newInsertHorizontal(keys, ms...),
+func NewInsertCross(keys []string, ms ...extract.Inserter) *InsertCross {
+	return &InsertCross{
+		insertHorizontal: newInsertHorizontal(keys, ms...),
 	}
 }
 
-func (ic *InsertCrossMode) Do(item map[string]any) []map[string]any {
+func (ic *InsertCross) Do(item map[string]any) []map[string]any {
 	ic.AddTotal(1)
 
 	if item == nil {

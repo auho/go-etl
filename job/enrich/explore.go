@@ -66,7 +66,7 @@ func (e *Explore) Prepare() error {
 		e.hasExpression = true
 	}
 
-	e.defaultValues = e.search.GenExport().GetDefaultValues()
+	e.defaultValues = e.search.GenExport().DefaultValues()
 
 	return nil
 }

@@ -34,11 +34,11 @@ func (m *Means) Prepare() error {
 
 	_export := m.search.GenExport()
 	m.keys = _export.Keys()
-	m.defaultValues = _export.GetDefaultValues()
+	m.defaultValues = _export.DefaultValues()
 	if m.export != nil {
 		m.hasExport = true
 		m.keys = m.export.Keys()
-		m.defaultValues = m.export.GetDefaultValues()
+		m.defaultValues = m.export.DefaultValues()
 	}
 
 	return nil

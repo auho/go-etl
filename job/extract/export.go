@@ -15,7 +15,7 @@ type Context struct {
 
 type Exporter interface {
 	Keys() []string
-	GetDefaultValues() map[string]any
+	DefaultValues() map[string]any
 	Insert([]map[string]any) []map[string]any
 }
 
@@ -33,7 +33,7 @@ func (e *Export) Keys() []string {
 	return e.keys
 }
 
-func (e *Export) GetDefaultValues() map[string]any {
+func (e *Export) DefaultValues() map[string]any {
 	return maps.Clone(e.defaultValues)
 }
 

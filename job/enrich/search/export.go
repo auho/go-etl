@@ -2,5 +2,5 @@ package search
 
 type FieldSpec interface {
 	Keys() []string
-	GetDefaultValues() map[string]any
+	DefaultValues() map[string]any
 }

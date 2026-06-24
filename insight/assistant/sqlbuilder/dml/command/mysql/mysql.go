@@ -73,11 +73,11 @@ func (m *mysql) SetToString(s []string) string {
 	return fmt.Sprintf("SET %s ", strings.Join(s, ", "))
 }
 
-func (m *mysql) insert(name string, q command.Query) string {
+func (m *mysql) insert(name string, q command.QueryBuilder) string {
 	return fmt.Sprintf("INSERT INTO %s %s", m.addBackQuote(name), q.Query())
 }
 
-func (m *mysql) insertWithFields(name string, fields []string, q command.Query) string {
+func (m *mysql) insertWithFields(name string, fields []string, q command.QueryBuilder) string {
 	s := ""
 	if fields == nil {
 		fields = q.BuildFieldsForInsert()
