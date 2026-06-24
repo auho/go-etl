@@ -22,22 +22,22 @@ type Resource interface {
 	GetTitlesIndex() []int
 	GetSheetData(*read.Excel) (read.SheetDataReader, error)
 
-	CommandExec(*schema.Command)
-	PostDo(Resource) error
+	ExecCommand(*schema.Command)
+	AfterDo(Resource) error
 }
 
 type ResourceBase struct {
 	SheetName            string
-	SheetIndex           int                           // sheet index，从 1 开始
-	StartRow             int                           // 数据开始的行数，从 1 开始
-	EndRow               int                           // 数据结束的行数，从 1 开始
-	BatchInsertSize      int                           // 数据批量插入 size
-	IsRecreateTable      bool                          // true: recreate table; false: not recreate table;
-	IsAppendData         bool                          // true: append data; false truncate table
-	IsShowSql            bool                          // 是否显示 sql
-	ColumnDropDuplicates []int                         // [column index] drop duplicates for column
+	SheetIndex           int                   // sheet index，从 1 开始
+	StartRow             int                   // 数据开始的行数，从 1 开始
+	EndRow               int                   // 数据结束的行数，从 1 开始
+	BatchInsertSize      int                   // 数据批量插入 size
+	IsRecreateTable      bool                  // true: recreate table; false: not recreate table;
+	IsAppendData         bool                  // true: append data; false truncate table
+	IsShowSql            bool                  // 是否显示 sql
+	ColumnDropDuplicates []int                 // [column index] drop duplicates for column
 	CommandFun           func(*schema.Command) // recreate table 时执行的 func
-	PostFun              func(Resource) error          // 导入后的执行的 func
+	PostFun              func(Resource) error  // 导入后的执行的 func
 }
 
 func (s *ResourceBase) buildSheetConfig() read.Config {
@@ -49,13 +49,13 @@ func (s *ResourceBase) buildSheetConfig() read.Config {
 	}
 }
 
-func (s *ResourceBase) CommandExec(command *schema.Command) {
+func (s *ResourceBase) ExecCommand(command *schema.Command) {
 	if s.CommandFun != nil {
 		s.CommandFun(command)
 	}
 }
 
-func (s *ResourceBase) PostDo(resource Resource) error {
+func (s *ResourceBase) AfterDo(resource Resource) error {
 	if s.PostFun != nil {
 		return s.PostFun(resource)
 	}

@@ -19,7 +19,7 @@ func (e *extra) DMLTable() *dml.Table {
 
 func (e *extra) AlterTable(fn func(*schema.Command)) ([]string, error) {
 	at := altertable.NewModelTable(e.model).WithCommand(fn)
-	return at.BuildAffixSql()
+	return at.BuildAndReturnSQL()
 }
 
 func (e *extra) InsertWholeWithTable(table dml.Tabler) (string, error) {

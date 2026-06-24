@@ -40,7 +40,7 @@ func NewPython2Go(s string) *Python2Go {
 
 	return p
 }
-func (p *Python2Go) Conversion() {
+func (p *Python2Go) Convert() {
 	p.clean()
 	p.conversionQuote()
 	p.conversionComment()

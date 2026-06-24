@@ -63,7 +63,7 @@ func ExampleNewSheetDataNoTitle() {
 	_ = s.ReadData()
 
 	// handler rows
-	_ = s.HandlerRows(func(rows [][]string) ([][]string, error) {
+	_ = s.HandleRows(func(rows [][]string) ([][]string, error) {
 		return rows, nil
 	})
 
@@ -89,7 +89,7 @@ func ExampleNewSheetDataNoTitleWithPath() {
 	_ = s.ReadData()
 
 	// handler rows
-	_ = s.HandlerRows(func(rows [][]string) ([][]string, error) {
+	_ = s.HandleRows(func(rows [][]string) ([][]string, error) {
 		return rows, nil
 	})
 
@@ -117,7 +117,7 @@ func ExampleNewSheetDataWithTitle() {
 	_ = s.ReadData()
 
 	// handler rows
-	_ = s.HandlerRows(func(rows [][]string) ([][]string, error) {
+	_ = s.HandleRows(func(rows [][]string) ([][]string, error) {
 		return rows, nil
 	})
 
@@ -151,7 +151,7 @@ func ExampleNewSheetDataWithTitleWithPath() {
 	_ = s.ReadData()
 
 	// handler rows
-	_ = s.HandlerRows(func(rows [][]string) ([][]string, error) {
+	_ = s.HandleRows(func(rows [][]string) ([][]string, error) {
 		return rows, nil
 	})
 

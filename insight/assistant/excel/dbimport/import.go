@@ -39,9 +39,9 @@ func (it *ImportToDB) Import() error {
 			return fmt.Errorf("resource[%s] error; %w", resource.GetName(), err)
 		}
 
-		err = resource.PostDo(resource)
+		err = resource.AfterDo(resource)
 		if err != nil {
-			return fmt.Errorf("resource[%s] PostDo error; %w", resource.GetName(), err)
+			return fmt.Errorf("resource[%s] AfterDo error; %w", resource.GetName(), err)
 		}
 	}
 
@@ -94,7 +94,7 @@ func (it *ImportToDB) buildResourceTable(resource Resource, table buildtable.Tab
 	}
 
 	if isRecreateTable {
-		resource.CommandExec(table.GetCommand())
+		resource.ExecCommand(table.GetCommand())
 
 		err = table.Build()
 		if err != nil {
@@ -109,7 +109,7 @@ func (it *ImportToDB) importResourceToTable(resource Resource, table buildtable.
 	var err error
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {
-		err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
+		err = sheetData.HandleRows(func(rows [][]string) ([][]string, error) {
 			rows = slices.SliceSliceDropDuplicates(rows, resource.GetColumnDropDuplicates())
 
 			return rows, nil

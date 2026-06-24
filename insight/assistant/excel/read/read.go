@@ -2,7 +2,7 @@ package read
 
 type SheetDataReader interface {
 	ReadData() error
-	HandlerRows(fn func(rows [][]string) ([][]string, error)) error
+	HandleRows(fn func(rows [][]string) ([][]string, error)) error
 	GetRows() [][]string
 	GetRowsWithAny() [][]any
 }

@@ -57,7 +57,7 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, e
 	//}
 
 	// keyword len of string
-	err = sheetData.HandlerRows(func(rows [][]string) ([][]string, error) {
+	err = sheetData.HandleRows(func(rows [][]string) ([][]string, error) {
 		rs.titlesKey = append(rs.titlesKey, rs.Rule.KeywordLenName())
 
 		var _newRows [][]string

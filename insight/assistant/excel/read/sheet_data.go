@@ -34,11 +34,11 @@ func (sd *sheetData) GetRowsWithAny() [][]any {
 	return data
 }
 
-func (sd *sheetData) HandlerRows(fn func(rows [][]string) ([][]string, error)) error {
+func (sd *sheetData) HandleRows(fn func(rows [][]string) ([][]string, error)) error {
 	var err error
 	sd.rows, err = fn(sd.rows)
 	if err != nil {
-		return fmt.Errorf("HandlerRows fn error; %w", err)
+		return fmt.Errorf("HandleRows fn error; %w", err)
 	}
 
 	return nil

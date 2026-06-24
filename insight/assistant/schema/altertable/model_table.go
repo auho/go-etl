@@ -23,7 +23,7 @@ func (m *ModelTable) Build() error {
 	return m.build(m.SQL(), m.db)
 }
 
-func (m *ModelTable) BuildAffixSql() ([]string, error) {
+func (m *ModelTable) BuildAndReturnSQL() ([]string, error) {
 	_sql := m.SQL()
 	return _sql, m.build(_sql, m.db)
 }

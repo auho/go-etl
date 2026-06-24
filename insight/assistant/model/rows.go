@@ -19,7 +19,7 @@ type Rows struct {
 	tableName string
 }
 
-func NewRowsFake(name, tableName, idName string, db *simpledb.SimpleDB) *Rows {
+func NewRowsCustomTable(name, tableName, idName string, db *simpledb.SimpleDB) *Rows {
 	r := &Rows{}
 	r.name = name
 	r.idName = idName
@@ -33,7 +33,7 @@ func NewRowsFake(name, tableName, idName string, db *simpledb.SimpleDB) *Rows {
 }
 
 func NewRows(name, idName string, db *simpledb.SimpleDB) *Rows {
-	return NewRowsFake(name, name, idName, db)
+	return NewRowsCustomTable(name, name, idName, db)
 }
 
 func (r *Rows) GetDB() *simpledb.SimpleDB {
