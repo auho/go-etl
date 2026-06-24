@@ -20,7 +20,7 @@ type Explore struct {
 	defaultValues map[string]any
 }
 
-func GenExplore() *Explore {
+func NewExplore() *Explore {
 	return &Explore{}
 }
 

@@ -11,7 +11,7 @@ type Config struct {
 	target TargetConfig
 }
 
-func (c *Config) Check() {
+func (c *Config) Init() {
 	c.source.check()
 }
 

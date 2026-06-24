@@ -11,7 +11,7 @@ import (
 )
 
 type executor interface {
-	exec() []flow.Option[map[string]any, map[string]any]
+	options() []flow.Option[map[string]any, map[string]any]
 }
 
 type Runner struct {
@@ -42,7 +42,7 @@ func (r *Runner) prepare(opts []ConfigOption) {
 		opt(r.config)
 	}
 
-	r.config.Check()
+	r.config.Init()
 }
 
 func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.MapEntry], error) {
@@ -84,7 +84,7 @@ func (r *Runner) run(d *source.Section[storage.MapEntry], e executor) error {
 		flow.WithSource[map[string]any, map[string]any](d),
 	}
 
-	opts = append(opts, e.exec()...)
+	opts = append(opts, e.options()...)
 
 	err := flow.RunFlow[map[string]any](opts...)
 	if err != nil {

@@ -111,8 +111,8 @@ func (tj *TableJoin) SetValue(t *Table, fields []string, setTable *Table, values
 	return tj
 }
 
-func (tj *TableJoin) Limit(start int, offset int) *TableJoin {
-	tj.limit = []int{start, offset}
+func (tj *TableJoin) Limit(offset int, count int) *TableJoin {
+	tj.limit = []int{offset, count}
 
 	return tj
 }

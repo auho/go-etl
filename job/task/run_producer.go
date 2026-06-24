@@ -14,7 +14,7 @@ type producerExecutor struct {
 	items []producer.Item[map[string]any, map[string]any]
 }
 
-func (c *producerExecutor) exec() []flow.Option[map[string]any, map[string]any] {
+func (c *producerExecutor) options() []flow.Option[map[string]any, map[string]any] {
 	var opts []flow.Option[map[string]any, map[string]any]
 
 	for _, a := range c.items {

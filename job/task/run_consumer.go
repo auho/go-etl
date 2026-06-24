@@ -14,7 +14,7 @@ type consumerExecutor struct {
 	items []consumer.Item[map[string]any]
 }
 
-func (c *consumerExecutor) exec() []flow.Option[map[string]any, map[string]any] {
+func (c *consumerExecutor) options() []flow.Option[map[string]any, map[string]any] {
 	var opts []flow.Option[map[string]any, map[string]any]
 
 	for _, _item := range c.items {

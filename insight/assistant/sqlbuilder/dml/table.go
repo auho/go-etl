@@ -172,8 +172,8 @@ func (t *Table) Having(s string) *Table {
 	return t
 }
 
-func (t *Table) Limit(start int, offset int) *Table {
-	t.limit = []int{start, offset}
+func (t *Table) Limit(offset int, count int) *Table {
+	t.limit = []int{offset, count}
 
 	return t
 }

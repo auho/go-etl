@@ -8,26 +8,26 @@ import (
 	slices "github.com/auho/go-etl/v2/tool/slicex"
 )
 
-var _ processor = (*Fake)(nil)
+var _ processor = (*Noop)(nil)
 
-// Fake
+// Noop
 // WIP
-type Fake struct {
+type Noop struct {
 	task
 
 	modes []transform.Operator
 }
 
-func (f *Fake) Title() string {
+func (f *Noop) Title() string {
 	ss := make([]string, 0)
 	for _, m := range f.modes {
 		ss = append(ss, m.Title())
 	}
 
-	return fmt.Sprintf("Fake {%s}", strings.Join(ss, ", "))
+	return fmt.Sprintf("Noop {%s}", strings.Join(ss, ", "))
 }
 
-func (f *Fake) GetFields() []string {
+func (f *Noop) GetFields() []string {
 	fields := make([]string, 0)
 
 	for _, m := range f.modes {
@@ -37,7 +37,7 @@ func (f *Fake) GetFields() []string {
 	return slices.SliceDropDuplicates(fields)
 }
 
-func (f *Fake) Prepare() error {
+func (f *Noop) Prepare() error {
 	for _, m := range f.modes {
 		err := m.Prepare()
 		if err != nil {
@@ -48,9 +48,9 @@ func (f *Fake) Prepare() error {
 	return nil
 }
 
-func (f *Fake) BeforeRun() error { return nil }
+func (f *Noop) BeforeRun() error { return nil }
 
-func (f *Fake) Exec(item map[string]any) ([]map[string]any, bool) {
+func (f *Noop) Exec(item map[string]any) ([]map[string]any, bool) {
 	for _, m := range f.modes {
 		_ = m
 	}
@@ -58,13 +58,13 @@ func (f *Fake) Exec(item map[string]any) ([]map[string]any, bool) {
 	return nil, true
 }
 
-func (f *Fake) AfterRun() error { return nil }
+func (f *Noop) AfterRun() error { return nil }
 
-func (f *Fake) PostBatchDo(items []map[string]any) {}
+func (f *Noop) PostBatchDo(items []map[string]any) {}
 
-func (f *Fake) AppendState() {}
+func (f *Noop) AppendState() {}
 
-func (f *Fake) Close() error {
+func (f *Noop) Close() error {
 	for _, m := range f.modes {
 		err := m.Close()
 		if err != nil {

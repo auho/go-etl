@@ -6,14 +6,14 @@ import (
 	"github.com/auho/go-etl/v2/job/extract/match"
 )
 
-func ExampleGenExplore() {
-	insert := GenExplore().
+func ExampleNewExplore() {
+	insert := NewExplore().
 		SetCollect(collect.NewKeys([]string{_keyName})).
 		SetSearch(match.NewKey(_rule)).
 		SetCondition(condition.NewContainAll("a", []string{"a1", "a2"})).
 		ToInsert()
 
-	update := GenExplore().
+	update := NewExplore().
 		SetCollect(collect.NewKeys([]string{_keyName})).
 		SetSearch(match.NewKey(_rule)).
 		SetCondition(condition.NewContainAll("a", []string{"a1", "a2"})).
