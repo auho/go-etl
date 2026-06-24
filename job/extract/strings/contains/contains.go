@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v2/job/enrich/search"
-	"github.com/auho/go-etl/v2/job/extract"
+	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 var _ search.Searcher = (*Contains)(nil)

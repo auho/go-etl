@@ -1,7 +1,7 @@
 package source
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
+	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
 )
 
 func ExampleNewRows() {

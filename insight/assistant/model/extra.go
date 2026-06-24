@@ -3,10 +3,10 @@ package model
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/schema"
-	"github.com/auho/go-etl/v2/insight/assistant/schema/altertable"
-	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
+	"github.com/auho/go-etl/v3/insight/assistant"
+	"github.com/auho/go-etl/v3/insight/assistant/schema"
+	"github.com/auho/go-etl/v3/insight/assistant/schema/altertable"
+	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
 )
 
 type extra struct {

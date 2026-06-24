@@ -3,7 +3,7 @@ package enrich
 import (
 	"maps"
 
-	"github.com/auho/go-etl/v2/job/transform"
+	"github.com/auho/go-etl/v3/job/transform"
 )
 
 var _ transform.InsertOperator = (*InsertStack)(nil)

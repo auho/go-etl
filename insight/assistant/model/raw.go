@@ -1,8 +1,8 @@
 package model
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/insight/assistant"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 var _ assistant.Raw = (*Raw)(nil)

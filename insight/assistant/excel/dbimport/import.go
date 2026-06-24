@@ -3,9 +3,9 @@ package dbimport
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/schema/buildtable"
-	slices "github.com/auho/go-etl/v2/tool/slicex"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
+	slices "github.com/auho/go-etl/v3/tool/slicex"
 )
 
 type ImportToDB struct {

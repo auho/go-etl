@@ -1,8 +1,8 @@
 package altertable
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant/schema"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/insight/assistant/schema"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 type Table struct {

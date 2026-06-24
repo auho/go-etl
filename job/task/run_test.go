@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/v2/job/extract/tag"
-	"github.com/auho/go-etl/v2/job/transform"
+	"github.com/auho/go-etl/v3/job/extract/tag"
+	"github.com/auho/go-etl/v3/job/transform"
 )
 
 func Test_Update(t *testing.T) {

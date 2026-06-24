@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/auho/go-etl/v2/insight/assistant/excel/write"
-	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
-	"github.com/auho/go-etl/v2/insight/assistant/query/source"
-	"github.com/auho/go-toolkit/time/timing"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/write"
+	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
+	"github.com/auho/go-etl/v3/insight/assistant/query/source"
+	"github.com/auho/go-toolkit/v2/time/timing"
 )
 
 type subQuery struct {

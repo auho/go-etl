@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/auho/go-etl/v2/job"
+	"github.com/auho/go-etl/v3/job"
 )
 
 var _ job.CleanResource = (*CleanData)(nil)

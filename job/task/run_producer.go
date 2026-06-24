@@ -1,11 +1,11 @@
 package task
 
 import (
-	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-toolkit-flow/exec"
-	"github.com/auho/go-toolkit-flow/exec/producer/item"
-	"github.com/auho/go-toolkit-flow/flow"
-	"github.com/auho/go-toolkit-flow/processor/producer"
+	"github.com/auho/go-etl/v3/job"
+	"github.com/auho/go-toolkit-flow/v3/exec"
+	"github.com/auho/go-toolkit-flow/v3/exec/producer/item"
+	"github.com/auho/go-toolkit-flow/v3/flow"
+	"github.com/auho/go-toolkit-flow/v3/processor/producer"
 )
 
 var _ executor = (*producerExecutor)(nil)

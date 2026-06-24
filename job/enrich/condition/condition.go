@@ -1,8 +1,8 @@
 package condition
 
 import (
-	"github.com/auho/go-etl/v2/job/enrich/collect"
-	"github.com/auho/go-etl/v2/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/enrich/collect"
+	"github.com/auho/go-etl/v3/job/enrich/search"
 )
 
 var _ Filter = (*Condition)(nil)

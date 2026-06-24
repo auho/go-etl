@@ -1,8 +1,8 @@
 package collect
 
 import (
-	"github.com/auho/go-etl/v2/job/enrich/search"
-	"github.com/auho/go-toolkit/farmtools/convert/types/strings"
+	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-toolkit/v2/farmtools/convert/types/strings"
 )
 
 type Collector interface {

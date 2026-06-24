@@ -1,10 +1,10 @@
 package enrich
 
 import (
-	"github.com/auho/go-etl/v2/job/enrich/collect"
-	"github.com/auho/go-etl/v2/job/enrich/condition"
-	"github.com/auho/go-etl/v2/job/enrich/search"
-	"github.com/auho/go-etl/v2/job/transform"
+	"github.com/auho/go-etl/v3/job/enrich/collect"
+	"github.com/auho/go-etl/v3/job/enrich/condition"
+	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/transform"
 )
 
 var _ transform.InsertOperator = (*Insert)(nil)

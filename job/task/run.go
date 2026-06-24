@@ -3,11 +3,11 @@ package task
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/job"
-	slices "github.com/auho/go-etl/v2/tool/slicex"
-	"github.com/auho/go-toolkit-flow/flow"
-	"github.com/auho/go-toolkit-flow/storage"
-	"github.com/auho/go-toolkit-flow/storage/database/source"
+	"github.com/auho/go-etl/v3/job"
+	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-toolkit-flow/v3/flow"
+	"github.com/auho/go-toolkit-flow/v3/storage"
+	"github.com/auho/go-toolkit-flow/v3/storage/database/source"
 )
 
 type executor interface {

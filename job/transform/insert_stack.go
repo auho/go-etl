@@ -5,8 +5,8 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/auho/go-etl/v2/job/extract"
-	slices "github.com/auho/go-etl/v2/tool/slicex"
+	"github.com/auho/go-etl/v3/job/extract"
+	slices "github.com/auho/go-etl/v3/tool/slicex"
 )
 
 var _ InsertOperator = (*InsertStack)(nil)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/v2/job/extract/tag"
+	"github.com/auho/go-etl/v3/job/extract/tag"
 )
 
 func Test_UpdateMode(t *testing.T) {

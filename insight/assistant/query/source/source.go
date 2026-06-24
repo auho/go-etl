@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
-	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
-	maps "github.com/auho/go-etl/v2/tool/mapx"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
+	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
+	maps "github.com/auho/go-etl/v3/tool/mapx"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 type Source interface {

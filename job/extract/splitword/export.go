@@ -1,7 +1,7 @@
 package splitword
 
 import (
-	"github.com/auho/go-etl/v2/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/enrich/search"
 )
 
 type ExportContext struct {

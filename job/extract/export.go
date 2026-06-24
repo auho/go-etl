@@ -4,7 +4,7 @@ import (
 	"maps"
 	strings2 "strings"
 
-	"github.com/auho/go-toolkit/farmtools/convert/types/strings"
+	"github.com/auho/go-toolkit/v2/farmtools/convert/types/strings"
 )
 
 var _ Exporter = (*Export)(nil)

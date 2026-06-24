@@ -3,7 +3,7 @@ package enrich
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/job/extract"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 var _ extract.Rule = (*ruleTest)(nil)

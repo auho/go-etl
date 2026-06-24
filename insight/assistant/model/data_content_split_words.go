@@ -3,9 +3,9 @@ package model
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/schema"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/insight/assistant"
+	"github.com/auho/go-etl/v3/insight/assistant/schema"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 var _ assistant.Entity = (*DataContentSplitWords)(nil)

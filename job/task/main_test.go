@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/auho/go-etl/v2/insight/app/conf"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/insight/app/conf"
+	simpledb "github.com/auho/go-simple-db/v3"
 	"gorm.io/gorm"
 )
 

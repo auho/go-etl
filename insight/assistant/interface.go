@@ -1,9 +1,9 @@
 package assistant
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant/schema"
-	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/dml"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/insight/assistant/schema"
+	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 type Raw interface {

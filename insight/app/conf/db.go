@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	simpledb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v3"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )

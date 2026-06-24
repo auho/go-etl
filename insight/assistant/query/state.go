@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/auho/go-toolkit/time/timing"
+	"github.com/auho/go-toolkit/v2/time/timing"
 )
 
 type state struct {

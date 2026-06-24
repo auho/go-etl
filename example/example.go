@@ -6,8 +6,8 @@ import (
 	"os"
 	"runtime/pprof"
 
-	"github.com/auho/go-etl/v2/example/demand"
-	"github.com/auho/go-etl/v2/insight/app"
+	"github.com/auho/go-etl/v3/example/demand"
+	"github.com/auho/go-etl/v3/insight/app"
 	"github.com/spf13/cobra"
 )
 

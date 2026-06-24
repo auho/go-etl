@@ -1,8 +1,8 @@
 package model
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/job"
+	"github.com/auho/go-etl/v3/insight/assistant"
+	"github.com/auho/go-etl/v3/job"
 )
 
 var _ job.CleanResource = (*CleanRows)(nil)

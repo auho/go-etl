@@ -1,11 +1,11 @@
 package demand
 
 import (
-	"github.com/auho/go-etl/v2/example/demand/build"
-	"github.com/auho/go-etl/v2/example/demand/layout"
-	"github.com/auho/go-etl/v2/example/demand/query"
-	"github.com/auho/go-etl/v2/example/demand/tag"
-	"github.com/auho/go-etl/v2/insight/app"
+	"github.com/auho/go-etl/v3/example/demand/build"
+	"github.com/auho/go-etl/v3/example/demand/layout"
+	"github.com/auho/go-etl/v3/example/demand/query"
+	"github.com/auho/go-etl/v3/example/demand/tag"
+	"github.com/auho/go-etl/v3/insight/app"
 	"github.com/spf13/cobra"
 )
 

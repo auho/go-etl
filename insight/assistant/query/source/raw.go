@@ -3,8 +3,8 @@ package source
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
+	"github.com/auho/go-etl/v3/insight/assistant"
+	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 )
 
 type RawSource struct {

@@ -1,8 +1,8 @@
 package task
 
 import (
-	"github.com/auho/go-etl/v2/job"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/job"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 var _ job.Table = (*sourceTest)(nil)

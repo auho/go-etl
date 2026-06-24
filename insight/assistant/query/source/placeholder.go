@@ -3,7 +3,7 @@ package source
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant/query/dataset"
+	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 )
 
 var _ Source = (*PlaceholderSource)(nil)

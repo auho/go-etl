@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v2/job/transform"
-	slices "github.com/auho/go-etl/v2/tool/slicex"
+	"github.com/auho/go-etl/v3/job/transform"
+	slices "github.com/auho/go-etl/v3/tool/slicex"
 )
 
 var _ processor = (*Noop)(nil)

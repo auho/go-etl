@@ -3,7 +3,7 @@ package extract
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/enrich/search"
 )
 
 var _ Inserter = (*Means)(nil)

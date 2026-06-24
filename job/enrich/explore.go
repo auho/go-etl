@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"maps"
 
-	"github.com/auho/go-etl/v2/job/enrich/collect"
-	"github.com/auho/go-etl/v2/job/enrich/condition"
-	"github.com/auho/go-etl/v2/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/enrich/collect"
+	"github.com/auho/go-etl/v3/job/enrich/condition"
+	"github.com/auho/go-etl/v3/job/enrich/search"
 )
 
 type Explore struct {

@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/sqlbuilder/ddl/command/mysql"
-	"github.com/auho/go-etl/v2/insight/assistant/schema"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/insight/assistant"
+	"github.com/auho/go-etl/v3/insight/assistant/schema"
+	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/ddl/command/mysql"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 var _ Tabler = (*table)(nil)

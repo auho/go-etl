@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/auho/go-etl/v2/job/extract"
-	maps "github.com/auho/go-etl/v2/tool/mapx"
+	"github.com/auho/go-etl/v3/job/extract"
+	maps "github.com/auho/go-etl/v3/tool/mapx"
 )
 
 var DefaultFormat = Format{

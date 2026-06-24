@@ -1,8 +1,8 @@
 package read
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant/model"
-	"github.com/auho/go-etl/v2/insight/assistant/schema/buildtable"
+	"github.com/auho/go-etl/v3/insight/assistant/model"
+	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
 )
 
 var _excel *Excel

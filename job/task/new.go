@@ -1,8 +1,8 @@
 package task
 
 import (
-	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-etl/v2/job/transform"
+	"github.com/auho/go-etl/v3/job"
+	"github.com/auho/go-etl/v3/job/transform"
 )
 
 func CleanTask(resource job.CleanResource, modes []transform.UpdateOperator, opts ...func(clean *Clean)) {

@@ -3,8 +3,8 @@ package model
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/schema"
+	"github.com/auho/go-etl/v3/insight/assistant"
+	"github.com/auho/go-etl/v3/insight/assistant/schema"
 )
 
 var _ assistant.Rule = (*DataRule)(nil)

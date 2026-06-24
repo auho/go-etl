@@ -3,7 +3,7 @@ package query
 import (
 	"log"
 
-	"github.com/auho/go-etl/v2/insight/assistant/query/source"
+	"github.com/auho/go-etl/v3/insight/assistant/query/source"
 )
 
 func ExampleNewQuery() {

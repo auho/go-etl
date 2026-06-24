@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	slices "github.com/auho/go-etl/v2/tool/slicex"
+	slices "github.com/auho/go-etl/v3/tool/slicex"
 )
 
 type Set struct {

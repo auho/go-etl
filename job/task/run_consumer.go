@@ -1,11 +1,11 @@
 package task
 
 import (
-	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-toolkit-flow/exec"
-	"github.com/auho/go-toolkit-flow/exec/consumer/item"
-	"github.com/auho/go-toolkit-flow/flow"
-	"github.com/auho/go-toolkit-flow/processor/consumer"
+	"github.com/auho/go-etl/v3/job"
+	"github.com/auho/go-toolkit-flow/v3/exec"
+	"github.com/auho/go-toolkit-flow/v3/exec/consumer/item"
+	"github.com/auho/go-toolkit-flow/v3/flow"
+	"github.com/auho/go-toolkit-flow/v3/processor/consumer"
 )
 
 var _ executor = (*consumerExecutor)(nil)

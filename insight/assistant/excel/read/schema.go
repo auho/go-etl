@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/auho/go-etl/v2/insight/assistant/schema/buildtable"
-	"github.com/auho/go-toolkit/farmtools/sort/maps"
+	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
+	"github.com/auho/go-toolkit/v2/farmtools/sort/maps"
 )
 
 // Schema

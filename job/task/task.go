@@ -3,10 +3,10 @@ package task
 import (
 	"runtime"
 
-	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-toolkit-flow/processor/consumer"
-	"github.com/auho/go-toolkit-flow/processor/producer"
-	"github.com/auho/go-toolkit-flow/storage"
+	"github.com/auho/go-etl/v3/job"
+	"github.com/auho/go-toolkit-flow/v3/processor/consumer"
+	"github.com/auho/go-toolkit-flow/v3/processor/producer"
+	"github.com/auho/go-toolkit-flow/v3/storage"
 )
 
 const batchSize = 2000

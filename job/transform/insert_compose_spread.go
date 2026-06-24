@@ -6,7 +6,7 @@ import (
 	slices2 "slices"
 	"strings"
 
-	slices "github.com/auho/go-etl/v2/tool/slicex"
+	slices "github.com/auho/go-etl/v3/tool/slicex"
 )
 
 var _ InsertOperator = (*InsertComposeSpread)(nil)

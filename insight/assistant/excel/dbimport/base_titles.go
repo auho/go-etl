@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
 )
 
 // Titles

@@ -1,7 +1,7 @@
 package dml
 
 import (
-	simpledb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 type manipulation struct {

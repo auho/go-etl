@@ -1,11 +1,11 @@
 package task
 
 import (
-	"github.com/auho/go-etl/v2/job"
-	"github.com/auho/go-etl/v2/job/extract"
-	"github.com/auho/go-etl/v2/job/extract/tag"
-	"github.com/auho/go-etl/v2/job/transform"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/job"
+	"github.com/auho/go-etl/v3/job/extract"
+	"github.com/auho/go-etl/v3/job/extract/tag"
+	"github.com/auho/go-etl/v3/job/transform"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 var _ job.Table = (*_jobSource)(nil)

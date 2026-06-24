@@ -3,9 +3,9 @@ package tag
 import (
 	"maps"
 
-	"github.com/auho/go-etl/v2/job/enrich/search"
-	"github.com/auho/go-etl/v2/job/extract"
-	maps2 "github.com/auho/go-etl/v2/tool/mapx"
+	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
+	maps2 "github.com/auho/go-etl/v3/tool/mapx"
 )
 
 var _ search.FieldSpec = (*Export[Results])(nil)

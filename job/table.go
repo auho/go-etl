@@ -1,7 +1,7 @@
 package job
 
 import (
-	simpledb "github.com/auho/go-simple-db/v2"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 type Table interface {

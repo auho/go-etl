@@ -1,10 +1,10 @@
 package dbimport
 
 import (
-	"github.com/auho/go-etl/v2/insight/assistant"
-	"github.com/auho/go-etl/v2/insight/assistant/excel/read"
-	"github.com/auho/go-etl/v2/insight/assistant/schema/buildtable"
-	simpledb "github.com/auho/go-simple-db/v2"
+	"github.com/auho/go-etl/v3/insight/assistant"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
+	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 var _ Resource = (*RowsResource)(nil)
