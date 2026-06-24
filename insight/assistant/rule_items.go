@@ -164,7 +164,7 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 		}
 	}
 
-	table.OrderBy(_originRule.KeywordLenName(), command.SortDesc, _originRule.GetIDName(), command.SortAsc)
+	table.OrderBy(_originRule.KeywordLenName(), command.SortDesc, _originRule.IDName(), command.SortAsc)
 
 	var rows []map[string]any
 	sql := table.SQL()

@@ -37,7 +37,7 @@ func (dc *DataContentSegWords) GetName() string {
 	return fmt.Sprintf("%s_%s", dc.data.GetName(), dc.contentName)
 }
 
-func (dc *DataContentSegWords) GetIDName() string {
+func (dc *DataContentSegWords) IDName() string {
 	return "id"
 }
 

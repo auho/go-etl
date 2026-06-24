@@ -5,7 +5,7 @@ import (
 )
 
 type Table interface {
-	GetIDName() string
+	IDName() string
 	TableName() string
 	GetDB() *simpledb.SimpleDB
 }

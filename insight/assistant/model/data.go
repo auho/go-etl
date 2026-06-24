@@ -37,7 +37,7 @@ func (d *Data) GetName() string {
 	return d.name
 }
 
-func (d *Data) GetIDName() string {
+func (d *Data) IDName() string {
 	return d.idName
 }
 

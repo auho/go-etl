@@ -18,7 +18,7 @@ var _ job.CleanResource = (*targetCleanTest)(nil)
 // sourceTest
 type sourceTest struct{}
 
-func (s sourceTest) GetIDName() string {
+func (s sourceTest) IDName() string {
 	return _pkName
 }
 
@@ -33,7 +33,7 @@ func (s sourceTest) GetDB() *simpledb.SimpleDB {
 // targetTest
 type targetTest struct{}
 
-func (t targetTest) GetIDName() string {
+func (t targetTest) IDName() string {
 	return "id"
 }
 

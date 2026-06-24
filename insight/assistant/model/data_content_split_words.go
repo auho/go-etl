@@ -37,7 +37,7 @@ func (dc *DataContentSplitWords) GetName() string {
 	return fmt.Sprintf("%s_%s", dc.data.GetName(), dc.contentName)
 }
 
-func (dc *DataContentSplitWords) GetIDName() string {
+func (dc *DataContentSplitWords) IDName() string {
 	return "id"
 }
 

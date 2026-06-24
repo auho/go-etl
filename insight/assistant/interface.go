@@ -16,7 +16,7 @@ type Raw interface {
 
 type Entity interface {
 	Raw
-	GetIDName() string
+	IDName() string
 }
 
 var _ Entity = Rule(nil)

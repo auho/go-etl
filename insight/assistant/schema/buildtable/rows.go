@@ -23,7 +23,7 @@ func NewRowsTable(rows assistant.Entity, opts ...TableOption) *RowsTable {
 
 func (t *RowsTable) build() {
 	t.initCommand(t.rows.TableName())
-	t.AddPKBigInt(t.rows.GetIDName())
+	t.AddPKBigInt(t.rows.IDName())
 
 	t.execRawCommandFunc(t.rows)
 }

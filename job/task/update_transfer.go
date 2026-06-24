@@ -63,7 +63,7 @@ func NewUpdateTransfer(source job.Table, target job.Table, modes []transform.Upd
 
 func (u *UpdateTransfer) GetFields() []string {
 	fields := make([]string, 0)
-	fields = append(fields, u.source.GetIDName())
+	fields = append(fields, u.source.IDName())
 
 	for _, m := range u.modes {
 		fields = append(fields, m.GetFields()...)

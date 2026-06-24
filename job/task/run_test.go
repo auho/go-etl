@@ -41,7 +41,7 @@ func Test_UpdateTransfer(t *testing.T) {
 
 func Test_Insert(t *testing.T) {
 	insertConfig := WithInsertConfig(InsertConfig{
-		ExtraKeys: []string{_source.GetIDName()},
+		ExtraKeys: []string{_source.IDName()},
 	})
 
 	m := transform.NewInsert([]string{_keyName}, tag.NewKey(_rule).ToMeans())

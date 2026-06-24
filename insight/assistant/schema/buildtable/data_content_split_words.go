@@ -24,8 +24,8 @@ func NewDataContentSplitWordsTable(d *model.DataContentSplitWords, opts ...Table
 func (t *DataContentSplitWordsTable) build() {
 	t.initCommand(t.dataContentSplitWords.TableName())
 
-	t.Command.AddPKInt(t.dataContentSplitWords.GetIDName())
-	t.Command.AddKeyBigInt(t.dataContentSplitWords.GetData().GetIDName())
+	t.Command.AddPKInt(t.dataContentSplitWords.IDName())
+	t.Command.AddKeyBigInt(t.dataContentSplitWords.GetData().IDName())
 	t.Command.AddStringWithLength(t.dataContentSplitWords.WordName(), 30)
 
 	t.execRawCommandFunc(t.dataContentSplitWords)

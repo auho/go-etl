@@ -46,7 +46,7 @@ func (r *Runner) prepare(opts []ConfigOption) {
 }
 
 func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.MapEntry], error) {
-	fields := []string{s.GetIDName()}
+	fields := []string{s.IDName()}
 	for _, p := range ps {
 		fields = append(fields, p.GetFields()...)
 	}
@@ -63,7 +63,7 @@ func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.Ma
 		},
 		source.ScanConfig{
 			TableName:     s.TableName(),
-			SegmentIDName: s.GetIDName(),
+			SegmentIDName: s.IDName(),
 			Where:         "",
 			Order:         "",
 			SelectFields:  fields,

@@ -62,7 +62,7 @@ func NewUpdate(source job.Table, modes []transform.UpdateOperator, opts ...func(
 
 func (u *Update) GetFields() []string {
 	fields := make([]string, 0)
-	fields = append(fields, u.source.GetIDName())
+	fields = append(fields, u.source.IDName())
 
 	for _, m := range u.modes {
 		fields = append(fields, m.GetFields()...)
@@ -112,7 +112,7 @@ func (u *Update) Exec(item map[string]any) ([]map[string]any, bool, error) {
 	}
 
 	newItem := make(map[string]any)
-	newItem[u.source.GetIDName()] = item[u.source.GetIDName()]
+	newItem[u.source.IDName()] = item[u.source.IDName()]
 
 	for k, v := range _does {
 		newItem[k] = v

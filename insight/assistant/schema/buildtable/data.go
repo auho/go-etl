@@ -23,13 +23,13 @@ func NewDataTable(data assistant.Entity, opts ...TableOption) *DataTable {
 
 func (t *DataTable) build() {
 	t.initCommand(t.data.TableName())
-	t.AddPKBigInt(t.data.GetIDName())
+	t.AddPKBigInt(t.data.IDName())
 
 	t.execRawCommandFunc(t.data)
 }
 
 func (t *DataTable) BuildForTag(command *schema.Command) {
-	command.AddKeyBigInt(t.data.GetIDName())
+	command.AddKeyBigInt(t.data.IDName())
 }
 
 func (t *DataTable) WithCommand(fn func(*schema.Command)) *DataTable {

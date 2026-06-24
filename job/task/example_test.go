@@ -16,13 +16,13 @@ var _ruler extract.Rule
 
 type _jobSource struct{}
 
-func (_ _jobSource) GetIDName() string         { return "id" }
+func (_ _jobSource) IDName() string            { return "id" }
 func (_ _jobSource) TableName() string         { return "source" }
 func (_ _jobSource) GetDB() *simpledb.SimpleDB { return nil }
 
 type _jobTarget struct{}
 
-func (_ _jobTarget) GetIDName() string         { return "id" }
+func (_ _jobTarget) IDName() string            { return "id" }
 func (_ _jobTarget) TableName() string         { return "target" }
 func (_ _jobTarget) GetDB() *simpledb.SimpleDB { return nil }
 
