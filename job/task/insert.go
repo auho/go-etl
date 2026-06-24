@@ -44,7 +44,7 @@ type Insert struct {
 
 // NewInsert
 // insert
-func NewInsert(target job.Target, moder transform.InsertOperator, opts ...func(*Insert)) *Insert {
+func NewInsert(target job.Table, moder transform.InsertOperator, opts ...func(*Insert)) *Insert {
 	i := &Insert{}
 	i.mode = moder
 	i.target = target

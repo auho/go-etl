@@ -15,7 +15,7 @@ type Transfer struct {
 	mode transform.TransferOperator
 }
 
-func NewTransfer(target job.Target, moder transform.TransferOperator) *Transfer {
+func NewTransfer(target job.Table, moder transform.TransferOperator) *Transfer {
 	t := &Transfer{}
 	t.target = target
 	t.mode = moder

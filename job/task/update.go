@@ -39,14 +39,14 @@ func WithUpdateConfig(cc UpdateConfig) func(update *Update) {
 type Update struct {
 	producerTask
 
-	source job.Source
+	source job.Table
 	modes  []transform.UpdateOperator
 
 	config UpdateConfig
 	dst    *destination.Bulk[storage.MapEntry]
 }
 
-func NewUpdate(source job.Source, modes []transform.UpdateOperator, opts ...func(*Update)) *Update {
+func NewUpdate(source job.Table, modes []transform.UpdateOperator, opts ...func(*Update)) *Update {
 	u := &Update{}
 	u.source = source
 	u.modes = modes

@@ -8,8 +8,8 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ job.Source = (*_jobSource)(nil)
-var _ job.Target = (*_jobTarget)(nil)
+var _ job.Table = (*_jobSource)(nil)
+var _ job.Table = (*_jobTarget)(nil)
 var _ job.CleanResource = (*_cleanResource)(nil)
 
 var _ruler extract.Rule
@@ -28,9 +28,9 @@ func (_ _jobTarget) GetDB() *simpledb.SimpleDB { return nil }
 
 type _cleanResource struct{}
 
-func (_ _cleanResource) Source() job.Target  { return &_jobSource{} }
-func (_ _cleanResource) Data() job.Target    { return &_jobTarget{} }
-func (_ _cleanResource) Deleted() job.Target { return &_jobTarget{} }
+func (_ _cleanResource) Source() job.Table  { return &_jobSource{} }
+func (_ _cleanResource) Data() job.Table    { return &_jobTarget{} }
+func (_ _cleanResource) Deleted() job.Table { return &_jobTarget{} }
 
 func ExampleNewClean() {
 	_mode := transform.NewUpdate([]string{"key1", "key2"}, tag.NewKey(_ruler).ToMeans())

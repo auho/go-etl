@@ -10,22 +10,22 @@ func CleanTask(resource job.CleanResource, modes []transform.UpdateOperator, opt
 	RunConsumer(resource.Source(), []itemConsumer{clean})
 }
 
-func InsertTask(source job.Source, target job.Target, moder transform.InsertOperator, opts ...func(*Insert)) {
+func InsertTask(source job.Table, target job.Table, moder transform.InsertOperator, opts ...func(*Insert)) {
 	insert := NewInsert(target, moder, opts...)
 	RunProducer(source, []itemProducer{insert})
 }
 
-func TransferTask(source job.Source, target job.Target, moder transform.TransferOperator) {
+func TransferTask(source job.Table, target job.Table, moder transform.TransferOperator) {
 	transfer := NewTransfer(target, moder)
 	RunProducer(source, []itemProducer{transfer})
 }
 
-func UpdateTransferTask(source job.Source, target job.Target, modes []transform.UpdateOperator) {
+func UpdateTransferTask(source job.Table, target job.Table, modes []transform.UpdateOperator) {
 	updateTransfer := NewUpdateTransfer(source, target, modes)
 	RunProducer(source, []itemProducer{updateTransfer})
 }
 
-func UpdateTask(source job.Source, modes []transform.UpdateOperator) {
+func UpdateTask(source job.Table, modes []transform.UpdateOperator) {
 	update := NewUpdate(source, modes)
 	RunProducer(source, []itemProducer{update})
 }

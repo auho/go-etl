@@ -41,7 +41,7 @@ type consumerTask struct {
 
 type producerTask struct {
 	task
-	target job.Target
+	target job.Table
 
 	producer.Processor
 }

@@ -33,7 +33,7 @@ var _targetTransfer = &targetTransferTest{}
 var _targetUpdateTransfer = &targetUpdateTransferTest{}
 var _targetClean = &targetCleanTest{}
 
-var dbConfig conf.DBConfig
+var dbConfig conf.DB
 
 func TestMain(m *testing.M) {
 	setUp()
@@ -48,7 +48,7 @@ func setUp() {
 	dbConfig.Driver = "mysql"
 	dbConfig.DSN = _dsn
 
-	_simpleDB, _gormDB, err = dbConfig.BuildDB()
+	_simpleDB, _gormDB, err = dbConfig.BuildWithGorm()
 	if err != nil {
 		panic(err)
 	}

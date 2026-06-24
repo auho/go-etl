@@ -5,14 +5,14 @@ import (
 	simpledb "github.com/auho/go-simple-db/v2"
 )
 
-var _ job.Source = (*sourceTest)(nil)
-var _ job.Target = (*targetTagATest)(nil)
-var _ job.Target = (*targetTagA1Test)(nil)
-var _ job.Target = (*targetTagA2Test)(nil)
-var _ job.Target = (*targetTransferTest)(nil)
-var _ job.Target = (*targetUpdateTransferTest)(nil)
-var _ job.Target = (*targetCleanDataTest)(nil)
-var _ job.Target = (*targetCleanDeletedTest)(nil)
+var _ job.Table = (*sourceTest)(nil)
+var _ job.Table = (*targetTagATest)(nil)
+var _ job.Table = (*targetTagA1Test)(nil)
+var _ job.Table = (*targetTagA2Test)(nil)
+var _ job.Table = (*targetTransferTest)(nil)
+var _ job.Table = (*targetUpdateTransferTest)(nil)
+var _ job.Table = (*targetCleanDataTest)(nil)
+var _ job.Table = (*targetCleanDeletedTest)(nil)
 var _ job.CleanResource = (*targetCleanTest)(nil)
 
 // sourceTest
@@ -108,14 +108,14 @@ type targetCleanTest struct {
 	targetTest
 }
 
-func (t targetCleanTest) Source() job.Target {
+func (t targetCleanTest) Source() job.Table {
 	return &sourceTest{}
 }
 
-func (t targetCleanTest) Data() job.Target {
+func (t targetCleanTest) Data() job.Table {
 	return &targetCleanDataTest{}
 }
 
-func (t targetCleanTest) Deleted() job.Target {
+func (t targetCleanTest) Deleted() job.Table {
 	return &targetCleanDeletedTest{}
 }

@@ -32,14 +32,14 @@ func (cd *CleanRows) DeletedRows() *Rows {
 	return cd.deleted
 }
 
-func (cd *CleanRows) Source() job.Target {
+func (cd *CleanRows) Source() job.Table {
 	return cd.raw
 }
 
-func (cd *CleanRows) Data() job.Target {
+func (cd *CleanRows) Data() job.Table {
 	return cd.rows
 }
 
-func (cd *CleanRows) Deleted() job.Target {
+func (cd *CleanRows) Deleted() job.Table {
 	return cd.deleted
 }

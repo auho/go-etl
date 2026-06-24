@@ -28,7 +28,7 @@ func (c *consumerExecutor) exec() []flow.Option[map[string]any, map[string]any] 
 	return opts
 }
 
-func RunConsumer(js job.Source, tasks []itemConsumer, opts ...ConfigOption) {
+func RunConsumer(js job.Table, tasks []itemConsumer, opts ...ConfigOption) {
 	var ps []processor
 	var items []consumer.Item[map[string]any]
 	for _, t := range tasks {

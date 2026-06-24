@@ -1,0 +1,17 @@
+package job
+
+import (
+	simpledb "github.com/auho/go-simple-db/v2"
+)
+
+type Table interface {
+	GetIDName() string
+	TableName() string
+	GetDB() *simpledb.SimpleDB
+}
+
+type CleanResource interface {
+	Data() Table
+	Deleted() Table
+	Source() Table
+}

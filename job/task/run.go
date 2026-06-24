@@ -18,7 +18,7 @@ type Runner struct {
 	config *Config
 }
 
-func run(jb job.Source, ps []processor, e executor, opts ...ConfigOption) {
+func run(jb job.Table, ps []processor, e executor, opts ...ConfigOption) {
 	r := &Runner{}
 	r.prepare(opts)
 	ds, err := r.source(jb, ps)
@@ -45,7 +45,7 @@ func (r *Runner) prepare(opts []ConfigOption) {
 	r.config.Check()
 }
 
-func (r *Runner) source(s job.Source, ps []processor) (*source.Section[storage.MapEntry], error) {
+func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.MapEntry], error) {
 	fields := []string{s.GetIDName()}
 	for _, p := range ps {
 		fields = append(fields, p.GetFields()...)

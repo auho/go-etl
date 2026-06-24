@@ -23,14 +23,14 @@ func NewCleanData(rows *Rows) *CleanData {
 	return cd
 }
 
-func (cd *CleanData) Source() job.Target {
+func (cd *CleanData) Source() job.Table {
 	return cd.rows
 }
 
-func (cd *CleanData) Data() job.Target {
+func (cd *CleanData) Data() job.Table {
 	return cd.data
 }
 
-func (cd *CleanData) Deleted() job.Target {
+func (cd *CleanData) Deleted() job.Table {
 	return cd.deleted
 }

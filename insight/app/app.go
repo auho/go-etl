@@ -81,7 +81,7 @@ func (a *Application) Build(cn string) {
 		panic(err)
 	}
 
-	a.DB, a.GormDB, err = config.DB.BuildDB()
+	a.DB, a.GormDB, err = config.DB.BuildWithGorm()
 	if err != nil {
 		a.PrintlnState()
 

@@ -28,7 +28,7 @@ func (c *producerExecutor) exec() []flow.Option[map[string]any, map[string]any] 
 	return opts
 }
 
-func RunProducer(js job.Source, tasks []itemProducer, opts ...ConfigOption) {
+func RunProducer(js job.Table, tasks []itemProducer, opts ...ConfigOption) {
 	var ps []processor
 	var items []producer.Item[map[string]any, map[string]any]
 	for _, t := range tasks {
