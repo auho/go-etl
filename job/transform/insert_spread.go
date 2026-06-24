@@ -9,15 +9,15 @@ import (
 var _ InsertOperator = (*InsertSpread)(nil)
 
 // InsertSpread
-// spread means
+// spread inserter
 // 取每个 mean 结果的第一个，spread
 type InsertSpread struct {
 	insertHorizontal
 }
 
-func NewInsertSpread(keys []string, ms ...extract.Inserter) *InsertSpread {
+func NewInsertSpread(keys []string, inserters ...extract.Inserter) *InsertSpread {
 	return &InsertSpread{
-		insertHorizontal: newInsertHorizontal(keys, ms...),
+		insertHorizontal: newInsertHorizontal(keys, inserters...),
 	}
 }
 
@@ -35,7 +35,7 @@ func (is *InsertSpread) Do(item map[string]any) []map[string]any {
 
 	_has := false
 	newItem := make(map[string]any, len(is.defaultValues))
-	for _, m := range is.ms {
+	for _, m := range is.inserters {
 		res := m.Insert(contents)
 		if res == nil {
 			continue

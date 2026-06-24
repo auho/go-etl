@@ -91,6 +91,6 @@ func Test_InsertMode(t *testing.T) {
 	}
 
 	if len(results)*2 != len(results2) {
-		t.Error("multi means mode is error")
+		t.Error("multi inserter mode is error")
 	}
 }

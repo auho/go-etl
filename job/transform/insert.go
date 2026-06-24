@@ -10,16 +10,16 @@ import (
 var _ InsertOperator = (*Insert)(nil)
 
 // Insert
-// single means
+// single inserter
 type Insert struct {
-	Mode
-	means extract.Inserter
+	base
+	inserter extract.Inserter
 }
 
-func NewInsert(keys []string, means extract.Inserter) *Insert {
+func NewInsert(keys []string, inserter extract.Inserter) *Insert {
 	im := &Insert{}
 	im.keys = keys
-	im.means = means
+	im.inserter = inserter
 
 	return im
 }
@@ -29,7 +29,7 @@ func (im *Insert) Prepare() error {
 		return fmt.Errorf("Insert Prepare keys not exists error")
 	}
 
-	err := im.means.Prepare()
+	err := im.inserter.Prepare()
 	if err != nil {
 		return fmt.Errorf("Insert Prepare error; %w", err)
 	}
@@ -38,7 +38,7 @@ func (im *Insert) Prepare() error {
 }
 
 func (im *Insert) Title() string {
-	return im.GenTitle("Insert", im.means.Title())
+	return im.GenTitle("Insert", im.inserter.Title())
 }
 
 func (im *Insert) GetFields() []string {
@@ -46,11 +46,11 @@ func (im *Insert) GetFields() []string {
 }
 
 func (im *Insert) Keys() []string {
-	return im.means.Keys()
+	return im.inserter.Keys()
 }
 
 func (im *Insert) DefaultValues() map[string]any {
-	return maps.Clone(im.means.DefaultValues())
+	return maps.Clone(im.inserter.DefaultValues())
 }
 
 func (im *Insert) Do(item map[string]any) []map[string]any {
@@ -65,7 +65,7 @@ func (im *Insert) Do(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	rt := im.means.Insert(contents)
+	rt := im.inserter.Insert(contents)
 	im.AddAmount(int64(len(rt)))
 
 	return rt
@@ -76,7 +76,7 @@ func (im *Insert) State() []string {
 }
 
 func (im *Insert) Close() error {
-	err := im.means.Close()
+	err := im.inserter.Close()
 	if err != nil {
 		return fmt.Errorf("Insert close error; %w", err)
 	}

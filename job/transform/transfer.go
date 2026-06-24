@@ -7,7 +7,7 @@ import (
 var _ TransferOperator = (*Transfer)(nil)
 
 type Transfer struct {
-	Mode
+	base
 	alias     map[string]string // alias map[table data name]output name
 	aliasKeys []string          // alias data []key
 	fixed     map[string]any    // fixed data map[key]value

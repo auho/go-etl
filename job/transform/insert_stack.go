@@ -12,20 +12,20 @@ import (
 var _ InsertOperator = (*InsertStack)(nil)
 
 // InsertStack
-// stack means
-// 多个 means append(上下拼接)，使用相同 column name
+// stack inserter
+// 多个 inserter append(上下拼接)，使用相同 column name
 type InsertStack struct {
-	Mode
-	ms []extract.Inserter
+	base
+	inserters []extract.Inserter
 
 	insertKeys    []string
 	defaultValues map[string]any
 }
 
-func NewInsertStack(keys []string, ms ...extract.Inserter) *InsertStack {
+func NewInsertStack(keys []string, inserters ...extract.Inserter) *InsertStack {
 	im := &InsertStack{}
 	im.keys = keys
-	im.ms = ms
+	im.inserters = inserters
 
 	return im
 }
@@ -35,7 +35,7 @@ func (im *InsertStack) Prepare() error {
 		return fmt.Errorf("InsertStack Prepare keys not exists error")
 	}
 
-	for _, m := range im.ms {
+	for _, m := range im.inserters {
 		err := m.Prepare()
 		if err != nil {
 			return fmt.Errorf("InsertStack prepare error; %w", err)
@@ -44,7 +44,7 @@ func (im *InsertStack) Prepare() error {
 
 	im.defaultValues = make(map[string]any)
 
-	for _, m := range im.ms {
+	for _, m := range im.inserters {
 		im.insertKeys = append(im.insertKeys, m.Keys()...)
 
 		maps.Copy(im.defaultValues, m.DefaultValues())
@@ -57,7 +57,7 @@ func (im *InsertStack) Prepare() error {
 
 func (im *InsertStack) Title() string {
 	is := make([]string, 0)
-	for _, i := range im.ms {
+	for _, i := range im.inserters {
 		is = append(is, i.Title())
 	}
 
@@ -89,7 +89,7 @@ func (im *InsertStack) Do(item map[string]any) []map[string]any {
 	}
 
 	items := make([]map[string]any, 0)
-	for _, m := range im.ms {
+	for _, m := range im.inserters {
 		res := m.Insert(contents)
 		if res == nil {
 			continue
@@ -113,7 +113,7 @@ func (im *InsertStack) State() []string {
 }
 
 func (im *InsertStack) Close() error {
-	for _, m := range im.ms {
+	for _, m := range im.inserters {
 		err := m.Close()
 		if err != nil {
 			return fmt.Errorf("InsertStack close error; %w", err)

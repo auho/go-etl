@@ -14,8 +14,8 @@ var _ InsertOperator = (*InsertComposeSpread)(nil)
 // InsertComposeSpread
 // compose spread 取第一个 spread
 type InsertComposeSpread struct {
-	Mode
-	modes []InsertOperator
+	base
+	operators []InsertOperator
 
 	insertKeys    []string
 	defaultValues map[string]any
@@ -23,14 +23,14 @@ type InsertComposeSpread struct {
 
 func NewInsertComposeSpread(modes ...InsertOperator) *InsertComposeSpread {
 	ic := &InsertComposeSpread{}
-	ic.modes = modes
+	ic.operators = modes
 
 	return ic
 }
 
 func (ic *InsertComposeSpread) Title() string {
 	var ss []string
-	for _, m := range ic.modes {
+	for _, m := range ic.operators {
 		ss = append(ss, m.Title())
 	}
 
@@ -38,7 +38,7 @@ func (ic *InsertComposeSpread) Title() string {
 }
 
 func (ic *InsertComposeSpread) GetFields() []string {
-	for _, m := range ic.modes {
+	for _, m := range ic.operators {
 		ic.keys = append(ic.keys, m.GetFields()...)
 	}
 
@@ -58,7 +58,7 @@ func (ic *InsertComposeSpread) DefaultValues() map[string]any {
 func (ic *InsertComposeSpread) Prepare() error {
 	ic.defaultValues = make(map[string]any)
 
-	for _, m := range ic.modes {
+	for _, m := range ic.operators {
 		err := m.Prepare()
 		if err != nil {
 			return err
@@ -79,7 +79,7 @@ func (ic *InsertComposeSpread) Do(item map[string]any) []map[string]any {
 
 	_has := false
 	ret := make(map[string]any)
-	for _, m := range ic.modes {
+	for _, m := range ic.operators {
 		_mrt := m.Do(item)
 		if len(_mrt) <= 0 {
 			maps.Copy(ret, m.DefaultValues())
@@ -101,7 +101,7 @@ func (ic *InsertComposeSpread) Do(item map[string]any) []map[string]any {
 func (ic *InsertComposeSpread) State() []string {
 	var ss []string
 	ss = append(ss, fmt.Sprintf("InsertComposeSpread: %s", ic.GenCounter()))
-	for i, m := range ic.modes {
+	for i, m := range ic.operators {
 		var mss []string
 		for _i, _ms := range m.State() {
 			_s := ""
@@ -121,7 +121,7 @@ func (ic *InsertComposeSpread) State() []string {
 }
 
 func (ic *InsertComposeSpread) Close() error {
-	for _, m := range ic.modes {
+	for _, m := range ic.operators {
 		err := m.Close()
 		if err != nil {
 			return err

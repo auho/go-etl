@@ -9,19 +9,19 @@ import (
 )
 
 // insertHorizontal
-// 多个 means horizontal
+// 多个 inserter horizontal
 type insertHorizontal struct {
-	Mode
-	ms []extract.Inserter
+	base
+	inserters []extract.Inserter
 
 	insertKeys    []string
 	defaultValues map[string]any
 }
 
-func newInsertHorizontal(keys []string, ms ...extract.Inserter) insertHorizontal {
+func newInsertHorizontal(keys []string, inserters ...extract.Inserter) insertHorizontal {
 	ih := insertHorizontal{}
 	ih.keys = keys
-	ih.ms = ms
+	ih.inserters = inserters
 
 	return ih
 }
@@ -31,7 +31,7 @@ func (ih *insertHorizontal) Prepare() error {
 		return fmt.Errorf("insertHorizontal Prepare keys not exists error")
 	}
 
-	for _, m := range ih.ms {
+	for _, m := range ih.inserters {
 		err := m.Prepare()
 		if err != nil {
 			return fmt.Errorf("prepare error; %w", err)
@@ -40,7 +40,7 @@ func (ih *insertHorizontal) Prepare() error {
 
 	ih.defaultValues = make(map[string]any)
 
-	for _, m := range ih.ms {
+	for _, m := range ih.inserters {
 		ih.insertKeys = append(ih.insertKeys, m.Keys()...)
 
 		maps.Copy(ih.defaultValues, m.DefaultValues())
@@ -51,7 +51,7 @@ func (ih *insertHorizontal) Prepare() error {
 
 func (ih *insertHorizontal) Title() string {
 	var ss []string
-	for _, m := range ih.ms {
+	for _, m := range ih.inserters {
 		ss = append(ss, m.Title())
 	}
 
@@ -75,7 +75,7 @@ func (ih *insertHorizontal) State() []string {
 }
 
 func (ih *insertHorizontal) Close() error {
-	for _, m := range ih.ms {
+	for _, m := range ih.inserters {
 		err := m.Close()
 		if err != nil {
 			return fmt.Errorf("close error; %w", err)

@@ -9,7 +9,7 @@ import (
 var _ InsertOperator = (*InsertCross)(nil)
 
 // InsertCross
-// cross means 交叉
+// cross inserter 交叉
 //
 // 1，2
 // 3，4
@@ -22,9 +22,9 @@ type InsertCross struct {
 	insertHorizontal
 }
 
-func NewInsertCross(keys []string, ms ...extract.Inserter) *InsertCross {
+func NewInsertCross(keys []string, inserters ...extract.Inserter) *InsertCross {
 	return &InsertCross{
-		insertHorizontal: newInsertHorizontal(keys, ms...),
+		insertHorizontal: newInsertHorizontal(keys, inserters...),
 	}
 }
 
@@ -41,7 +41,7 @@ func (ic *InsertCross) Do(item map[string]any) []map[string]any {
 	}
 
 	var _allLabels [][]map[string]any
-	for _, m := range ic.ms {
+	for _, m := range ic.inserters {
 		mLabels := m.Insert(contents)
 		if mLabels == nil {
 			continue
