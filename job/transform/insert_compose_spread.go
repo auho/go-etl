@@ -21,9 +21,9 @@ type InsertComposeSpread struct {
 	defaultValues map[string]any
 }
 
-func NewInsertComposeSpread(modes ...InsertOperator) *InsertComposeSpread {
+func NewInsertComposeSpread(operators ...InsertOperator) *InsertComposeSpread {
 	ic := &InsertComposeSpread{}
-	ic.operators = modes
+	ic.operators = operators
 
 	return ic
 }
