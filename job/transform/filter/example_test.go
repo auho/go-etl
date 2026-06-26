@@ -1,13 +1,13 @@
-package condition
+package filter
 
 import (
-	"github.com/auho/go-etl/v3/job/enrich/collect"
 	"github.com/auho/go-etl/v3/job/extract"
+	"github.com/auho/go-etl/v3/job/transform/collect"
 )
 
-func ExampleNewCondition() {
+func ExampleNewMatcher() {
 	var _search extract.Extractor
-	opt := NewCondition(collect.NewKeys([]string{"a"}), _search)
+	opt := NewMatcher(collect.NewKeys([]string{"a"}), _search)
 
 	_ = opt
 }
@@ -31,7 +31,7 @@ func ExampleNewAND() {
 		}, func(m map[string]any) bool {
 			return m["b"] == 2
 		},
-	).ToOperation()
+	).ToPredicate()
 
 	_ = opt
 }
@@ -43,7 +43,7 @@ func ExampleNewOR() {
 		}, func(m map[string]any) bool {
 			return m["b"] == 2
 		},
-	).ToOperation()
+	).ToPredicate()
 
 	_ = opt
 }

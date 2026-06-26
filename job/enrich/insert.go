@@ -1,8 +1,8 @@
 package enrich
 
 import (
-	"github.com/auho/go-etl/v3/job/enrich/collect"
-	"github.com/auho/go-etl/v3/job/enrich/condition"
+	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/filter"
 	"github.com/auho/go-etl/v3/job/extract"
 	"github.com/auho/go-etl/v3/job/transform"
 )
@@ -17,7 +17,7 @@ func newInsertFromExplore(e *Explore) *Insert {
 	return NewInsert(e.collect, e.search, e.condition)
 }
 
-func NewInsert(collect collect.Collector, search extract.Extractor, expression condition.Operation) *Insert {
+func NewInsert(collect collect.Collector, search extract.Extractor, expression filter.Predicate) *Insert {
 	return &Insert{
 		Explore: newExplore(collect, search, expression),
 	}

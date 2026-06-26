@@ -1,15 +1,15 @@
-package condition
+package filter
 
-var _ Filter = (*AND)(nil)
-var _ Filter = (*OR)(nil)
+var _ Spec = (*AND)(nil)
+var _ Spec = (*OR)(nil)
 
-type Operation func(map[string]any) bool
+type Predicate func(map[string]any) bool
 
-type Expression []Operation
+type Expression []Predicate
 
 type AND Expression
 
-func NewAND(ops ...Operation) AND {
+func NewAND(ops ...Predicate) AND {
 	a := AND{}
 	a = append(a, ops...)
 
@@ -26,7 +26,7 @@ func (a AND) OK(item map[string]any) bool {
 	return true
 }
 
-func (a AND) ToOperation() Operation {
+func (a AND) ToPredicate() Predicate {
 	return func(m map[string]any) bool {
 		return a.OK(m)
 	}
@@ -34,7 +34,7 @@ func (a AND) ToOperation() Operation {
 
 type OR Expression
 
-func NewOR(ops ...Operation) OR {
+func NewOR(ops ...Predicate) OR {
 	o := OR{}
 	o = append(o, ops...)
 
@@ -51,7 +51,7 @@ func (o OR) OK(item map[string]any) bool {
 	return false
 }
 
-func (o OR) ToOperation() Operation {
+func (o OR) ToPredicate() Predicate {
 	return func(m map[string]any) bool {
 		return o.OK(m)
 	}

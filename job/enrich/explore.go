@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"maps"
 
-	"github.com/auho/go-etl/v3/job/enrich/collect"
-	"github.com/auho/go-etl/v3/job/enrich/condition"
+	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/filter"
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
@@ -14,7 +14,7 @@ type Explore struct {
 
 	collect   collect.Collector
 	search    extract.Extractor
-	condition condition.Operation
+	condition filter.Predicate
 
 	hasExpression bool
 	defaultValues map[string]any
@@ -24,7 +24,7 @@ func NewExplore() *Explore {
 	return &Explore{}
 }
 
-func newExplore(collect collect.Collector, search extract.Extractor, operation condition.Operation) *Explore {
+func newExplore(collect collect.Collector, search extract.Extractor, operation filter.Predicate) *Explore {
 	return &Explore{
 		collect:   collect,
 		search:    search,
@@ -89,7 +89,7 @@ func (e *Explore) SetSearch(search extract.Extractor) *Explore {
 	return e
 }
 
-func (e *Explore) SetCondition(operation condition.Operation) *Explore {
+func (e *Explore) SetCondition(operation filter.Predicate) *Explore {
 	e.condition = operation
 
 	return e

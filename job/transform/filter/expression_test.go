@@ -1,16 +1,16 @@
-package condition
+package filter
 
 import (
 	"testing"
 )
 
-var opInt = func(i int) Operation {
+var opInt = func(i int) Predicate {
 	return func(m map[string]any) bool {
 		return m["int"] == i
 	}
 }
 
-var opString = func(s string) Operation {
+var opString = func(s string) Predicate {
 	return func(m map[string]any) bool {
 		return m["string"] == s
 	}

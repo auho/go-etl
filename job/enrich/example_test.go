@@ -1,8 +1,8 @@
 package enrich
 
 import (
-	"github.com/auho/go-etl/v3/job/enrich/collect"
-	"github.com/auho/go-etl/v3/job/enrich/condition"
+	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/filter"
 	"github.com/auho/go-etl/v3/job/extract/match"
 )
 
@@ -10,13 +10,13 @@ func ExampleNewExplore() {
 	insert := NewExplore().
 		SetCollect(collect.NewKeys([]string{_keyName})).
 		SetSearch(match.NewKey(_rule)).
-		SetCondition(condition.NewContainAll("a", []string{"a1", "a2"})).
+		SetCondition(filter.NewContainAll("a", []string{"a1", "a2"})).
 		ToInsert()
 
 	update := NewExplore().
 		SetCollect(collect.NewKeys([]string{_keyName})).
 		SetSearch(match.NewKey(_rule)).
-		SetCondition(condition.NewContainAll("a", []string{"a1", "a2"})).
+		SetCondition(filter.NewContainAll("a", []string{"a1", "a2"})).
 		ToUpdate()
 
 	_ = insert

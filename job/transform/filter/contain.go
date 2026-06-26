@@ -1,4 +1,4 @@
-package condition
+package filter
 
 import (
 	strings2 "strings"
@@ -8,7 +8,7 @@ import (
 
 // NewContainAll
 // key contain all subs
-func NewContainAll(key string, subs []string) Operation {
+func NewContainAll(key string, subs []string) Predicate {
 	return func(m map[string]any) bool {
 		s, err := strings.FromAny(m[key])
 		if err != nil {
@@ -27,7 +27,7 @@ func NewContainAll(key string, subs []string) Operation {
 
 // NewContainAny
 // key contain any one subs
-func NewContainAny(key string, subs []string) Operation {
+func NewContainAny(key string, subs []string) Predicate {
 	return func(m map[string]any) bool {
 		s, err := strings.FromAny(m[key])
 		if err != nil {
