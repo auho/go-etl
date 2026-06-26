@@ -273,8 +273,16 @@ func TestExport_Pluck(t *testing.T) {
 // TestExport_WithFormat tests WithFormat on Export
 func TestExport_WithFormat(t *testing.T) {
 	rule := &ruleTest{}
-	export := NewExportKeywordLine(rule)
-	export.WithFormat(Format{WithKeywordAmount: false, Sep: "|"})
+	customFormat := Format{WithKeywordAmount: false, Sep: "|"}
+	values := make(map[string]any)
+	for _, _ta := range rule.TagsAlias() {
+		values[_ta] = ""
+	}
+	values[rule.KeywordNameAlias()] = ""
+	values[rule.KeywordNumNameAlias()] = 0
+	export := extract.NewExporter(values, func(ctx extract.ExportContext[Results]) []map[string]any {
+		return ctx.Results.ToLine(rule, ctx.Format.(Format))
+	}, extract.WithRule[Results](rule), extract.WithFormat[Results](customFormat))
 	s := NewSearchKey(export).WithMatcher("a", _matcherItems)
 	defer s.Close()
 
@@ -503,7 +511,7 @@ func TestExport_Constructors(t *testing.T) {
 
 	t.Run("NewExportKeyword", func(t *testing.T) {
 		df := map[string]any{"k1": "v1", "k2": 0}
-		export := NewExportKeyword(rule, df, func(ctx ExportContextResults) []map[string]any {
+		export := NewExportKeyword(rule, df, func(ctx extract.ExportContext[Results]) []map[string]any {
 			return []map[string]any{{"k1": "x", "k2": 1}}
 		})
 
@@ -522,7 +530,7 @@ func TestExport_Constructors(t *testing.T) {
 
 	t.Run("NewExportLabel", func(t *testing.T) {
 		df := map[string]any{"k1": "v1"}
-		export := NewExportLabel(rule, df, func(ctx ExportContextLabelResults) []map[string]any {
+		export := NewExportLabel(rule, df, func(ctx extract.ExportContext[LabelResults]) []map[string]any {
 			return []map[string]any{{"k1": "x"}}
 		})
 
@@ -537,7 +545,7 @@ func TestExport_Constructors(t *testing.T) {
 
 	t.Run("Pluck_Direct", func(t *testing.T) {
 		df := map[string]any{"k1": "v1", "k2": 0, "k3": "v3"}
-		export := NewExportKeyword(rule, df, func(ctx ExportContextResults) []map[string]any {
+		export := NewExportKeyword(rule, df, func(ctx extract.ExportContext[Results]) []map[string]any {
 			return nil
 		})
 
@@ -562,7 +570,7 @@ func TestExport_Constructors(t *testing.T) {
 
 	t.Run("Pluck_NonExistentKey", func(t *testing.T) {
 		df := map[string]any{"k1": "v1"}
-		export := NewExportKeyword(rule, df, func(ctx ExportContextResults) []map[string]any {
+		export := NewExportKeyword(rule, df, func(ctx extract.ExportContext[Results]) []map[string]any {
 			return nil
 		})
 

@@ -28,7 +28,7 @@ type SearchContext[T ResultsEntity] struct {
 
 type Search[T ResultsEntity] struct {
 	matcher *matcher
-	export  *Export[T]
+	export  *extract.Exporter[T]
 
 	context          *SearchContext[T]
 	searchResultsFun SearchResultsFunc[T]
@@ -37,7 +37,7 @@ type Search[T ResultsEntity] struct {
 	newMatcherFun func(extract.Rule, *matcherConfig) (*matcher, error)
 }
 
-func NewSearch[T ResultsEntity](export *Export[T], fn SearchResultsFunc[T]) *Search[T] {
+func NewSearch[T ResultsEntity](export *extract.Exporter[T], fn SearchResultsFunc[T]) *Search[T] {
 	return &Search[T]{
 		export:           export,
 		searchResultsFun: fn,
@@ -56,7 +56,7 @@ func (s *Search[T]) NewExport() extract.FieldSpec {
 func (s *Search[T]) Search(contents []string) extract.Result {
 	rets := s.searchResultsFun(s.context, contents)
 
-	return s.export.ToToken(rets)
+	return s.export.ToToken(rets, len(rets) > 0)
 }
 
 func (s *Search[T]) Prepare() error {
