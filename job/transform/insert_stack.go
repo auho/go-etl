@@ -15,7 +15,7 @@ var _ InsertOperator = (*InsertStack)(nil)
 // stack inserter
 // 多个 inserter append(上下拼接)，使用相同 column name
 type InsertStack struct {
-	base
+	operator
 	inserters []extract.Inserter
 
 	insertKeys    []string
@@ -76,7 +76,7 @@ func (im *InsertStack) DefaultValues() map[string]any {
 	return maps.Clone(im.defaultValues)
 }
 
-func (im *InsertStack) Do(item map[string]any) []map[string]any {
+func (im *InsertStack) Apply(item map[string]any) []map[string]any {
 	im.AddTotal(1)
 
 	if item == nil {
@@ -103,7 +103,7 @@ func (im *InsertStack) Do(item map[string]any) []map[string]any {
 		}
 	}
 
-	im.AddAmount(int64(len(item)))
+	im.AddAmount(int64(len(items)))
 
 	return items
 }

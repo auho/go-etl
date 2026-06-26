@@ -106,7 +106,7 @@ func (u *UpdateTransfer) BeforeRun() error { return nil }
 func (u *UpdateTransfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
 	_does := make(map[string]any)
 	for _, m := range u.modes {
-		_do := m.Do(item)
+		_do := m.Apply(item)
 		for k, v := range _do {
 			_does[k] = v
 		}

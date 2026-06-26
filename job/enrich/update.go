@@ -23,14 +23,14 @@ func NewUpdate(collect collect.Collector, search search.Searcher, expression con
 	}
 }
 
-func (u *Update) Do(item map[string]any) map[string]any {
+func (u *Update) Apply(item map[string]any) map[string]any {
 	u.AddTotal(1)
 
 	if !u.expressionOperation(item) {
 		return nil
 	}
 
-	token := u.collect.Do(item, u.search)
+	token := u.collect.Search(item, u.search)
 	if !token.IsOK() {
 		return nil
 	}

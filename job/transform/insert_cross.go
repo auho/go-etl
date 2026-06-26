@@ -28,7 +28,7 @@ func NewInsertCross(keys []string, inserters ...extract.Inserter) *InsertCross {
 	}
 }
 
-func (ic *InsertCross) Do(item map[string]any) []map[string]any {
+func (ic *InsertCross) Apply(item map[string]any) []map[string]any {
 	ic.AddTotal(1)
 
 	if item == nil {

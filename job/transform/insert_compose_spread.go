@@ -14,7 +14,7 @@ var _ InsertOperator = (*InsertComposeSpread)(nil)
 // InsertComposeSpread
 // compose spread 取第一个 spread
 type InsertComposeSpread struct {
-	base
+	operator
 	operators []InsertOperator
 
 	insertKeys    []string
@@ -74,13 +74,13 @@ func (ic *InsertComposeSpread) Prepare() error {
 	return nil
 }
 
-func (ic *InsertComposeSpread) Do(item map[string]any) []map[string]any {
+func (ic *InsertComposeSpread) Apply(item map[string]any) []map[string]any {
 	ic.AddTotal(1)
 
 	_has := false
 	ret := make(map[string]any)
 	for _, m := range ic.operators {
-		_mrt := m.Do(item)
+		_mrt := m.Apply(item)
 		if len(_mrt) <= 0 {
 			maps.Copy(ret, m.DefaultValues())
 		} else {

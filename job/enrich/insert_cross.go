@@ -31,12 +31,12 @@ func NewInsertCross(is ...*Insert) *InsertCross {
 	}
 }
 
-func (ic *InsertCross) Do(item map[string]any) []map[string]any {
+func (ic *InsertCross) Apply(item map[string]any) []map[string]any {
 	ic.AddTotal(1)
 
 	var _allRet [][]map[string]any
 	for _, m := range ic.is {
-		_ret := m.Do(item)
+		_ret := m.Apply(item)
 		if _ret == nil {
 			continue
 		}

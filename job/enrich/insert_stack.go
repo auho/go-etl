@@ -23,12 +23,12 @@ func NewInsertStack(is ...*Insert) *InsertStack {
 	}
 }
 
-func (is *InsertStack) Do(item map[string]any) []map[string]any {
+func (is *InsertStack) Apply(item map[string]any) []map[string]any {
 	is.AddTotal(1)
 
 	rets := make([]map[string]any, 0)
 	for _, _i := range is.is {
-		ret := _i.Do(item)
+		ret := _i.Apply(item)
 		if ret == nil {
 			continue
 		}

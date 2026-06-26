@@ -7,7 +7,7 @@ import (
 var _ TransferOperator = (*Transfer)(nil)
 
 type Transfer struct {
-	base
+	operator
 	alias     map[string]string // alias map[table data name]output name
 	aliasKeys []string          // alias data []key
 	fixed     map[string]any    // fixed data map[key]value
@@ -62,7 +62,7 @@ func (tm *Transfer) Prepare() error {
 	return nil
 }
 
-func (tm *Transfer) Do(item map[string]any) map[string]any {
+func (tm *Transfer) Apply(item map[string]any) map[string]any {
 	newItem := make(map[string]any)
 	for _, field := range tm.keys {
 		if ka, ok := tm.alias[field]; ok {

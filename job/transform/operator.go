@@ -17,14 +17,14 @@ type Operator interface {
 
 type SingleOperator interface {
 	Operator
-	Do(map[string]any) map[string]any
+	Apply(map[string]any) map[string]any
 }
 
 type InsertOperator interface {
 	Operator
 	Keys() []string                // 处理后的 key name
 	DefaultValues() map[string]any // 需要 implement clone important!
-	Do(map[string]any) []map[string]any
+	Apply(map[string]any) []map[string]any
 	State() []string
 }
 
@@ -36,36 +36,36 @@ type TransferOperator interface {
 	SingleOperator
 }
 
-type base struct {
+type operator struct {
 	keys   []string // 要被处理的 key name
 	total  int64
 	amount int64
 }
 
-func (m *base) AddTotal(num int64) {
-	atomic.AddInt64(&m.total, num)
+func (o *operator) AddTotal(num int64) {
+	atomic.AddInt64(&o.total, num)
 }
 
-func (m *base) AddAmount(num int64) {
-	atomic.AddInt64(&m.amount, num)
+func (o *operator) AddAmount(num int64) {
+	atomic.AddInt64(&o.amount, num)
 }
 
-func (m *base) GenCounter() string {
-	return fmt.Sprintf("total: %d; amount: %d", m.total, m.amount)
+func (o *operator) GenCounter() string {
+	return fmt.Sprintf("total: %d; amount: %d", o.total, o.amount)
 }
 
-func (m *base) GenTitle(name string, desc string) string {
-	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.keys, ", ")+"]", desc)
+func (o *operator) GenTitle(name string, desc string) string {
+	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(o.keys, ", ")+"]", desc)
 }
 
-func (m *base) GetKeyContent(key string, item map[string]any) string {
-	return m.KeyValueToString(key, item)
+func (o *operator) GetKeyContent(key string, item map[string]any) string {
+	return o.KeyValueToString(key, item)
 }
 
-func (m *base) GetKeysContent(keys []string, item map[string]any) []string {
+func (o *operator) GetKeysContent(keys []string, item map[string]any) []string {
 	contents := make([]string, 0)
 	for _, key := range keys {
-		keyValue := m.KeyValueToString(key, item)
+		keyValue := o.KeyValueToString(key, item)
 
 		contents = append(contents, keyValue)
 	}
@@ -73,7 +73,7 @@ func (m *base) GetKeysContent(keys []string, item map[string]any) []string {
 	return contents
 }
 
-func (m *base) KeyValueToString(key string, item map[string]any) string {
+func (o *operator) KeyValueToString(key string, item map[string]any) string {
 	s, err := strings2.FromAny(item[key])
 	if err != nil {
 		panic(fmt.Sprintf("type is not string %T", item[key]))

@@ -12,7 +12,7 @@ var _ UpdateOperator = (*Update)(nil)
 // Update
 // handle some keys of data for update
 type Update struct {
-	base
+	operator
 	updaters []extract.Updater
 }
 
@@ -56,7 +56,7 @@ func (um *Update) GetFields() []string {
 	return um.keys
 }
 
-func (um *Update) Do(item map[string]any) map[string]any {
+func (um *Update) Apply(item map[string]any) map[string]any {
 	if item == nil {
 		return nil
 	}

@@ -21,7 +21,7 @@ func NewInsertSpread(keys []string, inserters ...extract.Inserter) *InsertSpread
 	}
 }
 
-func (is *InsertSpread) Do(item map[string]any) []map[string]any {
+func (is *InsertSpread) Apply(item map[string]any) []map[string]any {
 	is.AddTotal(1)
 
 	if item == nil {

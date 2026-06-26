@@ -12,7 +12,7 @@ var _ InsertOperator = (*Insert)(nil)
 // Insert
 // single inserter
 type Insert struct {
-	base
+	operator
 	inserter extract.Inserter
 }
 
@@ -53,7 +53,7 @@ func (im *Insert) DefaultValues() map[string]any {
 	return maps.Clone(im.inserter.DefaultValues())
 }
 
-func (im *Insert) Do(item map[string]any) []map[string]any {
+func (im *Insert) Apply(item map[string]any) []map[string]any {
 	im.AddTotal(1)
 
 	if item == nil {

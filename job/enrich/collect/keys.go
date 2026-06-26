@@ -50,7 +50,7 @@ func (k *Keys) Keys() []string {
 	return k.keys
 }
 
-func (k *Keys) Do(item map[string]any, searcher search.Searcher) search.Token {
+func (k *Keys) Search(item map[string]any, searcher search.Searcher) search.Token {
 	if k.IsAll() {
 		return k.doAll(item, searcher)
 	} else if k.IsAny() {

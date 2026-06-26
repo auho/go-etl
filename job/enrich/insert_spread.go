@@ -17,13 +17,13 @@ func NewInsertSpread(is ...*Insert) *InsertSpread {
 	}
 }
 
-func (is *InsertSpread) Do(item map[string]any) []map[string]any {
+func (is *InsertSpread) Apply(item map[string]any) []map[string]any {
 	is.AddTotal(1)
 
 	_has := false
 	ret := make(map[string]any, len(is.defaultValues))
 	for _, _i := range is.is {
-		res := _i.Do(item)
+		res := _i.Apply(item)
 		if res == nil {
 			continue
 		}

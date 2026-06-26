@@ -36,7 +36,7 @@ func (t *Transfer) Prepare() error {
 }
 
 func (t *Transfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	return []map[string]any{t.mode.Do(item)}, true, nil
+	return []map[string]any{t.mode.Apply(item)}, true, nil
 }
 
 func (t *Transfer) AppendState()     {}

@@ -82,7 +82,7 @@ func (i *Insert) BeforeRun() error {
 }
 
 func (i *Insert) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	newItems := i.mode.Do(item)
+	newItems := i.mode.Apply(item)
 	if len(newItems) <= 0 {
 		if i.config.AllowInsertEmpty {
 			newItems = []map[string]any{i.mode.DefaultValues()}

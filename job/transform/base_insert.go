@@ -11,7 +11,7 @@ import (
 // insertHorizontal
 // 多个 inserter horizontal
 type insertHorizontal struct {
-	base
+	operator
 	inserters []extract.Inserter
 
 	insertKeys    []string

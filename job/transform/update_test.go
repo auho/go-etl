@@ -15,7 +15,7 @@ func Test_UpdateMode(t *testing.T) {
 		t.Fatal("tin1", err)
 	}
 
-	results := tin1.Do(_item)
+	results := tin1.Apply(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
@@ -28,7 +28,7 @@ func Test_UpdateMode(t *testing.T) {
 		t.Fatal("tin1", err)
 	}
 
-	results = tin2.Do(_item)
+	results = tin2.Apply(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}

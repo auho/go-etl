@@ -17,7 +17,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeKeys", err)
 	}
 
-	retKeys := _modeKeys.Do(_item)
+	retKeys := _modeKeys.Apply(_item)
 	if len(retKeys) <= 0 {
 		t.Error("error")
 	}
@@ -31,7 +31,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeMostText", err)
 	}
 
-	retMostText := _modeMostText.Do(_item)
+	retMostText := _modeMostText.Apply(_item)
 	if len(retMostText) <= 0 {
 		t.Error("error")
 	}
@@ -44,7 +44,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeMostKey", err)
 	}
 
-	retMostKey := _modeMostKey.Do(_item)
+	retMostKey := _modeMostKey.Apply(_item)
 	if len(retMostKey) <= 0 {
 		t.Error("error")
 	}
@@ -57,7 +57,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeSegWords", err)
 	}
 
-	retSegWords := _modeSegWords.Do(_item)
+	retSegWords := _modeSegWords.Apply(_item)
 	if len(retSegWords) <= 0 {
 		t.Error("error")
 	}
@@ -70,7 +70,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeInsertStack", err)
 	}
 
-	retStack := _modeInsertStack.Do(_item)
+	retStack := _modeInsertStack.Apply(_item)
 	if len(retStack) <= 0 {
 		t.Error("error")
 	}
@@ -109,7 +109,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeInsertCross", err)
 	}
 
-	retCross := _modeInsertCross.Do(_item)
+	retCross := _modeInsertCross.Apply(_item)
 	if len(retCross) <= 0 {
 		t.Error("error")
 	}
@@ -149,7 +149,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Error("error")
 	}
 
-	retSpread := _modeInsertSpread.Do(_item)
+	retSpread := _modeInsertSpread.Apply(_item)
 	if len(retSpread) <= 0 {
 
 	}

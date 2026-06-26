@@ -17,7 +17,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("tin1", err)
 	}
 
-	results := tin1.Do(_item)
+	results := tin1.Apply(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
@@ -31,7 +31,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("tin2", err)
 	}
 
-	results = tin2.Do(_item)
+	results = tin2.Apply(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
@@ -45,7 +45,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("tin3", err)
 	}
 
-	results = tin3.Do(_item)
+	results = tin3.Apply(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
@@ -59,7 +59,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("tin4", err)
 	}
 
-	results = tin4.Do(_item)
+	results = tin4.Apply(_item)
 	if len(results) <= 0 {
 		t.Error("error")
 	}
@@ -71,7 +71,7 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("ti5", err)
 	}
 
-	results2 := ti5.Do(_item)
+	results2 := ti5.Apply(_item)
 	if len(results2) <= 0 {
 		t.Error("error")
 	}

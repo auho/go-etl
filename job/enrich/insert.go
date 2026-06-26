@@ -23,14 +23,14 @@ func NewInsert(collect collect.Collector, search search.Searcher, expression con
 	}
 }
 
-func (i *Insert) Do(item map[string]any) []map[string]any {
+func (i *Insert) Apply(item map[string]any) []map[string]any {
 	i.AddTotal(1)
 
 	if !i.expressionOperation(item) {
 		return nil
 	}
 
-	token := i.collect.Do(item, i.search)
+	token := i.collect.Search(item, i.search)
 	if !token.IsOK() {
 		return nil
 	}
