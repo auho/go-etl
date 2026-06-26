@@ -1,129 +1,55 @@
 package regexps
 
 import (
-	"maps"
-
 	"github.com/auho/go-etl/v3/job/extract"
-	maps2 "github.com/auho/go-etl/v3/tool/mapx"
 )
 
-var _ extract.FieldSpec = (*Export)(nil)
-
-type Export struct {
-	rule          extract.Rule
-	keys          []string
-	defaultValues map[string]any
-
-	resultsToToken func(Results, extract.Rule) []map[string]any
+func NewExport(rule extract.Rule, df map[string]any, fn func(Results, extract.Rule) []map[string]any) *extract.Exporter[Results] {
+	return extract.NewExporter(df, func(ctx extract.ExportContext[Results]) []map[string]any {
+		return fn(ctx.Results, rule)
+	}, extract.WithRule[Results](rule))
 }
 
-func NewExport(rule extract.Rule, df map[string]any, fn func(Results, extract.Rule) []map[string]any) *Export {
-	var keys []string
-	for k := range df {
-		keys = append(keys, k)
-	}
-
-	return &Export{
-		rule:           rule,
-		keys:           keys,
-		defaultValues:  df,
-		resultsToToken: fn,
-	}
-}
-
-func NewExportDefault(rule extract.Rule, fn func(Results, extract.Rule) []map[string]any) *Export {
+func NewExportDefault(rule extract.Rule, fn func(Results, extract.Rule) []map[string]any) *extract.Exporter[Results] {
 	return NewExport(rule, map[string]any{rule.NameAlias(): ""}, fn)
 }
 
-func (e *Export) Keys() []string {
-	return e.keys
-}
-
-func (e *Export) DefaultValues() map[string]any {
-	return e.defaultValues
-}
-
-func (e *Export) GetRule() extract.Rule {
-	return e.rule
-}
-
-func (e *Export) Pluck(keys []string) *Export {
-	df := maps.Clone(e.defaultValues)
-
-	e.keys = make([]string, 0)
-	e.defaultValues = make(map[string]any)
-
-	for _, key := range keys {
-		if v, ok := df[key]; ok {
-			e.keys = append(e.keys, key)
-			e.defaultValues[key] = v
-		}
-	}
-
-	df = nil
-
-	return e
-}
-
-func (e *Export) ToToken(results Results) extract.Result {
-	token := extract.Result{}
-	if results == nil {
-		return token
-	}
-
-	token.SetOK()
-	token.SetResultsFunc(func() []map[string]any {
-		ret := e.resultsToToken(results, e.rule)
-
-		// for pluck
-		return maps2.PluckSliceMap(ret, e.keys)
-	})
-
-	return token
-}
-
-func NewExportAll(rule extract.Rule) *Export {
+func NewExportAll(rule extract.Rule) *extract.Exporter[Results] {
 	df := map[string]any{
 		rule.NameAlias():              "",
 		rule.KeywordAmountNameAlias(): 0,
 	}
-
 	return NewExport(rule, df, func(results Results, rule extract.Rule) []map[string]any {
 		if results == nil {
 			return nil
 		}
-
 		return results.ToAll(rule)
 	})
 }
 
-func NewExportLine(rule extract.Rule) *Export {
+func NewExportLine(rule extract.Rule) *extract.Exporter[Results] {
 	df := map[string]any{
 		rule.NameAlias():              "",
 		rule.KeywordNumNameAlias():    0,
 		rule.KeywordAmountNameAlias(): 0,
 	}
-
 	return NewExport(rule, df, func(results Results, rule extract.Rule) []map[string]any {
 		if results == nil {
 			return nil
 		}
-
 		return results.ToLine(rule)
 	})
 }
 
-func NewExportFlag(rule extract.Rule) *Export {
+func NewExportFlag(rule extract.Rule) *extract.Exporter[Results] {
 	df := map[string]any{
 		rule.NameAlias():        0,
 		rule.KeywordNameAlias(): "",
 	}
-
 	return NewExport(rule, df, func(results Results, rule extract.Rule) []map[string]any {
 		if results == nil {
 			return nil
 		}
-
 		return results.ToFlag(rule)
 	})
 }

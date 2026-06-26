@@ -20,12 +20,12 @@ var _ extract.Extractor = (*SubMatch)(nil)
 type SubMatch struct {
 	expressions []string
 	subMode     func([]*regexp.Regexp, []string) Results
-	export      *Export
+	export      *extract.Exporter[Results]
 
 	regexps []*regexp.Regexp
 }
 
-func NewSubMatch(exs []string, subMode func([]*regexp.Regexp, []string) Results, export *Export) *SubMatch {
+func NewSubMatch(exs []string, subMode func([]*regexp.Regexp, []string) Results, export *extract.Exporter[Results]) *SubMatch {
 	return &SubMatch{
 		expressions: exs,
 		subMode:     subMode,
@@ -58,7 +58,7 @@ func (r *SubMatch) Search(contents []string) extract.Result {
 
 	rets := r.subMode(r.regexps, contents)
 
-	return r.export.ToToken(rets)
+	return r.export.ToToken(rets, rets != nil)
 }
 
 func (r *SubMatch) Close() error { return nil }
@@ -107,7 +107,7 @@ func _mergeResults(results Results) Results {
 
 // NewAllSubMatch
 // all sub match of all contents
-func NewAllSubMatch(exs []string, export *Export) *SubMatch {
+func NewAllSubMatch(exs []string, export *extract.Exporter[Results]) *SubMatch {
 	return NewSubMatch(exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results
 		for _, content := range contents {
@@ -129,7 +129,7 @@ func NewAllSubMatch(exs []string, export *Export) *SubMatch {
 
 // NewSubMatchAll
 // leftmost sub match of all contents
-func NewSubMatchAll(exs []string, export *Export) *SubMatch {
+func NewSubMatchAll(exs []string, export *extract.Exporter[Results]) *SubMatch {
 	return NewSubMatch(exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results
 		for _, content := range contents {
@@ -147,7 +147,7 @@ func NewSubMatchAll(exs []string, export *Export) *SubMatch {
 
 // NewSubMatchFirst
 // leftmost sub match of first match found content
-func NewSubMatchFirst(exs []string, export *Export) *SubMatch {
+func NewSubMatchFirst(exs []string, export *extract.Exporter[Results]) *SubMatch {
 	return NewSubMatch(exs, func(regexps []*regexp.Regexp, contents []string) Results {
 		var rets Results
 		for _, content := range contents {

@@ -11,12 +11,12 @@ var _ extract.Extractor = (*Contains)(nil)
 
 type Contains struct {
 	subs   []string
-	export *Export
+	export *extract.Exporter[Results]
 
 	subMode func([]string) Results
 }
 
-func newContains(subs []string, subMode func([]string) Results, export *Export) *Contains {
+func newContains(subs []string, subMode func([]string) Results, export *extract.Exporter[Results]) *Contains {
 	return &Contains{
 		subs:    subs,
 		subMode: subMode,
@@ -37,14 +37,14 @@ func (c *Contains) NewExport() extract.FieldSpec {
 func (c *Contains) Search(contents []string) extract.Result {
 	rets := c.subMode(contents)
 
-	return c.export.ToToken(rets)
+	return c.export.ToToken(rets, len(rets) > 0)
 }
 
 func (c *Contains) Close() error { return nil }
 
 // NewContainsAll
 // all sub of all contents
-func NewContainsAll(subs []string, export *Export) *Contains {
+func NewContainsAll(subs []string, export *extract.Exporter[Results]) *Contains {
 	return newContains(subs, func(contents []string) Results {
 		var results Results
 		for _, content := range contents {
@@ -77,7 +77,7 @@ func NewContainsAll(subs []string, export *Export) *Contains {
 
 // NewContainsFirst
 // first sub of contents
-func NewContainsFirst(subs []string, export *Export) *Contains {
+func NewContainsFirst(subs []string, export *extract.Exporter[Results]) *Contains {
 	return newContains(subs, func(contents []string) Results {
 		var results Results
 		for _, content := range contents {

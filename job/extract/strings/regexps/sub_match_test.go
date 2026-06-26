@@ -248,7 +248,7 @@ func TestNewExportDefault(t *testing.T) {
 	results := Results{
 		{Text: "test", Amount: 1},
 	}
-	token := e.ToToken(results)
+	token := e.ToToken(results, results != nil)
 	if !token.IsOK() {
 		t.Fatal("expected token to be OK")
 	}

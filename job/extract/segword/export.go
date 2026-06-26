@@ -1,104 +1,27 @@
 package segword
 
 import (
-	"unicode/utf8"
-
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var _ extract.FieldSpec = (*Export)(nil)
-
-var DefaultFilterFunc = func(result Result) bool {
-	return utf8.RuneCountInString(result.Token) < 2 || result.Flag == "eng" || result.Flag == "m"
-}
-
-type ExportContext struct {
-	Results Results
-	Format  Format
-}
-
-type Export struct {
-	format         Format
-	resultsToToken func(ExportContext) []map[string]any
-	filterFunc     func(Result) bool
-
-	defaultValues map[string]any
-}
-
-func NewExport(df map[string]any, fn func(ExportContext) []map[string]any) *Export {
-	return &Export{
-		defaultValues:  df,
-		resultsToToken: fn,
-		filterFunc:     DefaultFilterFunc,
-		format:         DefaultFormat,
-	}
-}
-
-func (e *Export) Keys() []string {
-	var keys []string
-	for k := range e.defaultValues {
-		keys = append(keys, k)
-	}
-
-	return keys
-}
-
-func (e *Export) DefaultValues() map[string]any {
-	return e.defaultValues
-}
-
-func (e *Export) WithFormat(format Format) *Export {
-	e.format = format
-
-	return e
-}
-func (e *Export) WithFilterFunc(fn func(Result) bool) *Export {
-	e.filterFunc = fn
-
-	return e
-}
-
-func (e *Export) ToToken(results Results) extract.Result {
-	token := extract.Result{}
-
-	var newResults []Result
-	for _, result := range results {
-		if !e.filterFunc(result) {
-			newResults = append(newResults, result)
-		}
-	}
-
-	if len(newResults) > 0 {
-		token.SetOK()
-		token.SetResultsFunc(func() []map[string]any {
-			return e.resultsToToken(ExportContext{
-				Results: newResults,
-				Format:  e.format,
-			})
-		})
-	}
-
-	return token
-}
-
-func NewExportAll() *Export {
+func NewExportAll() *extract.Exporter[Results] {
 	format := DefaultFormat
-
-	return NewExport(
+	return extract.NewExporter(
 		map[string]any{format.TokenName: "", format.FlagName: ""},
-		func(ctx ExportContext) []map[string]any {
-			return ctx.Results.ToAll(ctx.Format)
+		func(ctx extract.ExportContext[Results]) []map[string]any {
+			return ctx.Results.ToAll(ctx.Format.(Format))
 		},
-	).WithFormat(format)
+		extract.WithFormat[Results](format),
+	)
 }
 
-func NewExportLine() *Export {
+func NewExportLine() *extract.Exporter[Results] {
 	format := DefaultFormat
-
-	return NewExport(
+	return extract.NewExporter(
 		map[string]any{format.TokenName: ""},
-		func(ctx ExportContext) []map[string]any {
-			return ctx.Results.ToLine(ctx.Format)
+		func(ctx extract.ExportContext[Results]) []map[string]any {
+			return ctx.Results.ToLine(ctx.Format.(Format))
 		},
-	).WithFormat(format)
+		extract.WithFormat[Results](format),
+	)
 }
