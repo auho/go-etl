@@ -1,14 +1,13 @@
 package app
 
 import (
+	"fmt"
 	"os"
 	"testing"
+
+	"github.com/auho/go-etl/v3/internal/testutil"
 )
 
-var testConfigContent = `[db]
-dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
-driver = "mysql"
-`
 var app *Application
 
 func TestMain(m *testing.M) {
@@ -19,6 +18,15 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
+	testutil.LoadEnv()
+	dsn := os.Getenv("MYSQL_DSN")
+	if dsn == "" {
+		panic("MYSQL_DSN environment variable is not set")
+	}
+	testConfigContent := fmt.Sprintf(`[db]
+dsn = "%s"
+driver = "mysql"
+`, dsn)
 	_, err := os.Stat("conf")
 	if err != nil {
 		err = os.Mkdir("conf", 0700)
