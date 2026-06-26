@@ -6,12 +6,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/auho/go-etl/v3/insight/app/conf"
 	simpledb "github.com/auho/go-simple-db/v3"
 	"gorm.io/gorm"
+
+	"github.com/auho/go-etl/v3/internal/testutil"
+	"github.com/auho/go-etl/v3/internal/testutil/mysql"
 )
 
-var _dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 var _ruleName = "a"
 var _ruleTable = "rule_" + _ruleName
 var _dataTable = "data"                              // data source
@@ -33,8 +34,6 @@ var _targetTransfer = &targetTransferTest{}
 var _targetUpdateTransfer = &targetUpdateTransferTest{}
 var _targetClean = &targetCleanTest{}
 
-var dbConfig conf.DB
-
 func TestMain(m *testing.M) {
 	setUp()
 	code := m.Run()
@@ -45,13 +44,8 @@ func TestMain(m *testing.M) {
 func setUp() {
 	var err error
 	query := ""
-	dbConfig.Driver = "mysql"
-	dbConfig.DSN = _dsn
-
-	_simpleDB, _gormDB, err = dbConfig.BuildWithGorm()
-	if err != nil {
-		panic(err)
-	}
+	testutil.LoadEnv()
+	_simpleDB, _gormDB = mysql.NewDB()
 
 	err = _simpleDB.Drop(_transferTable)
 	if err != nil {

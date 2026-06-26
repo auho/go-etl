@@ -6,9 +6,11 @@ import (
 
 	simpledb "github.com/auho/go-simple-db/v3"
 	"gorm.io/gorm"
+
+	"github.com/auho/go-etl/v3/internal/testutil"
+	"github.com/auho/go-etl/v3/internal/testutil/mysql"
 )
 
-var _dsn = "test:Test123$@tcp(127.0.0.1:3306)/test"
 var _ruleName = "a"
 var _ruleTableName = "rule_" + _ruleName
 var _keyName = "name"
@@ -27,10 +29,8 @@ func TestMain(m *testing.M) {
 
 func setUp() {
 	var err error
-	_simpleDB, _gormDB, err = simpledb.NewMySQLGorm(_dsn)
-	if err != nil {
-		panic(err)
-	}
+	testutil.LoadEnv()
+	_simpleDB, _gormDB = mysql.NewDB()
 
 	query := ""
 	err = _simpleDB.Drop(_ruleTableName)

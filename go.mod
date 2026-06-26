@@ -6,6 +6,7 @@ require (
 	github.com/auho/go-simple-db/v3 v3.0.0
 	github.com/auho/go-toolkit-flow/v3 v3.0.0-20260624123031-cebae03f255c
 	github.com/auho/go-toolkit/v2 v2.0.0
+	github.com/joho/godotenv v1.5.1
 	github.com/pelletier/go-toml v1.9.3
 	github.com/spf13/cobra v1.10.2
 	github.com/xuri/excelize/v2 v2.10.1
