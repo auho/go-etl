@@ -1,21 +1,5 @@
 package extract
 
-type Inserter interface {
-	Title() string
-	Keys() []string
-	DefaultValues() map[string]any
-	Insert([]string) []map[string]any
-	Prepare() error
-	Close() error
-}
-
-type Updater interface {
-	Title() string
-	Update([]string) map[string]any
-	Prepare() error
-	Close() error
-}
-
 type Rule interface {
 	Name() string
 	NameAlias() string

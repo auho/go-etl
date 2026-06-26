@@ -63,10 +63,6 @@ func (r *SubMatch) Search(contents []string) extract.Result {
 
 func (r *SubMatch) Close() error { return nil }
 
-func (r *SubMatch) ToMeans() *extract.Means {
-	return extract.NewMeans(r)
-}
-
 func _subMatch(ret []string) (Result, bool) {
 	var has bool
 	var text string

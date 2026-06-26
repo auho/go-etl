@@ -42,7 +42,3 @@ func (sg *SegWords) Search(contents []string) extract.Result {
 func (sg *SegWords) Close() error {
 	return sg.seg.Close()
 }
-
-func (sg *SegWords) ToMeans() *extract.Means {
-	return extract.NewMeans(sg)
-}

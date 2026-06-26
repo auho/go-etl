@@ -42,10 +42,6 @@ func (c *Contains) Search(contents []string) extract.Result {
 
 func (c *Contains) Close() error { return nil }
 
-func (c *Contains) ToMeans() *extract.Means {
-	return extract.NewMeans(c)
-}
-
 // NewContainsAll
 // all sub of all contents
 func NewContainsAll(subs []string, export *Export) *Contains {
