@@ -6,9 +6,9 @@ import (
 	"github.com/auho/go-toolkit/v2/farmtools/convert/types/strings"
 )
 
-// NewContainAll
-// key contain all subs
-func NewContainAll(key string, subs []string) Predicate {
+// NewContainsAll
+// key contains all subs
+func NewContainsAll(key string, subs []string) Predicate {
 	return func(m map[string]any) bool {
 		s, err := strings.FromAny(m[key])
 		if err != nil {
@@ -25,9 +25,9 @@ func NewContainAll(key string, subs []string) Predicate {
 	}
 }
 
-// NewContainAny
-// key contain any one subs
-func NewContainAny(key string, subs []string) Predicate {
+// NewContainsAny
+// key contains any of subs
+func NewContainsAny(key string, subs []string) Predicate {
 	return func(m map[string]any) bool {
 		s, err := strings.FromAny(m[key])
 		if err != nil {

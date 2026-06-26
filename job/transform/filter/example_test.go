@@ -12,14 +12,14 @@ func ExampleNewMatcher() {
 	_ = opt
 }
 
-func ExampleNewContainAll() {
-	opt := NewContainAll("a", []string{"a1", "a2"})
+func ExampleNewContainsAll() {
+	opt := NewContainsAll("a", []string{"a1", "a2"})
 
 	_ = opt
 }
 
-func ExampleNewContainAny() {
-	opt := NewContainAny("a", []string{"a1", "a2"})
+func ExampleNewContainsAny() {
+	opt := NewContainsAny("a", []string{"a1", "a2"})
 
 	_ = opt
 }

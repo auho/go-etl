@@ -10,13 +10,13 @@ func ExampleNewPipeline() {
 	insert := NewPipeline().
 		SetCollect(collect.NewKeys([]string{_keyName})).
 		SetSearch(match.NewKey(_rule)).
-		SetCondition(filter.NewContainAll("a", []string{"a1", "a2"})).
+		SetCondition(filter.NewContainsAll("a", []string{"a1", "a2"})).
 		ToInsert()
 
 	update := NewPipeline().
 		SetCollect(collect.NewKeys([]string{_keyName})).
 		SetSearch(match.NewKey(_rule)).
-		SetCondition(filter.NewContainAll("a", []string{"a1", "a2"})).
+		SetCondition(filter.NewContainsAll("a", []string{"a1", "a2"})).
 		ToUpdate()
 
 	_ = insert
