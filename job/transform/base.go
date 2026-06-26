@@ -1,4 +1,4 @@
-package enrich
+package transform
 
 import (
 	"fmt"
@@ -22,12 +22,12 @@ func (m *base) AddAmount(num int64) {
 	atomic.AddInt64(&m.amount, num)
 }
 
-func (m *base) genCounter() string {
+func (m *base) GenCounter() string {
 	return fmt.Sprintf("total: %d; amount: %d", m.total, m.amount)
 }
 
-func (m *base) genTitle(name string, means string) string {
-	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.keys, ", ")+"]", means)
+func (m *base) GenTitle(name string, desc string) string {
+	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.keys, ", ")+"]", desc)
 }
 
 func (m *base) GetKeyContent(key string, item map[string]any) string {

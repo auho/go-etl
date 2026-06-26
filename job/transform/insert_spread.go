@@ -1,56 +1,42 @@
 package transform
 
-import (
-	"maps"
-
-	"github.com/auho/go-etl/v3/job/extract"
-)
-
-var _ InsertOperator = (*InsertSpread)(nil)
+import "maps"
 
 // InsertSpread
-// spread inserter
-// 取每个 mean 结果的第一个，spread
+// 取每个 insert 结果的第一条，进行 spread
 type InsertSpread struct {
-	insertHorizontal
+	baseInsert
 }
 
-func NewInsertSpread(keys []string, inserters ...extract.Inserter) *InsertSpread {
+func NewInsertSpread(is ...*Insert) *InsertSpread {
 	return &InsertSpread{
-		insertHorizontal: newInsertHorizontal(keys, inserters...),
+		baseInsert{
+			name: "InsertSpread",
+			is:   is,
+		},
 	}
 }
 
 func (is *InsertSpread) Apply(item map[string]any) []map[string]any {
 	is.AddTotal(1)
 
-	if item == nil {
-		return nil
-	}
-
-	contents := is.GetKeysContent(is.keys, item)
-	if len(contents) <= 0 {
-		return nil
-	}
-
 	_has := false
-	newItem := make(map[string]any, len(is.defaultValues))
-	for _, m := range is.inserters {
-		res := m.Insert(contents)
+	ret := make(map[string]any, len(is.defaultValues))
+	for _, _i := range is.is {
+		res := _i.Apply(item)
 		if res == nil {
 			continue
 		}
 
 		_has = true
-
-		maps.Copy(newItem, res[0])
+		maps.Copy(ret, res[0])
 	}
 
 	if _has {
 		is.AddAmount(1)
 
 		_dv := maps.Clone(is.defaultValues)
-		maps.Copy(_dv, newItem)
+		maps.Copy(_dv, ret)
 
 		return []map[string]any{_dv}
 	} else {

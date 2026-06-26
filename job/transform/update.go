@@ -1,90 +1,42 @@
 package transform
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/auho/go-etl/v3/job/extract"
+	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/filter"
 )
 
 var _ UpdateOperator = (*Update)(nil)
 
-// Update
-// handle some keys of data for update
 type Update struct {
-	operator
-	updaters []extract.Updater
+	*Pipeline
 }
 
-func NewUpdate(keys []string, updaters ...extract.Updater) *Update {
-	um := &Update{}
-	um.keys = keys
-	um.updaters = updaters
-
-	return um
+func newUpdateFromPipeline(e *Pipeline) *Update {
+	return NewUpdate(e.collect, e.search, e.condition)
 }
 
-func (um *Update) Prepare() error {
-	if len(um.keys) <= 0 {
-		return fmt.Errorf("keys do not exist")
+func NewUpdate(collect collect.Collector, search extract.Extractor, expression filter.Predicate) *Update {
+	return &Update{
+		Pipeline: newPipeline(collect, search, expression),
 	}
-
-	if len(um.updaters) <= 0 {
-		return fmt.Errorf("inserters do not exist")
-	}
-
-	for _, m := range um.updaters {
-		err := m.Prepare()
-		if err != nil {
-			return fmt.Errorf("prepare: %w", err)
-		}
-	}
-
-	return nil
 }
 
-func (um *Update) Title() string {
-	is := make([]string, 0)
-	for _, i := range um.updaters {
-		is = append(is, i.Title())
-	}
+func (u *Update) Apply(item map[string]any) map[string]any {
+	u.AddTotal(1)
 
-	return um.GenTitle("Update", strings.Join(is, ","))
-}
-
-func (um *Update) GetFields() []string {
-	return um.keys
-}
-
-func (um *Update) Apply(item map[string]any) map[string]any {
-	if item == nil {
+	if !u.expressionOperation(item) {
 		return nil
 	}
 
-	contents := um.GetKeysContent(um.keys, item)
-
-	if len(contents) <= 0 {
+	token := u.collect.Search(item, u.search)
+	if !token.IsOK() {
 		return nil
 	}
 
-	m := make(map[string]any)
-	for _, uMeans := range um.updaters {
-		_m := uMeans.Update(contents)
-		for _k, _v := range _m {
-			m[_k] = _v
-		}
-	}
+	ret := token.Rows()
 
-	return m
-}
+	u.AddAmount(int64(len(ret)))
 
-func (um *Update) Close() error {
-	for k := range um.updaters {
-		err := um.updaters[k].Close()
-		if err != nil {
-			return fmt.Errorf("close: %w", err)
-		}
-	}
-
-	return nil
+	return ret[0]
 }

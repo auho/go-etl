@@ -1,85 +1,42 @@
 package transform
 
 import (
-	"fmt"
-	"maps"
-
 	"github.com/auho/go-etl/v3/job/extract"
+	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/filter"
 )
 
 var _ InsertOperator = (*Insert)(nil)
 
-// Insert
-// single inserter
 type Insert struct {
-	operator
-	inserter extract.Inserter
+	*Pipeline
 }
 
-func NewInsert(keys []string, inserter extract.Inserter) *Insert {
-	im := &Insert{}
-	im.keys = keys
-	im.inserter = inserter
-
-	return im
+func newInsertFromPipeline(e *Pipeline) *Insert {
+	return NewInsert(e.collect, e.search, e.condition)
 }
 
-func (im *Insert) Prepare() error {
-	if len(im.keys) <= 0 {
-		return fmt.Errorf("keys do not exist")
+func NewInsert(collect collect.Collector, search extract.Extractor, expression filter.Predicate) *Insert {
+	return &Insert{
+		Pipeline: newPipeline(collect, search, expression),
 	}
-
-	err := im.inserter.Prepare()
-	if err != nil {
-		return fmt.Errorf("inserter.Prepare: %w", err)
-	}
-
-	return nil
 }
 
-func (im *Insert) Title() string {
-	return im.GenTitle("Insert", im.inserter.Title())
-}
+func (i *Insert) Apply(item map[string]any) []map[string]any {
+	i.AddTotal(1)
 
-func (im *Insert) GetFields() []string {
-	return im.keys
-}
-
-func (im *Insert) Keys() []string {
-	return im.inserter.Keys()
-}
-
-func (im *Insert) DefaultValues() map[string]any {
-	return maps.Clone(im.inserter.DefaultValues())
-}
-
-func (im *Insert) Apply(item map[string]any) []map[string]any {
-	im.AddTotal(1)
-
-	if item == nil {
+	if !i.expressionOperation(item) {
 		return nil
 	}
 
-	contents := im.GetKeysContent(im.keys, item)
-	if len(contents) <= 0 {
+	token := i.collect.Search(item, i.search)
+	if !token.IsOK() {
 		return nil
 	}
 
-	rt := im.inserter.Insert(contents)
-	im.AddAmount(int64(len(rt)))
+	ret := token.Rows()
 
-	return rt
-}
+	i.AddAmount(int64(len(ret)))
 
-func (im *Insert) State() []string {
-	return []string{fmt.Sprintf("%s: %s", im.Title(), im.GenCounter())}
-}
-
-func (im *Insert) Close() error {
-	err := im.inserter.Close()
-	if err != nil {
-		return fmt.Errorf("inserter.Close: %w", err)
-	}
-
-	return nil
+	return ret
 }

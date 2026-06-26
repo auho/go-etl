@@ -2,14 +2,12 @@ package transform
 
 import (
 	"maps"
-
-	"github.com/auho/go-etl/v3/job/extract"
 )
 
 var _ InsertOperator = (*InsertCross)(nil)
 
 // InsertCross
-// cross inserter 交叉
+// cross means 交叉
 //
 // 1，2
 // 3，4
@@ -19,66 +17,61 @@ var _ InsertOperator = (*InsertCross)(nil)
 // 2，3
 // 2，4
 type InsertCross struct {
-	insertHorizontal
+	baseInsert
 }
 
-func NewInsertCross(keys []string, inserters ...extract.Inserter) *InsertCross {
+func NewInsertCross(is ...*Insert) *InsertCross {
 	return &InsertCross{
-		insertHorizontal: newInsertHorizontal(keys, inserters...),
+		baseInsert{
+			name: "InsertCross",
+			is:   is,
+		},
 	}
 }
 
 func (ic *InsertCross) Apply(item map[string]any) []map[string]any {
 	ic.AddTotal(1)
 
-	if item == nil {
-		return nil
-	}
-
-	contents := ic.GetKeysContent(ic.keys, item)
-	if len(contents) <= 0 {
-		return nil
-	}
-
-	var _allLabels [][]map[string]any
-	for _, m := range ic.inserters {
-		mLabels := m.Insert(contents)
-		if mLabels == nil {
+	var _allRet [][]map[string]any
+	for _, m := range ic.is {
+		_ret := m.Apply(item)
+		if _ret == nil {
 			continue
 		}
 
-		_allLabels = append(_allLabels, mLabels)
+		_allRet = append(_allRet, _ret)
 	}
 
 	var isStart = true
-	var newItems []map[string]any
-	var _tItems []map[string]any
-	for _, _mLabels := range _allLabels {
-		newItems = nil
+	var rets []map[string]any
+	var _tRets []map[string]any
+	for _, _ret := range _allRet {
+		rets = nil
 
 		if isStart {
 			isStart = false
-			for _, _labels := range _mLabels {
-				_nLabels := maps.Clone(ic.defaultValues)
-				maps.Copy(_nLabels, _labels)
-				newItems = append(newItems, _nLabels)
+
+			for _, _r := range _ret {
+				_tr := maps.Clone(ic.defaultValues)
+				maps.Copy(_tr, _r)
+				rets = append(rets, _tr)
 			}
 		} else {
-			for _, _tItem := range _tItems {
-				for _, _resItem := range _mLabels {
-					_newTItem := make(map[string]any)
-					maps.Copy(_newTItem, _tItem)
-					maps.Copy(_newTItem, _resItem)
+			for _, _tRet := range _tRets {
+				for _, _r := range _ret {
+					_tr := make(map[string]any)
+					maps.Copy(_tr, _tRet)
+					maps.Copy(_tr, _r)
 
-					newItems = append(newItems, _newTItem)
+					rets = append(rets, _tr)
 				}
 			}
 		}
 
-		_tItems = newItems
+		_tRets = rets
 	}
 
-	ic.AddAmount(int64(len(newItems)))
+	ic.AddAmount(int64(len(rets)))
 
-	return newItems
+	return rets
 }

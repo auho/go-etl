@@ -5,78 +5,72 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/auho/go-etl/v3/job/extract"
+	slices "github.com/auho/go-etl/v3/tool/slicex"
 )
 
-// insertHorizontal
-// 多个 inserter horizontal
-type insertHorizontal struct {
-	operator
-	inserters []extract.Inserter
+type baseInsert struct {
+	base
 
+	name          string
+	is            []*Insert
 	insertKeys    []string
 	defaultValues map[string]any
 }
 
-func newInsertHorizontal(keys []string, inserters ...extract.Inserter) insertHorizontal {
-	ih := insertHorizontal{}
-	ih.keys = keys
-	ih.inserters = inserters
+func (bi *baseInsert) Title() string {
+	var ss []string
+	for _, _i := range bi.is {
+		ss = append(ss, _i.Title())
+	}
 
-	return ih
+	return bi.GenTitle(bi.name, strings.Join(ss, ","))
 }
 
-func (ih *insertHorizontal) Prepare() error {
-	if len(ih.keys) <= 0 {
-		return fmt.Errorf("keys do not exist")
+func (bi *baseInsert) GetFields() []string {
+	return bi.keys
+}
+
+func (bi *baseInsert) Keys() []string {
+	var keys []string
+
+	for _, _i := range bi.is {
+		keys = append(keys, _i.Keys()...)
 	}
 
-	for _, m := range ih.inserters {
-		err := m.Prepare()
+	keys = slices.SliceDropDuplicates(keys)
+
+	return keys
+}
+
+func (bi *baseInsert) DefaultValues() map[string]any {
+	return maps.Clone(bi.defaultValues)
+}
+
+func (bi *baseInsert) State() []string {
+	return []string{fmt.Sprintf("%s: %s", bi.Title(), bi.GenCounter())}
+}
+
+func (bi *baseInsert) Prepare() error {
+	bi.defaultValues = make(map[string]any)
+
+	for _, _i := range bi.is {
+		var err error
+		err = _i.Prepare()
 		if err != nil {
-			return fmt.Errorf("prepare: %w", err)
+			return err
 		}
-	}
 
-	ih.defaultValues = make(map[string]any)
-
-	for _, m := range ih.inserters {
-		ih.insertKeys = append(ih.insertKeys, m.Keys()...)
-
-		maps.Copy(ih.defaultValues, m.DefaultValues())
+		bi.keys = append(bi.keys, _i.GetFields()...)
+		maps.Copy(bi.defaultValues, _i.DefaultValues())
 	}
 
 	return nil
 }
 
-func (ih *insertHorizontal) Title() string {
-	var ss []string
-	for _, m := range ih.inserters {
-		ss = append(ss, m.Title())
-	}
-
-	return ih.GenTitle("insertHorizontal", strings.Join(ss, ","))
-}
-
-func (ih *insertHorizontal) GetFields() []string {
-	return ih.keys
-}
-
-func (ih *insertHorizontal) Keys() []string {
-	return ih.insertKeys
-}
-
-func (ih *insertHorizontal) DefaultValues() map[string]any {
-	return maps.Clone(ih.defaultValues)
-}
-
-func (ih *insertHorizontal) State() []string {
-	return []string{fmt.Sprintf("%s: %s", ih.Title(), ih.GenCounter())}
-}
-
-func (ih *insertHorizontal) Close() error {
-	for _, m := range ih.inserters {
-		err := m.Close()
+func (bi *baseInsert) Close() error {
+	var err error
+	for _, _i := range bi.is {
+		err = _i.Close()
 		if err != nil {
 			return fmt.Errorf("close: %w", err)
 		}

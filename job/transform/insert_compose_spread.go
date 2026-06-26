@@ -14,7 +14,7 @@ var _ InsertOperator = (*InsertComposeSpread)(nil)
 // InsertComposeSpread
 // compose spread 取第一个 spread
 type InsertComposeSpread struct {
-	operator
+	base
 	operators []InsertOperator
 
 	insertKeys    []string
