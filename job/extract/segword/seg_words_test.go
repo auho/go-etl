@@ -44,3 +44,106 @@ func TestSegWords(t *testing.T) {
 		fmt.Println(rets)
 	})
 }
+
+func TestSegWords_Interface(t *testing.T) {
+	t.Run("Title", func(t *testing.T) {
+		sw := NewDefault()
+		if sw.Title() != "Seg" {
+			t.Fatalf("expected Title() to be %q, got %q", "Seg", sw.Title())
+		}
+	})
+
+	t.Run("NewExport", func(t *testing.T) {
+		sw := NewDefault()
+		if sw.NewExport() == nil {
+			t.Fatal("NewExport() returned nil")
+		}
+	})
+
+	t.Run("Keys", func(t *testing.T) {
+		e := NewExportAll()
+		keys := e.Keys()
+		if len(keys) != 2 {
+			t.Fatalf("expected 2 keys, got %d", len(keys))
+		}
+		keySet := make(map[string]bool)
+		for _, k := range keys {
+			keySet[k] = true
+		}
+		if !keySet[NameToken] {
+			t.Errorf("expected key %q", NameToken)
+		}
+		if !keySet[NameFlag] {
+			t.Errorf("expected key %q", NameFlag)
+		}
+	})
+
+	t.Run("DefaultValues", func(t *testing.T) {
+		e := NewExportAll()
+		dv := e.DefaultValues()
+		if len(dv) != 2 {
+			t.Fatalf("expected 2 default values, got %d", len(dv))
+		}
+		if _, ok := dv[NameToken]; !ok {
+			t.Errorf("expected default value for %q", NameToken)
+		}
+		if _, ok := dv[NameFlag]; !ok {
+			t.Errorf("expected default value for %q", NameFlag)
+		}
+	})
+
+	t.Run("Prepare and Close", func(t *testing.T) {
+		sw := NewDefault()
+		if err := sw.Prepare(); err != nil {
+			t.Fatal(err)
+		}
+		if err := sw.Close(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("WithFilterFunc", func(t *testing.T) {
+		e := NewExportAll().WithFilterFunc(func(r Result) bool {
+			return false // keep all results
+		})
+
+		results := Results{
+			{Token: "a", Flag: "eng"},
+			{Token: "hello", Flag: "n"},
+		}
+		token := e.ToToken(results)
+		if !token.IsOK() {
+			t.Fatal("expected token to be OK")
+		}
+		rets := token.Rows()
+		if len(rets) != 2 {
+			t.Fatalf("expected 2 results with custom filter, got %d", len(rets))
+		}
+	})
+
+	t.Run("WithFormat", func(t *testing.T) {
+		customFormat := Format{
+			TokenName: "custom_token",
+			FlagName:  "custom_flag",
+			Sep:       ",",
+		}
+		e := NewExportAll().
+			WithFilterFunc(func(r Result) bool { return false }).
+			WithFormat(customFormat)
+
+		results := Results{
+			{Token: "hello", Flag: "eng"},
+		}
+		token := e.ToToken(results)
+		rets := token.Rows()
+		if len(rets) != 1 {
+			t.Fatalf("expected 1 result, got %d", len(rets))
+		}
+		if rets[0]["custom_token"] != "hello" {
+			t.Errorf("expected custom_token %q, got %v", "hello", rets[0]["custom_token"])
+		}
+		if rets[0]["custom_flag"] != "eng" {
+			t.Errorf("expected custom_flag %q, got %v", "eng", rets[0]["custom_flag"])
+		}
+	})
+}

@@ -47,3 +47,74 @@ func TestMeans(t *testing.T) {
 		}
 	})
 }
+
+func TestSplitWords_Interface(t *testing.T) {
+	t.Run("Title", func(t *testing.T) {
+		s := NewDefault(",")
+		expected := "SplitWords[,]"
+		if s.Title() != expected {
+			t.Fatalf("expected Title() to be %q, got %q", expected, s.Title())
+		}
+	})
+
+	t.Run("NewExport", func(t *testing.T) {
+		s := NewDefault(",")
+		if s.NewExport() == nil {
+			t.Fatal("NewExport() returned nil")
+		}
+	})
+
+	t.Run("Keys", func(t *testing.T) {
+		e := NewExportAll()
+		keys := e.Keys()
+		if len(keys) != 1 {
+			t.Fatalf("expected 1 key, got %d", len(keys))
+		}
+		if keys[0] != NameWord {
+			t.Errorf("expected key %q, got %q", NameWord, keys[0])
+		}
+	})
+
+	t.Run("DefaultValues", func(t *testing.T) {
+		e := NewExportAll()
+		dv := e.DefaultValues()
+		if len(dv) != 1 {
+			t.Fatalf("expected 1 default value, got %d", len(dv))
+		}
+		if _, ok := dv[NameWord]; !ok {
+			t.Errorf("expected default value for %q", NameWord)
+		}
+	})
+
+	t.Run("Prepare and Close", func(t *testing.T) {
+		s := NewDefault(",")
+		if err := s.Prepare(); err != nil {
+			t.Fatal(err)
+		}
+		if err := s.Close(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("WithFormat", func(t *testing.T) {
+		customFormat := Format{
+			WordName: "custom_word",
+			Sep:      "-",
+		}
+		e := NewExportLine().WithFormat(customFormat)
+		s := NewSplitWords(",", e)
+		if err := s.Prepare(); err != nil {
+			t.Fatal(err)
+		}
+		defer s.Close()
+
+		token := s.Search([]string{"a,b,c"})
+		rets := token.Rows()
+		if len(rets) != 1 {
+			t.Fatalf("expected 1 row, got %d", len(rets))
+		}
+		if rets[0]["custom_word"] != "a-b-c" {
+			t.Errorf("expected %q, got %v", "a-b-c", rets[0]["custom_word"])
+		}
+	})
+}

@@ -2,6 +2,8 @@ package regexps
 
 import (
 	"testing"
+
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 var _rule = &ruleTest{}
@@ -122,5 +124,149 @@ func TestSubMatchFirst(t *testing.T) {
 
 	if rets[0][_rule.NameAlias()] != "1" || rets[0][_rule.KeywordAmountNameAlias()] != 1 {
 		t.Fatal()
+	}
+}
+
+func TestExport_Interface(t *testing.T) {
+	t.Run("Title", func(t *testing.T) {
+		sm := NewAllSubMatch(_expressions, NewExportAll(_rule))
+		expected := "SubMatch[" + _rule.Name() + "]"
+		if sm.Title() != expected {
+			t.Fatalf("expected Title() to be %q, got %q", expected, sm.Title())
+		}
+	})
+
+	t.Run("NewExport", func(t *testing.T) {
+		sm := NewAllSubMatch(_expressions, NewExportAll(_rule))
+		if sm.NewExport() == nil {
+			t.Fatal("NewExport() returned nil")
+		}
+	})
+
+	t.Run("Keys", func(t *testing.T) {
+		e := NewExportAll(_rule)
+		keys := e.Keys()
+		if len(keys) != 2 {
+			t.Fatalf("expected 2 keys, got %d", len(keys))
+		}
+		keySet := make(map[string]bool)
+		for _, k := range keys {
+			keySet[k] = true
+		}
+		if !keySet[_rule.NameAlias()] {
+			t.Errorf("expected key %q", _rule.NameAlias())
+		}
+		if !keySet[_rule.KeywordAmountNameAlias()] {
+			t.Errorf("expected key %q", _rule.KeywordAmountNameAlias())
+		}
+	})
+
+	t.Run("DefaultValues", func(t *testing.T) {
+		e := NewExportAll(_rule)
+		dv := e.DefaultValues()
+		if len(dv) != 2 {
+			t.Fatalf("expected 2 default values, got %d", len(dv))
+		}
+		if _, ok := dv[_rule.NameAlias()]; !ok {
+			t.Errorf("expected default value for %q", _rule.NameAlias())
+		}
+		if _, ok := dv[_rule.KeywordAmountNameAlias()]; !ok {
+			t.Errorf("expected default value for %q", _rule.KeywordAmountNameAlias())
+		}
+	})
+
+	t.Run("GetRule", func(t *testing.T) {
+		e := NewExportAll(_rule)
+		if e.GetRule() == nil {
+			t.Fatal("GetRule() returned nil")
+		}
+		if e.GetRule().Name() != _rule.Name() {
+			t.Errorf("expected rule name %q, got %q", _rule.Name(), e.GetRule().Name())
+		}
+	})
+}
+
+func TestExport_Pluck(t *testing.T) {
+	e := NewExportAll(_rule)
+	if len(e.Keys()) != 2 {
+		t.Fatalf("expected 2 original keys, got %d", len(e.Keys()))
+	}
+
+	plucked := e.Pluck([]string{_rule.NameAlias()})
+	if plucked != e {
+		t.Error("Pluck should return the same export instance")
+	}
+
+	keys := e.Keys()
+	if len(keys) != 1 {
+		t.Fatalf("expected 1 key after Pluck, got %d", len(keys))
+	}
+	if keys[0] != _rule.NameAlias() {
+		t.Errorf("expected key %q, got %q", _rule.NameAlias(), keys[0])
+	}
+
+	dv := e.DefaultValues()
+	if len(dv) != 1 {
+		t.Fatalf("expected 1 default value after Pluck, got %d", len(dv))
+	}
+	if _, ok := dv[_rule.NameAlias()]; !ok {
+		t.Errorf("expected default value for %q", _rule.NameAlias())
+	}
+}
+
+func TestNewExportDefault(t *testing.T) {
+	e := NewExportDefault(_rule, func(results Results, rule extract.Rule) []map[string]any {
+		var rets []map[string]any
+		for _, r := range results {
+			rets = append(rets, map[string]any{
+				rule.NameAlias(): r.Text,
+			})
+		}
+		return rets
+	})
+
+	keys := e.Keys()
+	if len(keys) != 1 {
+		t.Fatalf("expected 1 key, got %d", len(keys))
+	}
+	if keys[0] != _rule.NameAlias() {
+		t.Errorf("expected key %q, got %q", _rule.NameAlias(), keys[0])
+	}
+
+	dv := e.DefaultValues()
+	if len(dv) != 1 {
+		t.Fatalf("expected 1 default value, got %d", len(dv))
+	}
+	if _, ok := dv[_rule.NameAlias()]; !ok {
+		t.Errorf("expected default value for %q", _rule.NameAlias())
+	}
+
+	if e.GetRule().Name() != _rule.Name() {
+		t.Errorf("expected rule name %q, got %q", _rule.Name(), e.GetRule().Name())
+	}
+
+	results := Results{
+		{Text: "test", Amount: 1},
+	}
+	token := e.ToToken(results)
+	if !token.IsOK() {
+		t.Fatal("expected token to be OK")
+	}
+	rets := token.Rows()
+	if len(rets) != 1 {
+		t.Fatalf("expected 1 row, got %d", len(rets))
+	}
+	if rets[0][_rule.NameAlias()] != "test" {
+		t.Errorf("expected %q, got %v", "test", rets[0][_rule.NameAlias()])
+	}
+}
+
+func TestSubMatch_Close(t *testing.T) {
+	sm := NewAllSubMatch(_expressions, NewExportAll(_rule))
+	if err := sm.Prepare(); err != nil {
+		t.Fatal(err)
+	}
+	if err := sm.Close(); err != nil {
+		t.Fatal(err)
 	}
 }

@@ -119,3 +119,100 @@ func TestContainsAny(t *testing.T) {
 
 	}
 }
+
+func TestExport_Interface(t *testing.T) {
+	t.Run("Title", func(t *testing.T) {
+		c := NewContainsAll([]string{"1"}, NewExportAll(_rule))
+		expected := "Contains[" + _rule.Name() + "]"
+		if c.Title() != expected {
+			t.Fatalf("expected Title() to be %q, got %q", expected, c.Title())
+		}
+	})
+
+	t.Run("NewExport", func(t *testing.T) {
+		c := NewContainsAll([]string{"1"}, NewExportAll(_rule))
+		if c.NewExport() == nil {
+			t.Fatal("NewExport() returned nil")
+		}
+	})
+
+	t.Run("Keys", func(t *testing.T) {
+		e := NewExportAll(_rule)
+		keys := e.Keys()
+		if len(keys) != 2 {
+			t.Fatalf("expected 2 keys, got %d", len(keys))
+		}
+		keySet := make(map[string]bool)
+		for _, k := range keys {
+			keySet[k] = true
+		}
+		if !keySet[_rule.NameAlias()] {
+			t.Errorf("expected key %q", _rule.NameAlias())
+		}
+		if !keySet[_rule.KeywordAmountNameAlias()] {
+			t.Errorf("expected key %q", _rule.KeywordAmountNameAlias())
+		}
+	})
+
+	t.Run("DefaultValues", func(t *testing.T) {
+		e := NewExportAll(_rule)
+		dv := e.DefaultValues()
+		if len(dv) != 2 {
+			t.Fatalf("expected 2 default values, got %d", len(dv))
+		}
+		if _, ok := dv[_rule.NameAlias()]; !ok {
+			t.Errorf("expected default value for %q", _rule.NameAlias())
+		}
+		if _, ok := dv[_rule.KeywordAmountNameAlias()]; !ok {
+			t.Errorf("expected default value for %q", _rule.KeywordAmountNameAlias())
+		}
+	})
+
+	t.Run("GetRule", func(t *testing.T) {
+		e := NewExportAll(_rule)
+		if e.GetRule() == nil {
+			t.Fatal("GetRule() returned nil")
+		}
+		if e.GetRule().Name() != _rule.Name() {
+			t.Errorf("expected rule name %q, got %q", _rule.Name(), e.GetRule().Name())
+		}
+	})
+}
+
+func TestExport_Pluck(t *testing.T) {
+	e := NewExportAll(_rule)
+	if len(e.Keys()) != 2 {
+		t.Fatalf("expected 2 original keys, got %d", len(e.Keys()))
+	}
+
+	plucked := e.Pluck([]string{_rule.NameAlias()})
+	if plucked != e {
+		t.Error("Pluck should return the same export instance")
+	}
+
+	keys := e.Keys()
+	if len(keys) != 1 {
+		t.Fatalf("expected 1 key after Pluck, got %d", len(keys))
+	}
+	if keys[0] != _rule.NameAlias() {
+		t.Errorf("expected key %q, got %q", _rule.NameAlias(), keys[0])
+	}
+
+	dv := e.DefaultValues()
+	if len(dv) != 1 {
+		t.Fatalf("expected 1 default value after Pluck, got %d", len(dv))
+	}
+	if _, ok := dv[_rule.NameAlias()]; !ok {
+		t.Errorf("expected default value for %q", _rule.NameAlias())
+	}
+}
+
+func TestContains_Close(t *testing.T) {
+	c := NewContainsAll([]string{"1"}, NewExportAll(_rule))
+	if err := c.Prepare(); err != nil {
+		t.Fatal(err)
+	}
+	if err := c.Close(); err != nil {
+		t.Fatal(err)
+	}
+}
