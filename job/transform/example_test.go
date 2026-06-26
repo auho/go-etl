@@ -1,4 +1,4 @@
-package enrich
+package transform
 
 import (
 	"github.com/auho/go-etl/v3/job/transform/collect"
@@ -6,14 +6,14 @@ import (
 	"github.com/auho/go-etl/v3/job/extract/match"
 )
 
-func ExampleNewExplore() {
-	insert := NewExplore().
+func ExampleNewPipeline() {
+	insert := NewPipeline().
 		SetCollect(collect.NewKeys([]string{_keyName})).
 		SetSearch(match.NewKey(_rule)).
 		SetCondition(filter.NewContainAll("a", []string{"a1", "a2"})).
 		ToInsert()
 
-	update := NewExplore().
+	update := NewPipeline().
 		SetCollect(collect.NewKeys([]string{_keyName})).
 		SetSearch(match.NewKey(_rule)).
 		SetCondition(filter.NewContainAll("a", []string{"a1", "a2"})).
@@ -28,7 +28,7 @@ func ExampleNewInsert() {
 }
 
 func ExampleNewUpdate() {
-	_ = NewInsert(collect.NewKeys([]string{_keyName}), match.NewKey(_rule), nil)
+	_ = NewUpdate(collect.NewKeys([]string{_keyName}), match.NewKey(_rule), nil)
 }
 
 func ExampleNewInsertCross() {

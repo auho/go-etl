@@ -1,4 +1,4 @@
-package enrich
+package transform
 
 import (
 	"fmt"
@@ -151,7 +151,7 @@ func Test_InsertMode(t *testing.T) {
 
 	retSpread := _modeInsertSpread.Apply(_item)
 	if len(retSpread) <= 0 {
-
+		t.Error("insert spread error")
 	}
 	fmt.Println(retSpread)
 
