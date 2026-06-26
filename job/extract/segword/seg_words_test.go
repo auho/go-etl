@@ -101,4 +101,15 @@ func TestSegWords_Interface(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+
+	t.Run("FormatCheck", func(t *testing.T) {
+		f := Format{}
+		f.check()
+		if f.TokenName != NameToken {
+			t.Errorf("expected TokenName %q, got %q", NameToken, f.TokenName)
+		}
+		if f.FlagName != NameFlag {
+			t.Errorf("expected FlagName %q, got %q", NameFlag, f.FlagName)
+		}
+	})
 }

@@ -2,6 +2,8 @@ package splitword
 
 import (
 	"testing"
+
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 func TestMeans(t *testing.T) {
@@ -26,7 +28,15 @@ func TestMeans(t *testing.T) {
 	})
 
 	t.Run("line", func(t *testing.T) {
-		s := NewSplitWords(",", NewExportLine().WithFormat(Format{Sep: "-"}))
+		format := Format{WordName: NameWord, Sep: "-"}
+		e := extract.NewExporter(
+			map[string]any{format.WordName: ""},
+			func(ctx extract.ExportContext[Results]) []map[string]any {
+				return ctx.Results.ToLine(ctx.Format.(Format))
+			},
+			extract.WithFormat[Results](format),
+		)
+		s := NewSplitWords(",", e)
 		err := s.Prepare()
 		if err != nil {
 			t.Fatal(err)
@@ -43,6 +53,28 @@ func TestMeans(t *testing.T) {
 		}
 
 		if rets[0][NameWord] != "1-2-3-4-5-6-7-8-9-1-2-3-4-5-6-7-8-9" {
+			t.Fatal()
+		}
+	})
+
+	t.Run("line_default", func(t *testing.T) {
+		s := NewSplitWords(",", NewExportLine())
+		err := s.Prepare()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		token := s.Search([]string{content, content})
+		rets := token.Rows()
+		if !token.IsOK() {
+			t.Fatal()
+		}
+
+		if len(rets) != 1 {
+			t.Fatal()
+		}
+
+		if rets[0][NameWord] != "1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9" {
 			t.Fatal()
 		}
 	})
@@ -101,7 +133,13 @@ func TestSplitWords_Interface(t *testing.T) {
 			WordName: "custom_word",
 			Sep:      "-",
 		}
-		e := NewExportLine().WithFormat(customFormat)
+		e := extract.NewExporter(
+			map[string]any{customFormat.WordName: ""},
+			func(ctx extract.ExportContext[Results]) []map[string]any {
+				return ctx.Results.ToLine(ctx.Format.(Format))
+			},
+			extract.WithFormat[Results](customFormat),
+		)
 		s := NewSplitWords(",", e)
 		if err := s.Prepare(); err != nil {
 			t.Fatal(err)
@@ -115,6 +153,17 @@ func TestSplitWords_Interface(t *testing.T) {
 		}
 		if rets[0]["custom_word"] != "a-b-c" {
 			t.Errorf("expected %q, got %v", "a-b-c", rets[0]["custom_word"])
+		}
+	})
+
+	t.Run("FormatCheck", func(t *testing.T) {
+		f := Format{}
+		f.check()
+		if f.WordName != NameWord {
+			t.Errorf("expected WordName %q, got %q", NameWord, f.WordName)
+		}
+		if f.Sep != " " {
+			t.Errorf("expected Sep %q, got %q", " ", f.Sep)
 		}
 	})
 }
