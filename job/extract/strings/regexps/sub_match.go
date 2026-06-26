@@ -53,7 +53,7 @@ func (r *SubMatch) GenExport() search.FieldSpec {
 func (r *SubMatch) Do(contents []string) search.Token {
 	defer func() {
 		if v := recover(); v != nil {
-			panic(fmt.Errorf("SubMatch expressions[%#v]", r.expressions))
+			panic(fmt.Errorf("do[%#v]", r.expressions))
 		}
 	}()
 

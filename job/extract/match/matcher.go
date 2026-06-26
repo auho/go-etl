@@ -49,7 +49,7 @@ func (mc *matcherConfig) check() {
 func defaultMatcher(rule extract.Rule, config *matcherConfig) (*matcher, error) {
 	items, err := rule.ItemsAlias()
 	if err != nil {
-		return nil, fmt.Errorf("ItemsAlias error; %w", err)
+		return nil, fmt.Errorf("ItemsAlias: %w", err)
 	}
 
 	return newMatcher(rule.KeywordNameAlias(), items, config), nil

@@ -124,7 +124,7 @@ func (r *ruleTest) ItemsAlias() ([]map[string]string, error) {
 	var rows []map[string]any
 	err := _gormDB.Raw(fmt.Sprintf("SELECT `a`, `ab`, `a_keyword` FROM %s", _ruleTableName)).Scan(&rows).Error
 	if err != nil {
-		return nil, fmt.Errorf("scan error; %w", err)
+		return nil, fmt.Errorf("scan: %w", err)
 	}
 
 	var _rows []map[string]string

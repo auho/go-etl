@@ -34,12 +34,12 @@ func (t *Titles) readSheetData(excel *read.Excel, sheetConfig read.Config) (*rea
 	sheetConfig.ColsIndex = t.titlesIndex
 	sheetData, err := read.NewSheetDataNoTitle(excel, sheetConfig)
 	if err != nil {
-		return nil, fmt.Errorf("NewSheetDataNoTitle error; %w", err)
+		return nil, fmt.Errorf("NewSheetDataNoTitle: %w", err)
 	}
 
 	err = sheetData.ReadData()
 	if err != nil {
-		return nil, fmt.Errorf("ReadData error; %w", err)
+		return nil, fmt.Errorf("ReadData: %w", err)
 	}
 
 	return sheetData, nil
@@ -84,7 +84,7 @@ func (t *Titles) check() error {
 
 	for i, index := range t.titlesIndex {
 		if index < 0 {
-			return fmt.Errorf("title[%s] index[%d] is error", t.titlesKey[i], i)
+			return fmt.Errorf("title[%s] index[%d] is invalid", t.titlesKey[i], i)
 		}
 	}
 

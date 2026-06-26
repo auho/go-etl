@@ -19,7 +19,7 @@ func NewExcel(path string) (*Excel, error) {
 	var err error
 	e.excelFile, err = excelize.OpenFile(e.path)
 	if err != nil {
-		return nil, fmt.Errorf("NewExcel error; %w", err)
+		return nil, fmt.Errorf("OpenFile: %w", err)
 	}
 
 	return e, nil
@@ -41,7 +41,7 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 
 	rowsScan, err := e.excelFile.Rows(config.SheetName)
 	if err != nil {
-		return nil, fmt.Errorf("rows error; %w", err)
+		return nil, fmt.Errorf("excelFile.Rows: %w", err)
 	}
 
 	var _i = 0
@@ -59,14 +59,14 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 
 		row, err1 := rowsScan.Columns()
 		if err1 != nil {
-			return nil, fmt.Errorf("rows scan columns error; %w", err)
+			return nil, fmt.Errorf("columns: %w", err1)
 		}
 
 		rows = append(rows, row)
 	}
 
 	if err = rowsScan.Close(); err != nil {
-		return nil, fmt.Errorf("rows scan close error; %w", err)
+		return nil, fmt.Errorf("close: %w", err)
 	}
 
 	if len(config.ColsIndex) > 0 {
@@ -97,7 +97,7 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 
 func (e *Excel) Close() error {
 	if err := e.excelFile.Close(); err != nil {
-		return fmt.Errorf("close excel error; %w", err)
+		return fmt.Errorf("excelFile.Close: %w", err)
 	}
 
 	return nil

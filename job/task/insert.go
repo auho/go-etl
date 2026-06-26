@@ -71,7 +71,7 @@ func (i *Insert) Summary() string {
 func (i *Insert) Prepare() error {
 	err := i.mode.Prepare()
 	if err != nil {
-		return fmt.Errorf("transform.Prepare: %w", err)
+		return fmt.Errorf("mode.Prepare: %w", err)
 	}
 
 	return nil

@@ -53,7 +53,7 @@ func defaultMatcherKeyFormatFunc(s string) string {
 func defaultMatcher(rule extract.Rule, config *matcherConfig) (*matcher, error) {
 	items, err := rule.ItemsForRegexp()
 	if err != nil {
-		return nil, fmt.Errorf("ItemsForRegexp error; %w", err)
+		return nil, fmt.Errorf("ItemsForRegexp: %w", err)
 	}
 
 	return newMatcher(

@@ -57,7 +57,7 @@ func NewQueryWithPath(xlsxFilePath string) (*Query, error) {
 	var err error
 	q.excel, err = write.NewExcel(q.xlsxPath)
 	if err != nil {
-		return nil, fmt.Errorf("NewExcel error; %w", err)
+		return nil, fmt.Errorf("NewExcel: %w", err)
 	}
 
 	return q, nil
@@ -95,7 +95,7 @@ func (q *Query) doQueries() error {
 	for _, sq := range q.queries {
 		err := q.doQuery(sq)
 		if err != nil {
-			return fmt.Errorf("doQuery error; %w", err)
+			return fmt.Errorf("doQuery: %w", err)
 		}
 	}
 
@@ -110,19 +110,19 @@ func (q *Query) doQuery(sq *subQuery) error {
 	_dataset, err := sq.source.Dataset()
 	sq.state.sourceDuration = _d.SubBegin()
 	if err != nil {
-		return fmt.Errorf("dataset error; %w", err)
+		return fmt.Errorf("source.Dataset: %w", err)
 	}
 
 	_d.Begin()
 	_datasetMode, err := dataset.NewMode(sq.datasetMode, _dataset)
 	if err != nil {
-		return fmt.Errorf("NewMode error; %w", err)
+		return fmt.Errorf("NewMode: %w", err)
 	}
 
 	_data, err := _datasetMode.Data()
 	sq.state.datasetDuration = _d.SubBegin()
 	if err != nil {
-		return fmt.Errorf("data error; %w", err)
+		return fmt.Errorf("data: %w", err)
 	}
 
 	_d.Begin()
@@ -130,7 +130,7 @@ func (q *Query) doQuery(sq *subQuery) error {
 		_, err = q.excel.NewSheetWithData(name, _data.Rows[name])
 		sq.state.toSheetDuration = _d.SubBegin()
 		if err != nil {
-			return fmt.Errorf("NewSheetWithData error; %w", err)
+			return fmt.Errorf("excel.NewSheetWithData: %w", err)
 		}
 
 		sq.state.amount += _data.RowsAmount[name]
@@ -165,7 +165,7 @@ func (q *Query) Save() error {
 	err := q.doQueries()
 	q.state.queriesDuration = q.duration.SubBegin()
 	if err != nil {
-		return fmt.Errorf("doQueries error; %w", err)
+		return fmt.Errorf("doQueries: %w", err)
 	}
 
 	q.duration.Begin()

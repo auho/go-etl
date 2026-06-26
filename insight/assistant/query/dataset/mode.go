@@ -25,7 +25,7 @@ func NewMode(mode MergeMode, ds *Dataset) (Mode, error) {
 	case ModeSpread:
 		dsMode = NewSpreadMode(ds)
 	default:
-		return nil, fmt.Errorf("dataset mode[%s] error", mode)
+		return nil, fmt.Errorf("mode[%s] is invalid", mode)
 	}
 
 	return dsMode, nil

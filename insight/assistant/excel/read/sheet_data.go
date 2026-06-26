@@ -38,7 +38,7 @@ func (sd *sheetData) HandleRows(fn func(rows [][]string) ([][]string, error)) er
 	var err error
 	sd.rows, err = fn(sd.rows)
 	if err != nil {
-		return fmt.Errorf("HandleRows fn error; %w", err)
+		return fmt.Errorf("fn: %w", err)
 	}
 
 	return nil

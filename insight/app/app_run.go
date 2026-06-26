@@ -69,7 +69,7 @@ func (r *Run) execCommandsE(parentCmd *cobra.Command, args []string, cs ...[]*co
 
 		err = _cmd.RunE(_cmd, args)
 		if err != nil {
-			return fmt.Errorf("%s run error; %w", _cmd.Use, err)
+			return fmt.Errorf("RunE[%s]: %w", _cmd.Use, err)
 		}
 
 		fmt.Println(fmt.Sprintf("cmd[%s] end", _cmd.Use))
@@ -96,7 +96,7 @@ func (r *Run) RunE() error {
 	for i, fn := range r.fns {
 		err := fn()
 		if err != nil {
-			return fmt.Errorf("%s; %w", r.names[i], err)
+			return fmt.Errorf("fn[%s]: %w", r.names[i], err)
 		}
 	}
 

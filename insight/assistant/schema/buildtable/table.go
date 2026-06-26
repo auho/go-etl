@@ -48,12 +48,12 @@ func (t *table) Build() error {
 	if t.config.Recreate {
 		err := t.db.Drop(t.TableName())
 		if err != nil {
-			return t.formatError(fmt.Errorf("drop error; %w", err))
+			return t.formatError(fmt.Errorf("db.Drop: %w", err))
 		}
 	} else if t.config.Truncate {
 		err := t.db.Truncate(t.TableName())
 		if err != nil {
-			return t.formatError(fmt.Errorf("truncate error; %w", err))
+			return t.formatError(fmt.Errorf("db.Truncate: %w", err))
 		}
 	}
 
@@ -94,5 +94,5 @@ func (t *table) execRawCommandFunc(r assistant.Raw) {
 }
 
 func (t *table) formatError(err error) error {
-	return fmt.Errorf("%s; %w", t.TableName(), err)
+	return fmt.Errorf("table.formatError: %s: %w", t.TableName(), err)
 }

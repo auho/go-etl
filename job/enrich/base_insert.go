@@ -72,7 +72,7 @@ func (bi *baseInsert) Close() error {
 	for _, _i := range bi.is {
 		err = _i.Close()
 		if err != nil {
-			return fmt.Errorf("close err: %w", err)
+			return fmt.Errorf("close: %w", err)
 		}
 	}
 

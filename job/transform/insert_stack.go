@@ -32,13 +32,13 @@ func NewInsertStack(keys []string, inserters ...extract.Inserter) *InsertStack {
 
 func (im *InsertStack) Prepare() error {
 	if len(im.keys) <= 0 {
-		return fmt.Errorf("InsertStack Prepare keys not exists error")
+		return fmt.Errorf("keys do not exist")
 	}
 
 	for _, m := range im.inserters {
 		err := m.Prepare()
 		if err != nil {
-			return fmt.Errorf("InsertStack prepare error; %w", err)
+			return fmt.Errorf("prepare: %w", err)
 		}
 	}
 
@@ -116,7 +116,7 @@ func (im *InsertStack) Close() error {
 	for _, m := range im.inserters {
 		err := m.Close()
 		if err != nil {
-			return fmt.Errorf("InsertStack close error; %w", err)
+			return fmt.Errorf("close: %w", err)
 		}
 	}
 

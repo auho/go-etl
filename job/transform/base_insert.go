@@ -28,13 +28,13 @@ func newInsertHorizontal(keys []string, inserters ...extract.Inserter) insertHor
 
 func (ih *insertHorizontal) Prepare() error {
 	if len(ih.keys) <= 0 {
-		return fmt.Errorf("insertHorizontal Prepare keys not exists error")
+		return fmt.Errorf("keys do not exist")
 	}
 
 	for _, m := range ih.inserters {
 		err := m.Prepare()
 		if err != nil {
-			return fmt.Errorf("prepare error; %w", err)
+			return fmt.Errorf("prepare: %w", err)
 		}
 	}
 
@@ -78,7 +78,7 @@ func (ih *insertHorizontal) Close() error {
 	for _, m := range ih.inserters {
 		err := m.Close()
 		if err != nil {
-			return fmt.Errorf("close error; %w", err)
+			return fmt.Errorf("close: %w", err)
 		}
 	}
 

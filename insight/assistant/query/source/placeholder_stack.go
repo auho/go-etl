@@ -127,11 +127,11 @@ func (pss *PlaceholderStackSource) WithStacksCross(stacks map[string][]any) *Pla
 
 func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 	if len(pss.categories) <= 0 {
-		return nil, fmt.Errorf("PlaceholderStackSource[%s] categories len is error", pss.Name)
+		return nil, fmt.Errorf("source[%s] categories length is invalid", pss.Name)
 	}
 
 	if len(pss.stacks) <= 0 {
-		return nil, fmt.Errorf("PlaceholderStackSource[%s] stacks len is error", pss.Name)
+		return nil, fmt.Errorf("source[%s] stacks length is invalid", pss.Name)
 	}
 
 	fields := pss.Table.GetSelectFields()
@@ -167,7 +167,7 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 		_categoryPs := NewPlaceholder(pss.SourceBase).WithItems(_items)
 		_psDs, err := _categoryPs.Dataset()
 		if err != nil {
-			return nil, fmt.Errorf("dataset error; %w", err)
+			return nil, fmt.Errorf("dataset: %w", err)
 		}
 
 		_sets = append(_sets, dataset.NewSetWithSets(pss.categoryToID(_category, _psDs.Keys), _psDs.Sets))

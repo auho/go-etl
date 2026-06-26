@@ -22,19 +22,19 @@ func NewExcel(path string) (*Excel, error) {
 func (e *Excel) NewSheetWithData(sheetName string, rows [][]any) (int, error) {
 	index, err := e.excelFile.NewSheet(sheetName)
 	if err != nil {
-		return index, fmt.Errorf("NewSheet error; %w", err)
+		return index, fmt.Errorf("excelFile.NewSheet: %w", err)
 	}
 
 	var cell string
 	for i, row := range rows {
 		cell, err = excelize.CoordinatesToCellName(1, i+1) // returns "A1", nil
 		if err != nil {
-			return -1, fmt.Errorf("CoordinatesToCellName error; %w", err)
+			return -1, fmt.Errorf("CoordinatesToCellName: %w", err)
 		}
 
 		err = e.excelFile.SetSheetRow(sheetName, cell, &row)
 		if err != nil {
-			return -1, fmt.Errorf("SetSheetRow error; %w", err)
+			return -1, fmt.Errorf("excelFile.SetSheetRow: %w", err)
 		}
 	}
 
@@ -44,12 +44,12 @@ func (e *Excel) NewSheetWithData(sheetName string, rows [][]any) (int, error) {
 func (e *Excel) SaveAs() error {
 	err := e.excelFile.DeleteSheet("Sheet1")
 	if err != nil {
-		return fmt.Errorf("DeleteSheet error; %w", err)
+		return fmt.Errorf("excelFile.DeleteSheet: %w", err)
 	}
 
 	err = e.excelFile.SaveAs(e.path)
 	if err != nil {
-		return fmt.Errorf("SaveAs error; %w", err)
+		return fmt.Errorf("excelFile.SaveAs: %w", err)
 	}
 
 	return nil
@@ -58,7 +58,7 @@ func (e *Excel) SaveAs() error {
 func (e *Excel) Close() error {
 	err := e.excelFile.Close()
 	if err != nil {
-		return fmt.Errorf("close error; %w", err)
+		return fmt.Errorf("excelFile.Close: %w", err)
 	}
 
 	return nil

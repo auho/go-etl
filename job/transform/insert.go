@@ -26,12 +26,12 @@ func NewInsert(keys []string, inserter extract.Inserter) *Insert {
 
 func (im *Insert) Prepare() error {
 	if len(im.keys) <= 0 {
-		return fmt.Errorf("Insert Prepare keys not exists error")
+		return fmt.Errorf("keys do not exist")
 	}
 
 	err := im.inserter.Prepare()
 	if err != nil {
-		return fmt.Errorf("Insert Prepare error; %w", err)
+		return fmt.Errorf("inserter.Prepare: %w", err)
 	}
 
 	return nil
@@ -78,7 +78,7 @@ func (im *Insert) State() []string {
 func (im *Insert) Close() error {
 	err := im.inserter.Close()
 	if err != nil {
-		return fmt.Errorf("Insert close error; %w", err)
+		return fmt.Errorf("inserter.Close: %w", err)
 	}
 
 	return nil

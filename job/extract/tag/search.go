@@ -68,7 +68,7 @@ func (s *Search[T]) Prepare() error {
 	var err error
 	s.matcher, err = s.newMatcherFun(s.export.GetRule(), s.matcherConfig)
 	if err != nil {
-		return fmt.Errorf("prepare error; %w", err)
+		return fmt.Errorf("newMatcherFun: %w", err)
 	}
 
 	s.context = &SearchContext[T]{

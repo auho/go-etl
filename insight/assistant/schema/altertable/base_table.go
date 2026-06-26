@@ -41,7 +41,7 @@ func (bt *baseTable) build(sqls []string, db *simpledb.SimpleDB) error {
 	for _, sql := range sqls {
 		err := db.GormDB().Exec(sql).Error
 		if err != nil {
-			return fmt.Errorf("build[%s] exec error; %w", bt.TableName(), err)
+			return fmt.Errorf("exec[%s]: %w", bt.TableName(), err)
 		}
 	}
 

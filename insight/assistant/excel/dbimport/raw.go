@@ -59,12 +59,12 @@ func (rs *RawResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, er
 func (rs *RawResource) readSheetData(excel *read.Excel, sheetConfig read.Config) (*read.SheetDataWithTitle, error) {
 	sheetData, err := read.NewSheetDataWithTitle(excel, sheetConfig, nil)
 	if err != nil {
-		return nil, fmt.Errorf("NewSheetDataWithTitle error; %w", err)
+		return nil, fmt.Errorf("NewSheetDataWithTitle: %w", err)
 	}
 
 	err = sheetData.ReadData()
 	if err != nil {
-		return nil, fmt.Errorf("ReadData error; %w", err)
+		return nil, fmt.Errorf("ReadData: %w", err)
 	}
 
 	return sheetData, nil

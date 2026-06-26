@@ -65,7 +65,7 @@ func (a *Application) checkDir() {
 		if os.IsNotExist(err) {
 			err = os.Mkdir(_dir, 0744)
 			if err != nil {
-				panic(fmt.Errorf("dir[%s]; %w", _dir, err))
+				panic(fmt.Errorf("mkdir[%s]: %w", _dir, err))
 			}
 		}
 	}

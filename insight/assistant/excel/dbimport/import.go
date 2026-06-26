@@ -29,19 +29,19 @@ func (it *ImportToDB) Import() error {
 	var err error
 	it.excel, err = read.NewExcel(it.xlsxPath)
 	if err != nil {
-		return fmt.Errorf("NewExcel error; %w", err)
+		return fmt.Errorf("NewExcel: %w", err)
 	}
 
 	for _, resource := range it.resource {
 		fmt.Println(fmt.Sprintf("import resource[%s]", resource.GetName()))
 		err = it.importResource(resource)
 		if err != nil {
-			return fmt.Errorf("resource[%s] error; %w", resource.GetName(), err)
+			return fmt.Errorf("importResource[%s]: %w", resource.GetName(), err)
 		}
 
 		err = resource.AfterDo(resource)
 		if err != nil {
-			return fmt.Errorf("resource[%s] AfterDo error; %w", resource.GetName(), err)
+			return fmt.Errorf("AfterDo[%s]: %w", resource.GetName(), err)
 		}
 	}
 
@@ -51,24 +51,24 @@ func (it *ImportToDB) Import() error {
 func (it *ImportToDB) importResource(resource Resource) error {
 	err := resource.Prepare()
 	if err != nil {
-		return fmt.Errorf("prepare error; %w", err)
+		return fmt.Errorf("prepare: %w", err)
 	}
 
 	_table := resource.GetTable()
 
 	err = it.buildResourceTable(resource, _table)
 	if err != nil {
-		return fmt.Errorf("buildResourceTable error; %w", err)
+		return fmt.Errorf("buildResourceTable: %w", err)
 	}
 
 	sheetData, err := resource.GetSheetData(it.excel)
 	if err != nil {
-		return fmt.Errorf("GetSheetData error; %w", err)
+		return fmt.Errorf("GetSheetData: %w", err)
 	}
 
 	err = it.importResourceToTable(resource, _table, sheetData)
 	if err != nil {
-		return fmt.Errorf("importResourceToTable error; %w", err)
+		return fmt.Errorf("importResourceToTable: %w", err)
 	}
 
 	return nil
@@ -88,7 +88,7 @@ func (it *ImportToDB) buildResourceTable(resource Resource, table buildtable.Tab
 		if isRecreateTable {
 			err = resource.GetDB().Drop(table.GetTableName())
 			if err != nil {
-				return fmt.Errorf("drop; %w", err)
+				return fmt.Errorf("drop: %w", err)
 			}
 		}
 	}
@@ -98,7 +98,7 @@ func (it *ImportToDB) buildResourceTable(resource Resource, table buildtable.Tab
 
 		err = table.Build()
 		if err != nil {
-			return fmt.Errorf("build error; %w", err)
+			return fmt.Errorf("build: %w", err)
 		}
 	}
 
@@ -115,14 +115,14 @@ func (it *ImportToDB) importResourceToTable(resource Resource, table buildtable.
 			return rows, nil
 		})
 		if err != nil {
-			return fmt.Errorf("drop duplicates error; %w", err)
+			return fmt.Errorf("HandleRows: %w", err)
 		}
 	}
 
 	if !resource.GetIsAppendData() {
 		err = resource.GetDB().Truncate(table.GetTableName())
 		if err != nil {
-			return fmt.Errorf("truncate error; %w", err)
+			return fmt.Errorf("truncate: %w", err)
 		}
 	}
 

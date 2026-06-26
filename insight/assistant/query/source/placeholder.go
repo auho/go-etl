@@ -67,7 +67,7 @@ func (ps *PlaceholderSource) WithItemsCross(items map[string][]any) *Placeholder
 
 func (ps *PlaceholderSource) Dataset() (*dataset.Dataset, error) {
 	if len(ps.items) <= 0 {
-		return nil, fmt.Errorf("PlaceholderSource source[%s] items len is error", ps.Name)
+		return nil, fmt.Errorf("source[%s] items length is invalid", ps.Name)
 	}
 
 	fields := ps.Table.GetSelectFields()
@@ -77,7 +77,7 @@ func (ps *PlaceholderSource) Dataset() (*dataset.Dataset, error) {
 	itemsId, itemsSql := ps.buildPlaceholderItemsSqlSet(ps.SourceBase, sql, keys, ps.items)
 	sets, err := ps.queryItemsSet(fields, itemsId, itemsSql)
 	if err != nil {
-		return nil, fmt.Errorf("queryItemsSet error; %w", err)
+		return nil, fmt.Errorf("queryItemsSet: %w", err)
 	}
 
 	return &dataset.Dataset{

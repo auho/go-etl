@@ -73,7 +73,7 @@ func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.Ma
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("source.NewSectionMapWithGorm: %w", err)
+		return nil, fmt.Errorf("NewSectionMapWithGorm: %w", err)
 	}
 
 	return ds, nil
@@ -88,7 +88,7 @@ func (r *Runner) run(d *source.Section[storage.MapEntry], e executor) error {
 
 	err := flow.RunFlow[map[string]any](opts...)
 	if err != nil {
-		return fmt.Errorf("flow.RunFlow: %w", err)
+		return fmt.Errorf("RunFlow: %w", err)
 	}
 
 	return nil

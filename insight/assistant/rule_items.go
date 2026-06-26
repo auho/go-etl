@@ -170,7 +170,7 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 	sql := table.SQL()
 	err := _rule.GetDB().GormDB().Raw(sql).Scan(&rows).Error
 	if err != nil {
-		return nil, fmt.Errorf("rows error; %w", err)
+		return nil, fmt.Errorf("scan: %w", err)
 	}
 
 	var _newRows []map[string]string
@@ -189,7 +189,7 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 func (ri *RuleItems) ItemsForRegexp() ([]map[string]string, error) {
 	rows, err := ri.ItemsAlias()
 	if err != nil {
-		return nil, fmt.Errorf("ItemsAlias error; %w", err)
+		return nil, fmt.Errorf("ItemsAlias: %w", err)
 	}
 	for i := range rows {
 		rows[i][ri.KeywordNameAlias()] = ri.keywordFormatFunc(rows[i][ri.KeywordNameAlias()])

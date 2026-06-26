@@ -68,7 +68,7 @@ func (s *Search[T]) Prepare() error {
 	var err error
 	s.matcher, err = s.newMatcherFun(s.export.GetRule(), s.matcherConfig)
 	if err != nil {
-		return fmt.Errorf("prepare error; %w", err)
+		return fmt.Errorf("newMatcherFun: %w", err)
 	}
 
 	s.context = &SearchContext[T]{
@@ -109,12 +109,12 @@ func (s *Search[T]) WithPriorityFuzzy() *Search[T] {
 	return s
 }
 
-func (m *Search[T]) WithMatcher(keyName string, items []map[string]string) *Search[T] {
-	m.newMatcherFun = func(rule extract.Rule, config *matcherConfig) (*matcher, error) {
+func (s *Search[T]) WithMatcher(keyName string, items []map[string]string) *Search[T] {
+	s.newMatcherFun = func(rule extract.Rule, config *matcherConfig) (*matcher, error) {
 		return newMatcher(keyName, items, config), nil
 	}
 
-	return m
+	return s
 }
 
 func (s *Search[T]) WithDebug() *Search[T] {

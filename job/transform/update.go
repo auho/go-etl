@@ -26,17 +26,17 @@ func NewUpdate(keys []string, updaters ...extract.Updater) *Update {
 
 func (um *Update) Prepare() error {
 	if len(um.keys) <= 0 {
-		return fmt.Errorf("update prepare keys is not exists error")
+		return fmt.Errorf("keys do not exist")
 	}
 
 	if len(um.updaters) <= 0 {
-		return fmt.Errorf("update prepare inserters error")
+		return fmt.Errorf("inserters do not exist")
 	}
 
 	for _, m := range um.updaters {
 		err := m.Prepare()
 		if err != nil {
-			return fmt.Errorf("update prepare error; %w", err)
+			return fmt.Errorf("prepare: %w", err)
 		}
 	}
 
@@ -82,7 +82,7 @@ func (um *Update) Close() error {
 	for k := range um.updaters {
 		err := um.updaters[k].Close()
 		if err != nil {
-			return fmt.Errorf("Update close error; %w", err)
+			return fmt.Errorf("close: %w", err)
 		}
 	}
 

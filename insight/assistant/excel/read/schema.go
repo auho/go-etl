@@ -67,7 +67,7 @@ func (s *Schema) BuildTable() (buildtable.Tabler, error) {
 
 	rows, err := s.excel.readSheet(s.config)
 	if err != nil {
-		return nil, fmt.Errorf("readSheet error; %w", err)
+		return nil, fmt.Errorf("excel.readSheet: %w", err)
 	}
 
 	s.buildTable(rows)

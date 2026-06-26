@@ -43,7 +43,7 @@ func (s *SourceBase) queryItemsSet(fields, itemsId []string, itemsSql map[string
 	for _, itemId := range itemsId {
 		rows, _d, err := s.querySql(itemsSql[itemId], fields)
 		if err != nil {
-			return nil, fmt.Errorf("querySql error; %w", err)
+			return nil, fmt.Errorf("querySql: %w", err)
 		}
 
 		sets = append(sets, dataset.NewSetWithQuery(itemId, itemsSql[itemId], _d, rows))
@@ -58,7 +58,7 @@ func (s *SourceBase) querySql(sql string, fields []string) ([][]any, time.Durati
 	_start := time.Now()
 	err := s.DB.GormDB().Raw(sql).Scan(&rows).Error
 	if err != nil {
-		return nil, 0, fmt.Errorf("raw error; %w", err)
+		return nil, 0, fmt.Errorf("scan: %w", err)
 	}
 
 	return maps.SliceMapStringAnyToSliceSliceAny(rows, fields), time.Now().Sub(_start), nil

@@ -29,7 +29,7 @@ func (ts *RowsSource) Dataset() (*dataset.Dataset, error) {
 		itemsSql,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("queryItemsSet error; %w", err)
+		return nil, fmt.Errorf("queryItemsSet: %w", err)
 	}
 
 	return &dataset.Dataset{

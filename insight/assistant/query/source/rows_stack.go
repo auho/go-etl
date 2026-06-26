@@ -32,7 +32,7 @@ func (rs *RowsStackSource) Dataset() (*dataset.Dataset, error) {
 	for _, _rs := range rs.rss {
 		ds, err := _rs.Dataset()
 		if err != nil {
-			return nil, fmt.Errorf("dataset error; %w", err)
+			return nil, fmt.Errorf("dataset: %w", err)
 		}
 
 		_sets = append(_sets, ds.Sets...)

@@ -54,7 +54,7 @@ func (sd *SheetDataWithTitle) genTitlesWithAlias() {
 func (sd *SheetDataWithTitle) ReadData() error {
 	err := sd.readSheet()
 	if err != nil {
-		return fmt.Errorf("readSheet error; %w", err)
+		return fmt.Errorf("readSheet: %w", err)
 	}
 
 	sd.titles = sd.rows[0]

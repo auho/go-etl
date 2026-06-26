@@ -84,7 +84,7 @@ func (c *Clean) GetFields() []string {
 		var err error
 		c.keys, err = c.cleanTarget.Deleted().GetDB().GetTableColumns(c.cleanTarget.Deleted().TableName())
 		if err != nil {
-			panic(fmt.Errorf("GetTableColumns error; %w", err))
+			panic(fmt.Errorf("GetTableColumns: %w", err))
 		}
 	}
 
@@ -162,12 +162,12 @@ func (c *Clean) Exec(item map[string]any) (bool, error) {
 	if _needDeleted {
 		err = c.deletedDest.Receive([]map[string]any{item})
 		if err != nil {
-			return false, fmt.Errorf("deletedDest.Receive")
+			return false, fmt.Errorf("deletedDest.Receive: %w", err)
 		}
 	} else {
 		err = c.dataDest.Receive([]map[string]any{item})
 		if err != nil {
-			return false, fmt.Errorf("dataDest.Receive")
+			return false, fmt.Errorf("dataDest.Receive: %w", err)
 		}
 	}
 

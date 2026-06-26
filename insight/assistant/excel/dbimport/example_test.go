@@ -39,7 +39,7 @@ func ExampleRunImportToDb() {
 						Where(fmt.Sprintf("`%s` = ?", "two_1"), "value").
 						UpdateColumn("two_2", "").Error
 					if err1 != nil {
-						return fmt.Errorf("update error; %w", err1)
+						return fmt.Errorf("UpdateColumn: %w", err1)
 					}
 					return nil
 				},

@@ -35,7 +35,7 @@ func (rs *RuleResource) GetTable() buildtable.Tabler {
 func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, error) {
 	sheetData, err := rs.readSheetData(excel, rs.buildSheetConfig())
 	if err != nil {
-		return nil, fmt.Errorf("readSheetData error; %w", err)
+		return nil, fmt.Errorf("readSheetData: %w", err)
 	}
 
 	keywordIndex := -1
@@ -83,7 +83,7 @@ func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, e
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("keyWord len error; %w", err)
+		return nil, fmt.Errorf("HandleRows: %w", err)
 	}
 
 	return sheetData, nil
