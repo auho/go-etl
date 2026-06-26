@@ -1,11 +1,10 @@
 package segword
 
 import (
-	"github.com/auho/go-etl/v3/job/enrich/search"
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var _ search.Searcher = (*SegWords)(nil)
+var _ extract.Extractor = (*SegWords)(nil)
 
 type SegWords struct {
 	seg    *Seg
@@ -24,7 +23,7 @@ func (sg *SegWords) Title() string {
 	return "Seg"
 }
 
-func (sg *SegWords) GenExport() search.FieldSpec {
+func (sg *SegWords) NewExport() extract.FieldSpec {
 	return sg.export
 }
 
@@ -34,7 +33,7 @@ func (sg *SegWords) Prepare() error {
 	return nil
 }
 
-func (sg *SegWords) Do(contents []string) search.Token {
+func (sg *SegWords) Search(contents []string) extract.Result {
 	results := sg.seg.tag(contents)
 
 	return sg.export.ToToken(results)

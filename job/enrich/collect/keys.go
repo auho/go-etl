@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 var _ Collector = (*Keys)(nil)
@@ -50,7 +50,7 @@ func (k *Keys) Keys() []string {
 	return k.keys
 }
 
-func (k *Keys) Search(item map[string]any, searcher search.Searcher) search.Token {
+func (k *Keys) Search(item map[string]any, searcher extract.Extractor) extract.Result {
 	if k.IsAll() {
 		return k.doAll(item, searcher)
 	} else if k.IsAny() {
@@ -60,21 +60,21 @@ func (k *Keys) Search(item map[string]any, searcher search.Searcher) search.Toke
 	}
 }
 
-func (k *Keys) doAll(item map[string]any, searcher search.Searcher) search.Token {
+func (k *Keys) doAll(item map[string]any, searcher extract.Extractor) extract.Result {
 	var contents []string
 	for _, _key := range k.keys {
 		contents = append(contents, k.GetKeyContent(_key, item))
 	}
 
-	return searcher.Do(contents)
+	return searcher.Search(contents)
 }
 
-func (k *Keys) doAny(item map[string]any, searcher search.Searcher) search.Token {
-	var st search.Token
+func (k *Keys) doAny(item map[string]any, searcher extract.Extractor) extract.Result {
+	var st extract.Result
 
 	for _, _key := range k.keys {
 		_v := k.GetKeyContent(_key, item)
-		st = searcher.Do([]string{_v})
+		st = searcher.Search([]string{_v})
 		if st.IsOK() {
 			break
 		}

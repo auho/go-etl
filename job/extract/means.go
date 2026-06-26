@@ -2,15 +2,13 @@ package extract
 
 import (
 	"fmt"
-
-	"github.com/auho/go-etl/v3/job/enrich/search"
 )
 
 var _ Inserter = (*Means)(nil)
 var _ Updater = (*Means)(nil)
 
 type Means struct {
-	search search.Searcher
+	search Extractor
 	export Exporter
 
 	keys          []string
@@ -20,7 +18,7 @@ type Means struct {
 
 // NewMeans
 // Deprecated: change to using explore.Searcher
-func NewMeans(s search.Searcher) *Means {
+func NewMeans(s Extractor) *Means {
 	m := &Means{search: s}
 
 	return m
@@ -32,7 +30,7 @@ func (m *Means) Prepare() error {
 		return err
 	}
 
-	_export := m.search.GenExport()
+	_export := m.search.NewExport()
 	m.keys = _export.Keys()
 	m.defaultValues = _export.DefaultValues()
 	if m.export != nil {
@@ -57,8 +55,8 @@ func (m *Means) DefaultValues() map[string]any {
 }
 
 func (m *Means) Insert(contents []string) []map[string]any {
-	token := m.search.Do(contents)
-	rets := token.ToToken()
+	token := m.search.Search(contents)
+	rets := token.Rows()
 	if len(rets) <= 0 {
 		return nil
 	}
@@ -71,8 +69,8 @@ func (m *Means) Insert(contents []string) []map[string]any {
 }
 
 func (m *Means) Update(contents []string) map[string]any {
-	token := m.search.Do(contents)
-	rets := token.ToToken()
+	token := m.search.Search(contents)
+	rets := token.Rows()
 	if len(rets) <= 0 {
 		return nil
 	}

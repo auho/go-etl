@@ -3,10 +3,10 @@ package segword
 import (
 	"unicode/utf8"
 
-	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var _ search.FieldSpec = (*Export)(nil)
+var _ extract.FieldSpec = (*Export)(nil)
 
 var DefaultFilterFunc = func(result Result) bool {
 	return utf8.RuneCountInString(result.Token) < 2 || result.Flag == "eng" || result.Flag == "m"
@@ -58,8 +58,8 @@ func (e *Export) WithFilterFunc(fn func(Result) bool) *Export {
 	return e
 }
 
-func (e *Export) ToToken(results Results) search.Token {
-	token := search.Token{}
+func (e *Export) ToToken(results Results) extract.Result {
+	token := extract.Result{}
 
 	var newResults []Result
 	for _, result := range results {
@@ -70,7 +70,7 @@ func (e *Export) ToToken(results Results) search.Token {
 
 	if len(newResults) > 0 {
 		token.SetOK()
-		token.SetTokenizerFunc(func() []map[string]any {
+		token.SetResultsFunc(func() []map[string]any {
 			return e.resultsToToken(ExportContext{
 				Results: newResults,
 				Format:  e.format,

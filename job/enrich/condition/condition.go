@@ -2,7 +2,7 @@ package condition
 
 import (
 	"github.com/auho/go-etl/v3/job/enrich/collect"
-	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 var _ Filter = (*Condition)(nil)
@@ -14,10 +14,10 @@ type Filter interface {
 
 type Condition struct {
 	collect collect.Collector
-	search  search.Searcher
+	search  extract.Extractor
 }
 
-func NewCondition(collect collect.Collector, search search.Searcher) Operation {
+func NewCondition(collect collect.Collector, search extract.Extractor) Operation {
 	c := &Condition{collect: collect, search: search}
 
 	return c.ToOperation()

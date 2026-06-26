@@ -6,14 +6,14 @@ import (
 
 	"github.com/auho/go-etl/v3/job/enrich/collect"
 	"github.com/auho/go-etl/v3/job/enrich/condition"
-	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 type Explore struct {
 	base
 
 	collect   collect.Collector
-	search    search.Searcher
+	search    extract.Extractor
 	condition condition.Operation
 
 	hasExpression bool
@@ -24,7 +24,7 @@ func NewExplore() *Explore {
 	return &Explore{}
 }
 
-func newExplore(collect collect.Collector, search search.Searcher, operation condition.Operation) *Explore {
+func newExplore(collect collect.Collector, search extract.Extractor, operation condition.Operation) *Explore {
 	return &Explore{
 		collect:   collect,
 		search:    search,
@@ -49,7 +49,7 @@ func (e *Explore) GetFields() []string {
 }
 
 func (e *Explore) Keys() []string {
-	return e.search.GenExport().Keys()
+	return e.search.NewExport().Keys()
 }
 
 func (e *Explore) DefaultValues() map[string]any {
@@ -66,7 +66,7 @@ func (e *Explore) Prepare() error {
 		e.hasExpression = true
 	}
 
-	e.defaultValues = e.search.GenExport().DefaultValues()
+	e.defaultValues = e.search.NewExport().DefaultValues()
 
 	return nil
 }
@@ -83,7 +83,7 @@ func (e *Explore) SetCollect(collect collect.Collector) *Explore {
 	return e
 }
 
-func (e *Explore) SetSearch(search search.Searcher) *Explore {
+func (e *Explore) SetSearch(search extract.Extractor) *Explore {
 	e.search = search
 
 	return e

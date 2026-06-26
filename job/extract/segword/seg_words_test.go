@@ -19,8 +19,8 @@ func TestSegWords(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		token := sw.Do(contents)
-		rets := token.ToToken()
+		token := sw.Search(contents)
+		rets := token.Rows()
 		if len(rets) <= 0 {
 			t.Error("tag error")
 		}
@@ -35,8 +35,8 @@ func TestSegWords(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		token := sw.Do(contents)
-		rets := token.ToToken()
+		token := sw.Search(contents)
+		rets := token.Rows()
 		if len(rets) <= 0 {
 			t.Error("tag error")
 		}

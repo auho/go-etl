@@ -3,7 +3,7 @@ package enrich
 import (
 	"github.com/auho/go-etl/v3/job/enrich/collect"
 	"github.com/auho/go-etl/v3/job/enrich/condition"
-	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 	"github.com/auho/go-etl/v3/job/transform"
 )
 
@@ -17,7 +17,7 @@ func newInsertFromExplore(e *Explore) *Insert {
 	return NewInsert(e.collect, e.search, e.condition)
 }
 
-func NewInsert(collect collect.Collector, search search.Searcher, expression condition.Operation) *Insert {
+func NewInsert(collect collect.Collector, search extract.Extractor, expression condition.Operation) *Insert {
 	return &Insert{
 		Explore: newExplore(collect, search, expression),
 	}
@@ -35,7 +35,7 @@ func (i *Insert) Apply(item map[string]any) []map[string]any {
 		return nil
 	}
 
-	ret := token.ToToken()
+	ret := token.Rows()
 
 	i.AddAmount(int64(len(ret)))
 

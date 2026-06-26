@@ -3,15 +3,14 @@ package match
 import (
 	"maps"
 
-	"github.com/auho/go-etl/v3/job/enrich/search"
 	"github.com/auho/go-etl/v3/job/extract"
 	maps2 "github.com/auho/go-etl/v3/tool/mapx"
 )
 
-var _ search.FieldSpec = (*Export[Results])(nil)
-var _ search.FieldSpec = (*Export[LabelResults])(nil)
-var _ search.FieldSpec = (*ExportResults)(nil)
-var _ search.FieldSpec = (*ExportLabelResults)(nil)
+var _ extract.FieldSpec = (*Export[Results])(nil)
+var _ extract.FieldSpec = (*Export[LabelResults])(nil)
+var _ extract.FieldSpec = (*ExportResults)(nil)
+var _ extract.FieldSpec = (*ExportLabelResults)(nil)
 
 type ExportContextResults = ExportContext[Results]
 type ExportContextLabelResults = ExportContext[LabelResults]
@@ -84,12 +83,12 @@ func (e *Export[T]) WithFormat(format Format) *Export[T] {
 	return e
 }
 
-func (e *Export[T]) ToToken(results T) search.Token {
-	token := search.Token{}
+func (e *Export[T]) ToToken(results T) extract.Result {
+	token := extract.Result{}
 
 	if len(results) > 0 {
 		token.SetOK()
-		token.SetTokenizerFunc(func() []map[string]any {
+		token.SetResultsFunc(func() []map[string]any {
 			ret := e.resultsToToken(ExportContext[T]{
 				Rule:    e.rule,
 				Results: results,

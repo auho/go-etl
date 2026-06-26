@@ -1,7 +1,7 @@
 package splitword
 
 import (
-	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 type ExportContext struct {
@@ -9,7 +9,7 @@ type ExportContext struct {
 	Format  Format
 }
 
-var _ search.FieldSpec = (*Export)(nil)
+var _ extract.FieldSpec = (*Export)(nil)
 
 type Export struct {
 	format         Format
@@ -45,12 +45,12 @@ func (e *Export) WithFormat(format Format) *Export {
 	return e
 }
 
-func (e *Export) ToToken(results Results) search.Token {
-	token := search.Token{}
+func (e *Export) ToToken(results Results) extract.Result {
+	token := extract.Result{}
 
 	if len(results) > 0 {
 		token.SetOK()
-		token.SetTokenizerFunc(func() []map[string]any {
+		token.SetResultsFunc(func() []map[string]any {
 			return e.resultsToToken(ExportContext{
 				Results: results,
 				Format:  e.format,

@@ -24,8 +24,8 @@ func TestAllSubMatch(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	token := amm.Do(_content)
-	rets := token.ToToken()
+	token := amm.Search(_content)
+	rets := token.Rows()
 	if len(rets) != 6 {
 		t.Fatal()
 	}
@@ -52,8 +52,8 @@ func TestSubMatchAll(t *testing.T) {
 			t.Fatal()
 		}
 
-		token := sma.Do(_content)
-		rets := token.ToToken()
+		token := sma.Search(_content)
+		rets := token.Rows()
 		if len(rets) != 4 {
 			t.Fatal()
 		}
@@ -77,8 +77,8 @@ func TestSubMatchAll(t *testing.T) {
 			t.Fatal()
 		}
 
-		token := sma.Do(_content)
-		rets := token.ToToken()
+		token := sma.Search(_content)
+		rets := token.Rows()
 		if len(rets) != 1 {
 			t.Fatal()
 		}
@@ -95,8 +95,8 @@ func TestSubMatchAll(t *testing.T) {
 			t.Fatal()
 		}
 
-		token := sma.Do(_content)
-		rets := token.ToToken()
+		token := sma.Search(_content)
+		rets := token.Rows()
 		if len(rets) != 1 {
 			t.Fatal()
 		}
@@ -114,8 +114,8 @@ func TestSubMatchFirst(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	token := smf.Do(_content)
-	rets := token.ToToken()
+	token := smf.Search(_content)
+	rets := token.Rows()
 	if len(rets) != 1 {
 		t.Fatal()
 	}

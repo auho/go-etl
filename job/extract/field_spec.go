@@ -1,4 +1,4 @@
-package search
+package extract
 
 type FieldSpec interface {
 	Keys() []string

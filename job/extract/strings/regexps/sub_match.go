@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/auho/go-etl/v3/job/enrich/search"
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var _ search.Searcher = (*SubMatch)(nil)
+var _ extract.Extractor = (*SubMatch)(nil)
 
 // regexp sub match
 //
@@ -46,11 +45,11 @@ func (r *SubMatch) Prepare() error {
 	return nil
 }
 
-func (r *SubMatch) GenExport() search.FieldSpec {
+func (r *SubMatch) NewExport() extract.FieldSpec {
 	return r.export
 }
 
-func (r *SubMatch) Do(contents []string) search.Token {
+func (r *SubMatch) Search(contents []string) extract.Result {
 	defer func() {
 		if v := recover(); v != nil {
 			panic(fmt.Errorf("do[%#v]", r.expressions))

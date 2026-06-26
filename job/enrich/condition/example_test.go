@@ -2,11 +2,11 @@ package condition
 
 import (
 	"github.com/auho/go-etl/v3/job/enrich/collect"
-	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
 func ExampleNewCondition() {
-	var _search search.Searcher
+	var _search extract.Extractor
 	opt := NewCondition(collect.NewKeys([]string{"a"}), _search)
 
 	_ = opt

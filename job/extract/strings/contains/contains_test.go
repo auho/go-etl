@@ -21,12 +21,12 @@ func TestContainsAll(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		token := c.Do(_content)
+		token := c.Search(_content)
 		if !token.IsOK() {
 			t.Fatal()
 		}
 
-		rets := token.ToToken()
+		rets := token.Rows()
 		if len(rets) != 4 {
 			t.Fatal()
 		}
@@ -49,12 +49,12 @@ func TestContainsAll(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		token := c.Do(_content)
+		token := c.Search(_content)
 		if !token.IsOK() {
 			t.Fatal()
 		}
 
-		rets := token.ToToken()
+		rets := token.Rows()
 		if len(rets) != 1 {
 			t.Fatal()
 		}
@@ -71,12 +71,12 @@ func TestContainsAll(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		token := c.Do(_content)
+		token := c.Search(_content)
 		if !token.IsOK() {
 			t.Fatal()
 		}
 
-		rets := token.ToToken()
+		rets := token.Rows()
 		if len(rets) != 1 {
 			t.Fatal()
 		}
@@ -102,12 +102,12 @@ func TestContainsAny(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			token := c.Do(_content)
+			token := c.Search(_content)
 			if !token.IsOK() {
 				t.Fatal()
 			}
 
-			rets := token.ToToken()
+			rets := token.Rows()
 			if len(rets) != 1 {
 				t.Fatal()
 			}

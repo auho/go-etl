@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v3/job/enrich/search"
+	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var _ search.Searcher = (*SplitWords)(nil)
+var _ extract.Extractor = (*SplitWords)(nil)
 
 type SplitWords struct {
 	sep    string
@@ -26,7 +26,7 @@ func (s *SplitWords) Title() string {
 	return fmt.Sprintf("SplitWords[%s]", s.sep)
 }
 
-func (s *SplitWords) GenExport() search.FieldSpec {
+func (s *SplitWords) NewExport() extract.FieldSpec {
 	return s.export
 }
 
@@ -36,7 +36,7 @@ func (s *SplitWords) Prepare() error {
 	return nil
 }
 
-func (s *SplitWords) Do(contents []string) search.Token {
+func (s *SplitWords) Search(contents []string) extract.Result {
 	var results Results
 	for _, c := range contents {
 		rets := strings.Split(c, s.sep)

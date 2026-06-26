@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v3/job/enrich/search"
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var _ search.Searcher = (*Contains)(nil)
+var _ extract.Extractor = (*Contains)(nil)
 
 type Contains struct {
 	subs   []string
@@ -31,11 +30,11 @@ func (c *Contains) Title() string {
 	return fmt.Sprintf("Contains[%s]", c.export.GetRule().Name())
 }
 
-func (c *Contains) GenExport() search.FieldSpec {
+func (c *Contains) NewExport() extract.FieldSpec {
 	return c.export
 }
 
-func (c *Contains) Do(contents []string) search.Token {
+func (c *Contains) Search(contents []string) extract.Result {
 	rets := c.subMode(contents)
 
 	return c.export.ToToken(rets)

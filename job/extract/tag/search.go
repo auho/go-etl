@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v3/job/enrich/search"
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var _ search.Searcher = (*Search[Results])(nil)
-var _ search.Searcher = (*Search[LabelResults])(nil)
-var _ search.Searcher = (*SearchResults)(nil)
-var _ search.Searcher = (*SearchLabelResults)(nil)
+var _ extract.Extractor = (*Search[Results])(nil)
+var _ extract.Extractor = (*Search[LabelResults])(nil)
+var _ extract.Extractor = (*SearchResults)(nil)
+var _ extract.Extractor = (*SearchLabelResults)(nil)
 
 type SearchResults = Search[Results]
 type SearchLabelResults = Search[LabelResults]
@@ -50,11 +49,11 @@ func (s *Search[T]) Title() string {
 	return fmt.Sprintf("Search{%s:%s}", s.export.GetRule().Name(), strings.Join(s.export.Keys(), ","))
 }
 
-func (s *Search[T]) GenExport() search.FieldSpec {
+func (s *Search[T]) NewExport() extract.FieldSpec {
 	return s.export
 }
 
-func (s *Search[T]) Do(contents []string) search.Token {
+func (s *Search[T]) Search(contents []string) extract.Result {
 	rets := s.searchResultsFun(s.context, contents)
 
 	return s.export.ToToken(rets)

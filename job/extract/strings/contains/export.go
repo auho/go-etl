@@ -3,12 +3,11 @@ package contains
 import (
 	"maps"
 
-	"github.com/auho/go-etl/v3/job/enrich/search"
 	"github.com/auho/go-etl/v3/job/extract"
 	maps2 "github.com/auho/go-etl/v3/tool/mapx"
 )
 
-var _ search.FieldSpec = (*Export)(nil)
+var _ extract.FieldSpec = (*Export)(nil)
 
 type Export struct {
 	rule           extract.Rule
@@ -66,12 +65,12 @@ func (e *Export) Pluck(keys []string) *Export {
 	return e
 }
 
-func (e *Export) ToToken(results Results) search.Token {
-	token := search.Token{}
+func (e *Export) ToToken(results Results) extract.Result {
+	token := extract.Result{}
 
 	if len(results) > 0 {
 		token.SetOK()
-		token.SetTokenizerFunc(func() []map[string]any {
+		token.SetResultsFunc(func() []map[string]any {
 			ret := e.resultsToToken(results, e.rule)
 
 			// for pluck
