@@ -26,9 +26,9 @@ func NewFilter(c collect.Collector, e extract.Extractor) Predicate {
 }
 
 func (f *Filter) OK(item map[string]any) (bool, error) {
-	token, err := f.collector.Search(item, f.extractor)
+	token, err := f.collector.Extract(item, f.extractor)
 	if err != nil {
-		return false, fmt.Errorf("collect.Search: %w", err)
+		return false, fmt.Errorf("collect.Extract: %w", err)
 	}
 
 	return token.IsOK(), nil

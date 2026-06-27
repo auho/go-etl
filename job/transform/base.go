@@ -30,11 +30,11 @@ func (m *base) GenTitle(name string, desc string) string {
 	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.keys, ", ")+"]", desc)
 }
 
-func (m *base) GetKeyContent(key string, item map[string]any) (string, error) {
+func (m *base) Content(key string, item map[string]any) (string, error) {
 	return m.KeyValueToString(key, item)
 }
 
-func (m *base) GetKeysContent(keys []string, item map[string]any) ([]string, error) {
+func (m *base) Contents(keys []string, item map[string]any) ([]string, error) {
 	contents := make([]string, 0)
 	for _, key := range keys {
 		keyValue, err := m.KeyValueToString(key, item)

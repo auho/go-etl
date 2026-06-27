@@ -35,9 +35,9 @@ func (u *Update) Apply(item map[string]any) (map[string]any, error) {
 		return nil, nil
 	}
 
-	token, err := u.collector.Search(item, u.extractor)
+	token, err := u.collector.Extract(item, u.extractor)
 	if err != nil {
-		return nil, fmt.Errorf("collect.Search: %w", err)
+		return nil, fmt.Errorf("collect.Extract: %w", err)
 	}
 	if !token.IsOK() {
 		return nil, nil

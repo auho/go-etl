@@ -35,9 +35,9 @@ func (i *Insert) Apply(item map[string]any) ([]map[string]any, error) {
 		return nil, nil
 	}
 
-	token, err := i.collector.Search(item, i.extractor)
+	token, err := i.collector.Extract(item, i.extractor)
 	if err != nil {
-		return nil, fmt.Errorf("collect.Search: %w", err)
+		return nil, fmt.Errorf("collect.Extract: %w", err)
 	}
 
 	if !token.IsOK() {

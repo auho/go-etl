@@ -7,14 +7,14 @@ import (
 )
 
 // mockCollector implements collect.Collector for testing.
-// Its Search returns a Result whose IsOK reflects the ok field.
+// Its Extract returns a Result whose IsOK reflects the ok field.
 type mockCollector struct {
 	ok bool
 }
 
-func (m *mockCollector) Title() string  { return "mock" }
-func (m *mockCollector) Keys() []string { return nil }
-func (m *mockCollector) Search(item map[string]any, e extract.Extractor) (extract.Result, error) {
+func (m *mockCollector) Title() string                        { return "mock" }
+func (m *mockCollector) SourceKeys() []string                  { return nil }
+func (m *mockCollector) Extract(item map[string]any, e extract.Extractor) (extract.Result, error) {
 	r := extract.Result{}
 	if m.ok {
 		r.SetOK()

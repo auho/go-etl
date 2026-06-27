@@ -9,22 +9,22 @@ import (
 
 type Collector interface {
 	Title() string
-	Keys() []string // for source select data row
-	Search(item map[string]any, e extract.Extractor) (extract.Result, error)
+	SourceKeys() []string // for source select data row
+	Extract(item map[string]any, e extract.Extractor) (extract.Result, error)
 }
 
-type Collect struct{}
+type ContentReader struct{}
 
-func (c *Collect) GetKeyContent(key string, item map[string]any) (string, error) {
+func (c *ContentReader) Content(key string, item map[string]any) (string, error) {
 	s, err := strings.FromAny(item[key])
 	if err != nil {
-		return "", fmt.Errorf("GetKeyContent[%s]: %w", key, err)
+		return "", fmt.Errorf("Content[%s]: %w", key, err)
 	}
 
 	return s, nil
 }
 
-func (c *Collect) GetKeysContent(keys []string, item map[string]any) ([]string, error) {
+func (c *ContentReader) Contents(keys []string, item map[string]any) ([]string, error) {
 	contents := make([]string, 0)
 	for _, key := range keys {
 		keyValue, err := strings.FromAny(item[key])

@@ -5,7 +5,7 @@ import (
 	"github.com/auho/go-etl/v3/job/transform/collect"
 )
 
-func ExampleNewMatcher() {
+func ExampleNewFilter() {
 	var _search extract.Extractor
 	opt := NewFilter(collect.NewKeys([]string{"a"}), _search)
 
