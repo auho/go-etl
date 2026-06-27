@@ -1,6 +1,8 @@
 package transform
 
 import (
+	"fmt"
+
 	"github.com/auho/go-etl/v3/job/extract"
 	"github.com/auho/go-etl/v3/job/transform/collect"
 	"github.com/auho/go-etl/v3/job/transform/filter"
@@ -22,21 +24,24 @@ func NewUpdate(collect collect.Collector, search extract.Extractor, expression f
 	}
 }
 
-func (u *Update) Apply(item map[string]any) map[string]any {
+func (u *Update) Apply(item map[string]any) (map[string]any, error) {
 	u.AddTotal(1)
 
 	if !u.expressionOperation(item) {
-		return nil
+		return nil, nil
 	}
 
-	token := u.collect.Search(item, u.search)
+	token, err := u.collect.Search(item, u.search)
+	if err != nil {
+		return nil, fmt.Errorf("collect.Search: %w", err)
+	}
 	if !token.IsOK() {
-		return nil
+		return nil, nil
 	}
 
 	ret := token.Rows()
 
 	u.AddAmount(int64(len(ret)))
 
-	return ret[0]
+	return ret[0], nil
 }

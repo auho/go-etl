@@ -14,12 +14,12 @@ type mockCollector struct {
 
 func (m *mockCollector) Title() string     { return "mock" }
 func (m *mockCollector) Keys() []string     { return nil }
-func (m *mockCollector) Search(item map[string]any, search extract.Extractor) extract.Result {
+func (m *mockCollector) Search(item map[string]any, search extract.Extractor) (extract.Result, error) {
 	r := extract.Result{}
 	if m.ok {
 		r.SetOK()
 	}
-	return r
+	return r, nil
 }
 
 // mockExtractor implements extract.Extractor for testing.

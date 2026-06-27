@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"fmt"
 	"maps"
 )
 
@@ -29,12 +30,15 @@ func NewInsertCross(is ...*Insert) *InsertCross {
 	}
 }
 
-func (ic *InsertCross) Apply(item map[string]any) []map[string]any {
+func (ic *InsertCross) Apply(item map[string]any) ([]map[string]any, error) {
 	ic.AddTotal(1)
 
 	var _allRet [][]map[string]any
 	for _, m := range ic.is {
-		_ret := m.Apply(item)
+		_ret, err := m.Apply(item)
+		if err != nil {
+			return nil, fmt.Errorf("apply: %w", err)
+		}
 		if _ret == nil {
 			continue
 		}
@@ -73,5 +77,5 @@ func (ic *InsertCross) Apply(item map[string]any) []map[string]any {
 
 	ic.AddAmount(int64(len(rets)))
 
-	return rets
+	return rets, nil
 }

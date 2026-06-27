@@ -145,7 +145,10 @@ func (c *Clean) BeforeRun() error {
 func (c *Clean) Exec(item map[string]any) (bool, error) {
 	_needDeleted := false
 	for _, m := range c.modes {
-		_res := m.Apply(item)
+		_res, err := m.Apply(item)
+		if err != nil {
+			return false, fmt.Errorf("apply: %w", err)
+		}
 		if len(_res) > 0 {
 			_needDeleted = true
 

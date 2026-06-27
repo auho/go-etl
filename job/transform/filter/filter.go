@@ -24,7 +24,10 @@ func NewMatcher(collect collect.Collector, search extract.Extractor) Predicate {
 }
 
 func (c *Matcher) OK(item map[string]any) bool {
-	token := c.collect.Search(item, c.search)
+	token, err := c.collect.Search(item, c.search)
+	if err != nil {
+		return false
+	}
 
 	return token.IsOK()
 }

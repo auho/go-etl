@@ -74,13 +74,16 @@ func (ic *InsertComposeSpread) Prepare() error {
 	return nil
 }
 
-func (ic *InsertComposeSpread) Apply(item map[string]any) []map[string]any {
+func (ic *InsertComposeSpread) Apply(item map[string]any) ([]map[string]any, error) {
 	ic.AddTotal(1)
 
 	_has := false
 	ret := make(map[string]any)
 	for _, m := range ic.operators {
-		_mrt := m.Apply(item)
+		_mrt, err := m.Apply(item)
+		if err != nil {
+			return nil, fmt.Errorf("apply: %w", err)
+		}
 		if len(_mrt) <= 0 {
 			maps.Copy(ret, m.DefaultValues())
 		} else {
@@ -92,9 +95,9 @@ func (ic *InsertComposeSpread) Apply(item map[string]any) []map[string]any {
 	if _has {
 		ic.AddAmount(1)
 
-		return []map[string]any{ret}
+		return []map[string]any{ret}, nil
 	} else {
-		return nil
+		return nil, nil
 	}
 }
 

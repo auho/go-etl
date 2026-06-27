@@ -30,26 +30,29 @@ func (m *base) GenTitle(name string, desc string) string {
 	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.keys, ", ")+"]", desc)
 }
 
-func (m *base) GetKeyContent(key string, item map[string]any) string {
+func (m *base) GetKeyContent(key string, item map[string]any) (string, error) {
 	return m.KeyValueToString(key, item)
 }
 
-func (m *base) GetKeysContent(keys []string, item map[string]any) []string {
+func (m *base) GetKeysContent(keys []string, item map[string]any) ([]string, error) {
 	contents := make([]string, 0)
 	for _, key := range keys {
-		keyValue := m.KeyValueToString(key, item)
+		keyValue, err := m.KeyValueToString(key, item)
+		if err != nil {
+			return nil, err
+		}
 
 		contents = append(contents, keyValue)
 	}
 
-	return contents
+	return contents, nil
 }
 
-func (m *base) KeyValueToString(key string, item map[string]any) string {
+func (m *base) KeyValueToString(key string, item map[string]any) (string, error) {
 	s, err := strings2.FromAny(item[key])
 	if err != nil {
-		panic(fmt.Sprintf("type is not string %T", item[key]))
+		return "", NewErrInvalidType(key, item[key])
 	}
 
-	return s
+	return s, nil
 }

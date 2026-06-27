@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"fmt"
 	"maps"
 )
 
@@ -21,12 +22,15 @@ func NewInsertStack(is ...*Insert) *InsertStack {
 	}
 }
 
-func (is *InsertStack) Apply(item map[string]any) []map[string]any {
+func (is *InsertStack) Apply(item map[string]any) ([]map[string]any, error) {
 	is.AddTotal(1)
 
 	rets := make([]map[string]any, 0)
 	for _, _i := range is.is {
-		ret := _i.Apply(item)
+		ret, err := _i.Apply(item)
+		if err != nil {
+			return nil, fmt.Errorf("apply: %w", err)
+		}
 		if ret == nil {
 			continue
 		}
@@ -41,5 +45,5 @@ func (is *InsertStack) Apply(item map[string]any) []map[string]any {
 
 	is.AddAmount(int64(len(rets)))
 
-	return rets
+	return rets, nil
 }

@@ -50,7 +50,7 @@ func (k *Keys) Keys() []string {
 	return k.keys
 }
 
-func (k *Keys) Search(item map[string]any, searcher extract.Extractor) extract.Result {
+func (k *Keys) Search(item map[string]any, searcher extract.Extractor) (extract.Result, error) {
 	if k.IsAll() {
 		return k.doAll(item, searcher)
 	} else if k.IsAny() {
@@ -60,27 +60,36 @@ func (k *Keys) Search(item map[string]any, searcher extract.Extractor) extract.R
 	}
 }
 
-func (k *Keys) doAll(item map[string]any, searcher extract.Extractor) extract.Result {
+func (k *Keys) doAll(item map[string]any, searcher extract.Extractor) (extract.Result, error) {
 	var contents []string
 	for _, _key := range k.keys {
-		contents = append(contents, k.GetKeyContent(_key, item))
+		content, err := k.GetKeyContent(_key, item)
+		if err != nil {
+			return extract.Result{}, fmt.Errorf("Keys.doAll: %w", err)
+		}
+
+		contents = append(contents, content)
 	}
 
-	return searcher.Search(contents)
+	return searcher.Search(contents), nil
 }
 
-func (k *Keys) doAny(item map[string]any, searcher extract.Extractor) extract.Result {
+func (k *Keys) doAny(item map[string]any, searcher extract.Extractor) (extract.Result, error) {
 	var st extract.Result
 
 	for _, _key := range k.keys {
-		_v := k.GetKeyContent(_key, item)
+		_v, err := k.GetKeyContent(_key, item)
+		if err != nil {
+			return extract.Result{}, fmt.Errorf("GetKeyContent: %w", err)
+		}
+
 		st = searcher.Search([]string{_v})
 		if st.IsOK() {
 			break
 		}
 	}
 
-	return st
+	return st, nil
 }
 
 func (k *Keys) IsAll() bool {

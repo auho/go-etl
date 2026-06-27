@@ -62,7 +62,7 @@ func (tm *Transfer) Prepare() error {
 	return nil
 }
 
-func (tm *Transfer) Apply(item map[string]any) map[string]any {
+func (tm *Transfer) Apply(item map[string]any) (map[string]any, error) {
 	newItem := make(map[string]any)
 	for _, field := range tm.keys {
 		if ka, ok := tm.alias[field]; ok {
@@ -80,7 +80,7 @@ func (tm *Transfer) Apply(item map[string]any) map[string]any {
 		}
 	}
 
-	return newItem
+	return newItem, nil
 }
 
 func (tm *Transfer) Close() error {

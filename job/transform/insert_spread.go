@@ -1,6 +1,9 @@
 package transform
 
-import "maps"
+import (
+	"fmt"
+	"maps"
+)
 
 // InsertSpread
 // 取每个 insert 结果的第一条，进行 spread
@@ -17,13 +20,16 @@ func NewInsertSpread(is ...*Insert) *InsertSpread {
 	}
 }
 
-func (is *InsertSpread) Apply(item map[string]any) []map[string]any {
+func (is *InsertSpread) Apply(item map[string]any) ([]map[string]any, error) {
 	is.AddTotal(1)
 
 	_has := false
 	ret := make(map[string]any, len(is.defaultValues))
 	for _, _i := range is.is {
-		res := _i.Apply(item)
+		res, err := _i.Apply(item)
+		if err != nil {
+			return nil, fmt.Errorf("apply: %w", err)
+		}
 		if res == nil {
 			continue
 		}
@@ -38,8 +44,8 @@ func (is *InsertSpread) Apply(item map[string]any) []map[string]any {
 		_dv := maps.Clone(is.defaultValues)
 		maps.Copy(_dv, ret)
 
-		return []map[string]any{_dv}
+		return []map[string]any{_dv}, nil
 	} else {
-		return nil
+		return nil, nil
 	}
 }

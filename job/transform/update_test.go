@@ -12,7 +12,10 @@ func Test_UpdateMode(t *testing.T) {
 	_mu.Prepare()
 	defer _mu.Close()
 
-	results := _mu.Apply(_item)
+	results, err := _mu.Apply(_item)
+	if err != nil {
+		t.Fatal("update most text", err)
+	}
 	if len(results) <= 0 {
 		t.Error("update most text error")
 	}
@@ -21,7 +24,10 @@ func Test_UpdateMode(t *testing.T) {
 	_mu2.Prepare()
 	defer _mu2.Close()
 
-	results2 := _mu2.Apply(_item)
+	results2, err := _mu2.Apply(_item)
+	if err != nil {
+		t.Fatal("update most key", err)
+	}
 	if len(results2) <= 0 {
 		t.Error("update most key error")
 	}

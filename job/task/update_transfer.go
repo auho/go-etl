@@ -106,7 +106,10 @@ func (u *UpdateTransfer) BeforeRun() error { return nil }
 func (u *UpdateTransfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
 	_does := make(map[string]any)
 	for _, m := range u.modes {
-		_do := m.Apply(item)
+		_do, err := m.Apply(item)
+		if err != nil {
+			return nil, false, fmt.Errorf("apply: %w", err)
+		}
 		for k, v := range _do {
 			_does[k] = v
 		}

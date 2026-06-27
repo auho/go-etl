@@ -17,7 +17,10 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeKeys", err)
 	}
 
-	retKeys := _modeKeys.Apply(_item)
+	retKeys, err := _modeKeys.Apply(_item)
+	if err != nil {
+		t.Fatal("retKeys", err)
+	}
 	if len(retKeys) <= 0 {
 		t.Error("error")
 	}
@@ -31,7 +34,10 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeMostText", err)
 	}
 
-	retMostText := _modeMostText.Apply(_item)
+	retMostText, err := _modeMostText.Apply(_item)
+	if err != nil {
+		t.Fatal("retMostText", err)
+	}
 	if len(retMostText) <= 0 {
 		t.Error("error")
 	}
@@ -44,7 +50,10 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeMostKey", err)
 	}
 
-	retMostKey := _modeMostKey.Apply(_item)
+	retMostKey, err := _modeMostKey.Apply(_item)
+	if err != nil {
+		t.Fatal("retMostKey", err)
+	}
 	if len(retMostKey) <= 0 {
 		t.Error("error")
 	}
@@ -57,7 +66,10 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeSegWords", err)
 	}
 
-	retSegWords := _modeSegWords.Apply(_item)
+	retSegWords, err := _modeSegWords.Apply(_item)
+	if err != nil {
+		t.Fatal("retSegWords", err)
+	}
 	if len(retSegWords) <= 0 {
 		t.Error("error")
 	}
@@ -70,7 +82,10 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeInsertStack", err)
 	}
 
-	retStack := _modeInsertStack.Apply(_item)
+	retStack, err := _modeInsertStack.Apply(_item)
+	if err != nil {
+		t.Fatal("retStack", err)
+	}
 	if len(retStack) <= 0 {
 		t.Error("error")
 	}
@@ -109,7 +124,10 @@ func Test_InsertMode(t *testing.T) {
 		t.Fatal("_modeInsertCross", err)
 	}
 
-	retCross := _modeInsertCross.Apply(_item)
+	retCross, err := _modeInsertCross.Apply(_item)
+	if err != nil {
+		t.Fatal("retCross", err)
+	}
 	if len(retCross) <= 0 {
 		t.Error("error")
 	}
@@ -149,7 +167,10 @@ func Test_InsertMode(t *testing.T) {
 		t.Error("error")
 	}
 
-	retSpread := _modeInsertSpread.Apply(_item)
+	retSpread, err := _modeInsertSpread.Apply(_item)
+	if err != nil {
+		t.Fatal("retSpread", err)
+	}
 	if len(retSpread) <= 0 {
 		t.Error("insert spread error")
 	}

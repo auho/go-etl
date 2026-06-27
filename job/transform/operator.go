@@ -9,14 +9,14 @@ type Operator interface {
 
 type SingleOperator interface {
 	Operator
-	Apply(map[string]any) map[string]any
+	Apply(map[string]any) (map[string]any, error)
 }
 
 type InsertOperator interface {
 	Operator
 	Keys() []string                // 处理后的 key name
 	DefaultValues() map[string]any // 需要 implement clone important!
-	Apply(map[string]any) []map[string]any
+	Apply(map[string]any) ([]map[string]any, error)
 	State() []string
 }
 
