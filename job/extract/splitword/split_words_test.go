@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-func TestMeans(t *testing.T) {
+func TestSplitWords(t *testing.T) {
 	content := "1,2,3,4,5,6,7,8,9"
 
 	t.Run("all", func(t *testing.T) {

@@ -8,7 +8,6 @@ import (
 var _ InsertOperator = (*InsertCross)(nil)
 
 // InsertCross
-// cross means 交叉
 //
 // 1，2
 // 3，4

@@ -300,8 +300,8 @@ func TestExport_WithFormat(t *testing.T) {
 		t.Fatalf("ToLine should return 1 row, got %d", len(rows))
 	}
 
-	// WithKeywordAmount=false means keyword text has no amount suffix
-	// Sep="|" means keywords are joined by |
+	// WithKeywordAmount=false: keyword text has no amount suffix
+	// Sep="|": keywords are joined by |
 	keywordValue, ok := rows[0][rule.KeywordNameAlias()].(string)
 	if !ok {
 		t.Fatalf("expected string for %s, got %T", rule.KeywordNameAlias(), rows[0][rule.KeywordNameAlias()])
@@ -334,7 +334,7 @@ func TestExport_EmptyResults(t *testing.T) {
 	}
 }
 
-// TestExport_AllEntryFunctions tests all means.go entry functions
+// TestExport_AllEntryFunctions tests all entry.go entry functions
 func TestExport_AllEntryFunctions(t *testing.T) {
 	rule := &ruleTest{}
 
@@ -390,7 +390,7 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 }
 
 // TestExport_ExtraSearchFunctions tests NewSearchLastText and NewSearchLastKey
-// which are not covered by means.go entry functions
+// which are not covered by entry.go entry functions
 func TestExport_ExtraSearchFunctions(t *testing.T) {
 	rule := &ruleTest{}
 
