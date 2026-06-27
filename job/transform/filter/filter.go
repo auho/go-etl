@@ -1,39 +1,41 @@
 package filter
 
 import (
+	"fmt"
+
 	"github.com/auho/go-etl/v3/job/extract"
 	"github.com/auho/go-etl/v3/job/transform/collect"
 )
 
-var _ Spec = (*Matcher)(nil)
+var _ Spec = (*Filter)(nil)
 
 type Spec interface {
-	OK(map[string]any) bool
+	OK(map[string]any) (bool, error)
 	ToPredicate() Predicate
 }
 
-type Matcher struct {
-	collect collect.Collector
-	search  extract.Extractor
+type Filter struct {
+	collector collect.Collector
+	extractor extract.Extractor
 }
 
-func NewMatcher(collect collect.Collector, search extract.Extractor) Predicate {
-	c := &Matcher{collect: collect, search: search}
+func NewFilter(c collect.Collector, e extract.Extractor) Predicate {
+	f := &Filter{collector: c, extractor: e}
 
-	return c.ToPredicate()
+	return f.ToPredicate()
 }
 
-func (c *Matcher) OK(item map[string]any) bool {
-	token, err := c.collect.Search(item, c.search)
+func (f *Filter) OK(item map[string]any) (bool, error) {
+	token, err := f.collector.Search(item, f.extractor)
 	if err != nil {
-		return false
+		return false, fmt.Errorf("collect.Search: %w", err)
 	}
 
-	return token.IsOK()
+	return token.IsOK(), nil
 }
 
-func (c *Matcher) ToPredicate() Predicate {
-	return func(m map[string]any) bool {
-		return c.OK(m)
+func (f *Filter) ToPredicate() Predicate {
+	return func(m map[string]any) (bool, error) {
+		return f.OK(m)
 	}
 }

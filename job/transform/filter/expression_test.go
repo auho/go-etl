@@ -5,14 +5,14 @@ import (
 )
 
 var opInt = func(i int) Predicate {
-	return func(m map[string]any) bool {
-		return m["int"] == i
+	return func(m map[string]any) (bool, error) {
+		return m["int"] == i, nil
 	}
 }
 
 var opString = func(s string) Predicate {
-	return func(m map[string]any) bool {
-		return m["string"] == s
+	return func(m map[string]any) (bool, error) {
+		return m["string"] == s, nil
 	}
 }
 
@@ -25,22 +25,38 @@ func TestNewAND(t *testing.T) {
 	var a AND
 
 	a = NewAND(opInt(1), opString("1"))
-	if !a.OK(_item) {
+	ok, err := a.OK(_item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal()
 	}
 
 	a = NewAND(opInt(1), opString("2"))
-	if a.OK(_item) {
+	ok, err = a.OK(_item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal()
 	}
 
 	a = NewAND(opInt(2), opString("1"))
-	if a.OK(_item) {
+	ok, err = a.OK(_item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal()
 	}
 
 	a = NewAND(opInt(2), opString("2"))
-	if a.OK(_item) {
+	ok, err = a.OK(_item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal()
 	}
 }
@@ -54,22 +70,38 @@ func TestNewOR(t *testing.T) {
 	var o OR
 
 	o = NewOR(opInt(1), opString("1"))
-	if !o.OK(_item) {
+	ok, err := o.OK(_item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal()
 	}
 
 	o = NewOR(opInt(1), opString("2"))
-	if !o.OK(_item) {
+	ok, err = o.OK(_item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal()
 	}
 
 	o = NewOR(opInt(2), opString("1"))
-	if !o.OK(_item) {
+	ok, err = o.OK(_item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal()
 	}
 
 	o = NewOR(opInt(2), opString("2"))
-	if o.OK(_item) {
+	ok, err = o.OK(_item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal()
 	}
 }

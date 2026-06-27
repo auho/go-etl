@@ -10,7 +10,7 @@ import (
 type Collector interface {
 	Title() string
 	Keys() []string // for source select data row
-	Search(item map[string]any, search extract.Extractor) (extract.Result, error)
+	Search(item map[string]any, e extract.Extractor) (extract.Result, error)
 }
 
 type Collect struct{}

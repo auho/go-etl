@@ -14,24 +14,28 @@ type Insert struct {
 	*Pipeline
 }
 
-func newInsertFromPipeline(e *Pipeline) *Insert {
-	return NewInsert(e.collect, e.search, e.condition)
+func newInsertFromPipeline(p *Pipeline) *Insert {
+	return NewInsert(p.collector, p.extractor, p.predicate)
 }
 
-func NewInsert(collect collect.Collector, search extract.Extractor, expression filter.Predicate) *Insert {
+func NewInsert(c collect.Collector, e extract.Extractor, p filter.Predicate) *Insert {
 	return &Insert{
-		Pipeline: newPipeline(collect, search, expression),
+		Pipeline: newPipeline(c, e, p),
 	}
 }
 
 func (i *Insert) Apply(item map[string]any) ([]map[string]any, error) {
 	i.AddTotal(1)
 
-	if !i.expressionOperation(item) {
+	ok, err := i.expressionOperation(item)
+	if err != nil {
+		return nil, fmt.Errorf("expressionOperation: %w", err)
+	}
+	if !ok {
 		return nil, nil
 	}
 
-	token, err := i.collect.Search(item, i.search)
+	token, err := i.collector.Search(item, i.extractor)
 	if err != nil {
 		return nil, fmt.Errorf("collect.Search: %w", err)
 	}

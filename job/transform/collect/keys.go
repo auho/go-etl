@@ -50,17 +50,17 @@ func (k *Keys) Keys() []string {
 	return k.keys
 }
 
-func (k *Keys) Search(item map[string]any, searcher extract.Extractor) (extract.Result, error) {
+func (k *Keys) Search(item map[string]any, e extract.Extractor) (extract.Result, error) {
 	if k.IsAll() {
-		return k.doAll(item, searcher)
+		return k.doAll(item, e)
 	} else if k.IsAny() {
-		return k.doAny(item, searcher)
+		return k.doAny(item, e)
 	} else {
 		panic("way unknown")
 	}
 }
 
-func (k *Keys) doAll(item map[string]any, searcher extract.Extractor) (extract.Result, error) {
+func (k *Keys) doAll(item map[string]any, e extract.Extractor) (extract.Result, error) {
 	var contents []string
 	for _, _key := range k.keys {
 		content, err := k.GetKeyContent(_key, item)
@@ -71,10 +71,10 @@ func (k *Keys) doAll(item map[string]any, searcher extract.Extractor) (extract.R
 		contents = append(contents, content)
 	}
 
-	return searcher.Search(contents), nil
+	return e.Search(contents), nil
 }
 
-func (k *Keys) doAny(item map[string]any, searcher extract.Extractor) (extract.Result, error) {
+func (k *Keys) doAny(item map[string]any, e extract.Extractor) (extract.Result, error) {
 	var st extract.Result
 
 	for _, _key := range k.keys {
@@ -83,7 +83,7 @@ func (k *Keys) doAny(item map[string]any, searcher extract.Extractor) (extract.R
 			return extract.Result{}, fmt.Errorf("GetKeyContent: %w", err)
 		}
 
-		st = searcher.Search([]string{_v})
+		st = e.Search([]string{_v})
 		if st.IsOK() {
 			break
 		}

@@ -14,24 +14,28 @@ type Update struct {
 	*Pipeline
 }
 
-func newUpdateFromPipeline(e *Pipeline) *Update {
-	return NewUpdate(e.collect, e.search, e.condition)
+func newUpdateFromPipeline(p *Pipeline) *Update {
+	return NewUpdate(p.collector, p.extractor, p.predicate)
 }
 
-func NewUpdate(collect collect.Collector, search extract.Extractor, expression filter.Predicate) *Update {
+func NewUpdate(c collect.Collector, e extract.Extractor, p filter.Predicate) *Update {
 	return &Update{
-		Pipeline: newPipeline(collect, search, expression),
+		Pipeline: newPipeline(c, e, p),
 	}
 }
 
 func (u *Update) Apply(item map[string]any) (map[string]any, error) {
 	u.AddTotal(1)
 
-	if !u.expressionOperation(item) {
+	ok, err := u.expressionOperation(item)
+	if err != nil {
+		return nil, fmt.Errorf("expressionOperation: %w", err)
+	}
+	if !ok {
 		return nil, nil
 	}
 
-	token, err := u.collect.Search(item, u.search)
+	token, err := u.collector.Search(item, u.extractor)
 	if err != nil {
 		return nil, fmt.Errorf("collect.Search: %w", err)
 	}

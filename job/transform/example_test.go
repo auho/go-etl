@@ -1,22 +1,22 @@
 package transform
 
 import (
+	"github.com/auho/go-etl/v3/job/extract/match"
 	"github.com/auho/go-etl/v3/job/transform/collect"
 	"github.com/auho/go-etl/v3/job/transform/filter"
-	"github.com/auho/go-etl/v3/job/extract/match"
 )
 
 func ExampleNewPipeline() {
 	insert := NewPipeline().
-		SetCollect(collect.NewKeys([]string{_keyName})).
-		SetSearch(match.NewKey(_rule)).
-		SetCondition(filter.NewContainsAll("a", []string{"a1", "a2"})).
+		SetCollector(collect.NewKeys([]string{_keyName})).
+		SetExtractor(match.NewKey(_rule)).
+		SetPredicate(filter.NewContainsAll("a", []string{"a1", "a2"})).
 		ToInsert()
 
 	update := NewPipeline().
-		SetCollect(collect.NewKeys([]string{_keyName})).
-		SetSearch(match.NewKey(_rule)).
-		SetCondition(filter.NewContainsAll("a", []string{"a1", "a2"})).
+		SetCollector(collect.NewKeys([]string{_keyName})).
+		SetExtractor(match.NewKey(_rule)).
+		SetPredicate(filter.NewContainsAll("a", []string{"a1", "a2"})).
 		ToUpdate()
 
 	_ = insert

@@ -12,9 +12,9 @@ import (
 type Pipeline struct {
 	base
 
-	collect   collect.Collector
-	search    extract.Extractor
-	condition filter.Predicate
+	collector collect.Collector
+	extractor extract.Extractor
+	predicate filter.Predicate
 
 	hasExpression bool
 	defaultValues map[string]any
@@ -24,81 +24,81 @@ func NewPipeline() *Pipeline {
 	return &Pipeline{}
 }
 
-func newPipeline(collect collect.Collector, search extract.Extractor, operation filter.Predicate) *Pipeline {
+func newPipeline(c collect.Collector, e extract.Extractor, p filter.Predicate) *Pipeline {
 	return &Pipeline{
-		collect:   collect,
-		search:    search,
-		condition: operation,
+		collector: c,
+		extractor: e,
+		predicate: p,
 	}
 }
 
-func (e *Pipeline) expressionOperation(item map[string]any) bool {
-	if !e.hasExpression {
-		return true
+func (p *Pipeline) expressionOperation(item map[string]any) (bool, error) {
+	if !p.hasExpression {
+		return true, nil
 	}
 
-	return e.condition(item)
+	return p.predicate(item)
 }
 
-func (e *Pipeline) Title() string {
-	return e.GenTitle(e.collect.Title(), e.search.Title())
+func (p *Pipeline) Title() string {
+	return p.GenTitle(p.collector.Title(), p.extractor.Title())
 }
 
-func (e *Pipeline) GetFields() []string {
-	return e.collect.Keys()
+func (p *Pipeline) GetFields() []string {
+	return p.collector.Keys()
 }
 
-func (e *Pipeline) Keys() []string {
-	return e.search.NewExport().Keys()
+func (p *Pipeline) Keys() []string {
+	return p.extractor.NewExport().Keys()
 }
 
-func (e *Pipeline) DefaultValues() map[string]any {
-	return maps.Clone(e.defaultValues)
+func (p *Pipeline) DefaultValues() map[string]any {
+	return maps.Clone(p.defaultValues)
 }
 
-func (e *Pipeline) Prepare() error {
-	err := e.search.Prepare()
+func (p *Pipeline) Prepare() error {
+	err := p.extractor.Prepare()
 	if err != nil {
 		return err
 	}
 
-	if e.condition != nil {
-		e.hasExpression = true
+	if p.predicate != nil {
+		p.hasExpression = true
 	}
 
-	e.defaultValues = e.search.NewExport().DefaultValues()
+	p.defaultValues = p.extractor.NewExport().DefaultValues()
 
 	return nil
 }
 
-func (e *Pipeline) Close() error { return nil }
+func (p *Pipeline) Close() error { return nil }
 
-func (e *Pipeline) State() []string {
-	return []string{fmt.Sprintf("%s: %s", e.Title(), e.GenCounter())}
+func (p *Pipeline) State() []string {
+	return []string{fmt.Sprintf("%s: %s", p.Title(), p.GenCounter())}
 }
 
-func (e *Pipeline) SetCollect(collect collect.Collector) *Pipeline {
-	e.collect = collect
+func (p *Pipeline) SetCollector(c collect.Collector) *Pipeline {
+	p.collector = c
 
-	return e
+	return p
 }
 
-func (e *Pipeline) SetSearch(search extract.Extractor) *Pipeline {
-	e.search = search
+func (p *Pipeline) SetExtractor(e extract.Extractor) *Pipeline {
+	p.extractor = e
 
-	return e
+	return p
 }
 
-func (e *Pipeline) SetCondition(operation filter.Predicate) *Pipeline {
-	e.condition = operation
+func (p *Pipeline) SetPredicate(predicate filter.Predicate) *Pipeline {
+	p.predicate = predicate
 
-	return e
+	return p
 }
 
-func (e *Pipeline) ToInsert() *Insert {
-	return newInsertFromPipeline(e)
+func (p *Pipeline) ToInsert() *Insert {
+	return newInsertFromPipeline(p)
 }
 
-func (e *Pipeline) ToUpdate() *Update {
-	return newUpdateFromPipeline(e)
+func (p *Pipeline) ToUpdate() *Update {
+	return newUpdateFromPipeline(p)
 }

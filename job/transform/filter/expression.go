@@ -1,9 +1,11 @@
 package filter
 
+import "fmt"
+
 var _ Spec = (*AND)(nil)
 var _ Spec = (*OR)(nil)
 
-type Predicate func(map[string]any) bool
+type Predicate func(map[string]any) (bool, error)
 
 type Expression []Predicate
 
@@ -16,18 +18,22 @@ func NewAND(ops ...Predicate) AND {
 	return a
 }
 
-func (a AND) OK(item map[string]any) bool {
+func (a AND) OK(item map[string]any) (bool, error) {
 	for _, op := range a {
-		if !op(item) {
-			return false
+		ok, err := op(item)
+		if err != nil {
+			return false, fmt.Errorf("AND.OK: %w", err)
+		}
+		if !ok {
+			return false, nil
 		}
 	}
 
-	return true
+	return true, nil
 }
 
 func (a AND) ToPredicate() Predicate {
-	return func(m map[string]any) bool {
+	return func(m map[string]any) (bool, error) {
 		return a.OK(m)
 	}
 }
@@ -41,18 +47,22 @@ func NewOR(ops ...Predicate) OR {
 	return o
 }
 
-func (o OR) OK(item map[string]any) bool {
+func (o OR) OK(item map[string]any) (bool, error) {
 	for _, op := range o {
-		if op(item) {
-			return true
+		ok, err := op(item)
+		if err != nil {
+			return false, fmt.Errorf("OR.OK: %w", err)
+		}
+		if ok {
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 func (o OR) ToPredicate() Predicate {
-	return func(m map[string]any) bool {
+	return func(m map[string]any) (bool, error) {
 		return o.OK(m)
 	}
 }

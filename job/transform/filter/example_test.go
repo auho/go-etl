@@ -7,7 +7,7 @@ import (
 
 func ExampleNewMatcher() {
 	var _search extract.Extractor
-	opt := NewMatcher(collect.NewKeys([]string{"a"}), _search)
+	opt := NewFilter(collect.NewKeys([]string{"a"}), _search)
 
 	_ = opt
 }
@@ -26,10 +26,10 @@ func ExampleNewContainsAny() {
 
 func ExampleNewAND() {
 	opt := NewAND(
-		func(m map[string]any) bool {
-			return m["a"] == 1
-		}, func(m map[string]any) bool {
-			return m["b"] == 2
+		func(m map[string]any) (bool, error) {
+			return m["a"] == 1, nil
+		}, func(m map[string]any) (bool, error) {
+			return m["b"] == 2, nil
 		},
 	).ToPredicate()
 
@@ -38,10 +38,10 @@ func ExampleNewAND() {
 
 func ExampleNewOR() {
 	opt := NewOR(
-		func(m map[string]any) bool {
-			return m["a"] == 1
-		}, func(m map[string]any) bool {
-			return m["b"] == 2
+		func(m map[string]any) (bool, error) {
+			return m["a"] == 1, nil
+		}, func(m map[string]any) (bool, error) {
+			return m["b"] == 2, nil
 		},
 	).ToPredicate()
 

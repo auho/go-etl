@@ -8,22 +8,38 @@ func TestNewContainsAll(t *testing.T) {
 	pred := NewContainsAll("a", []string{"a1", "a2"})
 
 	// all subs present
-	if !pred(map[string]any{"a": "a1a2"}) {
+	ok, err := pred(map[string]any{"a": "a1a2"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal("expected true for all subs present")
 	}
 
 	// partial sub present
-	if pred(map[string]any{"a": "a1"}) {
+	ok, err = pred(map[string]any{"a": "a1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal("expected false for partial subs")
 	}
 
 	// no sub present
-	if pred(map[string]any{"a": "b"}) {
+	ok, err = pred(map[string]any{"a": "b"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal("expected false for no subs")
 	}
 
 	// empty string value
-	if pred(map[string]any{"a": ""}) {
+	ok, err = pred(map[string]any{"a": ""})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal("expected false for empty string")
 	}
 }
@@ -31,7 +47,11 @@ func TestNewContainsAll(t *testing.T) {
 func TestNewContainsAll_EmptySubs(t *testing.T) {
 	// empty subs -> loop does not execute -> true
 	pred := NewContainsAll("a", []string{})
-	if !pred(map[string]any{"a": "anything"}) {
+	ok, err := pred(map[string]any{"a": "anything"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal("expected true for empty subs")
 	}
 }
@@ -39,77 +59,99 @@ func TestNewContainsAll_EmptySubs(t *testing.T) {
 func TestNewContainsAll_NonStringType(t *testing.T) {
 	// int value is converted to string then checked
 	pred := NewContainsAll("a", []string{"12"})
-	if !pred(map[string]any{"a": 123}) {
+	ok, err := pred(map[string]any{"a": 123})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal("expected true for int value containing sub")
 	}
 
 	// int value not containing sub
-	if pred(map[string]any{"a": 456}) {
+	ok, err = pred(map[string]any{"a": 456})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal("expected false for int value not containing sub")
 	}
 }
 
-func TestNewContainsAll_PanicOnNilMap(t *testing.T) {
-	// nil map -> m[key] is nil -> FromAny(nil) errors -> panic
+func TestNewContainsAll_ErrorOnNilMap(t *testing.T) {
+	// nil map -> m[key] is nil -> FromAny(nil) errors -> return error
 	pred := NewContainsAll("a", []string{"a1"})
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatal("expected panic for nil map")
-		}
-	}()
-	pred(nil)
+	_, err := pred(nil)
+	if err == nil {
+		t.Fatal("expected error for nil map")
+	}
 }
 
-func TestNewContainsAll_PanicOnMissingKey(t *testing.T) {
-	// missing key -> m[key] is nil -> FromAny(nil) errors -> panic
+func TestNewContainsAll_ErrorOnMissingKey(t *testing.T) {
+	// missing key -> m[key] is nil -> FromAny(nil) errors -> return error
 	pred := NewContainsAll("a", []string{"a1"})
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatal("expected panic for missing key")
-		}
-	}()
-	pred(map[string]any{"b": "x"})
+	_, err := pred(map[string]any{"b": "x"})
+	if err == nil {
+		t.Fatal("expected error for missing key")
+	}
 }
 
-func TestNewContainsAll_PanicOnUnsupportedType(t *testing.T) {
-	// bool is not supported by FromAny -> panic
+func TestNewContainsAll_ErrorOnUnsupportedType(t *testing.T) {
+	// bool is not supported by FromAny -> return error
 	pred := NewContainsAll("a", []string{"a1"})
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatal("expected panic for unsupported type")
-		}
-	}()
-	pred(map[string]any{"a": true})
+	_, err := pred(map[string]any{"a": true})
+	if err == nil {
+		t.Fatal("expected error for unsupported type")
+	}
 }
 
 func TestNewContainsAny(t *testing.T) {
 	pred := NewContainsAny("a", []string{"a1", "a2"})
 
 	// first sub present
-	if !pred(map[string]any{"a": "a1b"}) {
+	ok, err := pred(map[string]any{"a": "a1b"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal("expected true for first sub present")
 	}
 
 	// second sub present
-	if !pred(map[string]any{"a": "ba2"}) {
+	ok, err = pred(map[string]any{"a": "ba2"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal("expected true for second sub present")
 	}
 
 	// both subs present
-	if !pred(map[string]any{"a": "a1a2"}) {
+	ok, err = pred(map[string]any{"a": "a1a2"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal("expected true for both subs present")
 	}
 
 	// no sub present
-	if pred(map[string]any{"a": "b"}) {
+	ok, err = pred(map[string]any{"a": "b"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal("expected false for no subs present")
 	}
 
 	// empty string value
-	if pred(map[string]any{"a": ""}) {
+	ok, err = pred(map[string]any{"a": ""})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal("expected false for empty string")
 	}
 }
@@ -117,7 +159,11 @@ func TestNewContainsAny(t *testing.T) {
 func TestNewContainsAny_EmptySubs(t *testing.T) {
 	// empty subs -> loop does not execute -> false
 	pred := NewContainsAny("a", []string{})
-	if pred(map[string]any{"a": "anything"}) {
+	ok, err := pred(map[string]any{"a": "anything"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal("expected false for empty subs")
 	}
 }
@@ -125,36 +171,40 @@ func TestNewContainsAny_EmptySubs(t *testing.T) {
 func TestNewContainsAny_NonStringType(t *testing.T) {
 	// int value is converted to string then checked
 	pred := NewContainsAny("a", []string{"12"})
-	if !pred(map[string]any{"a": 123}) {
+	ok, err := pred(map[string]any{"a": 123})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
 		t.Fatal("expected true for int value containing sub")
 	}
 
 	// int value not containing sub
-	if pred(map[string]any{"a": 456}) {
+	ok, err = pred(map[string]any{"a": 456})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
 		t.Fatal("expected false for int value not containing sub")
 	}
 }
 
-func TestNewContainsAny_PanicOnNilMap(t *testing.T) {
-	// nil map -> m[key] is nil -> FromAny(nil) errors -> panic
+func TestNewContainsAny_ErrorOnNilMap(t *testing.T) {
+	// nil map -> m[key] is nil -> FromAny(nil) errors -> return error
 	pred := NewContainsAny("a", []string{"a1"})
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatal("expected panic for nil map")
-		}
-	}()
-	pred(nil)
+	_, err := pred(nil)
+	if err == nil {
+		t.Fatal("expected error for nil map")
+	}
 }
 
-func TestNewContainsAny_PanicOnMissingKey(t *testing.T) {
-	// missing key -> m[key] is nil -> FromAny(nil) errors -> panic
+func TestNewContainsAny_ErrorOnMissingKey(t *testing.T) {
+	// missing key -> m[key] is nil -> FromAny(nil) errors -> return error
 	pred := NewContainsAny("a", []string{"a1"})
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatal("expected panic for missing key")
-		}
-	}()
-	pred(map[string]any{"b": "x"})
+	_, err := pred(map[string]any{"b": "x"})
+	if err == nil {
+		t.Fatal("expected error for missing key")
+	}
 }
