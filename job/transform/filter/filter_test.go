@@ -12,8 +12,8 @@ type mockCollector struct {
 	ok bool
 }
 
-func (m *mockCollector) Title() string                        { return "mock" }
-func (m *mockCollector) SourceKeys() []string                  { return nil }
+func (m *mockCollector) Title() string  { return "mock" }
+func (m *mockCollector) Keys() []string { return nil }
 func (m *mockCollector) Extract(item map[string]any, e extract.Extractor) (extract.Result, error) {
 	r := extract.Result{}
 	if m.ok {
@@ -33,7 +33,7 @@ func (m *mockExtractor) NewExport() extract.FieldSpec            { return nil }
 func (m *mockExtractor) Search(contents []string) extract.Result { return extract.Result{} }
 func (m *mockExtractor) Close() error                            { return nil }
 
-func TestNewMatcher(t *testing.T) {
+func TestNewFilter(t *testing.T) {
 	// collector reports OK
 	pred := NewFilter(&mockCollector{ok: true}, &mockExtractor{})
 	ok, err := pred(map[string]any{"a": 1})
@@ -55,7 +55,7 @@ func TestNewMatcher(t *testing.T) {
 	}
 }
 
-func TestMatcher_OK(t *testing.T) {
+func TestFilter_OK(t *testing.T) {
 	m := &Filter{collector: &mockCollector{ok: true}, extractor: &mockExtractor{}}
 	ok, err := m.OK(map[string]any{"a": 1})
 	if err != nil {
@@ -75,7 +75,7 @@ func TestMatcher_OK(t *testing.T) {
 	}
 }
 
-func TestMatcher_ToPredicate(t *testing.T) {
+func TestFilter_ToPredicate(t *testing.T) {
 	m := &Filter{collector: &mockCollector{ok: true}, extractor: &mockExtractor{}}
 	pred := m.ToPredicate()
 	ok, err := pred(map[string]any{"a": 1})

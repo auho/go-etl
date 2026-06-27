@@ -5,9 +5,7 @@ import "fmt"
 var _ Spec = (*AND)(nil)
 var _ Spec = (*OR)(nil)
 
-type Predicate func(map[string]any) (bool, error)
-
-type Expression []Predicate
+type Expression = []Predicate
 
 type AND Expression
 

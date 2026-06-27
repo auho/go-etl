@@ -9,7 +9,7 @@ import (
 
 type Collector interface {
 	Title() string
-	SourceKeys() []string // for source select data row
+	Keys() []string // for source select data row
 	Extract(item map[string]any, e extract.Extractor) (extract.Result, error)
 }
 
@@ -18,7 +18,7 @@ type ContentReader struct{}
 func (c *ContentReader) Content(key string, item map[string]any) (string, error) {
 	s, err := strings.FromAny(item[key])
 	if err != nil {
-		return "", fmt.Errorf("Content[%s]: %w", key, err)
+		return "", fmt.Errorf("FromAny[%s]%T: %w", key, item[key], err)
 	}
 
 	return s, nil
@@ -29,7 +29,7 @@ func (c *ContentReader) Contents(keys []string, item map[string]any) ([]string, 
 	for _, key := range keys {
 		keyValue, err := strings.FromAny(item[key])
 		if err != nil {
-			return nil, fmt.Errorf("FromAny[%s]: %w", key, err)
+			return nil, fmt.Errorf("FromAny[%s]%T: %w", key, item[key], err)
 		}
 
 		contents = append(contents, keyValue)

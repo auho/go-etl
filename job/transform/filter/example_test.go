@@ -7,7 +7,7 @@ import (
 
 func ExampleNewFilter() {
 	var _search extract.Extractor
-	opt := NewFilter(collect.NewKeys([]string{"a"}), _search)
+	opt := NewFilter(collect.NewKeysAll([]string{"a"}), _search)
 
 	_ = opt
 }

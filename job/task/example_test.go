@@ -34,7 +34,7 @@ func (_ _cleanResource) Data() job.Table    { return &_jobTarget{} }
 func (_ _cleanResource) Deleted() job.Table { return &_jobTarget{} }
 
 func ExampleNewClean() {
-	_mode := transform.NewUpdate(collect.NewKeys([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
+	_mode := transform.NewUpdate(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
 	_ = NewClean(
 		&_cleanResource{},
 		[]transform.UpdateOperator{_mode},
@@ -50,15 +50,15 @@ func ExampleNewClean() {
 
 func ExampleNewInsert() {
 
-	_mode := transform.NewInsert(collect.NewKeys([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
-	_insMulti1 := transform.NewInsert(collect.NewKeys([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
-	_insMulti2 := transform.NewInsert(collect.NewKeys([]string{"key1", "key2"}), tag.NewLabel(_ruler), nil)
+	_mode := transform.NewInsert(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
+	_insMulti1 := transform.NewInsert(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
+	_insMulti2 := transform.NewInsert(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewLabel(_ruler), nil)
 	_modeMulti := transform.NewInsertStack(_insMulti1, _insMulti2)
-	_insCross1 := transform.NewInsert(collect.NewKeys([]string{"key1", "key2"}), tag.NewMostKey(_ruler), nil)
-	_insCross2 := transform.NewInsert(collect.NewKeys([]string{"key1", "key2"}), tag.NewMostText(_ruler), nil)
+	_insCross1 := transform.NewInsert(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewMostKey(_ruler), nil)
+	_insCross2 := transform.NewInsert(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewMostText(_ruler), nil)
 	_modeCross := transform.NewInsertCross(_insCross1, _insCross2)
-	_insSpread1 := transform.NewInsert(collect.NewKeys([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
-	_insSpread2 := transform.NewInsert(collect.NewKeys([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
+	_insSpread1 := transform.NewInsert(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
+	_insSpread2 := transform.NewInsert(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
 	_modeSpread := transform.NewInsertSpread(_insSpread1, _insSpread2)
 
 	_ = NewInsert(&_jobTarget{}, _mode, WithInsertConfig(InsertConfig{
@@ -84,7 +84,7 @@ func ExampleNewTransfer() {
 }
 
 func ExampleNewUpdate() {
-	_mode := transform.NewUpdate(collect.NewKeys([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
+	_mode := transform.NewUpdate(collect.NewKeysAll([]string{"key1", "key2"}), tag.NewKey(_ruler), nil)
 
 	_ = NewUpdate(&_jobSource{}, []transform.UpdateOperator{_mode})
 

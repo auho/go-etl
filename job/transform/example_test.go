@@ -8,13 +8,13 @@ import (
 
 func ExampleNewPipeline() {
 	insert := NewPipeline().
-		SetCollector(collect.NewKeys([]string{_keyName})).
+		SetCollector(collect.NewKeysAll([]string{_keyName})).
 		SetExtractor(match.NewKey(_rule)).
 		SetPredicate(filter.NewContainsAll("a", []string{"a1", "a2"})).
 		ToInsert()
 
 	update := NewPipeline().
-		SetCollector(collect.NewKeys([]string{_keyName})).
+		SetCollector(collect.NewKeysAll([]string{_keyName})).
 		SetExtractor(match.NewKey(_rule)).
 		SetPredicate(filter.NewContainsAll("a", []string{"a1", "a2"})).
 		ToUpdate()
@@ -24,16 +24,16 @@ func ExampleNewPipeline() {
 }
 
 func ExampleNewInsert() {
-	_ = NewInsert(collect.NewKeys([]string{_keyName}), match.NewKey(_rule), nil)
+	_ = NewInsert(collect.NewKeysAll([]string{_keyName}), match.NewKey(_rule), nil)
 }
 
 func ExampleNewUpdate() {
-	_ = NewUpdate(collect.NewKeys([]string{_keyName}), match.NewKey(_rule), nil)
+	_ = NewUpdate(collect.NewKeysAll([]string{_keyName}), match.NewKey(_rule), nil)
 }
 
 func ExampleNewInsertCross() {
-	i1 := NewInsert(collect.NewKeys([]string{_keyName}), match.NewKey(_rule), nil)
-	i2 := NewInsert(collect.NewKeys([]string{_keyName}), match.NewKey(_rule), nil)
+	i1 := NewInsert(collect.NewKeysAll([]string{_keyName}), match.NewKey(_rule), nil)
+	i2 := NewInsert(collect.NewKeysAll([]string{_keyName}), match.NewKey(_rule), nil)
 
 	_ = NewInsertCross(i1, i2)
 }

@@ -12,17 +12,17 @@ type mockExtractor struct {
 	searchFn func(contents []string) extract.Result
 }
 
-func (m *mockExtractor) Title() string                        { return "mock" }
-func (m *mockExtractor) Prepare() error                       { return nil }
-func (m *mockExtractor) NewExport() extract.FieldSpec         { return nil }
+func (m *mockExtractor) Title() string                { return "mock" }
+func (m *mockExtractor) Prepare() error               { return nil }
+func (m *mockExtractor) NewExport() extract.FieldSpec { return nil }
 func (m *mockExtractor) Search(contents []string) extract.Result {
 	return m.searchFn(contents)
 }
 func (m *mockExtractor) Close() error { return nil }
 
-func TestNewKeys(t *testing.T) {
+func TestNewKeysAll(t *testing.T) {
 	keys := []string{"a", "b"}
-	k := NewKeys(keys)
+	k := NewKeysAll(keys)
 
 	if !k.IsAll() {
 		t.Fatal("expected IsAll true")
@@ -30,7 +30,7 @@ func TestNewKeys(t *testing.T) {
 	if k.IsAny() {
 		t.Fatal("expected IsAny false")
 	}
-	got := k.SourceKeys()
+	got := k.Keys()
 	if len(got) != 2 || got[0] != "a" || got[1] != "b" {
 		t.Fatalf("expected %v, got %v", keys, got)
 	}
@@ -50,14 +50,14 @@ func TestNewKeysAny(t *testing.T) {
 
 func TestKeys_Title(t *testing.T) {
 	t.Run("multi", func(t *testing.T) {
-		k := NewKeys([]string{"a", "b", "c"})
+		k := NewKeysAll([]string{"a", "b", "c"})
 		if k.Title() != "keys{a,b,c}" {
 			t.Fatalf("expected %q, got %q", "keys{a,b,c}", k.Title())
 		}
 	})
 
 	t.Run("single", func(t *testing.T) {
-		k := NewKeys([]string{"a"})
+		k := NewKeysAll([]string{"a"})
 		if k.Title() != "keys{a}" {
 			t.Fatalf("expected %q, got %q", "keys{a}", k.Title())
 		}
@@ -74,7 +74,7 @@ func TestKeys_Extract_All(t *testing.T) {
 			return r
 		}}
 
-		k := NewKeys([]string{"a", "b"})
+		k := NewKeysAll([]string{"a", "b"})
 		res, err := k.Extract(map[string]any{"a": "x", "b": "y"}, e)
 		if err != nil {
 			t.Fatal(err)
@@ -93,7 +93,7 @@ func TestKeys_Extract_All(t *testing.T) {
 			return extract.Result{}
 		}}
 
-		k := NewKeys([]string{"a", "b"})
+		k := NewKeysAll([]string{"a", "b"})
 		_, err := k.Extract(map[string]any{"a": "x"}, e)
 		if err == nil {
 			t.Fatal("expected error, got nil")

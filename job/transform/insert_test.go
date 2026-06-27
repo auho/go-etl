@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/auho/go-etl/v3/job/transform/collect"
 	"github.com/auho/go-etl/v3/job/extract/segword"
 	"github.com/auho/go-etl/v3/job/extract/tag"
+	"github.com/auho/go-etl/v3/job/transform/collect"
 )
 
 func Test_InsertMode(t *testing.T) {
 	// key
-	_modeKeys := NewInsert(collect.NewKeys([]string{_keyName}), tag.NewKey(_rule), nil)
+	_modeKeys := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewKey(_rule), nil)
 	err := _modeKeys.Prepare()
 	if err != nil {
 		t.Fatal("_modeKeys", err)
@@ -28,7 +28,7 @@ func Test_InsertMode(t *testing.T) {
 	fmt.Println(retKeys)
 
 	// most text
-	_modeMostText := NewInsert(collect.NewKeys([]string{_keyName}), tag.NewMostText(_rule), nil)
+	_modeMostText := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewMostText(_rule), nil)
 	err = _modeMostText.Prepare()
 	if err != nil {
 		t.Fatal("_modeMostText", err)
@@ -44,7 +44,7 @@ func Test_InsertMode(t *testing.T) {
 	fmt.Println(retMostText)
 
 	// most key
-	_modeMostKey := NewInsert(collect.NewKeys([]string{_keyName}), tag.NewMostKey(_rule), nil)
+	_modeMostKey := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewMostKey(_rule), nil)
 	err = _modeMostKey.Prepare()
 	if err != nil {
 		t.Fatal("_modeMostKey", err)
@@ -60,7 +60,7 @@ func Test_InsertMode(t *testing.T) {
 	fmt.Println(retMostKey)
 
 	// seg words
-	_modeSegWords := NewInsert(collect.NewKeys([]string{_keyName}), segword.NewDefault(), nil)
+	_modeSegWords := NewInsert(collect.NewKeysAll([]string{_keyName}), segword.NewDefault(), nil)
 	err = _modeSegWords.Prepare()
 	if err != nil {
 		t.Fatal("_modeSegWords", err)
@@ -160,7 +160,7 @@ func Test_InsertMode(t *testing.T) {
 	}
 
 	// insert spread
-	_modeKeys = NewInsert(collect.NewKeys([]string{_keyName}), tag.NewKey(_rule).WithPluck([]string{_rule.NameAlias()}), nil)
+	_modeKeys = NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewKey(_rule).WithPluck([]string{_rule.NameAlias()}), nil)
 	_modeInsertSpread := NewInsertSpread(_modeKeys, _modeSegWords)
 	err = _modeInsertSpread.Prepare()
 	if err != nil {

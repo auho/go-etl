@@ -45,7 +45,7 @@ func (p *Pipeline) Title() string {
 }
 
 func (p *Pipeline) GetFields() []string {
-	return p.collector.SourceKeys()
+	return p.collector.Keys()
 }
 
 func (p *Pipeline) Keys() []string {

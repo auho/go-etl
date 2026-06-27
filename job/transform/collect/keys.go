@@ -23,9 +23,9 @@ type Keys struct {
 	mode int
 }
 
-// NewKeys
+// NewKeysAll
 // collect all keys
-func NewKeys(keys []string) *Keys {
+func NewKeysAll(keys []string) *Keys {
 	return newKeys(keys, modeAll)
 }
 
@@ -46,7 +46,7 @@ func (k *Keys) Title() string {
 	return fmt.Sprintf("keys{%s}", strings.Join(k.keys, ","))
 }
 
-func (k *Keys) SourceKeys() []string {
+func (k *Keys) Keys() []string {
 	return k.keys
 }
 
@@ -61,14 +61,9 @@ func (k *Keys) Extract(item map[string]any, e extract.Extractor) (extract.Result
 }
 
 func (k *Keys) doAll(item map[string]any, e extract.Extractor) (extract.Result, error) {
-	var contents []string
-	for _, _key := range k.keys {
-		content, err := k.Content(_key, item)
-		if err != nil {
-			return extract.Result{}, fmt.Errorf("Keys.doAll: %w", err)
-		}
-
-		contents = append(contents, content)
+	contents, err := k.Contents(k.keys, item)
+	if err != nil {
+		return extract.Result{}, fmt.Errorf("contents: %w", err)
 	}
 
 	return e.Search(contents), nil
@@ -80,7 +75,7 @@ func (k *Keys) doAny(item map[string]any, e extract.Extractor) (extract.Result, 
 	for _, _key := range k.keys {
 		_v, err := k.Content(_key, item)
 		if err != nil {
-			return extract.Result{}, fmt.Errorf("Content: %w", err)
+			return extract.Result{}, fmt.Errorf("content: %w", err)
 		}
 
 		st = e.Search([]string{_v})

@@ -10,7 +10,7 @@ import (
 )
 
 func Test_Update(t *testing.T) {
-	m := transform.NewUpdate(collect.NewKeys([]string{_keyName}), tag.NewMostKey(_rule), nil)
+	m := transform.NewUpdate(collect.NewKeysAll([]string{_keyName}), tag.NewMostKey(_rule), nil)
 	ua := NewUpdate(_source, []transform.UpdateOperator{m})
 
 	RunProducer(_source, []itemProducer{ua})
@@ -29,7 +29,7 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_UpdateTransfer(t *testing.T) {
-	m := transform.NewUpdate(collect.NewKeys([]string{_keyName}), tag.NewMostKey(_rule), nil)
+	m := transform.NewUpdate(collect.NewKeysAll([]string{_keyName}), tag.NewMostKey(_rule), nil)
 	UpdateTransferTask(_source, _targetUpdateTransfer, []transform.UpdateOperator{m})
 
 	dataCount := getAmount(_dataTable, t)
@@ -45,7 +45,7 @@ func Test_Insert(t *testing.T) {
 		ExtraKeys: []string{_source.IDName()},
 	})
 
-	m := transform.NewInsert(collect.NewKeys([]string{_keyName}), tag.NewKey(_rule), nil)
+	m := transform.NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewKey(_rule), nil)
 	ia := NewInsert(_targetTagA, m, insertConfig)
 
 	_ = _simpleDB.Drop(_targetTagA1.TableName())
@@ -112,7 +112,7 @@ func Test_Transfer(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	m := transform.NewUpdate(collect.NewKeys([]string{_keyName}), tag.NewMostKey(_rule), nil)
+	m := transform.NewUpdate(collect.NewKeysAll([]string{_keyName}), tag.NewMostKey(_rule), nil)
 
 	CleanTask(_targetClean, []transform.UpdateOperator{m})
 	dataCount := getAmount(_source.TableName(), t)

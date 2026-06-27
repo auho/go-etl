@@ -9,11 +9,6 @@ import (
 
 var _ Spec = (*Filter)(nil)
 
-type Spec interface {
-	OK(map[string]any) (bool, error)
-	ToPredicate() Predicate
-}
-
 type Filter struct {
 	collector collect.Collector
 	extractor extract.Extractor
