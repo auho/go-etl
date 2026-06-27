@@ -2,25 +2,25 @@ package filter
 
 import "fmt"
 
-var _ Spec = (*AND)(nil)
-var _ Spec = (*OR)(nil)
+var _ Spec = (*And)(nil)
+var _ Spec = (*Or)(nil)
 
 type Expression = []Predicate
 
-type AND Expression
+type And Expression
 
-func NewAND(ops ...Predicate) AND {
-	a := AND{}
-	a = append(a, ops...)
+func NewAnd(ps ...Predicate) And {
+	a := And{}
+	a = append(a, ps...)
 
 	return a
 }
 
-func (a AND) OK(item map[string]any) (bool, error) {
+func (a And) OK(m map[string]any) (bool, error) {
 	for _, op := range a {
-		ok, err := op(item)
+		ok, err := op(m)
 		if err != nil {
-			return false, fmt.Errorf("AND.OK: %w", err)
+			return false, fmt.Errorf("And.OK: %w", err)
 		}
 		if !ok {
 			return false, nil
@@ -30,26 +30,26 @@ func (a AND) OK(item map[string]any) (bool, error) {
 	return true, nil
 }
 
-func (a AND) ToPredicate() Predicate {
+func (a And) ToPredicate() Predicate {
 	return func(m map[string]any) (bool, error) {
 		return a.OK(m)
 	}
 }
 
-type OR Expression
+type Or Expression
 
-func NewOR(ops ...Predicate) OR {
-	o := OR{}
-	o = append(o, ops...)
+func NewOr(ps ...Predicate) Or {
+	o := Or{}
+	o = append(o, ps...)
 
 	return o
 }
 
-func (o OR) OK(item map[string]any) (bool, error) {
+func (o Or) OK(m map[string]any) (bool, error) {
 	for _, op := range o {
-		ok, err := op(item)
+		ok, err := op(m)
 		if err != nil {
-			return false, fmt.Errorf("OR.OK: %w", err)
+			return false, fmt.Errorf("Or.OK: %w", err)
 		}
 		if ok {
 			return true, nil
@@ -59,7 +59,7 @@ func (o OR) OK(item map[string]any) (bool, error) {
 	return false, nil
 }
 
-func (o OR) ToPredicate() Predicate {
+func (o Or) ToPredicate() Predicate {
 	return func(m map[string]any) (bool, error) {
 		return o.OK(m)
 	}

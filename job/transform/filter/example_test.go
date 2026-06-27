@@ -5,9 +5,9 @@ import (
 	"github.com/auho/go-etl/v3/job/transform/collect"
 )
 
-func ExampleNewFilter() {
+func ExampleNewFilterPredicate() {
 	var _search extract.Extractor
-	opt := NewFilter(collect.NewKeysAll([]string{"a"}), _search)
+	opt := NewFilterPredicate(collect.NewKeysAll([]string{"a"}), _search)
 
 	_ = opt
 }
@@ -24,8 +24,8 @@ func ExampleNewContainsAny() {
 	_ = opt
 }
 
-func ExampleNewAND() {
-	opt := NewAND(
+func ExampleNewAnd() {
+	opt := NewAnd(
 		func(m map[string]any) (bool, error) {
 			return m["a"] == 1, nil
 		}, func(m map[string]any) (bool, error) {
@@ -36,8 +36,8 @@ func ExampleNewAND() {
 	_ = opt
 }
 
-func ExampleNewOR() {
-	opt := NewOR(
+func ExampleNewOr() {
+	opt := NewOr(
 		func(m map[string]any) (bool, error) {
 			return m["a"] == 1, nil
 		}, func(m map[string]any) (bool, error) {

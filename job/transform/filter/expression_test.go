@@ -22,9 +22,9 @@ func TestNewAND(t *testing.T) {
 		"string": "1",
 	}
 
-	var a AND
+	var a And
 
-	a = NewAND(opInt(1), opString("1"))
+	a = NewAnd(opInt(1), opString("1"))
 	ok, err := a.OK(_item)
 	if err != nil {
 		t.Fatal(err)
@@ -33,7 +33,7 @@ func TestNewAND(t *testing.T) {
 		t.Fatal()
 	}
 
-	a = NewAND(opInt(1), opString("2"))
+	a = NewAnd(opInt(1), opString("2"))
 	ok, err = a.OK(_item)
 	if err != nil {
 		t.Fatal(err)
@@ -42,7 +42,7 @@ func TestNewAND(t *testing.T) {
 		t.Fatal()
 	}
 
-	a = NewAND(opInt(2), opString("1"))
+	a = NewAnd(opInt(2), opString("1"))
 	ok, err = a.OK(_item)
 	if err != nil {
 		t.Fatal(err)
@@ -51,7 +51,7 @@ func TestNewAND(t *testing.T) {
 		t.Fatal()
 	}
 
-	a = NewAND(opInt(2), opString("2"))
+	a = NewAnd(opInt(2), opString("2"))
 	ok, err = a.OK(_item)
 	if err != nil {
 		t.Fatal(err)
@@ -67,9 +67,9 @@ func TestNewOR(t *testing.T) {
 		"string": "1",
 	}
 
-	var o OR
+	var o Or
 
-	o = NewOR(opInt(1), opString("1"))
+	o = NewOr(opInt(1), opString("1"))
 	ok, err := o.OK(_item)
 	if err != nil {
 		t.Fatal(err)
@@ -78,7 +78,7 @@ func TestNewOR(t *testing.T) {
 		t.Fatal()
 	}
 
-	o = NewOR(opInt(1), opString("2"))
+	o = NewOr(opInt(1), opString("2"))
 	ok, err = o.OK(_item)
 	if err != nil {
 		t.Fatal(err)
@@ -87,7 +87,7 @@ func TestNewOR(t *testing.T) {
 		t.Fatal()
 	}
 
-	o = NewOR(opInt(2), opString("1"))
+	o = NewOr(opInt(2), opString("1"))
 	ok, err = o.OK(_item)
 	if err != nil {
 		t.Fatal(err)
@@ -96,7 +96,7 @@ func TestNewOR(t *testing.T) {
 		t.Fatal()
 	}
 
-	o = NewOR(opInt(2), opString("2"))
+	o = NewOr(opInt(2), opString("2"))
 	ok, err = o.OK(_item)
 	if err != nil {
 		t.Fatal(err)

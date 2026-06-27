@@ -14,14 +14,14 @@ type Filter struct {
 	extractor extract.Extractor
 }
 
-func NewFilter(c collect.Collector, e extract.Extractor) Predicate {
+func NewFilterPredicate(c collect.Collector, e extract.Extractor) Predicate {
 	f := &Filter{collector: c, extractor: e}
 
 	return f.ToPredicate()
 }
 
-func (f *Filter) OK(item map[string]any) (bool, error) {
-	token, err := f.collector.Extract(item, f.extractor)
+func (f *Filter) OK(m map[string]any) (bool, error) {
+	token, err := f.collector.Extract(m, f.extractor)
 	if err != nil {
 		return false, fmt.Errorf("collect.Extract: %w", err)
 	}

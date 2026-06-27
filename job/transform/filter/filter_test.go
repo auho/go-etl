@@ -23,7 +23,7 @@ func (m *mockCollector) Extract(item map[string]any, e extract.Extractor) (extra
 }
 
 // mockExtractor implements extract.Extractor for testing.
-// It is only used to satisfy the NewFilter signature; its methods are not
+// It is only used to satisfy the NewFilterPredicate signature; its methods are not
 // exercised because mockCollector.Search ignores the searcher argument.
 type mockExtractor struct{}
 
@@ -35,7 +35,7 @@ func (m *mockExtractor) Close() error                            { return nil }
 
 func TestNewFilter(t *testing.T) {
 	// collector reports OK
-	pred := NewFilter(&mockCollector{ok: true}, &mockExtractor{})
+	pred := NewFilterPredicate(&mockCollector{ok: true}, &mockExtractor{})
 	ok, err := pred(map[string]any{"a": 1})
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +45,7 @@ func TestNewFilter(t *testing.T) {
 	}
 
 	// collector reports not OK
-	pred2 := NewFilter(&mockCollector{ok: false}, &mockExtractor{})
+	pred2 := NewFilterPredicate(&mockCollector{ok: false}, &mockExtractor{})
 	ok, err = pred2(map[string]any{"a": 1})
 	if err != nil {
 		t.Fatal(err)
@@ -98,65 +98,65 @@ func TestFilter_ToPredicate(t *testing.T) {
 }
 
 func TestExpression_ToPredicate(t *testing.T) {
-	// AND.ToPredicate: true only when all operands match
-	andPred := NewAND(opInt(1), opString("1")).ToPredicate()
+	// And.ToPredicate: true only when all operands match
+	andPred := NewAnd(opInt(1), opString("1")).ToPredicate()
 	ok, err := andPred(map[string]any{"int": 1, "string": "1"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !ok {
-		t.Fatal("AND: expected true for all match")
+		t.Fatal("And: expected true for all match")
 	}
 	ok, err = andPred(map[string]any{"int": 2, "string": "1"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if ok {
-		t.Fatal("AND: expected false when first operand fails")
+		t.Fatal("And: expected false when first operand fails")
 	}
 	ok, err = andPred(map[string]any{"int": 1, "string": "2"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if ok {
-		t.Fatal("AND: expected false when second operand fails")
+		t.Fatal("And: expected false when second operand fails")
 	}
 	ok, err = andPred(map[string]any{"int": 2, "string": "2"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if ok {
-		t.Fatal("AND: expected false when all operands fail")
+		t.Fatal("And: expected false when all operands fail")
 	}
 
-	// OR.ToPredicate: true when any operand matches
-	orPred := NewOR(opInt(1), opString("2")).ToPredicate()
+	// Or.ToPredicate: true when any operand matches
+	orPred := NewOr(opInt(1), opString("2")).ToPredicate()
 	ok, err = orPred(map[string]any{"int": 1, "string": "1"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !ok {
-		t.Fatal("OR: expected true when first operand matches")
+		t.Fatal("Or: expected true when first operand matches")
 	}
 	ok, err = orPred(map[string]any{"int": 2, "string": "2"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !ok {
-		t.Fatal("OR: expected true when second operand matches")
+		t.Fatal("Or: expected true when second operand matches")
 	}
 	ok, err = orPred(map[string]any{"int": 1, "string": "2"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !ok {
-		t.Fatal("OR: expected true when both operands match")
+		t.Fatal("Or: expected true when both operands match")
 	}
 	ok, err = orPred(map[string]any{"int": 2, "string": "3"})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if ok {
-		t.Fatal("OR: expected false when no operand matches")
+		t.Fatal("Or: expected false when no operand matches")
 	}
 }
