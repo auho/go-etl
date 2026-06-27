@@ -31,7 +31,7 @@ func NewInsertCross(is ...*Insert) *InsertCross {
 }
 
 func (ic *InsertCross) Apply(item map[string]any) ([]map[string]any, error) {
-	ic.AddTotal(1)
+	ic.addTotal(1)
 
 	var _allRet [][]map[string]any
 	for _, m := range ic.is {
@@ -75,7 +75,7 @@ func (ic *InsertCross) Apply(item map[string]any) ([]map[string]any, error) {
 		_tRets = rets
 	}
 
-	ic.AddAmount(int64(len(rets)))
+	ic.addAmount(int64(len(rets)))
 
 	return rets, nil
 }

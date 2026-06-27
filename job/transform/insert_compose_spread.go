@@ -34,7 +34,7 @@ func (ic *InsertComposeSpread) Title() string {
 		ss = append(ss, m.Title())
 	}
 
-	return ic.GenTitle("InsertComposeSpread", strings.Join(ss, ";"))
+	return ic.genTitle("InsertComposeSpread", strings.Join(ss, ";"))
 }
 
 func (ic *InsertComposeSpread) GetFields() []string {
@@ -75,7 +75,7 @@ func (ic *InsertComposeSpread) Prepare() error {
 }
 
 func (ic *InsertComposeSpread) Apply(item map[string]any) ([]map[string]any, error) {
-	ic.AddTotal(1)
+	ic.addTotal(1)
 
 	_has := false
 	ret := make(map[string]any)
@@ -93,7 +93,7 @@ func (ic *InsertComposeSpread) Apply(item map[string]any) ([]map[string]any, err
 	}
 
 	if _has {
-		ic.AddAmount(1)
+		ic.addAmount(1)
 
 		return []map[string]any{ret}, nil
 	} else {
@@ -103,7 +103,7 @@ func (ic *InsertComposeSpread) Apply(item map[string]any) ([]map[string]any, err
 
 func (ic *InsertComposeSpread) State() []string {
 	var ss []string
-	ss = append(ss, fmt.Sprintf("InsertComposeSpread: %s", ic.GenCounter()))
+	ss = append(ss, fmt.Sprintf("InsertComposeSpread: %s", ic.genCounter()))
 	for i, m := range ic.operators {
 		var mss []string
 		for _i, _ms := range m.State() {

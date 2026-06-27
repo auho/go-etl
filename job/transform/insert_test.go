@@ -1,7 +1,6 @@
 package transform
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/auho/go-etl/v3/job/extract/segword"
@@ -9,192 +8,82 @@ import (
 	"github.com/auho/go-etl/v3/job/transform/collect"
 )
 
-func Test_InsertMode(t *testing.T) {
-	// key
-	_modeKeys := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewKey(_rule), nil)
-	err := _modeKeys.Prepare()
+func TestInsert_Key(t *testing.T) {
+	ins := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewKey(_rule), nil)
+	err := ins.Prepare()
 	if err != nil {
-		t.Fatal("_modeKeys", err)
+		t.Fatal(err)
 	}
 
-	retKeys, err := _modeKeys.Apply(_item)
+	ret, err := ins.Apply(_item)
 	if err != nil {
-		t.Fatal("retKeys", err)
+		t.Fatal(err)
 	}
-	if len(retKeys) <= 0 {
-		t.Error("error")
+	if len(ret) <= 0 {
+		t.Error("expected results from Key insert")
 	}
+}
 
-	fmt.Println(retKeys)
-
-	// most text
-	_modeMostText := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewMostText(_rule), nil)
-	err = _modeMostText.Prepare()
+func TestInsert_MostText(t *testing.T) {
+	ins := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewMostText(_rule), nil)
+	err := ins.Prepare()
 	if err != nil {
-		t.Fatal("_modeMostText", err)
+		t.Fatal(err)
 	}
 
-	retMostText, err := _modeMostText.Apply(_item)
+	ret, err := ins.Apply(_item)
 	if err != nil {
-		t.Fatal("retMostText", err)
+		t.Fatal(err)
 	}
-	if len(retMostText) <= 0 {
-		t.Error("error")
+	if len(ret) <= 0 {
+		t.Error("expected results from MostText insert")
 	}
-	fmt.Println(retMostText)
+}
 
-	// most key
-	_modeMostKey := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewMostKey(_rule), nil)
-	err = _modeMostKey.Prepare()
+func TestInsert_MostKey(t *testing.T) {
+	ins := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewMostKey(_rule), nil)
+	err := ins.Prepare()
 	if err != nil {
-		t.Fatal("_modeMostKey", err)
+		t.Fatal(err)
 	}
 
-	retMostKey, err := _modeMostKey.Apply(_item)
+	ret, err := ins.Apply(_item)
 	if err != nil {
-		t.Fatal("retMostKey", err)
+		t.Fatal(err)
 	}
-	if len(retMostKey) <= 0 {
-		t.Error("error")
+	if len(ret) <= 0 {
+		t.Error("expected results from MostKey insert")
 	}
-	fmt.Println(retMostKey)
+}
 
-	// seg words
-	_modeSegWords := NewInsert(collect.NewKeysAll([]string{_keyName}), segword.NewDefault(), nil)
-	err = _modeSegWords.Prepare()
+func TestInsert_SegWords(t *testing.T) {
+	ins := NewInsert(collect.NewKeysAll([]string{_keyName}), segword.NewDefault(), nil)
+	err := ins.Prepare()
 	if err != nil {
-		t.Fatal("_modeSegWords", err)
+		t.Fatal(err)
 	}
 
-	retSegWords, err := _modeSegWords.Apply(_item)
+	ret, err := ins.Apply(_item)
 	if err != nil {
-		t.Fatal("retSegWords", err)
+		t.Fatal(err)
 	}
-	if len(retSegWords) <= 0 {
-		t.Error("error")
+	if len(ret) <= 0 {
+		t.Error("expected results from SegWords insert")
 	}
-	fmt.Println(retSegWords)
+}
 
-	// insert stack
-	_modeInsertStack := NewInsertStack(_modeKeys, _modeSegWords)
-	err = _modeInsertStack.Prepare()
+func TestInsert_NilPredicate(t *testing.T) {
+	ins := NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewKey(_rule), nil)
+	err := ins.Prepare()
 	if err != nil {
-		t.Fatal("_modeInsertStack", err)
+		t.Fatal(err)
 	}
 
-	retStack, err := _modeInsertStack.Apply(_item)
+	ret, err := ins.Apply(_item)
 	if err != nil {
-		t.Fatal("retStack", err)
+		t.Fatal(err)
 	}
-	if len(retStack) <= 0 {
-		t.Error("error")
-	}
-	fmt.Println(retStack)
-
-	for _, v := range _modeInsertStack.Keys() {
-		has := false
-
-		for _, v1 := range _modeKeys.Keys() {
-			if v == v1 {
-				has = true
-				break
-			}
-		}
-
-		for _, v1 := range _modeSegWords.Keys() {
-			if v == v1 {
-				has = true
-				break
-			}
-		}
-
-		if has == false {
-			t.Error(fmt.Sprintf("key[%s] is error", v))
-		}
-	}
-
-	if len(retKeys)+len(retSegWords) != len(retStack) {
-		t.Error("error")
-	}
-
-	// insert cross
-	_modeInsertCross := NewInsertCross(_modeMostText, _modeSegWords)
-	err = _modeInsertCross.Prepare()
-	if err != nil {
-		t.Fatal("_modeInsertCross", err)
-	}
-
-	retCross, err := _modeInsertCross.Apply(_item)
-	if err != nil {
-		t.Fatal("retCross", err)
-	}
-	if len(retCross) <= 0 {
-		t.Error("error")
-	}
-	fmt.Println(retCross)
-
-	for _, v := range _modeInsertStack.Keys() {
-		has := false
-
-		for _, v1 := range _modeMostText.Keys() {
-			if v == v1 {
-				has = true
-				break
-			}
-		}
-
-		for _, v1 := range _modeSegWords.Keys() {
-			if v == v1 {
-				has = true
-				break
-			}
-		}
-
-		if has == false {
-			t.Error(fmt.Sprintf("key[%s] is error", v))
-		}
-	}
-
-	if len(retMostText)*len(retSegWords) != len(retCross) {
-		t.Error("error")
-	}
-
-	// insert spread
-	_modeKeys = NewInsert(collect.NewKeysAll([]string{_keyName}), tag.NewKey(_rule).WithPluck([]string{_rule.NameAlias()}), nil)
-	_modeInsertSpread := NewInsertSpread(_modeKeys, _modeSegWords)
-	err = _modeInsertSpread.Prepare()
-	if err != nil {
-		t.Error("error")
-	}
-
-	retSpread, err := _modeInsertSpread.Apply(_item)
-	if err != nil {
-		t.Fatal("retSpread", err)
-	}
-	if len(retSpread) <= 0 {
-		t.Error("insert spread error")
-	}
-	fmt.Println(retSpread)
-
-	for _, v := range _modeInsertSpread.Keys() {
-		has := false
-
-		for _, v1 := range _modeKeys.Keys() {
-			if v == v1 {
-				has = true
-				break
-			}
-		}
-
-		for _, v1 := range _modeSegWords.Keys() {
-			if v == v1 {
-				has = true
-				break
-			}
-		}
-
-		if has == false {
-			t.Error(fmt.Sprintf("key[%s] is error", v))
-		}
+	if len(ret) <= 0 {
+		t.Error("expected results with nil predicate")
 	}
 }

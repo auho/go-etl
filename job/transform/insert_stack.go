@@ -23,7 +23,7 @@ func NewInsertStack(is ...*Insert) *InsertStack {
 }
 
 func (is *InsertStack) Apply(item map[string]any) ([]map[string]any, error) {
-	is.AddTotal(1)
+	is.addTotal(1)
 
 	rets := make([]map[string]any, 0)
 	for _, _i := range is.is {
@@ -43,7 +43,7 @@ func (is *InsertStack) Apply(item map[string]any) ([]map[string]any, error) {
 		}
 	}
 
-	is.AddAmount(int64(len(rets)))
+	is.addAmount(int64(len(rets)))
 
 	return rets, nil
 }

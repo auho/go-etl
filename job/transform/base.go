@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"sync/atomic"
-
-	strings2 "github.com/auho/go-toolkit/v2/farmtools/convert/types/strings"
 )
 
 type base struct {
@@ -14,45 +12,18 @@ type base struct {
 	amount int64
 }
 
-func (m *base) AddTotal(num int64) {
+func (m *base) addTotal(num int64) {
 	atomic.AddInt64(&m.total, num)
 }
 
-func (m *base) AddAmount(num int64) {
+func (m *base) addAmount(num int64) {
 	atomic.AddInt64(&m.amount, num)
 }
 
-func (m *base) GenCounter() string {
-	return fmt.Sprintf("total: %d; amount: %d", m.total, m.amount)
+func (m *base) genCounter() string {
+	return fmt.Sprintf("total: %d; amount: %d", atomic.LoadInt64(&m.total), atomic.LoadInt64(&m.amount))
 }
 
-func (m *base) GenTitle(name string, desc string) string {
+func (m *base) genTitle(name string, desc string) string {
 	return fmt.Sprintf("%s %s{%s}", name, "keys["+strings.Join(m.keys, ", ")+"]", desc)
-}
-
-func (m *base) Content(key string, item map[string]any) (string, error) {
-	return m.KeyValueToString(key, item)
-}
-
-func (m *base) Contents(keys []string, item map[string]any) ([]string, error) {
-	contents := make([]string, 0)
-	for _, key := range keys {
-		keyValue, err := m.KeyValueToString(key, item)
-		if err != nil {
-			return nil, err
-		}
-
-		contents = append(contents, keyValue)
-	}
-
-	return contents, nil
-}
-
-func (m *base) KeyValueToString(key string, item map[string]any) (string, error) {
-	s, err := strings2.FromAny(item[key])
-	if err != nil {
-		return "", NewErrInvalidType(key, item[key])
-	}
-
-	return s, nil
 }

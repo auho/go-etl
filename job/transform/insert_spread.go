@@ -21,7 +21,7 @@ func NewInsertSpread(is ...*Insert) *InsertSpread {
 }
 
 func (is *InsertSpread) Apply(item map[string]any) ([]map[string]any, error) {
-	is.AddTotal(1)
+	is.addTotal(1)
 
 	_has := false
 	ret := make(map[string]any, len(is.defaultValues))
@@ -39,7 +39,7 @@ func (is *InsertSpread) Apply(item map[string]any) ([]map[string]any, error) {
 	}
 
 	if _has {
-		is.AddAmount(1)
+		is.addAmount(1)
 
 		_dv := maps.Clone(is.defaultValues)
 		maps.Copy(_dv, ret)

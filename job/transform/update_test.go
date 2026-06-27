@@ -7,9 +7,12 @@ import (
 	"github.com/auho/go-etl/v3/job/transform/collect"
 )
 
-func Test_UpdateMode(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	_mu := NewUpdate(collect.NewKeysAll([]string{_keyName}), tag.NewMostText(_rule), nil)
-	_mu.Prepare()
+	err := _mu.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer _mu.Close()
 
 	results, err := _mu.Apply(_item)
@@ -21,7 +24,10 @@ func Test_UpdateMode(t *testing.T) {
 	}
 
 	_mu2 := NewUpdate(collect.NewKeysAll([]string{_keyName}), tag.NewMostKey(_rule), nil)
-	_mu2.Prepare()
+	err = _mu2.Prepare()
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer _mu2.Close()
 
 	results2, err := _mu2.Apply(_item)

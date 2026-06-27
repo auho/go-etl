@@ -51,7 +51,7 @@ func (tm *Transfer) initFixed(fixed map[string]any) {
 }
 
 func (tm *Transfer) Title() string {
-	return tm.GenTitle("Transfer", "")
+	return tm.genTitle("Transfer", "")
 }
 
 func (tm *Transfer) GetFields() []string {

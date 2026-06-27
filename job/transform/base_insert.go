@@ -23,7 +23,7 @@ func (bi *baseInsert) Title() string {
 		ss = append(ss, _i.Title())
 	}
 
-	return bi.GenTitle(bi.name, strings.Join(ss, ","))
+	return bi.genTitle(bi.name, strings.Join(ss, ","))
 }
 
 func (bi *baseInsert) GetFields() []string {
@@ -47,7 +47,7 @@ func (bi *baseInsert) DefaultValues() map[string]any {
 }
 
 func (bi *baseInsert) State() []string {
-	return []string{fmt.Sprintf("%s: %s", bi.Title(), bi.GenCounter())}
+	return []string{fmt.Sprintf("%s: %s", bi.Title(), bi.genCounter())}
 }
 
 func (bi *baseInsert) Prepare() error {

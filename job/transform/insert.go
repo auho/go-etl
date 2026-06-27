@@ -25,11 +25,11 @@ func NewInsert(c collect.Collector, e extract.Extractor, p filter.Predicate) *In
 }
 
 func (i *Insert) Apply(item map[string]any) ([]map[string]any, error) {
-	i.AddTotal(1)
+	i.addTotal(1)
 
-	ok, err := i.expressionOperation(item)
+	ok, err := i.evaluatePredicate(item)
 	if err != nil {
-		return nil, fmt.Errorf("expressionOperation: %w", err)
+		return nil, fmt.Errorf("evaluatePredicate: %w", err)
 	}
 	if !ok {
 		return nil, nil
@@ -46,7 +46,7 @@ func (i *Insert) Apply(item map[string]any) ([]map[string]any, error) {
 
 	ret := token.Rows()
 
-	i.AddAmount(int64(len(ret)))
+	i.addAmount(int64(len(ret)))
 
 	return ret, nil
 }

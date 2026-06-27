@@ -16,7 +16,7 @@ type Pipeline struct {
 	extractor extract.Extractor
 	predicate filter.Predicate
 
-	hasExpression bool
+	hasPredicate  bool
 	defaultValues map[string]any
 }
 
@@ -32,8 +32,8 @@ func newPipeline(c collect.Collector, e extract.Extractor, p filter.Predicate) *
 	}
 }
 
-func (p *Pipeline) expressionOperation(item map[string]any) (bool, error) {
-	if !p.hasExpression {
+func (p *Pipeline) evaluatePredicate(item map[string]any) (bool, error) {
+	if !p.hasPredicate {
 		return true, nil
 	}
 
@@ -41,7 +41,7 @@ func (p *Pipeline) expressionOperation(item map[string]any) (bool, error) {
 }
 
 func (p *Pipeline) Title() string {
-	return p.GenTitle(p.collector.Title(), p.extractor.Title())
+	return p.genTitle(p.collector.Title(), p.extractor.Title())
 }
 
 func (p *Pipeline) GetFields() []string {
@@ -63,7 +63,7 @@ func (p *Pipeline) Prepare() error {
 	}
 
 	if p.predicate != nil {
-		p.hasExpression = true
+		p.hasPredicate = true
 	}
 
 	p.defaultValues = p.extractor.NewExport().DefaultValues()
@@ -74,7 +74,7 @@ func (p *Pipeline) Prepare() error {
 func (p *Pipeline) Close() error { return nil }
 
 func (p *Pipeline) State() []string {
-	return []string{fmt.Sprintf("%s: %s", p.Title(), p.GenCounter())}
+	return []string{fmt.Sprintf("%s: %s", p.Title(), p.genCounter())}
 }
 
 func (p *Pipeline) SetCollector(c collect.Collector) *Pipeline {
