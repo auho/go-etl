@@ -1,4 +1,4 @@
-package contains
+package containment
 
 import (
 	"math/rand"

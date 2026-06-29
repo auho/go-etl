@@ -1,4 +1,4 @@
-package contains
+package containment
 
 func ExampleNewContainsAll() {
 	NewContainsAll([]string{"1", "2", "12", "ab"}, NewExportAll(_rule))

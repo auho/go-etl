@@ -1,4 +1,4 @@
-package contains
+package containment
 
 import (
 	"fmt"

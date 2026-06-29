@@ -1,4 +1,4 @@
-package contains
+package containment
 
 import (
 	"github.com/auho/go-etl/v3/job/extract"
