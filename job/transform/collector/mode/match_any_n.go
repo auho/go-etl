@@ -6,6 +6,9 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
+// matchAnyN iterates the first n keys by position (semantic A: by key position).
+// It searches each key's content one by one and stops at the first match.
+// Empty-value keys are still searched.
 type matchAnyN struct{ n int }
 
 var _ Mode = (*matchAnyN)(nil)

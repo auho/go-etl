@@ -6,6 +6,8 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
+// firstN selects the first n keys by position (semantic A: by key position).
+// It searches the contents of keys[:n], regardless of whether values are empty.
 type firstN struct{ n int }
 
 var _ Mode = (*firstN)(nil)

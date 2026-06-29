@@ -4,6 +4,8 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
+// all selects ALL keys by position (semantic A: by key position).
+// It searches the contents of every key, regardless of whether the value is empty.
 type all struct{}
 
 var _ Mode = (*all)(nil)

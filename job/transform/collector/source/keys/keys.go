@@ -31,16 +31,23 @@ func (k *Keys) Prepare() error {
 	if len(k.keys) == 0 {
 		return fmt.Errorf("keys is empty")
 	}
-
 	return nil
 }
 
+// Contents reads values for all keys from item.
+// A missing key defaults to empty string (no error).
+// A type conversion failure (FromAny) is still an error.
 func (k *Keys) Contents(item map[string]any) ([]string, map[string]string, error) {
 	keysValue := make(map[string]string, len(k.keys))
 	for _, key := range k.keys {
-		v, err := typesStrings.FromAny(item[key])
+		raw, ok := item[key]
+		if !ok {
+			keysValue[key] = ""
+			continue
+		}
+		v, err := typesStrings.FromAny(raw)
 		if err != nil {
-			return nil, nil, fmt.Errorf("FromAny[%s]%T: %w", key, item[key], err)
+			return nil, nil, fmt.Errorf("FromAny[%s]%T: %w", key, raw, err)
 		}
 		keysValue[key] = v
 	}

@@ -6,6 +6,8 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
+// lastN selects the last n keys by position (semantic A: by key position).
+// It searches the contents of keys[len-n:], regardless of whether values are empty.
 type lastN struct{ n int }
 
 var _ Mode = (*lastN)(nil)

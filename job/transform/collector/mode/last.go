@@ -4,6 +4,8 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
+// last selects the last key by position (semantic A: by key position).
+// It searches the content of the last key, regardless of whether the value is empty.
 type last struct{}
 
 var _ Mode = (*last)(nil)

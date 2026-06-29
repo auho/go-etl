@@ -61,6 +61,8 @@ func (c *Collector) Close() error {
 	return c.extractor.Close()
 }
 
+// Extract fetches contents from the source for the given item, then applies
+// the mode to drive the extractor and returns the result.
 func (c *Collector) Extract(item map[string]any) (extract.Result, error) {
 	keys, keysValue, err := c.source.Contents(item)
 	if err != nil {
