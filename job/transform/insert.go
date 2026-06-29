@@ -1,8 +1,7 @@
 package transform
 
 import (
-	"github.com/auho/go-etl/v3/job/extract"
-	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/collector"
 	"github.com/auho/go-etl/v3/job/transform/filter"
 )
 
@@ -13,12 +12,12 @@ type Insert struct {
 }
 
 func newInsertFromPipeline(p *pipeline) *Insert {
-	return NewInsert(p.collector, p.extractor, p.predicate)
+	return NewInsert(p.collector, p.predicate)
 }
 
-func NewInsert(c collect.Collector, e extract.Extractor, p filter.Predicate) *Insert {
+func NewInsert(c *collector.Collector, p filter.Predicate) *Insert {
 	return &Insert{
-		pipeline: newPipeline(c, e, p),
+		pipeline: newPipeline(c, p),
 	}
 }
 

@@ -3,25 +3,23 @@ package filter
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v3/job/extract"
-	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/collector"
 )
 
 var _ Spec = (*Filter)(nil)
 
 type Filter struct {
-	collector collect.Collector
-	extractor extract.Extractor
+	collector *collector.Collector
 }
 
-func NewFilterPredicate(c collect.Collector, e extract.Extractor) Predicate {
-	f := &Filter{collector: c, extractor: e}
+func NewFilterPredicate(c *collector.Collector) Predicate {
+	f := &Filter{collector: c}
 
 	return f.ToPredicate()
 }
 
 func (f *Filter) OK(m map[string]any) (bool, error) {
-	token, err := f.collector.Extract(m, f.extractor)
+	token, err := f.collector.Extract(m)
 	if err != nil {
 		return false, fmt.Errorf("collect.Extract: %w", err)
 	}

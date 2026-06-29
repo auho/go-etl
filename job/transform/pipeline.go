@@ -4,26 +4,23 @@ import (
 	"fmt"
 	"maps"
 
-	"github.com/auho/go-etl/v3/job/extract"
-	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/collector"
 	"github.com/auho/go-etl/v3/job/transform/filter"
 )
 
 type pipeline struct {
 	base
 
-	collector collect.Collector
-	extractor extract.Extractor
-	predicate filter.Predicate
+	collector  *collector.Collector
+	predicate  filter.Predicate
 
 	hasPredicate  bool
 	defaultValues map[string]any
 }
 
-func newPipeline(c collect.Collector, e extract.Extractor, p filter.Predicate) pipeline {
+func newPipeline(c *collector.Collector, p filter.Predicate) pipeline {
 	return pipeline{
 		collector: c,
-		extractor: e,
 		predicate: p,
 	}
 }
@@ -47,7 +44,7 @@ func (p *pipeline) apply(item map[string]any) ([]map[string]any, error) {
 		return nil, nil
 	}
 
-	token, err := p.collector.Extract(item, p.extractor)
+	token, err := p.collector.Extract(item)
 	if err != nil {
 		return nil, fmt.Errorf("collect.Extract: %w", err)
 	}
@@ -62,15 +59,15 @@ func (p *pipeline) apply(item map[string]any) ([]map[string]any, error) {
 }
 
 func (p *pipeline) Title() string {
-	return p.genTitle(p.collector.Title(), p.extractor.Title())
+	return p.collector.Title()
 }
 
 func (p *pipeline) GetFields() []string {
-	return p.collector.Keys()
+	return p.collector.Fields()
 }
 
 func (p *pipeline) Keys() []string {
-	return p.extractor.NewExport().Keys()
+	return p.collector.Keys()
 }
 
 func (p *pipeline) DefaultValues() map[string]any {
@@ -78,8 +75,7 @@ func (p *pipeline) DefaultValues() map[string]any {
 }
 
 func (p *pipeline) Prepare() error {
-	err := p.extractor.Prepare()
-	if err != nil {
+	if err := p.collector.Prepare(); err != nil {
 		return err
 	}
 
@@ -87,31 +83,21 @@ func (p *pipeline) Prepare() error {
 		p.hasPredicate = true
 	}
 
-	p.defaultValues = p.extractor.NewExport().DefaultValues()
+	p.defaultValues = p.collector.DefaultValues()
 
 	return nil
 }
 
-func (p *pipeline) Close() error { return nil }
+func (p *pipeline) Close() error {
+	return p.collector.Close()
+}
 
 func (p *pipeline) State() []string {
 	return []string{fmt.Sprintf("%s: %s", p.Title(), p.genCounter())}
 }
 
-func (p *pipeline) SetCollector(c collect.Collector) *pipeline {
+func (p *pipeline) SetCollector(c *collector.Collector) *pipeline {
 	p.collector = c
-
-	return p
-}
-
-func (p *pipeline) SetExtractor(e extract.Extractor) *pipeline {
-	p.extractor = e
-
-	return p
-}
-
-func (p *pipeline) SetPredicate(predicate filter.Predicate) *pipeline {
-	p.predicate = predicate
 
 	return p
 }

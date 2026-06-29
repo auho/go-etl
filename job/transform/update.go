@@ -1,8 +1,7 @@
 package transform
 
 import (
-	"github.com/auho/go-etl/v3/job/extract"
-	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/collector"
 	"github.com/auho/go-etl/v3/job/transform/filter"
 )
 
@@ -13,12 +12,12 @@ type Update struct {
 }
 
 func newUpdateFromPipeline(p *pipeline) *Update {
-	return NewUpdate(p.collector, p.extractor, p.predicate)
+	return NewUpdate(p.collector, p.predicate)
 }
 
-func NewUpdate(c collect.Collector, e extract.Extractor, p filter.Predicate) *Update {
+func NewUpdate(c *collector.Collector, p filter.Predicate) *Update {
 	return &Update{
-		pipeline: newPipeline(c, e, p),
+		pipeline: newPipeline(c, p),
 	}
 }
 

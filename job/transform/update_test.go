@@ -4,11 +4,13 @@ import (
 	"testing"
 
 	"github.com/auho/go-etl/v3/job/extract/tag"
-	"github.com/auho/go-etl/v3/job/transform/collect"
+	"github.com/auho/go-etl/v3/job/transform/collector"
+	"github.com/auho/go-etl/v3/job/transform/collector/keys"
+	"github.com/auho/go-etl/v3/job/transform/collector/mode"
 )
 
 func TestUpdate(t *testing.T) {
-	_mu := NewUpdate(collect.NewKeysAll([]string{_keyName}), tag.NewMostText(_rule), nil)
+	_mu := NewUpdate(collector.NewCollector(keys.New([]string{_keyName}), mode.NewAll(), tag.NewMostText(_rule)), nil)
 	err := _mu.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -23,7 +25,7 @@ func TestUpdate(t *testing.T) {
 		t.Error("update most text error")
 	}
 
-	_mu2 := NewUpdate(collect.NewKeysAll([]string{_keyName}), tag.NewMostKey(_rule), nil)
+	_mu2 := NewUpdate(collector.NewCollector(keys.New([]string{_keyName}), mode.NewAll(), tag.NewMostKey(_rule)), nil)
 	err = _mu2.Prepare()
 	if err != nil {
 		t.Fatal(err)
