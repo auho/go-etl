@@ -4,32 +4,20 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v3/job/extract"
+	"github.com/auho/go-etl/v3/job/transform/collector/mode"
+	"github.com/auho/go-etl/v3/job/transform/collector/source"
 )
-
-// Source provides ordered content values from a data source.
-type Source interface {
-	Title() string
-	Keys() []string
-	Prepare() error
-	Contents(keys []string, item map[string]any) ([]string, error)
-}
-
-// Mode decides which keys to select and how to drive the Extractor.
-type Mode interface {
-	Prepare() error
-	Apply(source Source, item map[string]any, e extract.Extractor) (extract.Result, error)
-}
 
 // Collector orchestrates a Source, a Mode, and an Extractor.
 // All lifecycle and extraction logic is unified here.
 type Collector struct {
-	source    Source
-	mode      Mode
+	source    source.Source
+	mode      mode.Mode
 	extractor extract.Extractor
 }
 
-func NewCollector(source Source, mode Mode, extractor extract.Extractor) *Collector {
-	return &Collector{source: source, mode: mode, extractor: extractor}
+func NewCollector(s source.Source, m mode.Mode, e extract.Extractor) *Collector {
+	return &Collector{source: s, mode: m, extractor: e}
 }
 
 // Title returns the combined title of source and extractor.
@@ -48,6 +36,7 @@ func (c *Collector) Keys() []string {
 	if export == nil {
 		return nil
 	}
+
 	return export.Keys()
 }
 
@@ -58,11 +47,13 @@ func (c *Collector) DefaultValues() map[string]any {
 
 func (c *Collector) Prepare() error {
 	if err := c.source.Prepare(); err != nil {
-		return err
+		return fmt.Errorf("source.Prepare: %w", err)
 	}
+
 	if err := c.mode.Prepare(); err != nil {
-		return err
+		return fmt.Errorf("mode.Prepare: %w", err)
 	}
+
 	return c.extractor.Prepare()
 }
 
@@ -71,5 +62,10 @@ func (c *Collector) Close() error {
 }
 
 func (c *Collector) Extract(item map[string]any) (extract.Result, error) {
-	return c.mode.Apply(c.source, item, c.extractor)
+	keys, keysValue, err := c.source.Contents(item)
+	if err != nil {
+		return extract.Result{}, fmt.Errorf("source.Contents: %w", err)
+	}
+
+	return c.mode.Apply(keys, keysValue, c.extractor)
 }

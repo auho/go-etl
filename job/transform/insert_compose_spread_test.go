@@ -5,13 +5,11 @@ import (
 
 	"github.com/auho/go-etl/v3/job/extract/segword"
 	"github.com/auho/go-etl/v3/job/transform/collector"
-	"github.com/auho/go-etl/v3/job/transform/collector/keys"
-	"github.com/auho/go-etl/v3/job/transform/collector/mode"
 )
 
 func TestInsertComposeSpread(t *testing.T) {
 	ins1 := newTestInsert(t)
-	ins2 := NewInsert(collector.NewCollector(keys.New([]string{_keyName}), mode.NewAll(), segword.NewDefault()), nil)
+	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewDefault()), nil)
 	err := ins2.Prepare()
 	if err != nil {
 		t.Fatal(err)

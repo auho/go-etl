@@ -5,8 +5,6 @@ import (
 
 	"github.com/auho/go-etl/v3/job/extract/segword"
 	"github.com/auho/go-etl/v3/job/transform/collector"
-	"github.com/auho/go-etl/v3/job/transform/collector/keys"
-	"github.com/auho/go-etl/v3/job/transform/collector/mode"
 )
 
 func TestInsertStack(t *testing.T) {
@@ -16,7 +14,7 @@ func TestInsertStack(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ins2 := NewInsert(collector.NewCollector(keys.New([]string{_keyName}), mode.NewAll(), segword.NewDefault()), nil)
+	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewDefault()), nil)
 	err = ins2.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -62,7 +60,7 @@ func TestInsertStack_SingleInsert(t *testing.T) {
 
 func TestInsertStack_Keys(t *testing.T) {
 	ins := newTestInsert(t)
-	ins2 := NewInsert(collector.NewCollector(keys.New([]string{_keyName}), mode.NewAll(), segword.NewDefault()), nil)
+	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewDefault()), nil)
 	err := ins2.Prepare()
 	if err != nil {
 		t.Fatal(err)

@@ -4,14 +4,13 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v3/job/extract"
-	"github.com/auho/go-etl/v3/job/transform/collector"
 )
 
 type lastN struct{ n int }
 
-var _ collector.Mode = (*lastN)(nil)
+var _ Mode = (*lastN)(nil)
 
-func NewLastN(n int) collector.Mode { return &lastN{n: n} }
+func NewLastN(n int) Mode { return &lastN{n: n} }
 
 func (m *lastN) Prepare() error {
 	if m.n <= 0 {
@@ -19,6 +18,6 @@ func (m *lastN) Prepare() error {
 	}
 	return nil
 }
-func (m *lastN) Apply(source collector.Source, item map[string]any, e extract.Extractor) (extract.Result, error) {
-	return searchContents(source, takeLast(source.Keys(), m.n), item, e)
+func (m *lastN) Apply(keys []string, keysValue map[string]string, e extract.Extractor) (extract.Result, error) {
+	return e.Search(valuesByKeys(takeLast(keys, m.n), keysValue)), nil
 }

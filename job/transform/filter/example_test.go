@@ -3,13 +3,11 @@ package filter
 import (
 	"github.com/auho/go-etl/v3/job/extract"
 	"github.com/auho/go-etl/v3/job/transform/collector"
-	"github.com/auho/go-etl/v3/job/transform/collector/keys"
-	"github.com/auho/go-etl/v3/job/transform/collector/mode"
 )
 
 func ExampleNewFilterPredicate() {
 	var _search extract.Extractor
-	opt := NewFilterPredicate(collector.NewCollector(keys.New([]string{"a"}), mode.NewAll(), _search))
+	opt := NewFilterPredicate(collector.NewKeysAll([]string{"a"}, _search))
 
 	_ = opt
 }

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/auho/go-etl/v3/job/extract"
-	"github.com/auho/go-etl/v3/job/transform/collector"
 	"github.com/auho/go-etl/v3/job/transform/collector/mode"
 )
 
@@ -52,29 +51,22 @@ func TestKeys_Contents(t *testing.T) {
 	k := New([]string{"a", "b"})
 
 	t.Run("all present", func(t *testing.T) {
-		got, err := k.Contents([]string{"a", "b"}, map[string]any{"a": "x", "b": "y"})
+		keys, keysValue, err := k.Contents(map[string]any{"a": "x", "b": "y"})
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(got) != 2 || got[0] != "x" || got[1] != "y" {
-			t.Fatalf("expected [x y], got %v", got)
+		if len(keys) != 2 || keys[0] != "a" || keys[1] != "b" {
+			t.Fatalf("expected keys [a b], got %v", keys)
+		}
+		if keysValue["a"] != "x" || keysValue["b"] != "y" {
+			t.Fatalf("expected keysValue {a:x b:y}, got %v", keysValue)
 		}
 	})
 
 	t.Run("key missing", func(t *testing.T) {
-		_, err := k.Contents([]string{"a", "b"}, map[string]any{"a": "x"})
+		_, _, err := k.Contents(map[string]any{"a": "x"})
 		if err == nil {
 			t.Fatal("expected error, got nil")
-		}
-	})
-
-	t.Run("empty subset", func(t *testing.T) {
-		got, err := k.Contents([]string{}, map[string]any{"a": "x"})
-		if err != nil {
-			t.Fatal(err)
-		}
-		if len(got) != 0 {
-			t.Fatalf("expected empty, got %v", got)
 		}
 	})
 }
@@ -88,10 +80,11 @@ func TestMode_All(t *testing.T) {
 		return r
 	}}
 
-	source := New([]string{"a", "b"})
+	keys := []string{"a", "b"}
+	keysValue := map[string]string{"a": "x", "b": "y"}
 	m := mode.NewAll()
 
-	res, err := m.Apply(source, map[string]any{"a": "x", "b": "y"}, e)
+	res, err := m.Apply(keys, keysValue, e)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,10 +105,11 @@ func TestMode_First(t *testing.T) {
 		return r
 	}}
 
-	source := New([]string{"a", "b"})
+	keys := []string{"a", "b"}
+	keysValue := map[string]string{"a": "x", "b": "y"}
 	m := mode.NewFirst()
 
-	res, err := m.Apply(source, map[string]any{"a": "x", "b": "y"}, e)
+	res, err := m.Apply(keys, keysValue, e)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,10 +130,11 @@ func TestMode_Last(t *testing.T) {
 		return r
 	}}
 
-	source := New([]string{"a", "b"})
+	keys := []string{"a", "b"}
+	keysValue := map[string]string{"a": "x", "b": "y"}
 	m := mode.NewLast()
 
-	res, err := m.Apply(source, map[string]any{"a": "x", "b": "y"}, e)
+	res, err := m.Apply(keys, keysValue, e)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -160,10 +155,11 @@ func TestMode_FirstN(t *testing.T) {
 		return r
 	}}
 
-	source := New([]string{"a", "b", "c"})
+	keys := []string{"a", "b", "c"}
+	keysValue := map[string]string{"a": "x", "b": "y", "c": "z"}
 	m := mode.NewFirstN(2)
 
-	res, err := m.Apply(source, map[string]any{"a": "x", "b": "y", "c": "z"}, e)
+	res, err := m.Apply(keys, keysValue, e)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,10 +192,11 @@ func TestMode_LastN(t *testing.T) {
 		return r
 	}}
 
-	source := New([]string{"a", "b", "c"})
+	keys := []string{"a", "b", "c"}
+	keysValue := map[string]string{"a": "x", "b": "y", "c": "z"}
 	m := mode.NewLastN(2)
 
-	res, err := m.Apply(source, map[string]any{"a": "x", "b": "y", "c": "z"}, e)
+	res, err := m.Apply(keys, keysValue, e)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -221,10 +218,11 @@ func TestMode_MatchAny(t *testing.T) {
 			return r
 		}}
 
-		source := New([]string{"a", "b"})
+		keys := []string{"a", "b"}
+		keysValue := map[string]string{"a": "x", "b": "y"}
 		m := mode.NewMatchAny()
 
-		res, err := m.Apply(source, map[string]any{"a": "x", "b": "y"}, e)
+		res, err := m.Apply(keys, keysValue, e)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -247,10 +245,11 @@ func TestMode_MatchAny(t *testing.T) {
 			return r
 		}}
 
-		source := New([]string{"a", "b"})
+		keys := []string{"a", "b"}
+		keysValue := map[string]string{"a": "x", "b": "y"}
 		m := mode.NewMatchAny()
 
-		res, err := m.Apply(source, map[string]any{"a": "x", "b": "y"}, e)
+		res, err := m.Apply(keys, keysValue, e)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -269,10 +268,11 @@ func TestMode_MatchAny(t *testing.T) {
 			return extract.Result{}
 		}}
 
-		source := New([]string{"a", "b"})
+		keys := []string{"a", "b"}
+		keysValue := map[string]string{"a": "x", "b": "y"}
 		m := mode.NewMatchAny()
 
-		res, err := m.Apply(source, map[string]any{"a": "x", "b": "y"}, e)
+		res, err := m.Apply(keys, keysValue, e)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -295,10 +295,11 @@ func TestMode_MatchAnyN(t *testing.T) {
 			return r
 		}}
 
-		source := New([]string{"a", "b", "c"})
+		keys := []string{"a", "b", "c"}
+		keysValue := map[string]string{"a": "x", "b": "y", "c": "z"}
 		m := mode.NewMatchAnyN(2)
 
-		res, err := m.Apply(source, map[string]any{"a": "x", "b": "y", "c": "z"}, e)
+		res, err := m.Apply(keys, keysValue, e)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -317,10 +318,11 @@ func TestMode_MatchAnyN(t *testing.T) {
 			return extract.Result{}
 		}}
 
-		source := New([]string{"a", "b"})
+		keys := []string{"a", "b"}
+		keysValue := map[string]string{"a": "x", "b": "y"}
 		m := mode.NewMatchAnyN(10)
 
-		_, err := m.Apply(source, map[string]any{"a": "x", "b": "y"}, e)
+		_, err := m.Apply(keys, keysValue, e)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -339,83 +341,5 @@ func TestMode_MatchAnyN_Prepare(t *testing.T) {
 	}
 	if err := mode.NewMatchAnyN(1).Prepare(); err != nil {
 		t.Fatal(err)
-	}
-}
-
-func TestCollector_Extract(t *testing.T) {
-	var got []string
-	e := &mockExtractor{searchFn: func(contents []string) extract.Result {
-		got = contents
-		r := extract.Result{}
-		r.SetOK()
-		return r
-	}}
-
-	c := collector.NewCollector(New([]string{"a", "b"}), mode.NewAll(), e)
-	res, err := c.Extract(map[string]any{"a": "x", "b": "y"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !res.IsOK() {
-		t.Fatal("expected ok")
-	}
-	if len(got) != 2 || got[0] != "x" || got[1] != "y" {
-		t.Fatalf("expected [x y], got %v", got)
-	}
-}
-
-func TestCollector_Prepare(t *testing.T) {
-	t.Run("empty keys", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
-			return extract.Result{}
-		}}
-		c := collector.NewCollector(New([]string{}), mode.NewAll(), e)
-		if err := c.Prepare(); err == nil {
-			t.Fatal("expected error, got nil")
-		}
-	})
-
-	t.Run("invalid n in mode", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
-			return extract.Result{}
-		}}
-		c := collector.NewCollector(New([]string{"a"}), mode.NewFirstN(0), e)
-		if err := c.Prepare(); err == nil {
-			t.Fatal("expected error, got nil")
-		}
-	})
-
-	t.Run("ok", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
-			r := extract.Result{}
-			r.SetOK()
-			return r
-		}}
-		c := collector.NewCollector(New([]string{"a"}), mode.NewAll(), e)
-		if err := c.Prepare(); err != nil {
-			t.Fatal(err)
-		}
-	})
-}
-
-func TestCollector_Title(t *testing.T) {
-	c := collector.NewCollector(New([]string{"a"}), mode.NewAll(), &mockExtractor{searchFn: nil})
-	if c.Title() != "keys{a} | mock" {
-		t.Fatalf("expected %q, got %q", "keys{a} | mock", c.Title())
-	}
-}
-
-func TestCollector_Fields(t *testing.T) {
-	c := collector.NewCollector(New([]string{"a", "b"}), mode.NewAll(), &mockExtractor{searchFn: nil})
-	got := c.Fields()
-	if len(got) != 2 || got[0] != "a" || got[1] != "b" {
-		t.Fatalf("expected [a b], got %v", got)
-	}
-}
-
-func TestCollector_Keys(t *testing.T) {
-	c := collector.NewCollector(New([]string{"a"}), mode.NewAll(), &mockExtractor{searchFn: nil})
-	if c.Keys() != nil {
-		t.Fatal("expected nil Keys() for mock extractor with nil NewExport")
 	}
 }

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v3/job/transform/collector"
+	"github.com/auho/go-etl/v3/job/transform/collector/source"
 	typesStrings "github.com/auho/go-toolkit/v2/farmtools/convert/types/strings"
 )
 
-var _ collector.Source = (*Keys)(nil)
+var _ source.Source = (*Keys)(nil)
 
 // Keys is a Source that reads content from a map by string keys.
 type Keys struct {
@@ -31,17 +31,18 @@ func (k *Keys) Prepare() error {
 	if len(k.keys) == 0 {
 		return fmt.Errorf("keys is empty")
 	}
+
 	return nil
 }
 
-func (k *Keys) Contents(ks []string, item map[string]any) ([]string, error) {
-	contents := make([]string, 0, len(ks))
-	for _, key := range ks {
+func (k *Keys) Contents(item map[string]any) ([]string, map[string]string, error) {
+	keysValue := make(map[string]string, len(k.keys))
+	for _, key := range k.keys {
 		v, err := typesStrings.FromAny(item[key])
 		if err != nil {
-			return nil, fmt.Errorf("FromAny[%s]%T: %w", key, item[key], err)
+			return nil, nil, fmt.Errorf("FromAny[%s]%T: %w", key, item[key], err)
 		}
-		contents = append(contents, v)
+		keysValue[key] = v
 	}
-	return contents, nil
+	return k.keys, keysValue, nil
 }
