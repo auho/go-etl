@@ -1,7 +1,7 @@
 package demand
 
 import (
-	"github.com/auho/go-etl/v3/example/demand/build"
+	"github.com/auho/go-etl/v3/example/demand/builder"
 	"github.com/auho/go-etl/v3/example/demand/layout"
 	"github.com/auho/go-etl/v3/example/demand/query"
 	"github.com/auho/go-etl/v3/example/demand/tag"
@@ -28,7 +28,7 @@ func Initial(parentCmd *cobra.Command) {
 		return nil
 	})
 
-	build.Initial(parentCmd)
+	builder.Initial(parentCmd)
 	tag.Initial(parentCmd)
 	query.Initial(parentCmd)
 

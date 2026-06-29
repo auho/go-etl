@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/auho/go-etl/v3/insight/assistant/excel/write"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/writer"
 	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 	"github.com/auho/go-etl/v3/insight/assistant/query/source"
 	"github.com/auho/go-toolkit/v2/time/timing"
@@ -18,7 +18,7 @@ type subQuery struct {
 
 type Query struct {
 	xlsxPath string
-	excel    *write.Excel
+	excel    *writer.Excel
 
 	queries  []*subQuery
 	state    state
@@ -55,7 +55,7 @@ func NewQueryWithPath(xlsxFilePath string) (*Query, error) {
 	q.duration.Start()
 
 	var err error
-	q.excel, err = write.NewExcel(q.xlsxPath)
+	q.excel, err = writer.NewExcel(q.xlsxPath)
 	if err != nil {
 		return nil, fmt.Errorf("NewExcel: %w", err)
 	}

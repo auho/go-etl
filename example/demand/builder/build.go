@@ -1,4 +1,4 @@
-package build
+package builder
 
 import (
 	"github.com/auho/go-etl/v3/insight/app"

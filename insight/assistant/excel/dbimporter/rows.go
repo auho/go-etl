@@ -1,8 +1,8 @@
-package dbimport
+package dbimporter
 
 import (
 	"github.com/auho/go-etl/v3/insight/assistant"
-	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/reader"
 	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
 	simpledb "github.com/auho/go-simple-db/v3"
 )
@@ -27,7 +27,7 @@ func (rs *RowsResource) GetTable() buildtable.Tabler {
 	return buildtable.NewRowsTable(rs.Rows)
 }
 
-func (rs *RowsResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, error) {
+func (rs *RowsResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	return rs.readSheetData(excel, rs.buildSheetConfig())
 }
 

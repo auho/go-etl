@@ -1,9 +1,9 @@
-package dbimport
+package dbimporter
 
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/reader"
 	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
 	slices "github.com/auho/go-etl/v3/tool/slicex"
 )
@@ -11,7 +11,7 @@ import (
 type ImportToDB struct {
 	xlsxPath string
 	resource []Resource
-	excel    *read.Excel
+	excel    *reader.Excel
 }
 
 func RunImportToDb(xlsxPath string, sr ...Resource) error {
@@ -27,7 +27,7 @@ func (it *ImportToDB) Import() error {
 	fmt.Println(fmt.Sprintf("import start[%s]", it.xlsxPath))
 
 	var err error
-	it.excel, err = read.NewExcel(it.xlsxPath)
+	it.excel, err = reader.NewExcel(it.xlsxPath)
 	if err != nil {
 		return fmt.Errorf("NewExcel: %w", err)
 	}
@@ -105,7 +105,7 @@ func (it *ImportToDB) buildResourceTable(resource Resource, table buildtable.Tab
 	return nil
 }
 
-func (it *ImportToDB) importResourceToTable(resource Resource, table buildtable.Tabler, sheetData read.SheetDataReader) error {
+func (it *ImportToDB) importResourceToTable(resource Resource, table buildtable.Tabler, sheetData reader.SheetDataReader) error {
 	var err error
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {

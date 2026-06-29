@@ -1,10 +1,10 @@
-package dbimport
+package dbimporter
 
 import (
 	"fmt"
 
 	"github.com/auho/go-etl/v3/insight/assistant"
-	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/reader"
 	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
 	simpledb "github.com/auho/go-simple-db/v3"
 )
@@ -17,7 +17,7 @@ type RawResource struct {
 	Rows assistant.Entity
 
 	titlesName []string
-	sheetData  *read.SheetDataWithTitle
+	sheetData  *reader.SheetDataWithTitle
 }
 
 func (rs *RawResource) GetDB() *simpledb.SimpleDB {
@@ -49,15 +49,15 @@ func (rs *RawResource) GetTitlesIndex() []int {
 	return indexes
 }
 
-func (rs *RawResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, error) {
+func (rs *RawResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	var err error
 	rs.sheetData, err = rs.readSheetData(excel, rs.buildSheetConfig())
 
 	return rs.sheetData, err
 }
 
-func (rs *RawResource) readSheetData(excel *read.Excel, sheetConfig read.Config) (*read.SheetDataWithTitle, error) {
-	sheetData, err := read.NewSheetDataWithTitle(excel, sheetConfig, nil)
+func (rs *RawResource) readSheetData(excel *reader.Excel, sheetConfig reader.Config) (*reader.SheetDataWithTitle, error) {
+	sheetData, err := reader.NewSheetDataWithTitle(excel, sheetConfig, nil)
 	if err != nil {
 		return nil, fmt.Errorf("NewSheetDataWithTitle: %w", err)
 	}

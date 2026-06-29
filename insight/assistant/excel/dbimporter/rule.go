@@ -1,4 +1,4 @@
-package dbimport
+package dbimporter
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/auho/go-etl/v3/insight/assistant"
-	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/reader"
 	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
 	simpledb "github.com/auho/go-simple-db/v3"
 )
@@ -32,7 +32,7 @@ func (rs *RuleResource) GetTable() buildtable.Tabler {
 	return buildtable.NewRuleTable(rs.Rule)
 }
 
-func (rs *RuleResource) GetSheetData(excel *read.Excel) (read.SheetDataReader, error) {
+func (rs *RuleResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	sheetData, err := rs.readSheetData(excel, rs.buildSheetConfig())
 	if err != nil {
 		return nil, fmt.Errorf("readSheetData: %w", err)

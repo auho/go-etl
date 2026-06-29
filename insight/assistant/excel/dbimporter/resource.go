@@ -1,7 +1,7 @@
-package dbimport
+package dbimporter
 
 import (
-	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/reader"
 	"github.com/auho/go-etl/v3/insight/assistant/schema"
 	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
 	simpledb "github.com/auho/go-simple-db/v3"
@@ -20,7 +20,7 @@ type Resource interface {
 	GetTable() buildtable.Tabler
 	GetTitlesName() []string
 	GetTitlesIndex() []int
-	GetSheetData(*read.Excel) (read.SheetDataReader, error)
+	GetSheetData(*reader.Excel) (reader.SheetDataReader, error)
 
 	ExecCommand(*schema.Command)
 	AfterDo(Resource) error
@@ -40,8 +40,8 @@ type ResourceBase struct {
 	PostFun              func(Resource) error  // 导入后的执行的 func
 }
 
-func (s *ResourceBase) buildSheetConfig() read.Config {
-	return read.Config{
+func (s *ResourceBase) buildSheetConfig() reader.Config {
+	return reader.Config{
 		SheetName:  s.SheetName,
 		SheetIndex: s.SheetIndex,
 		StartRow:   s.StartRow,

@@ -1,4 +1,4 @@
-package read
+package reader
 
 var _ SheetDataReader = (*SheetDataNoTitle)(nil)
 

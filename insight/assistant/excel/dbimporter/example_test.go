@@ -1,4 +1,4 @@
-package dbimport
+package dbimporter
 
 import (
 	"fmt"

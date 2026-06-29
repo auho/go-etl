@@ -1,4 +1,4 @@
-package read
+package reader
 
 import (
 	"github.com/auho/go-etl/v3/insight/assistant/model"

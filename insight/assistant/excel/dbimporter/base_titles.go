@@ -1,10 +1,10 @@
-package dbimport
+package dbimporter
 
 import (
 	"fmt"
 	"sort"
 
-	"github.com/auho/go-etl/v3/insight/assistant/excel/read"
+	"github.com/auho/go-etl/v3/insight/assistant/excel/reader"
 )
 
 // Titles
@@ -30,9 +30,9 @@ func (t *Titles) GetTitlesIndex() []int {
 	return t.titlesIndex
 }
 
-func (t *Titles) readSheetData(excel *read.Excel, sheetConfig read.Config) (*read.SheetDataNoTitle, error) {
+func (t *Titles) readSheetData(excel *reader.Excel, sheetConfig reader.Config) (*reader.SheetDataNoTitle, error) {
 	sheetConfig.ColsIndex = t.titlesIndex
-	sheetData, err := read.NewSheetDataNoTitle(excel, sheetConfig)
+	sheetData, err := reader.NewSheetDataNoTitle(excel, sheetConfig)
 	if err != nil {
 		return nil, fmt.Errorf("NewSheetDataNoTitle: %w", err)
 	}
