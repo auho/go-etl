@@ -11,8 +11,8 @@ import (
 type pipeline struct {
 	base
 
-	collector  *collector.Collector
-	predicate  filter.Predicate
+	collector *collector.Collector
+	predicate filter.Predicate
 
 	hasPredicate  bool
 	defaultValues map[string]any
@@ -76,7 +76,7 @@ func (p *pipeline) DefaultValues() map[string]any {
 
 func (p *pipeline) Prepare() error {
 	if err := p.collector.Prepare(); err != nil {
-		return err
+		return fmt.Errorf("collector.Prepare: %w", err)
 	}
 
 	if p.predicate != nil {

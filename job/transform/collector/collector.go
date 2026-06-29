@@ -54,7 +54,11 @@ func (c *Collector) Prepare() error {
 		return fmt.Errorf("mode.Prepare: %w", err)
 	}
 
-	return c.extractor.Prepare()
+	if err := c.extractor.Prepare(); err != nil {
+		return fmt.Errorf("extractor.Prepare: %w", err)
+	}
+
+	return nil
 }
 
 func (c *Collector) Close() error {
