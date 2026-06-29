@@ -8,7 +8,7 @@ func TestNewContainsAll(t *testing.T) {
 	pred := NewContainsAll("a", []string{"a1", "a2"})
 
 	// all subs present
-	ok, err := pred(map[string]any{"a": "a1a2"})
+	ok, err := pred.Match(map[string]any{"a": "a1a2"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -17,7 +17,7 @@ func TestNewContainsAll(t *testing.T) {
 	}
 
 	// partial sub present
-	ok, err = pred(map[string]any{"a": "a1"})
+	ok, err = pred.Match(map[string]any{"a": "a1"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func TestNewContainsAll(t *testing.T) {
 	}
 
 	// no sub present
-	ok, err = pred(map[string]any{"a": "b"})
+	ok, err = pred.Match(map[string]any{"a": "b"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +35,7 @@ func TestNewContainsAll(t *testing.T) {
 	}
 
 	// empty string value
-	ok, err = pred(map[string]any{"a": ""})
+	ok, err = pred.Match(map[string]any{"a": ""})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func TestNewContainsAll(t *testing.T) {
 func TestNewContainsAll_EmptySubs(t *testing.T) {
 	// empty subs -> loop does not execute -> true
 	pred := NewContainsAll("a", []string{})
-	ok, err := pred(map[string]any{"a": "anything"})
+	ok, err := pred.Match(map[string]any{"a": "anything"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func TestNewContainsAll_EmptySubs(t *testing.T) {
 func TestNewContainsAll_NonStringType(t *testing.T) {
 	// int value is converted to string then checked
 	pred := NewContainsAll("a", []string{"12"})
-	ok, err := pred(map[string]any{"a": 123})
+	ok, err := pred.Match(map[string]any{"a": 123})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +68,7 @@ func TestNewContainsAll_NonStringType(t *testing.T) {
 	}
 
 	// int value not containing sub
-	ok, err = pred(map[string]any{"a": 456})
+	ok, err = pred.Match(map[string]any{"a": 456})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func TestNewContainsAll_ErrorOnNilMap(t *testing.T) {
 	// nil map -> m[key] is nil -> FromAny(nil) errors -> return error
 	pred := NewContainsAll("a", []string{"a1"})
 
-	_, err := pred(nil)
+	_, err := pred.Match(nil)
 	if err == nil {
 		t.Fatal("expected error for nil map")
 	}
@@ -91,7 +91,7 @@ func TestNewContainsAll_ErrorOnMissingKey(t *testing.T) {
 	// missing key -> m[key] is nil -> FromAny(nil) errors -> return error
 	pred := NewContainsAll("a", []string{"a1"})
 
-	_, err := pred(map[string]any{"b": "x"})
+	_, err := pred.Match(map[string]any{"b": "x"})
 	if err == nil {
 		t.Fatal("expected error for missing key")
 	}
@@ -101,7 +101,7 @@ func TestNewContainsAll_ErrorOnUnsupportedType(t *testing.T) {
 	// bool is not supported by FromAny -> return error
 	pred := NewContainsAll("a", []string{"a1"})
 
-	_, err := pred(map[string]any{"a": true})
+	_, err := pred.Match(map[string]any{"a": true})
 	if err == nil {
 		t.Fatal("expected error for unsupported type")
 	}
@@ -111,7 +111,7 @@ func TestNewContainsAny(t *testing.T) {
 	pred := NewContainsAny("a", []string{"a1", "a2"})
 
 	// first sub present
-	ok, err := pred(map[string]any{"a": "a1b"})
+	ok, err := pred.Match(map[string]any{"a": "a1b"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestNewContainsAny(t *testing.T) {
 	}
 
 	// second sub present
-	ok, err = pred(map[string]any{"a": "ba2"})
+	ok, err = pred.Match(map[string]any{"a": "ba2"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +129,7 @@ func TestNewContainsAny(t *testing.T) {
 	}
 
 	// both subs present
-	ok, err = pred(map[string]any{"a": "a1a2"})
+	ok, err = pred.Match(map[string]any{"a": "a1a2"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +138,7 @@ func TestNewContainsAny(t *testing.T) {
 	}
 
 	// no sub present
-	ok, err = pred(map[string]any{"a": "b"})
+	ok, err = pred.Match(map[string]any{"a": "b"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +147,7 @@ func TestNewContainsAny(t *testing.T) {
 	}
 
 	// empty string value
-	ok, err = pred(map[string]any{"a": ""})
+	ok, err = pred.Match(map[string]any{"a": ""})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,7 +159,7 @@ func TestNewContainsAny(t *testing.T) {
 func TestNewContainsAny_EmptySubs(t *testing.T) {
 	// empty subs -> loop does not execute -> false
 	pred := NewContainsAny("a", []string{})
-	ok, err := pred(map[string]any{"a": "anything"})
+	ok, err := pred.Match(map[string]any{"a": "anything"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +171,7 @@ func TestNewContainsAny_EmptySubs(t *testing.T) {
 func TestNewContainsAny_NonStringType(t *testing.T) {
 	// int value is converted to string then checked
 	pred := NewContainsAny("a", []string{"12"})
-	ok, err := pred(map[string]any{"a": 123})
+	ok, err := pred.Match(map[string]any{"a": 123})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +180,7 @@ func TestNewContainsAny_NonStringType(t *testing.T) {
 	}
 
 	// int value not containing sub
-	ok, err = pred(map[string]any{"a": 456})
+	ok, err = pred.Match(map[string]any{"a": 456})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +193,7 @@ func TestNewContainsAny_ErrorOnNilMap(t *testing.T) {
 	// nil map -> m[key] is nil -> FromAny(nil) errors -> return error
 	pred := NewContainsAny("a", []string{"a1"})
 
-	_, err := pred(nil)
+	_, err := pred.Match(nil)
 	if err == nil {
 		t.Fatal("expected error for nil map")
 	}
@@ -203,7 +203,7 @@ func TestNewContainsAny_ErrorOnMissingKey(t *testing.T) {
 	// missing key -> m[key] is nil -> FromAny(nil) errors -> return error
 	pred := NewContainsAny("a", []string{"a1"})
 
-	_, err := pred(map[string]any{"b": "x"})
+	_, err := pred.Match(map[string]any{"b": "x"})
 	if err == nil {
 		t.Fatal("expected error for missing key")
 	}

@@ -2,11 +2,14 @@ package filter
 
 import "fmt"
 
-var _ Spec = (*And)(nil)
-var _ Spec = (*Or)(nil)
+var _ Predicate = And{}
+var _ Predicate = Or{}
 
+// Expression is an ordered list of predicates used by the logical combinators
+// And and Or.
 type Expression = []Predicate
 
+// And is a predicate that is true only when every operand matches.
 type And Expression
 
 func NewAnd(ps ...Predicate) And {
@@ -16,11 +19,21 @@ func NewAnd(ps ...Predicate) And {
 	return a
 }
 
-func (a And) OK(m map[string]any) (bool, error) {
+func (a And) Prepare() error {
 	for _, op := range a {
-		ok, err := op(m)
+		if err := op.Prepare(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (a And) Match(m map[string]any) (bool, error) {
+	for _, op := range a {
+		ok, err := op.Match(m)
 		if err != nil {
-			return false, fmt.Errorf("And.OK: %w", err)
+			return false, fmt.Errorf("And.Match: %w", err)
 		}
 		if !ok {
 			return false, nil
@@ -30,12 +43,7 @@ func (a And) OK(m map[string]any) (bool, error) {
 	return true, nil
 }
 
-func (a And) ToPredicate() Predicate {
-	return func(m map[string]any) (bool, error) {
-		return a.OK(m)
-	}
-}
-
+// Or is a predicate that is true when any operand matches.
 type Or Expression
 
 func NewOr(ps ...Predicate) Or {
@@ -45,11 +53,21 @@ func NewOr(ps ...Predicate) Or {
 	return o
 }
 
-func (o Or) OK(m map[string]any) (bool, error) {
+func (o Or) Prepare() error {
 	for _, op := range o {
-		ok, err := op(m)
+		if err := op.Prepare(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o Or) Match(m map[string]any) (bool, error) {
+	for _, op := range o {
+		ok, err := op.Match(m)
 		if err != nil {
-			return false, fmt.Errorf("Or.OK: %w", err)
+			return false, fmt.Errorf("Or.Match: %w", err)
 		}
 		if ok {
 			return true, nil
@@ -57,10 +75,4 @@ func (o Or) OK(m map[string]any) (bool, error) {
 	}
 
 	return false, nil
-}
-
-func (o Or) ToPredicate() Predicate {
-	return func(m map[string]any) (bool, error) {
-		return o.OK(m)
-	}
 }

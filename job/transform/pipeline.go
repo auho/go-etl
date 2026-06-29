@@ -30,7 +30,7 @@ func (p *pipeline) evaluatePredicate(item map[string]any) (bool, error) {
 		return true, nil
 	}
 
-	return p.predicate(item)
+	return p.predicate.Match(item)
 }
 
 func (p *pipeline) apply(item map[string]any) ([]map[string]any, error) {
@@ -80,6 +80,9 @@ func (p *pipeline) Prepare() error {
 	}
 
 	if p.predicate != nil {
+		if err := p.predicate.Prepare(); err != nil {
+			return fmt.Errorf("predicate.Prepare: %w", err)
+		}
 		p.hasPredicate = true
 	}
 
