@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var _placeholder = fmt.Sprintf("%c", 0x00)
+var placeholder = fmt.Sprintf("%c", 0x00)
 
 type seekType uint8
 
@@ -15,6 +15,7 @@ const (
 	seekFuzzy
 )
 
+// seek content
 type seekContent struct {
 	maxSeekNum int
 
@@ -29,6 +30,7 @@ type seekContent struct {
 	content string
 }
 
+// seek result
 type seekResult struct {
 	index   int               // 多个 content， content 的序号
 	start   int               // start 包含
@@ -40,12 +42,13 @@ type seekResult struct {
 
 type seekResults []seekResult
 
+// seek config
 type seekConfig struct {
 	debug bool
 }
 
 // seeker
-// content，keyword 大小写在 match 已经处理过
+// content，keyword 大小写在 scanner 已经处理过
 // 这里区分大小写
 type seeker interface {
 	// origin string:
@@ -57,25 +60,25 @@ type seeker interface {
 	seeking(seekContent) (seekResults, seekContent, bool)
 }
 
+// seek
 type seek struct {
 	config seekConfig
 }
 
 func (s *seek) replaceMatchedToPlaceholder(content, matched string) string {
-	return strings.ReplaceAll(content, matched, _placeholder)
+	return strings.ReplaceAll(content, matched, placeholder)
 }
 
 func (s *seek) matchedToPlaceholder(matched string) string {
-	return strings.Repeat(_placeholder, len(matched))
+	return strings.Repeat(placeholder, len(matched))
 }
 
-func newSeeker(keyIndex int, originKey, key string, tags map[string]string, matcherConfig *matcherConfig) (seeker, seekType) {
-	config := seekConfig{debug: matcherConfig.debug}
+func newSeeker(keyIndex int, originKey, key string, tags map[string]string, fc FuzzyConfig, sc seekConfig) (seeker, seekType) {
 	newTags := maps.Clone(tags)
 
-	if matcherConfig.enableFuzzy && strings.Index(key, matcherConfig.fuzzyConfig.Sep) > -1 {
-		return newFuzzy(keyIndex, originKey, key, newTags, matcherConfig.fuzzyConfig, config), seekFuzzy
+	if fc.shouldFuzzy(key) {
+		return newFuzzy(keyIndex, originKey, key, newTags, fc, sc), seekFuzzy
 	} else {
-		return newAccurate(keyIndex, originKey, key, newTags, config), seekAccurate
+		return newAccurate(keyIndex, originKey, key, newTags, sc), seekAccurate
 	}
 }

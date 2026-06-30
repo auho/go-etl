@@ -30,19 +30,14 @@ func (c *Collector) Fields() []string {
 	return c.source.Keys()
 }
 
-// Keys returns the extractor export keys (output fields).
+// Keys returns the extractor output keys.
 func (c *Collector) Keys() []string {
-	export := c.extractor.NewExport()
-	if export == nil {
-		return nil
-	}
-
-	return export.Keys()
+	return c.extractor.Keys()
 }
 
-// DefaultValues returns the extractor export default values.
+// DefaultValues returns the extractor default values.
 func (c *Collector) DefaultValues() map[string]any {
-	return c.extractor.NewExport().DefaultValues()
+	return c.extractor.DefaultValues()
 }
 
 func (c *Collector) Prepare() error {

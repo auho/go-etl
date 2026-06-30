@@ -48,11 +48,12 @@ func (p *pipeline) apply(item map[string]any) ([]map[string]any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("collect.Extract: %w", err)
 	}
-	if !token.IsOK() {
+
+	ok, ret := token.Get()
+	if !ok {
 		return nil, nil
 	}
 
-	ret := token.Rows()
 	p.addAmount(int64(len(ret)))
 
 	return ret, nil

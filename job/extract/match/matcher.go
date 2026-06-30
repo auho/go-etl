@@ -2,526 +2,173 @@ package match
 
 import (
 	"fmt"
-	"maps"
-	"slices"
-	"sort"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-type seekMode int
+var _ extract.Extractor = (*Matcher[results])(nil)
+var _ extract.Extractor = (*Matcher[labelResults])(nil)
+var _ extract.Extractor = (*MatcherResults)(nil)
+var _ extract.Extractor = (*MatcherLabelResults)(nil)
 
-const (
-	modeSequence seekMode = iota
-	modePriorityAccurate
-	modePriorityFuzzy
-)
+type MatcherResults = Matcher[results]
+type MatcherLabelResults = Matcher[labelResults]
+type matcherContextResults = matcherContext[results]
+type matcherContextLabelResults = matcherContext[labelResults]
 
-type FuzzyConfig struct {
-	Window int
-	Sep    string
+type resultsEntity interface {
+	results | labelResults
 }
 
-func (fc *FuzzyConfig) check() {
-	if fc.Sep == "" {
-		fc.Sep = "_"
+type matcherResultsFunc[T resultsEntity] func(*matcherContext[T], []string) T
+type matcherContext[T resultsEntity] struct {
+	scanner *scanner
+}
+
+type Matcher[T resultsEntity] struct {
+	scanner *scanner
+
+	rule    extract.Rule
+	format  Format
+	toMaps  func(T, extract.Rule, Format) []map[string]any
+	keysFun func(extract.Rule) ([]string, map[string]any)
+
+	keys      []string
+	defaults  map[string]any
+	pluckKeys []string
+
+	context           *matcherContext[T]
+	matcherResultsFun matcherResultsFunc[T]
+
+	scannerConfig ScannerConfig
+	newScannerFun func(extract.Rule, ScannerConfig) (*scanner, error)
+}
+
+func newMatcher[T resultsEntity](rule extract.Rule, toMaps func(T, extract.Rule, Format) []map[string]any, keysFun func(extract.Rule) ([]string, map[string]any), fn matcherResultsFunc[T]) *Matcher[T] {
+	return &Matcher[T]{
+		rule:              rule,
+		format:            defaultFormat,
+		toMaps:            toMaps,
+		keysFun:           keysFun,
+		matcherResultsFun: fn,
+		scannerConfig:     ScannerConfig{},
+	}
+}
+
+func (m *Matcher[T]) Title() string {
+	return fmt.Sprintf("Matcher{%s:%s}", m.rule.Name(), strings.Join(m.keys, ","))
+}
+
+func (m *Matcher[T]) Extract(contents []string) extract.Result {
+	rets := m.matcherResultsFun(m.context, contents)
+	if len(rets) == 0 {
+		return extract.Result{}
 	}
 
-	if fc.Window <= 0 {
-		fc.Window = 3
+	rows := m.toMaps(rets, m.rule, m.format)
+	if m.pluckKeys != nil {
+		rows = extract.PluckRows(rows, m.pluckKeys)
 	}
+
+	return extract.NewResult(true, rows)
 }
 
-type matcherConfig struct {
-	ignoreCase  bool
-	mode        seekMode
-	enableFuzzy bool
-	fuzzyConfig FuzzyConfig
-	debug       bool
-}
+func (m *Matcher[T]) Prepare() error {
+	if m.newScannerFun == nil {
+		m.newScannerFun = defaultScanner
+	}
 
-func (mc *matcherConfig) check() {
-	mc.fuzzyConfig.check()
-}
-
-func defaultMatcher(rule extract.Rule, config *matcherConfig) (*matcher, error) {
-	items, err := rule.ItemsAlias()
+	var err error
+	m.scanner, err = m.newScannerFun(m.rule, m.scannerConfig)
 	if err != nil {
-		return nil, fmt.Errorf("ItemsAlias: %w", err)
+		return fmt.Errorf("newScannerFun: %w", err)
 	}
 
-	return newMatcher(rule.KeywordNameAlias(), items, config), nil
+	m.context = &matcherContext[T]{
+		scanner: m.scanner,
+	}
+
+	m.keys, m.defaults = m.keysFun(m.rule)
+	if m.pluckKeys != nil {
+		pluckedKeys := make([]string, 0, len(m.pluckKeys))
+		pluckedDefaults := make(map[string]any)
+		for _, k := range m.pluckKeys {
+			if v, ok := m.defaults[k]; ok {
+				pluckedKeys = append(pluckedKeys, k)
+				pluckedDefaults[k] = v
+			}
+		}
+		m.keys = pluckedKeys
+		m.defaults = pluckedDefaults
+	}
+
+	return nil
 }
 
-type matcher struct {
-	hasItems bool
+func (m *Matcher[T]) Close() error { return nil }
 
-	keyName  string
-	tagsName []string
-
-	allSeek      []seeker
-	fuzzySeek    []seeker
-	accurateSeek []seeker
-
-	config *matcherConfig
+func (m *Matcher[T]) Keys() []string {
+	return m.keys
 }
 
-func newMatcher(keyName string, items []map[string]string, config *matcherConfig) *matcher {
-	if config == nil {
-		config = &matcherConfig{}
-	}
+func (m *Matcher[T]) DefaultValues() map[string]any {
+	return m.defaults
+}
 
-	config.check()
-
-	m := &matcher{
-		keyName: keyName,
-		config:  config,
-	}
-
-	if len(items) > 0 {
-		m.hasItems = true
-
-		// tags name
-		for k := range items[0] {
-			if k != keyName {
-				m.tagsName = append(m.tagsName, k)
-			}
-		}
-
-		sort.SliceStable(m.tagsName, func(i, j int) bool {
-			return m.tagsName[i] < m.tagsName[j]
-		})
-
-		for _i, item := range items {
-			var _keyValue string
-			_originKeyValue := item[keyName]
-			if config.ignoreCase {
-				_keyValue = strings.ToLower(_originKeyValue)
-			} else {
-				_keyValue = _originKeyValue
-			}
-
-			_tags := make(map[string]string)
-			for _, _ln := range m.tagsName {
-				_tags[_ln] = item[_ln]
-			}
-
-			_seeker, _sm := newSeeker(_i, _originKeyValue, _keyValue, _tags, config)
-			if config.mode == modeSequence {
-				m.allSeek = append(m.allSeek, _seeker)
-			} else {
-				if _sm == seekAccurate {
-					m.accurateSeek = append(m.accurateSeek, _seeker)
-				} else {
-					m.fuzzySeek = append(m.fuzzySeek, _seeker)
-				}
-			}
-		}
-
-		switch config.mode {
-		case modeSequence:
-		case modePriorityAccurate:
-			m.allSeek = append(m.accurateSeek, m.fuzzySeek...)
-		case modePriorityFuzzy:
-			m.allSeek = append(m.fuzzySeek, m.accurateSeek...)
-		default:
-			panic(fmt.Sprintf("mode [%d] error", config.mode))
-		}
-	}
+func (m *Matcher[T]) WithPluckKeys(keys []string) *Matcher[T] {
+	m.pluckKeys = keys
 
 	return m
 }
 
-// Match
-// all matched
-// in key order
-func (m *matcher) Match(contents []string) Results {
-	items := m.findAll(contents)
-	if items == nil {
-		return nil
-	}
+func (m *Matcher[T]) WithFormat(f Format) *Matcher[T] {
+	m.format = f
 
-	return m.toResults(items)
+	return m
 }
 
-// MatchInTextOrder
-// all matched
-// in matched text order
-func (m *matcher) MatchInTextOrder(contents []string) Results {
-	items := m.findAllInTextOrder(contents)
-	if items == nil {
-		return nil
-	}
+func (m *Matcher[T]) WithScannerConfig(sc ScannerConfig) *Matcher[T] {
+	m.scannerConfig = sc
 
-	return m.toResults(items)
+	return m
 }
 
-// MatchText
-// match text 合并相同的 matched text
-func (m *matcher) MatchText(contents []string) Results {
-	items := m.findAllInTextOrder(contents)
-	if items == nil {
-		return nil
-	}
+func (m *Matcher[T]) WithIgnoreCase() *Matcher[T] {
+	m.scannerConfig.IgnoreCase = true
 
-	var results Results
-	resultIndex := make(map[string]int)
-
-	for _, item := range items {
-		text := item.text
-
-		if index, ok := resultIndex[text]; ok {
-			results[index].Texts[text] += 1
-			results[index].Amount += 1
-		} else {
-			results = append(results, m.toResult(item))
-			resultIndex[text] = len(results) - 1
-		}
-	}
-
-	return results
+	return m
 }
 
-// MatchFirstText
-// the leftmost matched text
-func (m *matcher) MatchFirstText(contents []string) Results {
-	items := m.findAllInTextOrder(contents)
-	if items == nil {
-		return nil
-	}
+func (m *Matcher[T]) WithModePriorityAccurate() *Matcher[T] {
+	m.scannerConfig.Mode = modePriorityAccurate
 
-	rets := m.toResults(items)
-	return rets[0:1]
+	return m
 }
 
-// MatchLastText
-// the rightmost matched text
-func (m *matcher) MatchLastText(contents []string) Results {
-	items := m.findAllInTextOrder(contents)
-	if items == nil {
-		return nil
-	}
+func (m *Matcher[T]) WithModePriorityFuzzy() *Matcher[T] {
+	m.scannerConfig.Mode = modePriorityFuzzy
 
-	return m.toResults(items[len(items)-1:])
+	return m
 }
 
-// MatchMostText
-// the text that has been matched the most times
-func (m *matcher) MatchMostText(contents []string) Results {
-	results := m.MatchText(contents)
-	if results == nil {
-		return nil
-	}
+func (m *Matcher[T]) WithFuzzy(fc FuzzyConfig) *Matcher[T] {
+	fc.enabled = true
+	m.scannerConfig.Fuzzy = fc
 
-	sort.SliceStable(results, func(i, j int) bool {
-		return results[i].Amount > results[j].Amount
-	})
-
-	return results[0:1]
+	return m
 }
 
-// MatchKey
-// match key 合并相同的 keyword（同时也合并 matched text）
-// in matched key order
-func (m *matcher) MatchKey(contents []string) Results {
-	items := m.findAll(contents)
-	if items == nil {
-		return nil
-	}
+func (m *Matcher[T]) WithDebug() *Matcher[T] {
+	m.scannerConfig.Debug = true
 
-	var results Results
-	resultIndex := make(map[string]int)
-
-	for _, item := range items {
-		key := item.keyword
-		text := item.text
-
-		if index, ok := resultIndex[key]; ok {
-			results[index].Texts[text] += 1
-			results[index].Amount += 1
-		} else {
-			results = append(results, m.toResult(item))
-			resultIndex[key] = len(results) - 1
-		}
-	}
-
-	return results
+	return m
 }
 
-// MatchFirstKey
-// the first matched key
-func (m *matcher) MatchFirstKey(contents []string) Results {
-	results := m.findFirst(contents)
-	if results == nil {
-		return nil
+func (m *Matcher[T]) WithScanner(keyName string, items []map[string]string) *Matcher[T] {
+	m.newScannerFun = func(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
+		return newScanner(keyName, items, sc), nil
 	}
 
-	return m.toResults(results)
-}
-
-// MatchLastKey
-// the last matched key
-func (m *matcher) MatchLastKey(contents []string) Results {
-	items := m.findAll(contents)
-	if items == nil {
-		return nil
-	}
-
-	return m.toResults(items[len(items)-1:])
-}
-
-// MatchMostKey
-// match most key 被匹配次数最多的 keyword
-func (m *matcher) MatchMostKey(contents []string) Results {
-	results := m.MatchKey(contents)
-	if results == nil {
-		return nil
-	}
-
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Amount > results[j].Amount
-	})
-
-	return results[0:1]
-}
-
-// MatchLabel
-// match label 合并重复的 tags 组合
-func (m *matcher) MatchLabel(contents []string) LabelResults {
-	items := m.findAll(contents)
-	if items == nil {
-		return nil
-	}
-
-	return m.toLabelResults(items)
-}
-
-// MatchLabelMostText
-// match label most text 合并重复的 tags 组合中，text 最多次数
-func (m *matcher) MatchLabelMostText(contents []string) LabelResults {
-	results := m.MatchLabel(contents)
-	if results == nil {
-		return nil
-	}
-
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Amount > results[j].Amount
-	})
-
-	return results[0:1]
-}
-
-// findAllInTextOrder
-// all match, in matched text order
-// the leftmost text is at the front
-func (m *matcher) findAllInTextOrder(contents []string) seekResults {
-	items := m.seekContents(contents, false)
-	if items == nil {
-		return nil
-	}
-
-	sort.SliceStable(items, func(i, j int) bool {
-		if items[i].index < items[j].index {
-			return true
-		} else if items[i].index > items[j].index {
-			return false
-		} else {
-			return items[i].start < items[j].start
-		}
-	})
-
-	return items
-}
-
-// findAll
-// all match, in matched keyword order
-func (m *matcher) findAll(contents []string) seekResults {
-	return m.seekContents(contents, false)
-}
-
-// findMatchFirst
-// first matched keyword
-func (m *matcher) findFirst(contents []string) seekResults {
-	return m.seekContents(contents, true)
-}
-
-func (m *matcher) seekContents(contents []string, onlyFirst bool) seekResults {
-	if !m.hasItems {
-		return nil
-	}
-
-	var results seekResults
-	var isBreak bool
-	for i, content := range contents {
-		var contentResults seekResults
-
-		originContent := content
-		if m.config.ignoreCase {
-			content = strings.ToLower(content)
-		}
-
-		sc := seekContent{
-			maxSeekNum: -1,
-			index:      i,
-			origin:     originContent,
-			content:    content,
-		}
-
-		if onlyFirst {
-			sc.maxSeekNum = 1
-		}
-
-		var ok bool
-		var rets seekResults
-		rets, sc, ok = m.seeking(m.allSeek, sc, onlyFirst)
-		if ok {
-			if onlyFirst {
-				contentResults = rets[0:1]
-
-				isBreak = true
-				goto LOOP
-			} else {
-				contentResults = append(contentResults, rets...)
-			}
-		}
-	LOOP:
-
-		if m.config.debug {
-			m.debugInfo(i, originContent, sc, contentResults)
-		}
-
-		results = append(results, contentResults...)
-
-		if isBreak {
-			break
-		}
-	}
-
-	return results
-}
-
-func (m *matcher) seeking(seekers []seeker, sc seekContent, onlyFirst bool) (seekResults, seekContent, bool) {
-	var results seekResults
-
-	has := false
-	var ok bool
-	var rets seekResults
-	for _, _seeker := range seekers {
-		rets, sc, ok = _seeker.seeking(sc)
-		if ok {
-			has = true
-			if onlyFirst {
-				results = rets[0:1]
-
-				break
-			} else {
-				results = append(results, rets...)
-			}
-		}
-	}
-
-	return results, sc, has
-}
-
-func (m *matcher) toResults(items seekResults) Results {
-	var results Results
-
-	for _, item := range items {
-		results = append(results, m.toResult(item))
-	}
-
-	return results
-}
-
-func (m *matcher) toResult(item seekResult) Result {
-	result := NewResult()
-	result.Keyword = item.keyword
-	result.Tags = maps.Clone(item.tags)
-	result.Texts = map[string]int{item.text: 1}
-	result.Amount = 1
-
-	return result
-}
-
-func (m *matcher) toLabelResults(items seekResults) LabelResults {
-	var results LabelResults
-	resultIndex := make(map[string]int)
-
-	for _, item := range items {
-		key := item.keyword
-		text := item.text
-
-		tagsIdentity := ""
-		for _, _tn := range m.tagsName {
-			tagsIdentity += "-" + item.tags[_tn]
-		}
-
-		if index, ok := resultIndex[tagsIdentity]; ok {
-			result := results[index]
-			if _, ok1 := result.Match[key]; ok1 {
-				result.Match[key][text] += 1
-			} else {
-				result.Match[key] = map[string]int{text: 1}
-				result.Keywords = append(result.Keywords, key)
-			}
-
-			result.Amount += 1
-			results[index] = result
-		} else {
-			result := NewLabelResult()
-			result.Identity = tagsIdentity
-			maps.Copy(result.Tags, item.tags)
-			result.Match[key] = map[string]int{text: 1}
-			result.Keywords = append(result.Keywords, key)
-			result.Amount += 1
-
-			results = append(results, result)
-			resultIndex[tagsIdentity] = len(results) - 1
-		}
-	}
-
-	return results
-}
-
-func (m *matcher) debugInfo(index int, originContent string, sc seekContent, rets seekResults) {
-	newRest := slices.Clone(rets)
-	sort.SliceStable(newRest, func(i, j int) bool {
-		if newRest[i].index < newRest[j].index {
-			return true
-		} else if newRest[i].index > newRest[j].index {
-			return false
-		} else {
-			return newRest[i].start < newRest[j].start
-		}
-	})
-
-	debugContent := ""
-	preStart := 0
-	preStop := 0
-	for _, ret := range newRest {
-		debugContent += originContent[preStart:ret.start]
-
-		_len := len(ret.text)
-		_runeLen := utf8.RuneCountInString(ret.text)
-		_zhLen := (_len - _runeLen) / 2
-
-		debugContent += strings.Repeat(_placeholder, _runeLen+_zhLen)
-		preStart = ret.start + ret.width
-		preStop = ret.start + ret.width
-	}
-
-	debugContent += originContent[preStop:]
-	fmt.Println(fmt.Sprintf("%-16s", "index:"), index)
-	fmt.Println(fmt.Sprintf("%-16s", "origin:"), originContent)
-	fmt.Println(fmt.Sprintf("%-16s", "debug origin:"), debugContent)
-	fmt.Println(fmt.Sprintf("%-16s", "matched origin:"), sc.origin)
-	fmt.Println(fmt.Sprintf("%-16s", "matched content:"), sc.content)
-	fmt.Println("results:")
-	for i, rt := range rets {
-		fmt.Println(fmt.Sprintf("  %-3d%+v", i, rt))
-	}
-
-	fmt.Println()
+	return m
 }

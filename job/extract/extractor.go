@@ -1,9 +1,13 @@
 package extract
 
+// Extractor transforms content strings into structured rows.
+// Keys and DefaultValues are prepared during Prepare so callers can
+// retrieve them without re-computing.
 type Extractor interface {
-	Title() string
 	Prepare() error
-	NewExport() FieldSpec
-	Search(contents []string) Result
+	Title() string
+	Keys() []string
+	DefaultValues() map[string]any
+	Extract(contents []string) Result
 	Close() error
 }

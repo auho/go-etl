@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var _matcherItems = []map[string]string{
+var _scannerItems = []map[string]string{
 	{"a": "abcdef", "b": "b1"},
 	{"a": "abcd", "b": "b2"},
 	{"a": "abc", "b": "b3"},
@@ -29,35 +29,35 @@ var _corpus = []string{
 	"babcdefa",
 }
 
-func TestMatcher(t *testing.T) {
-	_m := newMatcher("a", _matcherItems, nil)
-	_m.Match(_corpus)
-	_m.MatchInTextOrder(_corpus)
-	_m.MatchText(_corpus)
-	_m.MatchFirstText(_corpus)
-	_m.MatchLastText(_corpus)
-	_m.MatchMostText(_corpus)
-	_m.MatchKey(_corpus)
-	_m.MatchFirstKey(_corpus)
-	_m.MatchLastKey(_corpus)
-	_m.MatchMostKey(_corpus)
-	_m.MatchLabel(_corpus)
-	_m.MatchLabelMostText(_corpus)
+func TestScanner(t *testing.T) {
+	_m := newScanner("a", _scannerItems, ScannerConfig{})
+	_m.Scan(_corpus)
+	_m.ScanInTextOrder(_corpus)
+	_m.ScanText(_corpus)
+	_m.ScanFirstText(_corpus)
+	_m.ScanLastText(_corpus)
+	_m.ScanMostText(_corpus)
+	_m.ScanKey(_corpus)
+	_m.ScanFirstKey(_corpus)
+	_m.ScanLastKey(_corpus)
+	_m.ScanMostKey(_corpus)
+	_m.ScanLabel(_corpus)
+	_m.ScanLabelMostText(_corpus)
 }
 
-func TestMatcher_MatchKey_Accurate(t *testing.T) {
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		ignoreCase:  false,
-		mode:        modePriorityAccurate,
-		enableFuzzy: true,
-		debug:       true,
-		fuzzyConfig: FuzzyConfig{
-			Window: 3,
-			Sep:    "_",
+func TestScanner_ScanKey_Accurate(t *testing.T) {
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		IgnoreCase: false,
+		Mode:       modePriorityAccurate,
+		Debug:      true,
+		Fuzzy: FuzzyConfig{
+			enabled: true,
+			Window:  3,
+			Sep:     "_",
 		},
 	})
 
-	rets := _m.MatchKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaB"})
+	rets := _m.ScanKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaB"})
 	_outputResults(rets)
 	_assertResults(t, rets, 6, 11)
 
@@ -73,19 +73,19 @@ func TestMatcher_MatchKey_Accurate(t *testing.T) {
 	_assertResult(t, rets[5], "h_i_j_", 1, 1, map[string]int{"h_i_j": 1})
 }
 
-func TestMatcher_MatchKey_Accurate_IgnoreCase(t *testing.T) {
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		ignoreCase:  true,
-		mode:        modePriorityFuzzy,
-		enableFuzzy: true,
-		debug:       true,
-		fuzzyConfig: FuzzyConfig{
-			Window: 3,
-			Sep:    "_",
+func TestScanner_ScanKey_Accurate_IgnoreCase(t *testing.T) {
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		IgnoreCase: true,
+		Mode:       modePriorityFuzzy,
+		Debug:      true,
+		Fuzzy: FuzzyConfig{
+			enabled: true,
+			Window:  3,
+			Sep:     "_",
 		},
 	})
 
-	rets := _m.MatchKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaBAc_aabacaE_F_G_aB"})
+	rets := _m.ScanKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaBAc_aabacaE_F_G_aB"})
 	_outputResults(rets)
 	_assertResults(t, rets, 5, 19)
 
@@ -116,20 +116,20 @@ func TestMatcher_MatchKey_Accurate_IgnoreCase(t *testing.T) {
 	_assertResult(t, rets[4], "a", 2, 1, map[string]int{"a": 2})
 }
 
-func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		ignoreCase:  true,
-		mode:        modePriorityFuzzy,
-		enableFuzzy: true,
-		debug:       true,
-		fuzzyConfig: FuzzyConfig{
-			Window: 3,
-			Sep:    "_",
+func TestScanner_ScanKey_Fuzzy(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		IgnoreCase: true,
+		Mode:       modePriorityFuzzy,
+		Debug:      true,
+		Fuzzy: FuzzyConfig{
+			enabled: true,
+			Window:  3,
+			Sep:     "_",
 		},
 	})
 
-	rets = _m.MatchKey([]string{"acAbcabbCAbbbCABbbBc"})
+	rets = _m.ScanKey([]string{"acAbcabbCAbbbCABbbBc"})
 	_outputResults(rets)
 	_assertResults(t, rets, 2, 5)
 
@@ -141,7 +141,7 @@ func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
 	})
 	_assertResult(t, rets[1], "ab", 1, 1, map[string]int{"AB": 1})
 
-	rets = _m.MatchKey([]string{"efgE一f一gE一f一gE一二三FgeF一GE一FGEF一二三四G"})
+	rets = _m.ScanKey([]string{"efgE一f一gE一f一gE一二三FgeF一GE一FGEF一二三四G"})
 	_outputResults(rets)
 	_assertResults(t, rets, 1, 6)
 
@@ -153,7 +153,7 @@ func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
 		"E一FG":   1,
 	})
 
-	rets = _m.MatchKey([]string{"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J"})
+	rets = _m.ScanKey([]string{"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J"})
 	_outputResults(rets)
 
 	_assertResults(t, rets, 1, 7)
@@ -169,13 +169,13 @@ func TestMatcher_MatchKey_Fuzzy(t *testing.T) {
 	})
 }
 
-func TestMatcher_MatchText(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		debug: true,
+func TestScanner_ScanText(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		Debug: true,
 	})
 
-	rets = _m.MatchText([]string{
+	rets = _m.ScanText([]string{
 		"efgE一f一gE一f一gE一二三FgeF一GE一FGEF一二三四G",
 		"acAbcabbCAbbbCABbbBc",
 		"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J",
@@ -186,13 +186,13 @@ func TestMatcher_MatchText(t *testing.T) {
 	_assertResult(t, rets[1], "ca", 1, 1, map[string]int{"ca": 1})
 	_assertResult(t, rets[2], "hij", 1, 1, map[string]int{"hij": 1})
 
-	_m = newMatcher("a", _matcherItems, &matcherConfig{
-		ignoreCase:  true,
-		enableFuzzy: true,
-		debug:       true,
+	_m = newScanner("a", _scannerItems, ScannerConfig{
+		IgnoreCase: true,
+		Fuzzy:      FuzzyConfig{enabled: true},
+		Debug:      true,
 	})
 
-	rets = _m.MatchText([]string{
+	rets = _m.ScanText([]string{
 		"efgE一f一gE一f一gE一二三FgeF一GE一FGEF一二三四G",
 		"acAbcabbCAbbbCABbbBc",
 		"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J",
@@ -205,83 +205,83 @@ func TestMatcher_MatchText(t *testing.T) {
 	_assertResult(t, rets[15], "h_i_j_", 1, 1, map[string]int{"HIJ": 1})
 }
 
-func TestMatcher_MatchFirstText(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		debug: true,
+func TestScanner_ScanFirstText(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		Debug: true,
 	})
 
-	rets = _m.MatchFirstText([]string{"abcdef-abcd-abc-ab-a"})
+	rets = _m.ScanFirstText([]string{"abcdef-abcd-abc-ab-a"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abcdef", 1, 1, map[string]int{"abcdef": 1})
 
-	rets = _m.MatchFirstText([]string{"ABCDEF-abCd-Abc-ab-a"})
+	rets = _m.ScanFirstText([]string{"ABCDEF-abCd-Abc-ab-a"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "ab", 1, 1, map[string]int{"ab": 1})
 
-	rets = _m.MatchFirstText([]string{"aBcdef-aBcd-abc-ab-a"})
+	rets = _m.ScanFirstText([]string{"aBcdef-aBcd-abc-ab-a"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "a", 1, 1, map[string]int{"a": 1})
 
-	rets = _m.MatchFirstText([]string{"babcdefa"})
+	rets = _m.ScanFirstText([]string{"babcdefa"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abcdef", 1, 1, map[string]int{"abcdef": 1})
 
-	rets = _m.MatchFirstText([]string{"abcba"})
+	rets = _m.ScanFirstText([]string{"abcba"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abc", 1, 1, map[string]int{"abc": 1})
 
-	rets = _m.MatchFirstText([]string{"caabcdefaababcabcdabcdef"})
+	rets = _m.ScanFirstText([]string{"caabcdefaababcabcdabcdef"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "ca", 1, 1, map[string]int{"ca": 1})
 
-	rets = _m.MatchFirstText([]string{"abcba", "caabcdef"})
+	rets = _m.ScanFirstText([]string{"abcba", "caabcdef"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abc", 1, 1, map[string]int{"abc": 1})
 }
 
-func TestMatcher_MatchLastText(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		debug: true,
+func TestScanner_ScanLastText(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		Debug: true,
 	})
 
-	rets = _m.MatchLastText([]string{"abcdef-abc-ab-a-abcd"})
+	rets = _m.ScanLastText([]string{"abcdef-abc-ab-a-abcd"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abcd", 1, 1, map[string]int{"abcd": 1})
 
-	rets = _m.MatchLastText([]string{"ABCDEF-ab-a-abCd-Abc"})
+	rets = _m.ScanLastText([]string{"ABCDEF-ab-a-abCd-Abc"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "ab", 1, 1, map[string]int{"ab": 1})
 
-	rets = _m.MatchLastText([]string{"aBcdef-ab-a-aBcd-abc"})
+	rets = _m.ScanLastText([]string{"aBcdef-ab-a-aBcd-abc"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abc", 1, 1, map[string]int{"abc": 1})
 
-	rets = _m.MatchLastText([]string{"babcdefa"})
+	rets = _m.ScanLastText([]string{"babcdefa"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "a", 1, 1, map[string]int{"a": 1})
 
-	rets = _m.MatchLastText([]string{"abcba"})
+	rets = _m.ScanLastText([]string{"abcba"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "ba", 1, 1, map[string]int{"ba": 1})
 
-	rets = _m.MatchLastText([]string{"caabcdef"})
+	rets = _m.ScanLastText([]string{"caabcdef"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abcdef", 1, 1, map[string]int{"abcdef": 1})
 
-	rets = _m.MatchLastText([]string{"abcba", "caabcdef"})
+	rets = _m.ScanLastText([]string{"abcba", "caabcdef"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abcdef", 1, 1, map[string]int{"abcdef": 1})
 }
 
-func TestMatcher_MatchMostText(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		debug: true,
+func TestScanner_ScanMostText(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		Debug: true,
 	})
 
-	rets = _m.MatchMostText([]string{
+	rets = _m.ScanMostText([]string{
 		"acAbcabbCAbbbCABbbBc",
 		"efgE一f一gE一f一gE一二三FgeF一GE一FGEF一二三四G",
 		"acAbcabbCAbbbCABbbBc",
@@ -291,13 +291,13 @@ func TestMatcher_MatchMostText(t *testing.T) {
 
 	_assertResult(t, rets[0], "a", 3, 1, map[string]int{"a": 3})
 
-	_m = newMatcher("a", _matcherItems, &matcherConfig{
-		ignoreCase:  true,
-		enableFuzzy: true,
-		debug:       true,
+	_m = newScanner("a", _scannerItems, ScannerConfig{
+		IgnoreCase: true,
+		Fuzzy:      FuzzyConfig{enabled: true},
+		Debug:      true,
 	})
 
-	rets = _m.MatchMostText([]string{
+	rets = _m.ScanMostText([]string{
 		"acAbcabbCAbbbCABbbBc",
 		"acAbcabbCAbbbCABbbBc",
 		"efgE一f一gE一f一gE一二三FgeF一GE一FGEF一二三四G",
@@ -309,11 +309,11 @@ func TestMatcher_MatchMostText(t *testing.T) {
 	_assertResult(t, rets[0], "ca", 6, 1, map[string]int{"CA": 6})
 }
 
-func TestMatcher_MatchKey(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, nil)
+func TestScanner_ScanKey(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{})
 
-	rets = _m.MatchKey([]string{"abc-abcdef-abcd-ab-abcdef-abcd-ab-a"})
+	rets = _m.ScanKey([]string{"abc-abcdef-abcd-ab-abcdef-abcd-ab-a"})
 	_outputResults(rets)
 
 	_assertResults(t, rets, 5, 8)
@@ -323,117 +323,117 @@ func TestMatcher_MatchKey(t *testing.T) {
 	_assertResult(t, rets[3], "ab", 2, 1, nil)
 	_assertResult(t, rets[4], "a", 1, 1, nil)
 
-	rets = _m.MatchKey([]string{"babcdefa"})
+	rets = _m.ScanKey([]string{"babcdefa"})
 	_outputResults(rets)
 
 	_assertResults(t, rets, 2, 2)
 
-	rets = _m.MatchKey([]string{"abcba"})
+	rets = _m.ScanKey([]string{"abcba"})
 	_outputResults(rets)
 
 	_assertResults(t, rets, 2, 2)
 
-	rets = _m.MatchKey([]string{"babcdefa"})
+	rets = _m.ScanKey([]string{"babcdefa"})
 	_outputResults(rets)
 
 	_assertResults(t, rets, 2, 2)
 
-	_m = newMatcher("a", _matcherItems, &matcherConfig{ignoreCase: true})
+	_m = newScanner("a", _scannerItems, ScannerConfig{IgnoreCase: true})
 
-	rets = _m.MatchKey([]string{"ABCDEF-ABCD-abc-ab-A"})
+	rets = _m.ScanKey([]string{"ABCDEF-ABCD-abc-ab-A"})
 	_outputResults(rets)
 
 	_assertResults(t, rets, 5, 5)
 
-	rets = _m.MatchKey([]string{"BaBcDeFa"})
+	rets = _m.ScanKey([]string{"BaBcDeFa"})
 	_outputResults(rets)
 
 	_assertResults(t, rets, 2, 2)
 }
 
-func TestMatcher_MatchFirstKey(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		debug: true,
+func TestScanner_ScanFirstKey(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		Debug: true,
 	})
 
-	rets = _m.MatchFirstKey([]string{"abc-abcdef-abcd-ab-a"})
+	rets = _m.ScanFirstKey([]string{"abc-abcdef-abcd-ab-a"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abcdef", 1, 1, map[string]int{"abcdef": 1})
 
-	rets = _m.MatchFirstKey([]string{"ABCDEF-abCd-Abc-ab-a"})
+	rets = _m.ScanFirstKey([]string{"ABCDEF-abCd-Abc-ab-a"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "ab", 1, 1, map[string]int{"ab": 1})
 
-	rets = _m.MatchFirstKey([]string{"aBcdef-aBcd-abc-ab-a"})
+	rets = _m.ScanFirstKey([]string{"aBcdef-aBcd-abc-ab-a"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abc", 1, 1, map[string]int{"abc": 1})
 
-	rets = _m.MatchFirstKey([]string{"babcdefa"})
+	rets = _m.ScanFirstKey([]string{"babcdefa"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abcdef", 1, 1, map[string]int{"abcdef": 1})
 
-	rets = _m.MatchFirstKey([]string{"abcba"})
+	rets = _m.ScanFirstKey([]string{"abcba"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abc", 1, 1, map[string]int{"abc": 1})
 
-	rets = _m.MatchFirstKey([]string{"caabcdef"})
+	rets = _m.ScanFirstKey([]string{"caabcdef"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "abcdef", 1, 1, map[string]int{"abcdef": 1})
 }
 
-func TestMatcher_MatchLastKey(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		debug: true,
+func TestScanner_ScanLastKey(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		Debug: true,
 	})
 
-	rets = _m.MatchLastKey([]string{"abcdef-abcd-abc-ab-a"})
+	rets = _m.ScanLastKey([]string{"abcdef-abcd-abc-ab-a"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "a", 1, 1, map[string]int{"a": 1})
 
-	rets = _m.MatchLastKey([]string{"ABCDEF-ab-a-abCd-Abc"})
+	rets = _m.ScanLastKey([]string{"ABCDEF-ab-a-abCd-Abc"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "a", 1, 1, map[string]int{"a": 1})
 
-	rets = _m.MatchLastKey([]string{"aBcdef-ab-a-aBcd-abc"})
+	rets = _m.ScanLastKey([]string{"aBcdef-ab-a-aBcd-abc"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "a", 1, 1, map[string]int{"a": 1})
 
-	rets = _m.MatchLastKey([]string{"babcdefa"})
+	rets = _m.ScanLastKey([]string{"babcdefa"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "a", 1, 1, map[string]int{"a": 1})
 
-	rets = _m.MatchLastKey([]string{"abcba"})
+	rets = _m.ScanLastKey([]string{"abcba"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "ba", 1, 1, map[string]int{"ba": 1})
 
-	rets = _m.MatchLastKey([]string{"caabcdef"})
+	rets = _m.ScanLastKey([]string{"caabcdef"})
 	_assertResults(t, rets, 1, 1)
 	_assertResult(t, rets[0], "ca", 1, 1, map[string]int{"ca": 1})
 }
 
-func TestMatcher_MatchMostKey(t *testing.T) {
-	var rets Results
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		debug: true,
+func TestScanner_ScanMostKey(t *testing.T) {
+	var rets results
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		Debug: true,
 	})
 
-	rets = _m.MatchMostKey([]string{"abcdef-abcd-abc-ab-aabcafasbabcdabcdabefabacabdabadabcdd"})
+	rets = _m.ScanMostKey([]string{"abcdef-abcd-abc-ab-aabcafasbabcdabcdabefabacabdabadabcdd"})
 	_assertResults(t, rets, 1, 5)
 	_assertResult(t, rets[0], "a", 5, 1, map[string]int{"a": 5})
 
-	_m = newMatcher("a", _matcherItems, &matcherConfig{
-		ignoreCase:  true,
-		enableFuzzy: true,
-		fuzzyConfig: FuzzyConfig{
-			Window: 3,
-			Sep:    "_",
+	_m = newScanner("a", _scannerItems, ScannerConfig{
+		IgnoreCase: true,
+		Fuzzy: FuzzyConfig{
+			enabled: true,
+			Window:  3,
+			Sep:     "_",
 		},
-		debug: true,
+		Debug: true,
 	})
 
-	rets = _m.MatchMostKey([]string{
+	rets = _m.ScanMostKey([]string{
 		"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J",
 		"abcdef",
 		"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J",
@@ -450,13 +450,13 @@ func TestMatcher_MatchMostKey(t *testing.T) {
 	})
 }
 
-func TestMatcher_MatchLabel(t *testing.T) {
-	var rets LabelResults
-	_m := newMatcher("a", _matcherItems, &matcherConfig{
-		debug: true,
+func TestScanner_ScanLabel(t *testing.T) {
+	var rets labelResults
+	_m := newScanner("a", _scannerItems, ScannerConfig{
+		Debug: true,
 	})
 
-	rets = _m.MatchLabel([]string{"abcdef-abcd-abc-ab-a"})
+	rets = _m.ScanLabel([]string{"abcdef-abcd-abc-ab-a"})
 	_assertLabelResults(t, rets, 5, 5)
 
 	_assertLabelResult(t, rets[0], "-b1", 1, 1, 1, map[string]int{"abcdef": 1})
@@ -465,17 +465,17 @@ func TestMatcher_MatchLabel(t *testing.T) {
 	_assertLabelResult(t, rets[3], "-b5", 1, 1, 1, map[string]int{"ab": 1})
 	_assertLabelResult(t, rets[4], "-b6", 1, 1, 1, map[string]int{"a": 1})
 
-	_m = newMatcher("a", _matcherItems, &matcherConfig{
-		ignoreCase:  true,
-		enableFuzzy: true,
-		fuzzyConfig: FuzzyConfig{
-			Window: 3,
-			Sep:    "_",
+	_m = newScanner("a", _scannerItems, ScannerConfig{
+		IgnoreCase: true,
+		Fuzzy: FuzzyConfig{
+			enabled: true,
+			Window:  3,
+			Sep:     "_",
 		},
-		debug: true,
+		Debug: true,
 	})
 
-	rets = _m.MatchLabel([]string{
+	rets = _m.ScanLabel([]string{
 		"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J",
 		"abcdef",
 		"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J",
@@ -497,16 +497,16 @@ func TestMatcher_MatchLabel(t *testing.T) {
 	})
 }
 
-func TestMatcher_MatchLabelMostText(t *testing.T) {
-	var rets LabelResults
-	_m := newMatcher("a", _matcherItems, &matcherConfig{debug: true})
+func TestScanner_ScanLabelMostText(t *testing.T) {
+	var rets labelResults
+	_m := newScanner("a", _scannerItems, ScannerConfig{Debug: true})
 
-	rets = _m.MatchLabelMostText([]string{"abcdef-abcd-abc-ab-a"})
+	rets = _m.ScanLabelMostText([]string{"abcdef-abcd-abc-ab-a"})
 	_assertLabelResults(t, rets, 1, 1)
 
 	_assertLabelResult(t, rets[0], "-b1", 1, 1, 1, nil)
 
-	rets = _m.MatchLabelMostText([]string{"acbabcabcabc"})
+	rets = _m.ScanLabelMostText([]string{"acbabcabcabc"})
 	_assertLabelResults(t, rets, 1, 4)
 
 	_assertLabelResult(t, rets[0], "-b3", 4, 2, 2, map[string]int{
@@ -515,27 +515,27 @@ func TestMatcher_MatchLabelMostText(t *testing.T) {
 	})
 }
 
-func _assertResult(t *testing.T, ret Result, keyword string, expectAmount, expectTextsNum int, expectTextsAmount map[string]int) {
-	if ret.Keyword != keyword {
-		t.Fatal(fmt.Sprintf("result[%s != %s]", keyword, ret.Keyword), t.Name())
+func _assertResult(t *testing.T, ret result, keyword string, expectAmount, expectTextsNum int, expectTextsAmount map[string]int) {
+	if ret.keyword != keyword {
+		t.Fatal(fmt.Sprintf("result[%s != %s]", keyword, ret.keyword), t.Name())
 	}
 
-	if ret.Amount != expectAmount {
-		t.Fatal(fmt.Sprintf("result[%s] amount[%d != %d]", keyword, expectAmount, ret.Amount), t.Name())
+	if ret.amount != expectAmount {
+		t.Fatal(fmt.Sprintf("result[%s] amount[%d != %d]", keyword, expectAmount, ret.amount), t.Name())
 	}
 
-	if expectTextsNum != len(ret.Texts) {
-		t.Fatal(fmt.Sprintf("result texts[%s] num[%d != %d]", keyword, expectTextsNum, len(ret.Texts)), t.Name())
+	if expectTextsNum != len(ret.texts) {
+		t.Fatal(fmt.Sprintf("result texts[%s] num[%d != %d]", keyword, expectTextsNum, len(ret.texts)), t.Name())
 	}
 
 	for _t, _a := range expectTextsAmount {
-		if ret.Texts[_t] != _a {
-			t.Fatal(fmt.Sprintf("result text[%s:%s] amont[%d != %d]", keyword, _t, _a, ret.Texts[_t]), t.Name())
+		if ret.texts[_t] != _a {
+			t.Fatal(fmt.Sprintf("result text[%s:%s] amont[%d != %d]", keyword, _t, _a, ret.texts[_t]), t.Name())
 		}
 	}
 }
 
-func _assertResults(t *testing.T, rets Results, expectResultsAmount, expectTextsAmount int) {
+func _assertResults(t *testing.T, rets results, expectResultsAmount, expectTextsAmount int) {
 	if expectResultsAmount != len(rets) {
 		t.Fatal(fmt.Sprintf("results len[%d != %d]", expectResultsAmount, len(rets)), t.Name())
 	}
@@ -543,10 +543,10 @@ func _assertResults(t *testing.T, rets Results, expectResultsAmount, expectTexts
 	amount := 0
 	textsAmount := 0
 	for _, ret := range rets {
-		for _, _n := range ret.Texts {
+		for _, _n := range ret.texts {
 			textsAmount += _n
 		}
-		amount += ret.Amount
+		amount += ret.amount
 	}
 
 	if amount != textsAmount {
@@ -558,32 +558,32 @@ func _assertResults(t *testing.T, rets Results, expectResultsAmount, expectTexts
 	}
 
 	for _, ret := range rets {
-		_a := ret.Amount
-		for _, _n := range ret.Texts {
+		_a := ret.amount
+		for _, _n := range ret.texts {
 			_a -= _n
 		}
 
 		if _a != 0 {
-			t.Fatal(fmt.Sprintf("%s amount", ret.Keyword), t.Name())
+			t.Fatal(fmt.Sprintf("%s amount", ret.keyword), t.Name())
 		}
 	}
 }
 
-func _assertLabelResult(t *testing.T, ret LabelResult, id string, expectAmount, expectKeysNum, expectTextsNum int, expectTextsAmount map[string]int) {
-	if ret.Identity != id {
-		t.Fatal(fmt.Sprintf("result[%s != %s]", id, ret.Identity), t.Name())
+func _assertLabelResult(t *testing.T, ret labelResult, id string, expectAmount, expectKeysNum, expectTextsNum int, expectTextsAmount map[string]int) {
+	if ret.identity != id {
+		t.Fatal(fmt.Sprintf("result[%s != %s]", id, ret.identity), t.Name())
 	}
 
-	if ret.Amount != expectAmount {
+	if ret.amount != expectAmount {
 		t.Fatal(fmt.Sprintf("result[%s] amount", id), t.Name())
 	}
 
-	if expectKeysNum != len(ret.Match) {
-		t.Fatal(fmt.Sprintf("result keyword[%s] num[%d != %d]", id, expectKeysNum, len(ret.Match)), t.Name())
+	if expectKeysNum != len(ret.match) {
+		t.Fatal(fmt.Sprintf("result keyword[%s] num[%d != %d]", id, expectKeysNum, len(ret.match)), t.Name())
 	}
 
 	tn := 0
-	for _, _kt := range ret.Match {
+	for _, _kt := range ret.match {
 		tn += len(_kt)
 	}
 	if tn != expectTextsNum {
@@ -592,7 +592,7 @@ func _assertLabelResult(t *testing.T, ret LabelResult, id string, expectAmount, 
 
 	for _t, _a := range expectTextsAmount {
 		var _ok bool
-		for _, _tn := range ret.Match {
+		for _, _tn := range ret.match {
 			if _n, ok := _tn[_t]; ok {
 				if _a == _n {
 					_ok = true
@@ -612,7 +612,7 @@ func _assertLabelResult(t *testing.T, ret LabelResult, id string, expectAmount, 
 	}
 }
 
-func _assertLabelResults(t *testing.T, rets LabelResults, expectResultsAmount, expectTextsAmount int) {
+func _assertLabelResults(t *testing.T, rets labelResults, expectResultsAmount, expectTextsAmount int) {
 	if expectResultsAmount != len(rets) {
 		t.Fatal(fmt.Sprintf("label results len[%d != %d]", expectResultsAmount, len(rets)), t.Name())
 	}
@@ -620,12 +620,12 @@ func _assertLabelResults(t *testing.T, rets LabelResults, expectResultsAmount, e
 	amount := 0
 	textsAmount := 0
 	for _, ret := range rets {
-		for _, texts := range ret.Match {
+		for _, texts := range ret.match {
 			for _, _n := range texts {
 				textsAmount += _n
 			}
 		}
-		amount += ret.Amount
+		amount += ret.amount
 	}
 
 	if amount != textsAmount {
@@ -637,15 +637,15 @@ func _assertLabelResults(t *testing.T, rets LabelResults, expectResultsAmount, e
 	}
 
 	for _, ret := range rets {
-		_a := ret.Amount
-		for _, texts := range ret.Match {
+		_a := ret.amount
+		for _, texts := range ret.match {
 			for _, _n := range texts {
 				_a -= _n
 			}
 		}
 
 		if _a != 0 {
-			t.Fatal(fmt.Sprintf("%s amount", ret.Identity), t.Name())
+			t.Fatal(fmt.Sprintf("%s amount", ret.identity), t.Name())
 		}
 	}
 }

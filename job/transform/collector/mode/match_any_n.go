@@ -24,7 +24,7 @@ func (m *matchAnyN) Prepare() error {
 func (m *matchAnyN) Apply(keys []string, keysValue map[string]string, e extract.Extractor) (extract.Result, error) {
 	var st extract.Result
 	for _, key := range takeFirst(keys, m.n) {
-		st = e.Search([]string{keysValue[key]})
+		st = e.Extract([]string{keysValue[key]})
 		if st.IsOK() {
 			break
 		}

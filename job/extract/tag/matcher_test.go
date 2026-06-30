@@ -32,7 +32,7 @@ func _genMatcher() *matcher {
 		{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"},
 	}
 
-	_matcher := newMatcher("a", items, WithMatcherKeyFormatFunc(func(s string) string {
+	_matcher := newMatcher("a", items, withMatcherKeyFormatFunc(func(s string) string {
 		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 		if err != nil {
 			return s
@@ -54,8 +54,8 @@ func TestMatcher(t *testing.T) {
 		t.Fatal()
 	}
 
-	var rets Results
-	var labelRets LabelResults
+	var rets results
+	var labelRets labelResults
 
 	t.Run("Match", func(t *testing.T) {
 		rets = _matcher.Match(_contents)
@@ -223,27 +223,27 @@ func TestMatcher(t *testing.T) {
 	})
 }
 
-func _assertResult(t *testing.T, ret Result, keyword string, amount, textsNum int, textsAmount map[string]int) {
-	if ret.Keyword != keyword {
-		t.Fatal(fmt.Sprintf("result[%s != %s]", keyword, ret.Keyword), t.Name())
+func _assertResult(t *testing.T, ret result, keyword string, amount, textsNum int, textsAmount map[string]int) {
+	if ret.keyword != keyword {
+		t.Fatal(fmt.Sprintf("result[%s != %s]", keyword, ret.keyword), t.Name())
 	}
 
-	if ret.Amount != amount {
+	if ret.amount != amount {
 		t.Fatal(fmt.Sprintf("result[%s] amount", keyword), t.Name())
 	}
 
-	if textsNum != len(ret.Texts) {
-		t.Fatal(fmt.Sprintf("result texts[%s] num[%d != %d]", keyword, textsNum, len(ret.Texts)), t.Name())
+	if textsNum != len(ret.texts) {
+		t.Fatal(fmt.Sprintf("result texts[%s] num[%d != %d]", keyword, textsNum, len(ret.texts)), t.Name())
 	}
 
 	for _t, _a := range textsAmount {
-		if ret.Texts[_t] != _a {
-			t.Fatal(fmt.Sprintf("result text[%s:%s] amont[%d != %d]", keyword, _t, _a, ret.Texts[_t]), t.Name())
+		if ret.texts[_t] != _a {
+			t.Fatal(fmt.Sprintf("result text[%s:%s] amont[%d != %d]", keyword, _t, _a, ret.texts[_t]), t.Name())
 		}
 	}
 }
 
-func _assertResults(t *testing.T, rets Results, allTextsAmount int, resultsAmount int) {
+func _assertResults(t *testing.T, rets results, allTextsAmount int, resultsAmount int) {
 	if resultsAmount != len(rets) {
 		t.Fatal("results len", t.Name())
 	}
@@ -251,10 +251,10 @@ func _assertResults(t *testing.T, rets Results, allTextsAmount int, resultsAmoun
 	amount := 0
 	textsAmount := 0
 	for _, ret := range rets {
-		for _, _n := range ret.Texts {
+		for _, _n := range ret.texts {
 			textsAmount += _n
 		}
-		amount += ret.Amount
+		amount += ret.amount
 	}
 
 	if amount != textsAmount {
@@ -266,32 +266,32 @@ func _assertResults(t *testing.T, rets Results, allTextsAmount int, resultsAmoun
 	}
 
 	for _, ret := range rets {
-		_a := ret.Amount
-		for _, _n := range ret.Texts {
+		_a := ret.amount
+		for _, _n := range ret.texts {
 			_a -= _n
 		}
 
 		if _a != 0 {
-			t.Fatal(fmt.Sprintf("%s amount", ret.Keyword), t.Name())
+			t.Fatal(fmt.Sprintf("%s amount", ret.keyword), t.Name())
 		}
 	}
 }
 
-func _assertLabelResult(t *testing.T, ret LabelResult, id string, amount, keysNum, textsNum int, textsAmount map[string]int) {
-	if ret.Identity != id {
-		t.Fatal(fmt.Sprintf("result[%s != %s]", id, ret.Identity), t.Name())
+func _assertLabelResult(t *testing.T, ret labelResult, id string, amount, keysNum, textsNum int, textsAmount map[string]int) {
+	if ret.identity != id {
+		t.Fatal(fmt.Sprintf("result[%s != %s]", id, ret.identity), t.Name())
 	}
 
-	if ret.Amount != amount {
+	if ret.amount != amount {
 		t.Fatal(fmt.Sprintf("result[%s] amount", id), t.Name())
 	}
 
-	if keysNum != len(ret.Match) {
-		t.Fatal(fmt.Sprintf("result keyword[%s] num[%d != %d]", id, keysNum, len(ret.Match)), t.Name())
+	if keysNum != len(ret.match) {
+		t.Fatal(fmt.Sprintf("result keyword[%s] num[%d != %d]", id, keysNum, len(ret.match)), t.Name())
 	}
 
 	tn := 0
-	for _, _kt := range ret.Match {
+	for _, _kt := range ret.match {
 		tn += len(_kt)
 	}
 	if tn != textsNum {
@@ -300,7 +300,7 @@ func _assertLabelResult(t *testing.T, ret LabelResult, id string, amount, keysNu
 
 	for _t, _a := range textsAmount {
 		var _ok bool
-		for _, _tn := range ret.Match {
+		for _, _tn := range ret.match {
 			if _n, ok := _tn[_t]; ok {
 				if _a == _n {
 					_ok = true
@@ -320,7 +320,7 @@ func _assertLabelResult(t *testing.T, ret LabelResult, id string, amount, keysNu
 	}
 }
 
-func _assertLabelResults(t *testing.T, rets LabelResults, allTextsAmount int, resultsAmount int) {
+func _assertLabelResults(t *testing.T, rets labelResults, allTextsAmount int, resultsAmount int) {
 	if resultsAmount != len(rets) {
 		t.Fatal("label results len", t.Name())
 	}
@@ -328,12 +328,12 @@ func _assertLabelResults(t *testing.T, rets LabelResults, allTextsAmount int, re
 	amount := 0
 	textsAmount := 0
 	for _, ret := range rets {
-		for _, texts := range ret.Match {
+		for _, texts := range ret.match {
 			for _, _n := range texts {
 				textsAmount += _n
 			}
 		}
-		amount += ret.Amount
+		amount += ret.amount
 	}
 
 	if amount != textsAmount {
@@ -345,15 +345,15 @@ func _assertLabelResults(t *testing.T, rets LabelResults, allTextsAmount int, re
 	}
 
 	for _, ret := range rets {
-		_a := ret.Amount
-		for _, texts := range ret.Match {
+		_a := ret.amount
+		for _, texts := range ret.match {
 			for _, _n := range texts {
 				_a -= _n
 			}
 		}
 
 		if _a != 0 {
-			t.Fatal(fmt.Sprintf("%s amount", ret.Identity), t.Name())
+			t.Fatal(fmt.Sprintf("%s amount", ret.identity), t.Name())
 		}
 	}
 }

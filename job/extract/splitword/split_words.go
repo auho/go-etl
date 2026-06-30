@@ -10,41 +10,57 @@ import (
 var _ extract.Extractor = (*SplitWords)(nil)
 
 type SplitWords struct {
-	sep    string
-	export *extract.Exporter[Results]
-	format Format
+	sep      string
+	format   format
+	toMaps   func(results, format) []map[string]any
+	keys     []string
+	defaults map[string]any
 }
 
-func NewDefault(sep string) *SplitWords {
-	return NewSplitWords(sep, NewExportAll())
+func NewSplitWordsAll(sep string) *SplitWords {
+	return &SplitWords{
+		sep:    sep,
+		format: defaultFormat,
+		toMaps: func(r results, f format) []map[string]any { return r.toAll(f) },
+	}
 }
 
-func NewSplitWords(sep string, export *extract.Exporter[Results]) *SplitWords {
-	return &SplitWords{sep: sep, export: export, format: DefaultFormat}
+func NewSplitWordsLine(sep string) *SplitWords {
+	return &SplitWords{
+		sep:    sep,
+		format: defaultFormat,
+		toMaps: func(r results, f format) []map[string]any { return r.toLine(f) },
+	}
 }
 
 func (s *SplitWords) Title() string {
 	return fmt.Sprintf("SplitWords[%s]", s.sep)
 }
 
-func (s *SplitWords) NewExport() extract.FieldSpec {
-	return s.export
-}
-
 func (s *SplitWords) Prepare() error {
 	s.format.check()
-
+	s.defaults = map[string]any{s.format.wordName: ""}
+	s.keys = []string{s.format.wordName}
 	return nil
 }
 
-func (s *SplitWords) Search(contents []string) extract.Result {
-	var results Results
-	for _, c := range contents {
-		rets := strings.Split(c, s.sep)
-		results = append(results, rets...)
-	}
+func (s *SplitWords) Keys() []string {
+	return s.keys
+}
 
-	return s.export.ToToken(results, len(results) > 0)
+func (s *SplitWords) DefaultValues() map[string]any {
+	return s.defaults
+}
+
+func (s *SplitWords) Extract(contents []string) extract.Result {
+	var results results
+	for _, c := range contents {
+		results = append(results, strings.Split(c, s.sep)...)
+	}
+	if len(results) == 0 {
+		return extract.Result{}
+	}
+	return extract.NewResult(true, s.toMaps(results, s.format))
 }
 
 func (s *SplitWords) Close() error { return nil }

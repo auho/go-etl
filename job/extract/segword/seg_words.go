@@ -6,51 +6,75 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var DefaultFilterFunc = func(result Result) bool {
-	return utf8.RuneCountInString(result.Token) < 2 || result.Flag == "eng" || result.Flag == "m"
+var DefaultFilterFunc = func(result result) bool {
+	return utf8.RuneCountInString(result.token) < 2 || result.flag == "eng" || result.flag == "m"
 }
 
 var _ extract.Extractor = (*SegWords)(nil)
 
 type SegWords struct {
 	seg        *Seg
-	export     *extract.Exporter[Results]
-	filterFunc func(Result) bool
+	format     format
+	toMaps     func(results, format) []map[string]any
+	filterFunc func(result) bool
+	keys       []string
+	defaults   map[string]any
 }
 
-func NewDefault() *SegWords {
-	return NewSegWords(NewExportAll())
+func NewSegWordsAll() *SegWords {
+	fm := defaultFormat
+	return &SegWords{
+		format:     fm,
+		toMaps:     func(r results, f format) []map[string]any { return r.toAll(f) },
+		filterFunc: DefaultFilterFunc,
+		keys:       []string{fm.tokenName, fm.flagName},
+		defaults:   map[string]any{fm.tokenName: "", fm.flagName: ""},
+	}
 }
 
-func NewSegWords(export *extract.Exporter[Results]) *SegWords {
-	return &SegWords{export: export, filterFunc: DefaultFilterFunc}
+func NewSegWordsLine() *SegWords {
+	fm := defaultFormat
+	return &SegWords{
+		format:     fm,
+		toMaps:     func(r results, f format) []map[string]any { return r.toLine(f) },
+		filterFunc: DefaultFilterFunc,
+		keys:       []string{fm.tokenName},
+		defaults:   map[string]any{fm.tokenName: ""},
+	}
 }
 
 func (sg *SegWords) Title() string {
 	return "Seg"
 }
 
-func (sg *SegWords) NewExport() extract.FieldSpec {
-	return sg.export
-}
-
 func (sg *SegWords) Prepare() error {
 	sg.seg = NewSeg()
-
+	sg.format.check()
 	return nil
 }
 
-func (sg *SegWords) Search(contents []string) extract.Result {
-	results := sg.seg.tag(contents)
+func (sg *SegWords) Keys() []string {
+	return sg.keys
+}
 
-	var filtered Results
-	for _, r := range results {
+func (sg *SegWords) DefaultValues() map[string]any {
+	return sg.defaults
+}
+
+func (sg *SegWords) Extract(contents []string) extract.Result {
+	all := sg.seg.tag(contents)
+
+	var filtered results
+	for _, r := range all {
 		if !sg.filterFunc(r) {
 			filtered = append(filtered, r)
 		}
 	}
 
-	return sg.export.ToToken(filtered, len(filtered) > 0)
+	if len(filtered) == 0 {
+		return extract.Result{}
+	}
+	return extract.NewResult(true, sg.toMaps(filtered, sg.format))
 }
 
 func (sg *SegWords) Close() error {

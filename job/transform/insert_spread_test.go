@@ -9,7 +9,7 @@ import (
 
 func TestInsertSpread(t *testing.T) {
 	ins1 := newTestInsert(t)
-	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewDefault()), nil)
+	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewSegWordsAll()), nil)
 	err := ins2.Prepare()
 	if err != nil {
 		t.Fatal(err)

@@ -29,36 +29,28 @@ type mockExtractor struct {
 	title         string
 	prepareErr    error
 	closeErr      error
-	export        extract.FieldSpec
-	searchFn      func(contents []string) extract.Result
-	searchCalled  int
+	keys          []string
+	defaults      map[string]any
+	extractFn     func(contents []string) extract.Result
+	extractCalled int
 }
 
-func (e *mockExtractor) Title() string                   { return e.title }
-func (e *mockExtractor) Prepare() error                  { return e.prepareErr }
-func (e *mockExtractor) NewExport() extract.FieldSpec    { return e.export }
-func (e *mockExtractor) Search(contents []string) extract.Result {
-	e.searchCalled++
-	return e.searchFn(contents)
+func (e *mockExtractor) Title() string                 { return e.title }
+func (e *mockExtractor) Prepare() error                { return e.prepareErr }
+func (e *mockExtractor) Keys() []string                { return e.keys }
+func (e *mockExtractor) DefaultValues() map[string]any { return e.defaults }
+func (e *mockExtractor) Extract(contents []string) extract.Result {
+	e.extractCalled++
+	return e.extractFn(contents)
 }
 func (e *mockExtractor) Close() error { return e.closeErr }
-
-type FieldSpecMock struct {
-	keys       []string
-	defaults   map[string]any
-}
-
-func (f FieldSpecMock) Keys() []string           { return f.keys }
-func (f FieldSpecMock) DefaultValues() map[string]any { return f.defaults }
 
 // helper: always-ok extractor that records contents
 func okExtractor(captured *[]string) *mockExtractor {
 	return &mockExtractor{
-		searchFn: func(contents []string) extract.Result {
+		extractFn: func(contents []string) extract.Result {
 			*captured = contents
-			r := extract.Result{}
-			r.SetOK()
-			return r
+			return extract.NewResult(true, nil)
 		},
 	}
 }
@@ -135,7 +127,7 @@ func TestCollector_Keys(t *testing.T) {
 		src := &mockSource{title: "s", keys: []string{"a"}, contentsFn: func(map[string]any) ([]string, map[string]string, error) {
 			return nil, nil, nil
 		}}
-		ext := &mockExtractor{export: FieldSpecMock{keys: []string{"out1", "out2"}}}
+		ext := &mockExtractor{keys: []string{"out1", "out2"}}
 		c := NewCollector(src, mode.NewAll(), ext)
 
 		got := c.Keys()
@@ -148,7 +140,7 @@ func TestCollector_Keys(t *testing.T) {
 		src := &mockSource{title: "s", keys: []string{"a"}, contentsFn: func(map[string]any) ([]string, map[string]string, error) {
 			return nil, nil, nil
 		}}
-		ext := &mockExtractor{export: nil}
+		ext := &mockExtractor{}
 		c := NewCollector(src, mode.NewAll(), ext)
 
 		got := c.Keys()
@@ -165,7 +157,7 @@ func TestCollector_DefaultValues(t *testing.T) {
 	src := &mockSource{title: "s", keys: []string{"a"}, contentsFn: func(map[string]any) ([]string, map[string]string, error) {
 		return nil, nil, nil
 	}}
-	ext := &mockExtractor{export: FieldSpecMock{defaults: defaults}}
+	ext := &mockExtractor{defaults: defaults}
 	c := NewCollector(src, mode.NewAll(), ext)
 
 	got := c.DefaultValues()
@@ -384,12 +376,11 @@ func TestEntry_LastN(t *testing.T) {
 }
 
 func TestEntry_MatchAny(t *testing.T) {
-	ext := &mockExtractor{searchFn: func(contents []string) extract.Result {
-		r := extract.Result{}
+	ext := &mockExtractor{extractFn: func(contents []string) extract.Result {
 		if len(contents) > 0 && contents[0] == "y" {
-			r.SetOK()
+			return extract.NewResult(true, nil)
 		}
-		return r
+		return extract.NewResult(false, nil)
 	}}
 	c := NewKeysMatchAny([]string{"a", "b"}, ext)
 	res, _ := c.Extract(map[string]any{"a": "x", "b": "y"})
@@ -399,18 +390,16 @@ func TestEntry_MatchAny(t *testing.T) {
 }
 
 func TestEntry_MatchAnyN(t *testing.T) {
-	ext := &mockExtractor{searchFn: func(contents []string) extract.Result {
-		r := extract.Result{}
-		r.SetOK()
-		return r
+	ext := &mockExtractor{extractFn: func(contents []string) extract.Result {
+		return extract.NewResult(true, nil)
 	}}
 	c := NewKeysMatchAnyN([]string{"a", "b", "c"}, 2, ext)
 	res, _ := c.Extract(map[string]any{"a": "x", "b": "y", "c": "z"})
 	if !res.IsOK() {
 		t.Fatal("expected ok")
 	}
-	if ext.searchCalled != 1 {
-		t.Fatalf("expected 1 search call (first key ok), got %d", ext.searchCalled)
+	if ext.extractCalled != 1 {
+		t.Fatalf("expected 1 search call (first key ok), got %d", ext.extractCalled)
 	}
 }
 
@@ -482,34 +471,30 @@ func TestEntry_LastValuedN(t *testing.T) {
 }
 
 func TestEntry_MatchAnyValued(t *testing.T) {
-	ext := &mockExtractor{searchFn: func(contents []string) extract.Result {
-		r := extract.Result{}
-		r.SetOK()
-		return r
+	ext := &mockExtractor{extractFn: func(contents []string) extract.Result {
+		return extract.NewResult(true, nil)
 	}}
 	c := NewKeysMatchAnyValued([]string{"a", "b"}, ext)
 	res, _ := c.Extract(map[string]any{"b": "y"}) // a missing → skipped
 	if !res.IsOK() {
 		t.Fatal("expected ok")
 	}
-	if ext.searchCalled != 1 {
-		t.Fatalf("expected 1 search call (skipped empty a), got %d", ext.searchCalled)
+	if ext.extractCalled != 1 {
+		t.Fatalf("expected 1 search call (skipped empty a), got %d", ext.extractCalled)
 	}
 }
 
 func TestEntry_MatchAnyValuedN(t *testing.T) {
-	ext := &mockExtractor{searchFn: func(contents []string) extract.Result {
-		r := extract.Result{}
-		r.SetOK()
-		return r
+	ext := &mockExtractor{extractFn: func(contents []string) extract.Result {
+		return extract.NewResult(true, nil)
 	}}
 	c := NewKeysMatchAnyValuedN([]string{"a", "b", "c", "d"}, 2, ext)
 	res, _ := c.Extract(map[string]any{"b": "y", "c": "z", "d": "w"})
 	if !res.IsOK() {
 		t.Fatal("expected ok")
 	}
-	if ext.searchCalled != 1 {
-		t.Fatalf("expected 1 search call (first valued key ok), got %d", ext.searchCalled)
+	if ext.extractCalled != 1 {
+		t.Fatalf("expected 1 search call (first valued key ok), got %d", ext.extractCalled)
 	}
 }
 

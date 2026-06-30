@@ -21,5 +21,5 @@ func (m *lastN) Prepare() error {
 	return nil
 }
 func (m *lastN) Apply(keys []string, keysValue map[string]string, e extract.Extractor) (extract.Result, error) {
-	return e.Search(valuesByKeys(takeLast(keys, m.n), keysValue)), nil
+	return e.Extract(valuesByKeys(takeLast(keys, m.n), keysValue)), nil
 }

@@ -17,7 +17,7 @@ func (m *matchAnyValued) Prepare() error { return nil }
 func (m *matchAnyValued) Apply(keys []string, keysValue map[string]string, e extract.Extractor) (extract.Result, error) {
 	var st extract.Result
 	for _, key := range valuedKeys(keys, keysValue) {
-		st = e.Search([]string{keysValue[key]})
+		st = e.Extract([]string{keysValue[key]})
 		if st.IsOK() {
 			break
 		}

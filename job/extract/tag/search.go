@@ -7,80 +7,140 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-var _ extract.Extractor = (*Search[Results])(nil)
-var _ extract.Extractor = (*Search[LabelResults])(nil)
-var _ extract.Extractor = (*SearchResults)(nil)
-var _ extract.Extractor = (*SearchLabelResults)(nil)
+var _ extract.Extractor = (*search[results])(nil)
+var _ extract.Extractor = (*search[labelResults])(nil)
+var _ extract.Extractor = (*searchResults)(nil)
+var _ extract.Extractor = (*searchLabelResults)(nil)
 
-type SearchResults = Search[Results]
-type SearchLabelResults = Search[LabelResults]
-type SearchContextResults = SearchContext[Results]
-type SearchContextLabelResults = SearchContext[LabelResults]
+type searchResults = search[results]
+type searchLabelResults = search[labelResults]
+type searchContextResults = searchContext[results]
+type searchContextLabelResults = searchContext[labelResults]
 
-type ResultsEntity interface {
-	Results | LabelResults
+type resultsEntity interface {
+	results | labelResults
 }
 
-type SearchResultsFunc[T ResultsEntity] func(*SearchContext[T], []string) T
-type SearchContext[T ResultsEntity] struct {
-	Matcher *matcher
-}
-
-type Search[T ResultsEntity] struct {
+type searchResultsFunc[T resultsEntity] func(*searchContext[T], []string) T
+type searchContext[T resultsEntity] struct {
 	matcher *matcher
-	export  *extract.Exporter[T]
+}
 
-	context          *SearchContext[T]
-	searchResultsFun SearchResultsFunc[T]
+type search[T resultsEntity] struct {
+	matcher *matcher
+
+	toMaps    func(T, extract.Rule, format) []map[string]any
+	rule      extract.Rule
+	format    format
+	keys      []string
+	defaults  map[string]any
+	pluckKeys []string
+
+	context          *searchContext[T]
+	searchResultsFun searchResultsFunc[T]
 
 	matcherConfig *matcherConfig
 	newMatcherFun func(extract.Rule, *matcherConfig) (*matcher, error)
 }
 
-func NewSearch[T ResultsEntity](export *extract.Exporter[T], fn SearchResultsFunc[T]) *Search[T] {
-	return &Search[T]{
-		export:           export,
+func newSearch[T resultsEntity](
+	rule extract.Rule,
+	toMaps func(T, extract.Rule, format) []map[string]any,
+	keys []string,
+	defaults map[string]any,
+	fn searchResultsFunc[T],
+) *search[T] {
+	return &search[T]{
+		rule:             rule,
+		format:           defaultFormat,
+		toMaps:           toMaps,
+		keys:             keys,
+		defaults:         defaults,
 		searchResultsFun: fn,
 		matcherConfig:    &matcherConfig{},
 	}
 }
 
-func (s *Search[T]) Title() string {
-	return fmt.Sprintf("Search{%s:%s}", s.export.GetRule().Name(), strings.Join(s.export.Keys(), ","))
+func (s *search[T]) Title() string {
+	return fmt.Sprintf("Search{%s:%s}", s.rule.Name(), strings.Join(s.Keys(), ","))
 }
 
-func (s *Search[T]) NewExport() extract.FieldSpec {
-	return s.export
+func (s *search[T]) Keys() []string {
+	if len(s.pluckKeys) == 0 {
+		return s.keys
+	}
+
+	keySet := make(map[string]bool, len(s.keys))
+	for _, k := range s.keys {
+		keySet[k] = true
+	}
+
+	keys := make([]string, 0, len(s.pluckKeys))
+	for _, pk := range s.pluckKeys {
+		if keySet[pk] {
+			keys = append(keys, pk)
+		}
+	}
+
+	return keys
 }
 
-func (s *Search[T]) Search(contents []string) extract.Result {
-	rets := s.searchResultsFun(s.context, contents)
+func (s *search[T]) DefaultValues() map[string]any {
+	if len(s.pluckKeys) == 0 {
+		return s.defaults
+	}
 
-	return s.export.ToToken(rets, len(rets) > 0)
+	pluckSet := make(map[string]bool, len(s.pluckKeys))
+	for _, k := range s.pluckKeys {
+		pluckSet[k] = true
+	}
+
+	dv := make(map[string]any)
+	for k, v := range s.defaults {
+		if pluckSet[k] {
+			dv[k] = v
+		}
+	}
+
+	return dv
 }
 
-func (s *Search[T]) Prepare() error {
+func (s *search[T]) Extract(contents []string) extract.Result {
+	results := s.searchResultsFun(s.context, contents)
+	if len(results) == 0 {
+		return extract.Result{}
+	}
+
+	rows := s.toMaps(results, s.rule, s.format)
+	if len(s.pluckKeys) > 0 {
+		rows = extract.PluckRows(rows, s.pluckKeys)
+	}
+
+	return extract.NewResult(true, rows)
+}
+
+func (s *search[T]) Prepare() error {
 	if s.newMatcherFun == nil {
 		s.newMatcherFun = defaultMatcher
 	}
 
 	var err error
-	s.matcher, err = s.newMatcherFun(s.export.GetRule(), s.matcherConfig)
+	s.matcher, err = s.newMatcherFun(s.rule, s.matcherConfig)
 	if err != nil {
 		return fmt.Errorf("newMatcherFun: %w", err)
 	}
 
-	s.context = &SearchContext[T]{
-		Matcher: s.matcher,
+	s.context = &searchContext[T]{
+		matcher: s.matcher,
 	}
 
 	return nil
 }
 
-func (s *Search[T]) Close() error { return nil }
+func (s *search[T]) Close() error { return nil }
 
-func (s *Search[T]) WithPluck(keys []string) *Search[T] {
-	s.export.Pluck(keys)
+func (s *search[T]) WithPluck(keys []string) *search[T] {
+	s.pluckKeys = keys
 
 	return s
 }

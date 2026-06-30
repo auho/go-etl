@@ -14,5 +14,5 @@ func NewLastValued() Mode { return &lastValued{} }
 
 func (m *lastValued) Prepare() error { return nil }
 func (m *lastValued) Apply(keys []string, keysValue map[string]string, e extract.Extractor) (extract.Result, error) {
-	return e.Search(valuesByKeys(takeLast(valuedKeys(keys, keysValue), 1), keysValue)), nil
+	return e.Extract(valuesByKeys(takeLast(valuedKeys(keys, keysValue), 1), keysValue)), nil
 }

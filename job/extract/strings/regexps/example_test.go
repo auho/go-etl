@@ -6,23 +6,23 @@ func ExampleNewAllSubMatch() {
 		`\b(1)\b`,
 		`\b(a)\b`,
 		`.*(ab).*`,
-	}, NewExportAll(_rule))
+	}, _rule)
 }
 
-func ExampleNewSubMatchAll() {
-	NewSubMatchAll([]string{
+func ExampleNewSubMatchAllLine() {
+	NewSubMatchAllLine([]string{
 		`a.{1,2}c`,
 		`\b(1)\b`,
 		`\b(a)\b`,
 		`.*(ab).*`,
-	}, NewExportLine(_rule))
+	}, _rule)
 }
 
-func ExampleNewSubMatchFirst() {
-	NewSubMatchFirst([]string{
+func ExampleNewSubMatchFirstFlag() {
+	NewSubMatchFirstFlag([]string{
 		`a.{1,2}c`,
 		`\b(1)\b`,
 		`\b(a)\b`,
 		`.*(ab).*`,
-	}, NewExportFlag(_rule))
+	}, _rule)
 }

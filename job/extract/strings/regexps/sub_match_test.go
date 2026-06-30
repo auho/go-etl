@@ -2,8 +2,6 @@ package regexps
 
 import (
 	"testing"
-
-	"github.com/auho/go-etl/v3/job/extract"
 )
 
 var _rule = &ruleTest{}
@@ -20,14 +18,14 @@ var _expressions = []string{
 }
 
 func TestAllSubMatch(t *testing.T) {
-	amm := NewAllSubMatch(_expressions, NewExportAll(_rule))
+	amm := NewAllSubMatch(_expressions, _rule)
 	err := amm.Prepare()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	token := amm.Search(_content)
-	rets := token.Rows()
+	token := amm.Extract(_content)
+	_, rets := token.Get()
 	if len(rets) != 6 {
 		t.Fatal()
 	}
@@ -48,14 +46,14 @@ func TestAllSubMatch(t *testing.T) {
 
 func TestSubMatchAll(t *testing.T) {
 	t.Run("all", func(t *testing.T) {
-		sma := NewSubMatchAll(_expressions, NewExportAll(_rule))
+		sma := NewSubMatchAll(_expressions, _rule)
 		err := sma.Prepare()
 		if err != nil {
 			t.Fatal()
 		}
 
-		token := sma.Search(_content)
-		rets := token.Rows()
+		token := sma.Extract(_content)
+		_, rets := token.Get()
 		if len(rets) != 4 {
 			t.Fatal()
 		}
@@ -73,14 +71,14 @@ func TestSubMatchAll(t *testing.T) {
 	})
 
 	t.Run("line", func(t *testing.T) {
-		sma := NewSubMatchAll(_expressions, NewExportLine(_rule))
+		sma := NewSubMatchAllLine(_expressions, _rule)
 		err := sma.Prepare()
 		if err != nil {
 			t.Fatal()
 		}
 
-		token := sma.Search(_content)
-		rets := token.Rows()
+		token := sma.Extract(_content)
+		_, rets := token.Get()
 		if len(rets) != 1 {
 			t.Fatal()
 		}
@@ -91,14 +89,14 @@ func TestSubMatchAll(t *testing.T) {
 	})
 
 	t.Run("flag", func(t *testing.T) {
-		sma := NewSubMatchAll(_expressions, NewExportFlag(_rule))
+		sma := NewSubMatchAllFlag(_expressions, _rule)
 		err := sma.Prepare()
 		if err != nil {
 			t.Fatal()
 		}
 
-		token := sma.Search(_content)
-		rets := token.Rows()
+		token := sma.Extract(_content)
+		_, rets := token.Get()
 		if len(rets) != 1 {
 			t.Fatal()
 		}
@@ -110,14 +108,14 @@ func TestSubMatchAll(t *testing.T) {
 }
 
 func TestSubMatchFirst(t *testing.T) {
-	smf := NewSubMatchFirst(_expressions, NewExportAll(_rule))
+	smf := NewSubMatchFirst(_expressions, _rule)
 	err := smf.Prepare()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	token := smf.Search(_content)
-	rets := token.Rows()
+	token := smf.Extract(_content)
+	_, rets := token.Get()
 	if len(rets) != 1 {
 		t.Fatal()
 	}
@@ -127,25 +125,18 @@ func TestSubMatchFirst(t *testing.T) {
 	}
 }
 
-func TestExport_Interface(t *testing.T) {
+func TestSubMatch_Interface(t *testing.T) {
 	t.Run("Title", func(t *testing.T) {
-		sm := NewAllSubMatch(_expressions, NewExportAll(_rule))
+		sm := NewAllSubMatch(_expressions, _rule)
 		expected := "SubMatch[" + _rule.Name() + "]"
 		if sm.Title() != expected {
 			t.Fatalf("expected Title() to be %q, got %q", expected, sm.Title())
 		}
 	})
 
-	t.Run("NewExport", func(t *testing.T) {
-		sm := NewAllSubMatch(_expressions, NewExportAll(_rule))
-		if sm.NewExport() == nil {
-			t.Fatal("NewExport() returned nil")
-		}
-	})
-
 	t.Run("Keys", func(t *testing.T) {
-		e := NewExportAll(_rule)
-		keys := e.Keys()
+		sm := NewAllSubMatch(_expressions, _rule)
+		keys := sm.Keys()
 		if len(keys) != 2 {
 			t.Fatalf("expected 2 keys, got %d", len(keys))
 		}
@@ -162,8 +153,8 @@ func TestExport_Interface(t *testing.T) {
 	})
 
 	t.Run("DefaultValues", func(t *testing.T) {
-		e := NewExportAll(_rule)
-		dv := e.DefaultValues()
+		sm := NewAllSubMatch(_expressions, _rule)
+		dv := sm.DefaultValues()
 		if len(dv) != 2 {
 			t.Fatalf("expected 2 default values, got %d", len(dv))
 		}
@@ -174,95 +165,10 @@ func TestExport_Interface(t *testing.T) {
 			t.Errorf("expected default value for %q", _rule.KeywordAmountNameAlias())
 		}
 	})
-
-	t.Run("GetRule", func(t *testing.T) {
-		e := NewExportAll(_rule)
-		if e.GetRule() == nil {
-			t.Fatal("GetRule() returned nil")
-		}
-		if e.GetRule().Name() != _rule.Name() {
-			t.Errorf("expected rule name %q, got %q", _rule.Name(), e.GetRule().Name())
-		}
-	})
-}
-
-func TestExport_Pluck(t *testing.T) {
-	e := NewExportAll(_rule)
-	if len(e.Keys()) != 2 {
-		t.Fatalf("expected 2 original keys, got %d", len(e.Keys()))
-	}
-
-	plucked := e.Pluck([]string{_rule.NameAlias()})
-	if plucked != e {
-		t.Error("Pluck should return the same export instance")
-	}
-
-	keys := e.Keys()
-	if len(keys) != 1 {
-		t.Fatalf("expected 1 key after Pluck, got %d", len(keys))
-	}
-	if keys[0] != _rule.NameAlias() {
-		t.Errorf("expected key %q, got %q", _rule.NameAlias(), keys[0])
-	}
-
-	dv := e.DefaultValues()
-	if len(dv) != 1 {
-		t.Fatalf("expected 1 default value after Pluck, got %d", len(dv))
-	}
-	if _, ok := dv[_rule.NameAlias()]; !ok {
-		t.Errorf("expected default value for %q", _rule.NameAlias())
-	}
-}
-
-func TestNewExportDefault(t *testing.T) {
-	e := NewExportDefault(_rule, func(results Results, rule extract.Rule) []map[string]any {
-		var rets []map[string]any
-		for _, r := range results {
-			rets = append(rets, map[string]any{
-				rule.NameAlias(): r.Text,
-			})
-		}
-		return rets
-	})
-
-	keys := e.Keys()
-	if len(keys) != 1 {
-		t.Fatalf("expected 1 key, got %d", len(keys))
-	}
-	if keys[0] != _rule.NameAlias() {
-		t.Errorf("expected key %q, got %q", _rule.NameAlias(), keys[0])
-	}
-
-	dv := e.DefaultValues()
-	if len(dv) != 1 {
-		t.Fatalf("expected 1 default value, got %d", len(dv))
-	}
-	if _, ok := dv[_rule.NameAlias()]; !ok {
-		t.Errorf("expected default value for %q", _rule.NameAlias())
-	}
-
-	if e.GetRule().Name() != _rule.Name() {
-		t.Errorf("expected rule name %q, got %q", _rule.Name(), e.GetRule().Name())
-	}
-
-	results := Results{
-		{Text: "test", Amount: 1},
-	}
-	token := e.ToToken(results, results != nil)
-	if !token.IsOK() {
-		t.Fatal("expected token to be OK")
-	}
-	rets := token.Rows()
-	if len(rets) != 1 {
-		t.Fatalf("expected 1 row, got %d", len(rets))
-	}
-	if rets[0][_rule.NameAlias()] != "test" {
-		t.Errorf("expected %q, got %v", "test", rets[0][_rule.NameAlias()])
-	}
 }
 
 func TestSubMatch_Close(t *testing.T) {
-	sm := NewAllSubMatch(_expressions, NewExportAll(_rule))
+	sm := NewAllSubMatch(_expressions, _rule)
 	if err := sm.Prepare(); err != nil {
 		t.Fatal(err)
 	}

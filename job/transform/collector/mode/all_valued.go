@@ -14,5 +14,5 @@ func NewAllValued() Mode { return &allValued{} }
 
 func (m *allValued) Prepare() error { return nil }
 func (m *allValued) Apply(keys []string, keysValue map[string]string, e extract.Extractor) (extract.Result, error) {
-	return e.Search(valuesByKeys(valuedKeys(keys, keysValue), keysValue)), nil
+	return e.Extract(valuesByKeys(valuedKeys(keys, keysValue), keysValue)), nil
 }

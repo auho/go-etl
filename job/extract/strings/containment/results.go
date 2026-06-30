@@ -6,32 +6,32 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-type Result struct {
-	Sub    string
-	Amount int
+type result struct {
+	sub    string
+	amount int
 }
 
-type Results []Result
+type results []result
 
-func (rs Results) ToAll(rule extract.Rule) []map[string]any {
+func (rs results) toAll(rule extract.Rule) []map[string]any {
 	var results []map[string]any
 	for _, _r := range rs {
 		results = append(results, map[string]any{
-			rule.NameAlias():              _r.Sub,
-			rule.KeywordAmountNameAlias(): _r.Amount,
+			rule.NameAlias():              _r.sub,
+			rule.KeywordAmountNameAlias(): _r.amount,
 		})
 	}
 
 	return results
 }
 
-func (rs Results) ToLine(rule extract.Rule) []map[string]any {
+func (rs results) toLine(rule extract.Rule) []map[string]any {
 	var ss []string
 	var num, amount int
 	for _, _r := range rs {
-		ss = append(ss, _r.Sub)
+		ss = append(ss, _r.sub)
 		num += 1
-		amount += _r.Amount
+		amount += _r.amount
 	}
 
 	return []map[string]any{
@@ -43,13 +43,13 @@ func (rs Results) ToLine(rule extract.Rule) []map[string]any {
 	}
 }
 
-func (rs Results) ToFlag(rule extract.Rule) []map[string]any {
+func (rs results) toFlag(rule extract.Rule) []map[string]any {
 	var ss []string
 	var num, amount int
 	for _, _r := range rs {
-		ss = append(ss, _r.Sub)
+		ss = append(ss, _r.sub)
 		num += 1
-		amount += _r.Amount
+		amount += _r.amount
 	}
 
 	return []map[string]any{

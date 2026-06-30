@@ -14,7 +14,7 @@ func TestInsertStack(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewDefault()), nil)
+	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewSegWordsAll()), nil)
 	err = ins2.Prepare()
 	if err != nil {
 		t.Fatal(err)
@@ -60,7 +60,7 @@ func TestInsertStack_SingleInsert(t *testing.T) {
 
 func TestInsertStack_Keys(t *testing.T) {
 	ins := newTestInsert(t)
-	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewDefault()), nil)
+	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewSegWordsAll()), nil)
 	err := ins2.Prepare()
 	if err != nil {
 		t.Fatal(err)

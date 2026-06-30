@@ -8,10 +8,10 @@ import (
 )
 
 // TestExport_KeywordAll tests the full pipeline via NewKey
-// (NewExportKeywordAll / Results.ToAll)
+// (NewExportKeywordAll / results.toAll)
 func TestExport_KeywordAll(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewKey(rule).WithMatcher("a", _matcherItems)
+	s := NewKey(rule).WithScanner("a", _scannerItems)
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -23,14 +23,8 @@ func TestExport_KeywordAll(t *testing.T) {
 		t.Fatal("Title() should not be empty")
 	}
 
-	// NewExport should return non-nil FieldSpec
-	spec := s.NewExport()
-	if spec == nil {
-		t.Fatal("NewExport() should not be nil")
-	}
-
 	// Keys should contain KeywordNameAlias and KeywordAmountNameAlias
-	keys := spec.Keys()
+	keys := s.Keys()
 	if !slices.Contains(keys, rule.KeywordNameAlias()) {
 		t.Errorf("Keys() should contain %s, got %v", rule.KeywordNameAlias(), keys)
 	}
@@ -39,7 +33,7 @@ func TestExport_KeywordAll(t *testing.T) {
 	}
 
 	// DefaultValues should be non-empty and contain expected keys
-	dv := spec.DefaultValues()
+	dv := s.DefaultValues()
 	if len(dv) == 0 {
 		t.Error("DefaultValues() should not be empty")
 	}
@@ -50,15 +44,15 @@ func TestExport_KeywordAll(t *testing.T) {
 		t.Errorf("DefaultValues()[%s] should be 0, got %v", rule.KeywordAmountNameAlias(), v)
 	}
 
-	// Search should return OK result with rows
-	result := s.Search(_corpus)
+	// Extract should return OK result with rows
+	result := s.Extract(_corpus)
 	if !result.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	rows := result.Rows()
+	_, rows := result.Get()
 	if len(rows) == 0 {
-		t.Fatal("Rows() should not be empty")
+		t.Fatal("rows should not be empty")
 	}
 
 	// Each row should contain keyword and amount keys (ToAll keys)
@@ -72,24 +66,24 @@ func TestExport_KeywordAll(t *testing.T) {
 	}
 }
 
-// TestExport_KeywordLine tests NewExportKeywordLine with NewSearchKey
+// TestExport_KeywordLine tests NewExportKeywordLine with newMatcherKey
 // (Results.ToLine / MergeKeysToWhole)
 func TestExport_KeywordLine(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewSearchKey(NewExportKeywordLine(rule)).WithMatcher("a", _matcherItems)
+	s := newMatcherKey(rule, keywordToMapsLine, keywordKeysLine).WithScanner("a", _scannerItems)
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Search(_corpus)
+	result := s.Extract(_corpus)
 	if !result.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
 	// ToLine merges all results into a single row
-	rows := result.Rows()
+	_, rows := result.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToLine should return 1 row, got %d", len(rows))
 	}
@@ -103,24 +97,24 @@ func TestExport_KeywordLine(t *testing.T) {
 	}
 }
 
-// TestExport_KeywordFlag tests NewExportKeywordFlag with NewSearchKey
+// TestExport_KeywordFlag tests NewExportKeywordFlag with newMatcherKey
 // (Results.ToFlag / MergeKeysToWhole)
 func TestExport_KeywordFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewSearchKey(NewExportKeywordFlag(rule)).WithMatcher("a", _matcherItems)
+	s := newMatcherKey(rule, keywordToMapsFlag, keywordKeysFlag).WithScanner("a", _scannerItems)
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Search(_corpus)
+	result := s.Extract(_corpus)
 	if !result.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
 	// ToFlag merges all results into a single row with a flag
-	rows := result.Rows()
+	_, rows := result.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToFlag should return 1 row, got %d", len(rows))
 	}
@@ -135,21 +129,21 @@ func TestExport_KeywordFlag(t *testing.T) {
 // (NewExportLabelAll / LabelResults.ToAll)
 func TestExport_LabelAll(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewLabel(rule).WithMatcher("a", _matcherItems)
+	s := NewLabel(rule).WithScanner("a", _scannerItems)
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Search(_corpus)
+	result := s.Extract(_corpus)
 	if !result.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	rows := result.Rows()
+	_, rows := result.Get()
 	if len(rows) == 0 {
-		t.Fatal("Rows() should not be empty")
+		t.Fatal("rows should not be empty")
 	}
 
 	for i, row := range rows {
@@ -163,23 +157,23 @@ func TestExport_LabelAll(t *testing.T) {
 }
 
 // TestExport_LabelLine tests the full pipeline via NewWholeLabels
-// (NewExportLabelLine / LabelResults.ToLine / MergeLabelsToWhole)
+// (labelToMapsLine / LabelResults.ToLine / MergeLabelsToWhole)
 func TestExport_LabelLine(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewWholeLabels(rule).WithMatcher("a", _matcherItems)
+	s := NewWholeLabels(rule).WithScanner("a", _scannerItems)
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Search(_corpus)
+	result := s.Extract(_corpus)
 	if !result.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
 	// ToLine merges all labels into a single row
-	rows := result.Rows()
+	_, rows := result.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToLine should return 1 row, got %d", len(rows))
 	}
@@ -193,23 +187,23 @@ func TestExport_LabelLine(t *testing.T) {
 	}
 }
 
-// TestExport_LabelFlag tests NewExportLabelFlag with NewSearchLabels
-// (LabelResults.ToFlag / MergeLabelsToWhole)
+// TestExport_LabelFlag tests labelToMapsFlag with newMatcherLabels
+// (labelResults.toFlag / mergeLabelsToWhole)
 func TestExport_LabelFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewSearchLabels(NewExportLabelFlag(rule)).WithMatcher("a", _matcherItems)
+	s := newMatcherLabels(rule, labelToMapsFlag, labelKeysFlag).WithScanner("a", _scannerItems)
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Search(_corpus)
+	result := s.Extract(_corpus)
 	if !result.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	rows := result.Rows()
+	_, rows := result.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToFlag should return 1 row, got %d", len(rows))
 	}
@@ -224,7 +218,7 @@ func TestExport_LabelFlag(t *testing.T) {
 func TestExport_Pluck(t *testing.T) {
 	rule := &ruleTest{}
 	pluckedKey := rule.KeywordNameAlias()
-	s := NewKey(rule).WithMatcher("a", _matcherItems).WithPluck([]string{pluckedKey})
+	s := NewKey(rule).WithScanner("a", _scannerItems).WithPluckKeys([]string{pluckedKey})
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -232,7 +226,7 @@ func TestExport_Pluck(t *testing.T) {
 	}
 
 	// After pluck, Keys should only contain the plucked key
-	keys := s.NewExport().Keys()
+	keys := s.Keys()
 	if len(keys) != 1 {
 		t.Fatalf("expected 1 key after pluck, got %d: %v", len(keys), keys)
 	}
@@ -241,7 +235,7 @@ func TestExport_Pluck(t *testing.T) {
 	}
 
 	// DefaultValues should only contain the plucked key
-	dv := s.NewExport().DefaultValues()
+	dv := s.DefaultValues()
 	if len(dv) != 1 {
 		t.Fatalf("expected 1 default value, got %d", len(dv))
 	}
@@ -249,14 +243,14 @@ func TestExport_Pluck(t *testing.T) {
 		t.Errorf("DefaultValues should contain %s", pluckedKey)
 	}
 
-	result := s.Search(_corpus)
+	result := s.Extract(_corpus)
 	if !result.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	rows := result.Rows()
+	_, rows := result.Get()
 	if len(rows) == 0 {
-		t.Fatal("Rows() should not be empty")
+		t.Fatal("rows should not be empty")
 	}
 
 	// Each row should only have the plucked key
@@ -270,32 +264,25 @@ func TestExport_Pluck(t *testing.T) {
 	}
 }
 
-// TestExport_WithFormat tests WithFormat on Export
+// TestExport_WithFormat tests WithFormat on Matcher
 func TestExport_WithFormat(t *testing.T) {
 	rule := &ruleTest{}
-	customFormat := Format{WithKeywordAmount: false, Sep: "|"}
-	values := make(map[string]any)
-	for _, _ta := range rule.TagsAlias() {
-		values[_ta] = ""
-	}
-	values[rule.KeywordNameAlias()] = ""
-	values[rule.KeywordNumNameAlias()] = 0
-	export := extract.NewExporter(values, func(ctx extract.ExportContext[Results]) []map[string]any {
-		return ctx.Results.ToLine(rule, ctx.Format.(Format))
-	}, extract.WithRule[Results](rule), extract.WithFormat[Results](customFormat))
-	s := NewSearchKey(export).WithMatcher("a", _matcherItems)
+	customFormat := Format{withKeywordAmount: false, sep: "|"}
+	s := newMatcherKey(rule, keywordToMapsLine, keywordKeysLine).
+		WithScanner("a", _scannerItems).
+		WithFormat(customFormat)
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Search(_corpus)
+	result := s.Extract(_corpus)
 	if !result.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	rows := result.Rows()
+	_, rows := result.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToLine should return 1 row, got %d", len(rows))
 	}
@@ -313,7 +300,7 @@ func TestExport_WithFormat(t *testing.T) {
 }
 
 // TestExport_EmptyResults tests no-match scenario
-// Uses ruleTest's defaultMatcher (keywords: "123", "b", "e", "中文", "中1文")
+// Uses ruleTest's defaultScanner (keywords: "123", "b", "e", "中文", "中1文")
 // with content that contains none of these keywords
 func TestExport_EmptyResults(t *testing.T) {
 	rule := &ruleTest{}
@@ -324,14 +311,14 @@ func TestExport_EmptyResults(t *testing.T) {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Search([]string{"zzzzzzzzzzz9999999999"})
+	result := s.Extract([]string{"zzzzzzzzzzz9999999999"})
 	if result.IsOK() {
 		t.Fatal("result.IsOK() should be false for no match")
 	}
 
-	rows := result.Rows()
+	_, rows := result.Get()
 	if rows != nil {
-		t.Fatalf("Rows() should be nil for no match, got %v", rows)
+		t.Fatalf("rows should be nil for no match, got %v", rows)
 	}
 }
 
@@ -341,7 +328,7 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 
 	entryFuncs := []struct {
 		name string
-		fn   func(extract.Rule) *SearchResults
+		fn   func(extract.Rule) *MatcherResults
 	}{
 		{"NewKey", NewKey},
 		{"NewMostKey", NewMostKey},
@@ -352,22 +339,22 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 
 	for _, ef := range entryFuncs {
 		t.Run(ef.name, func(t *testing.T) {
-			s := ef.fn(rule).WithMatcher("a", _matcherItems)
+			s := ef.fn(rule).WithScanner("a", _scannerItems)
 			defer s.Close()
 
 			if err := s.Prepare(); err != nil {
 				t.Fatalf("Prepare failed: %v", err)
 			}
 
-			result := s.Search(_corpus)
+			result := s.Extract(_corpus)
 			_ = result.IsOK()
-			_ = result.Rows()
+			_, _ = result.Get()
 		})
 	}
 
 	labelFuncs := []struct {
 		name string
-		fn   func(extract.Rule) *SearchLabelResults
+		fn   func(extract.Rule) *MatcherLabelResults
 	}{
 		{"NewLabel", NewLabel},
 		{"NewWholeLabels", NewWholeLabels},
@@ -375,60 +362,60 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 
 	for _, lf := range labelFuncs {
 		t.Run(lf.name, func(t *testing.T) {
-			s := lf.fn(rule).WithMatcher("a", _matcherItems)
+			s := lf.fn(rule).WithScanner("a", _scannerItems)
 			defer s.Close()
 
 			if err := s.Prepare(); err != nil {
 				t.Fatalf("Prepare failed: %v", err)
 			}
 
-			result := s.Search(_corpus)
+			result := s.Extract(_corpus)
 			_ = result.IsOK()
-			_ = result.Rows()
+			_, _ = result.Get()
 		})
 	}
 }
 
-// TestExport_ExtraSearchFunctions tests NewSearchLastText and NewSearchLastKey
+// TestExport_ExtraMatcherFunctions tests newMatcherLastText and newMatcherLastKey
 // which are not covered by entry.go entry functions
-func TestExport_ExtraSearchFunctions(t *testing.T) {
+func TestExport_ExtraMatcherFunctions(t *testing.T) {
 	rule := &ruleTest{}
 
-	t.Run("NewSearchLastText", func(t *testing.T) {
-		s := NewSearchLastText(NewExportKeywordAll(rule)).WithMatcher("a", _matcherItems)
+	t.Run("newMatcherLastText", func(t *testing.T) {
+		s := newMatcherLastText(rule, keywordToMapsAll, keywordKeysAll).WithScanner("a", _scannerItems)
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Search(_corpus)
-		_ = result.IsOK()
-		_ = result.Rows()
+		ret := s.Extract(_corpus)
+		_ = ret.IsOK()
+		_, _ = ret.Get()
 	})
 
-	t.Run("NewSearchLastKey", func(t *testing.T) {
-		s := NewSearchLastKey(NewExportKeywordAll(rule)).WithMatcher("a", _matcherItems)
+	t.Run("newMatcherLastKey", func(t *testing.T) {
+		s := newMatcherLastKey(rule, keywordToMapsAll, keywordKeysAll).WithScanner("a", _scannerItems)
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Search(_corpus)
-		_ = result.IsOK()
-		_ = result.Rows()
+		ret := s.Extract(_corpus)
+		_ = ret.IsOK()
+		_, _ = ret.Get()
 	})
 }
 
-// TestExport_MatchOptions tests match-specific Search options:
+// TestExport_MatchOptions tests match-specific Matcher options:
 // WithIgnoreCase, WithFuzzy, WithPriorityFuzzy, WithDebug
 func TestExport_MatchOptions(t *testing.T) {
 	rule := &ruleTest{}
 
 	t.Run("WithIgnoreCase", func(t *testing.T) {
 		s := NewKey(rule).
-			WithMatcher("a", _matcherItems).
+			WithScanner("a", _scannerItems).
 			WithIgnoreCase()
 		defer s.Close()
 
@@ -436,14 +423,14 @@ func TestExport_MatchOptions(t *testing.T) {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Search(_corpus)
+		result := s.Extract(_corpus)
 		_ = result.IsOK()
-		_ = result.Rows()
+		_, _ = result.Get()
 	})
 
 	t.Run("WithFuzzy", func(t *testing.T) {
 		s := NewKey(rule).
-			WithMatcher("a", _matcherItems).
+			WithScanner("a", _scannerItems).
 			WithFuzzy(FuzzyConfig{Window: 3, Sep: "_"})
 		defer s.Close()
 
@@ -451,29 +438,29 @@ func TestExport_MatchOptions(t *testing.T) {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Search(_corpus)
+		result := s.Extract(_corpus)
 		_ = result.IsOK()
-		_ = result.Rows()
+		_, _ = result.Get()
 	})
 
 	t.Run("WithPriorityFuzzy", func(t *testing.T) {
 		s := NewKey(rule).
-			WithMatcher("a", _matcherItems).
-			WithPriorityFuzzy()
+			WithScanner("a", _scannerItems).
+			WithModePriorityFuzzy()
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Search(_corpus)
+		result := s.Extract(_corpus)
 		_ = result.IsOK()
-		_ = result.Rows()
+		_, _ = result.Get()
 	})
 
 	t.Run("WithDebug", func(t *testing.T) {
 		s := NewKey(rule).
-			WithMatcher("a", _matcherItems).
+			WithScanner("a", _scannerItems).
 			WithDebug()
 		defer s.Close()
 
@@ -481,17 +468,17 @@ func TestExport_MatchOptions(t *testing.T) {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Search(_corpus)
+		result := s.Extract(_corpus)
 		_ = result.IsOK()
-		_ = result.Rows()
+		_, _ = result.Get()
 	})
 
 	t.Run("CombinedOptions", func(t *testing.T) {
 		s := NewKey(rule).
-			WithMatcher("a", _matcherItems).
+			WithScanner("a", _scannerItems).
 			WithIgnoreCase().
 			WithFuzzy(FuzzyConfig{Window: 3, Sep: "_"}).
-			WithPriorityFuzzy().
+			WithModePriorityFuzzy().
 			WithDebug()
 		defer s.Close()
 
@@ -499,59 +486,77 @@ func TestExport_MatchOptions(t *testing.T) {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Search(_corpus)
+		result := s.Extract(_corpus)
 		_ = result.IsOK()
-		_ = result.Rows()
+		_, _ = result.Get()
 	})
 }
 
-// TestExport_Constructors tests NewExportKeyword, NewExportLabel, and GetRule
+// TestExport_Constructors tests newMatcher with custom toMaps/keysFun and WithPluck
 func TestExport_Constructors(t *testing.T) {
 	rule := &ruleTest{}
 
-	t.Run("NewExportKeyword", func(t *testing.T) {
-		df := map[string]any{"k1": "v1", "k2": 0}
-		export := NewExportKeyword(rule, df, func(ctx extract.ExportContext[Results]) []map[string]any {
+	t.Run("newMatcher_Keyword", func(t *testing.T) {
+		keysFun := func(r extract.Rule) ([]string, map[string]any) {
+			return []string{"k1", "k2"}, map[string]any{"k1": "v1", "k2": 0}
+		}
+		toMaps := func(r results, rule extract.Rule, f Format) []map[string]any {
 			return []map[string]any{{"k1": "x", "k2": 1}}
+		}
+		s := newMatcher[results](rule, toMaps, keysFun, func(ctx *matcherContextResults, c []string) results {
+			return nil
 		})
 
-		if export.GetRule() != rule {
-			t.Error("GetRule() should return the rule")
+		if err := s.Prepare(); err != nil {
+			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		if len(export.Keys()) != 2 {
-			t.Errorf("expected 2 keys, got %d", len(export.Keys()))
+		if len(s.Keys()) != 2 {
+			t.Errorf("expected 2 keys, got %d", len(s.Keys()))
 		}
 
-		if len(export.DefaultValues()) != 2 {
-			t.Errorf("expected 2 default values, got %d", len(export.DefaultValues()))
+		if len(s.DefaultValues()) != 2 {
+			t.Errorf("expected 2 default values, got %d", len(s.DefaultValues()))
 		}
 	})
 
-	t.Run("NewExportLabel", func(t *testing.T) {
-		df := map[string]any{"k1": "v1"}
-		export := NewExportLabel(rule, df, func(ctx extract.ExportContext[LabelResults]) []map[string]any {
+	t.Run("newMatcher_Label", func(t *testing.T) {
+		keysFun := func(r extract.Rule) ([]string, map[string]any) {
+			return []string{"k1"}, map[string]any{"k1": "v1"}
+		}
+		toMaps := func(r labelResults, rule extract.Rule, f Format) []map[string]any {
 			return []map[string]any{{"k1": "x"}}
+		}
+		s := newMatcher[labelResults](rule, toMaps, keysFun, func(ctx *matcherContextLabelResults, c []string) labelResults {
+			return nil
 		})
 
-		if export.GetRule() != rule {
-			t.Error("GetRule() should return the rule")
+		if err := s.Prepare(); err != nil {
+			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		if len(export.Keys()) != 1 {
-			t.Errorf("expected 1 key, got %d", len(export.Keys()))
+		if len(s.Keys()) != 1 {
+			t.Errorf("expected 1 key, got %d", len(s.Keys()))
 		}
 	})
 
 	t.Run("Pluck_Direct", func(t *testing.T) {
-		df := map[string]any{"k1": "v1", "k2": 0, "k3": "v3"}
-		export := NewExportKeyword(rule, df, func(ctx extract.ExportContext[Results]) []map[string]any {
+		keysFun := func(r extract.Rule) ([]string, map[string]any) {
+			return []string{"k1", "k2", "k3"}, map[string]any{"k1": "v1", "k2": 0, "k3": "v3"}
+		}
+		toMaps := func(r results, rule extract.Rule, f Format) []map[string]any {
+			return nil
+		}
+		s := newMatcher[results](rule, toMaps, keysFun, func(ctx *matcherContextResults, c []string) results {
 			return nil
 		})
+		s.WithPluckKeys([]string{"k1", "k3"})
 
-		export.Pluck([]string{"k1", "k3"})
+		if err := s.Prepare(); err != nil {
+			t.Fatalf("Prepare failed: %v", err)
+		}
 
-		keys := export.Keys()
+		keys := s.Keys()
 		if len(keys) != 2 {
 			t.Fatalf("expected 2 keys after pluck, got %d", len(keys))
 		}
@@ -559,7 +564,7 @@ func TestExport_Constructors(t *testing.T) {
 			t.Errorf("expected keys k1 and k3, got %v", keys)
 		}
 
-		dv := export.DefaultValues()
+		dv := s.DefaultValues()
 		if len(dv) != 2 {
 			t.Fatalf("expected 2 default values after pluck, got %d", len(dv))
 		}
@@ -569,14 +574,22 @@ func TestExport_Constructors(t *testing.T) {
 	})
 
 	t.Run("Pluck_NonExistentKey", func(t *testing.T) {
-		df := map[string]any{"k1": "v1"}
-		export := NewExportKeyword(rule, df, func(ctx extract.ExportContext[Results]) []map[string]any {
+		keysFun := func(r extract.Rule) ([]string, map[string]any) {
+			return []string{"k1"}, map[string]any{"k1": "v1"}
+		}
+		toMaps := func(r results, rule extract.Rule, f Format) []map[string]any {
+			return nil
+		}
+		s := newMatcher[results](rule, toMaps, keysFun, func(ctx *matcherContextResults, c []string) results {
 			return nil
 		})
+		s.WithPluckKeys([]string{"k1", "nonexistent"})
 
-		export.Pluck([]string{"k1", "nonexistent"})
+		if err := s.Prepare(); err != nil {
+			t.Fatalf("Prepare failed: %v", err)
+		}
 
-		keys := export.Keys()
+		keys := s.Keys()
 		if len(keys) != 1 {
 			t.Fatalf("expected 1 key after pluck, got %d", len(keys))
 		}
@@ -586,39 +599,39 @@ func TestExport_Constructors(t *testing.T) {
 	})
 }
 
-// TestExport_ResultConstructors tests NewResult, NewLabelResult, ToTag methods
+// TestExport_ResultConstructors tests newResult, newLabelResult, toTag methods
 func TestExport_ResultConstructors(t *testing.T) {
 	rule := &ruleTest{}
 
 	t.Run("NewResult", func(t *testing.T) {
-		r := NewResult()
-		if r.Tags == nil {
+		r := newResult()
+		if r.tags == nil {
 			t.Error("Tags should not be nil")
 		}
-		if r.Texts == nil {
+		if r.texts == nil {
 			t.Error("Texts should not be nil")
 		}
 	})
 
-	t.Run("NewLabelResult", func(t *testing.T) {
-		lr := NewLabelResult()
-		if lr.Tags == nil {
+	t.Run("newLabelResult", func(t *testing.T) {
+		lr := newLabelResult()
+		if lr.tags == nil {
 			t.Error("Tags should not be nil")
 		}
-		if lr.Match == nil {
+		if lr.match == nil {
 			t.Error("Match should not be nil")
 		}
 	})
 
 	t.Run("Result_ToTag", func(t *testing.T) {
-		r := NewResult()
-		r.Keyword = "test_keyword"
-		r.Amount = 5
-		r.Tags["a"] = "tag_a"
-		r.Tags["ab"] = "tag_ab"
-		r.Texts["test_keyword"] = 5
+		r := newResult()
+		r.keyword = "test_keyword"
+		r.amount = 5
+		r.tags["a"] = "tag_a"
+		r.tags["ab"] = "tag_ab"
+		r.texts["test_keyword"] = 5
 
-		tag := r.ToTag(rule)
+		tag := r.toTag(rule)
 		if tag[rule.KeywordNameAlias()] != "test_keyword" {
 			t.Errorf("expected keyword test_keyword, got %v", tag[rule.KeywordNameAlias()])
 		}
@@ -634,14 +647,14 @@ func TestExport_ResultConstructors(t *testing.T) {
 	})
 
 	t.Run("LabelResult_ToTag", func(t *testing.T) {
-		lr := NewLabelResult()
-		lr.Identity = "test"
-		lr.Amount = 3
-		lr.Tags["a"] = "tag_a"
-		lr.Match["key1"] = map[string]int{"text1": 2, "text2": 1}
-		lr.Keywords = []string{"key1"}
+		lr := newLabelResult()
+		lr.identity = "test"
+		lr.amount = 3
+		lr.tags["a"] = "tag_a"
+		lr.match["key1"] = map[string]int{"text1": 2, "text2": 1}
+		lr.keywords = []string{"key1"}
 
-		ltag := lr.ToTag(rule, DefaultFormat)
+		ltag := lr.toTag(rule, defaultFormat)
 		// WithKeywordAmount=true, keyText = "key1 3" (key + total amount)
 		if ltag[rule.KeywordNameAlias()] != "key1 3" {
 			t.Errorf("expected 'key1 3', got %v", ltag[rule.KeywordNameAlias()])
@@ -655,13 +668,13 @@ func TestExport_ResultConstructors(t *testing.T) {
 	})
 
 	t.Run("LabelResult_ToTag_NoAmount", func(t *testing.T) {
-		lr := NewLabelResult()
-		lr.Amount = 3
-		lr.Match["key1"] = map[string]int{"text1": 2, "text2": 1}
-		lr.Keywords = []string{"key1"}
+		lr := newLabelResult()
+		lr.amount = 3
+		lr.match["key1"] = map[string]int{"text1": 2, "text2": 1}
+		lr.keywords = []string{"key1"}
 
-		format := Format{WithKeywordAmount: false, Sep: ","}
-		ltag := lr.ToTag(rule, format)
+		format := Format{withKeywordAmount: false, sep: ","}
+		ltag := lr.toTag(rule, format)
 		// WithKeywordAmount=false, keyText = "key1" (no amount)
 		if ltag[rule.KeywordNameAlias()] != "key1" {
 			t.Errorf("expected 'key1', got %v", ltag[rule.KeywordNameAlias()])

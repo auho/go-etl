@@ -32,8 +32,8 @@ func _assertSeekResults(t *testing.T, ok bool, sc seekContent, sr seekResults, e
 		t.Fatal(fmt.Sprintf("texts num[%d != %d]", expectTextsNum, len(textsIndex)), t.Name())
 	}
 
-	oplw := strings.Count(sc.origin, _placeholder)
-	cplw := strings.Count(sc.content, _placeholder)
+	oplw := strings.Count(sc.origin, placeholder)
+	cplw := strings.Count(sc.content, placeholder)
 	if oplw != originPlWidth {
 		t.Fatal(fmt.Sprintf("placeholder origin[%d != %d]", oplw, originPlWidth), t.Name())
 	}

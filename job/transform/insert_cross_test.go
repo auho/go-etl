@@ -14,7 +14,7 @@ func TestInsertCross(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewDefault()), nil)
+	ins2 := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewSegWordsAll()), nil)
 	err = ins2.Prepare()
 	if err != nil {
 		t.Fatal(err)

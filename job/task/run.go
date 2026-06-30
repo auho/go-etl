@@ -14,10 +14,6 @@ type executor interface {
 	options() []flow.Option[map[string]any, map[string]any]
 }
 
-type Runner struct {
-	config *Config
-}
-
 func run(jb job.Table, ps []processor, e executor, opts ...ConfigOption) {
 	r := &Runner{}
 	r.prepare(opts)
@@ -30,6 +26,10 @@ func run(jb job.Table, ps []processor, e executor, opts ...ConfigOption) {
 	if err != nil {
 		panic(fmt.Sprintf("run: %v", err))
 	}
+}
+
+type Runner struct {
+	config *Config
 }
 
 func (r *Runner) prepare(opts []ConfigOption) {

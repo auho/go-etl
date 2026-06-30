@@ -8,26 +8,25 @@ import (
 
 // mockExtractor implements extract.Extractor for testing.
 type mockExtractor struct {
-	searchFn     func(contents []string) extract.Result
-	searchCalled int
+	extractFn     func(contents []string) extract.Result
+	extractCalled int
 }
 
-func (m *mockExtractor) Title() string                { return "mock" }
-func (m *mockExtractor) Prepare() error               { return nil }
-func (m *mockExtractor) NewExport() extract.FieldSpec { return nil }
-func (m *mockExtractor) Search(contents []string) extract.Result {
-	m.searchCalled++
-	return m.searchFn(contents)
+func (m *mockExtractor) Title() string                 { return "mock" }
+func (m *mockExtractor) Prepare() error                { return nil }
+func (m *mockExtractor) Keys() []string                { return nil }
+func (m *mockExtractor) DefaultValues() map[string]any { return nil }
+func (m *mockExtractor) Extract(contents []string) extract.Result {
+	m.extractCalled++
+	return m.extractFn(contents)
 }
 func (m *mockExtractor) Close() error { return nil }
 
 func okExtractor(captured *[]string) *mockExtractor {
 	return &mockExtractor{
-		searchFn: func(contents []string) extract.Result {
+		extractFn: func(contents []string) extract.Result {
 			*captured = contents
-			r := extract.Result{}
-			r.SetOK()
-			return r
+			return extract.NewResult(true, nil)
 		},
 	}
 }
@@ -157,10 +156,8 @@ func TestLastN_Prepare(t *testing.T) {
 
 func TestMatchAny(t *testing.T) {
 	t.Run("first key ok", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
-			r := extract.Result{}
-			r.SetOK()
-			return r
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
+			return extract.NewResult(true, nil)
 		}}
 		m := NewMatchAny()
 
@@ -174,20 +171,19 @@ func TestMatchAny(t *testing.T) {
 		if !res.IsOK() {
 			t.Fatal("expected ok")
 		}
-		if e.searchCalled != 1 {
-			t.Fatalf("expected 1 call, got %d", e.searchCalled)
+		if e.extractCalled != 1 {
+			t.Fatalf("expected 1 call, got %d", e.extractCalled)
 		}
 	})
 
 	t.Run("second key ok", func(t *testing.T) {
 		calls := 0
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
 			calls++
-			r := extract.Result{}
 			if calls == 2 {
-				r.SetOK()
+				return extract.NewResult(true, nil)
 			}
-			return r
+			return extract.NewResult(false, nil)
 		}}
 		m := NewMatchAny()
 
@@ -201,13 +197,13 @@ func TestMatchAny(t *testing.T) {
 		if !res.IsOK() {
 			t.Fatal("expected ok")
 		}
-		if e.searchCalled != 2 {
-			t.Fatalf("expected 2 calls, got %d", e.searchCalled)
+		if e.extractCalled != 2 {
+			t.Fatalf("expected 2 calls, got %d", e.extractCalled)
 		}
 	})
 
 	t.Run("none ok", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
 			return extract.Result{}
 		}}
 		m := NewMatchAny()
@@ -222,18 +218,16 @@ func TestMatchAny(t *testing.T) {
 		if res.IsOK() {
 			t.Fatal("expected not ok")
 		}
-		if e.searchCalled != 2 {
-			t.Fatalf("expected 2 calls, got %d", e.searchCalled)
+		if e.extractCalled != 2 {
+			t.Fatalf("expected 2 calls, got %d", e.extractCalled)
 		}
 	})
 }
 
 func TestMatchAnyN(t *testing.T) {
 	t.Run("limited to n keys", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
-			r := extract.Result{}
-			r.SetOK()
-			return r
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
+			return extract.NewResult(true, nil)
 		}}
 		m := NewMatchAnyN(2)
 
@@ -247,13 +241,13 @@ func TestMatchAnyN(t *testing.T) {
 		if !res.IsOK() {
 			t.Fatal("expected ok")
 		}
-		if e.searchCalled != 1 {
-			t.Fatalf("expected 1 call (first key ok), got %d", e.searchCalled)
+		if e.extractCalled != 1 {
+			t.Fatalf("expected 1 call (first key ok), got %d", e.extractCalled)
 		}
 	})
 
 	t.Run("n >= len", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
 			return extract.Result{}
 		}}
 		m := NewMatchAnyN(10)
@@ -265,8 +259,8 @@ func TestMatchAnyN(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if e.searchCalled != 2 {
-			t.Fatalf("expected 2 calls (all keys), got %d", e.searchCalled)
+		if e.extractCalled != 2 {
+			t.Fatalf("expected 2 calls (all keys), got %d", e.extractCalled)
 		}
 	})
 }
@@ -410,10 +404,8 @@ func TestLastValuedN_Prepare(t *testing.T) {
 
 func TestMatchAnyValued(t *testing.T) {
 	t.Run("skips empty value keys", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
-			r := extract.Result{}
-			r.SetOK()
-			return r
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
+			return extract.NewResult(true, nil)
 		}}
 		m := NewMatchAnyValued()
 
@@ -428,13 +420,13 @@ func TestMatchAnyValued(t *testing.T) {
 		if !res.IsOK() {
 			t.Fatal("expected ok")
 		}
-		if e.searchCalled != 1 {
-			t.Fatalf("expected 1 call (skipped empty), got %d", e.searchCalled)
+		if e.extractCalled != 1 {
+			t.Fatalf("expected 1 call (skipped empty), got %d", e.extractCalled)
 		}
 	})
 
 	t.Run("all empty values", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
 			return extract.Result{}
 		}}
 		m := NewMatchAnyValued()
@@ -449,18 +441,16 @@ func TestMatchAnyValued(t *testing.T) {
 		if res.IsOK() {
 			t.Fatal("expected not ok")
 		}
-		if e.searchCalled != 0 {
-			t.Fatalf("expected 0 calls (all empty), got %d", e.searchCalled)
+		if e.extractCalled != 0 {
+			t.Fatalf("expected 0 calls (all empty), got %d", e.extractCalled)
 		}
 	})
 }
 
 func TestMatchAnyValuedN(t *testing.T) {
 	t.Run("limited to n valued keys", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
-			r := extract.Result{}
-			r.SetOK()
-			return r
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
+			return extract.NewResult(true, nil)
 		}}
 		m := NewMatchAnyValuedN(2)
 
@@ -475,13 +465,13 @@ func TestMatchAnyValuedN(t *testing.T) {
 		if !res.IsOK() {
 			t.Fatal("expected ok")
 		}
-		if e.searchCalled != 1 {
-			t.Fatalf("expected 1 call (first valued key ok), got %d", e.searchCalled)
+		if e.extractCalled != 1 {
+			t.Fatalf("expected 1 call (first valued key ok), got %d", e.extractCalled)
 		}
 	})
 
 	t.Run("n >= valued count", func(t *testing.T) {
-		e := &mockExtractor{searchFn: func(contents []string) extract.Result {
+		e := &mockExtractor{extractFn: func(contents []string) extract.Result {
 			return extract.Result{}
 		}}
 		m := NewMatchAnyValuedN(10)
@@ -494,8 +484,8 @@ func TestMatchAnyValuedN(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if e.searchCalled != 1 {
-			t.Fatalf("expected 1 call (only 1 valued key), got %d", e.searchCalled)
+		if e.extractCalled != 1 {
+			t.Fatalf("expected 1 call (only 1 valued key), got %d", e.extractCalled)
 		}
 	})
 }

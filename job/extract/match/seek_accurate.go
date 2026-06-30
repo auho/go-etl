@@ -14,7 +14,7 @@ type accurate struct {
 	tags      map[string]string // tags name and value
 }
 
-func newAccurate(keyIndex int, originKey, key string, tags map[string]string, config seekConfig) *accurate {
+func newAccurate(keyIndex int, originKey, key string, tags map[string]string, sc seekConfig) *accurate {
 	a := &accurate{
 		keyIndex:  keyIndex,
 		originKey: originKey,
@@ -22,13 +22,13 @@ func newAccurate(keyIndex int, originKey, key string, tags map[string]string, co
 		tags:      tags,
 	}
 
-	a.config = config
+	a.config = sc
 
 	return a
 }
 
 func (a *accurate) seeking(sc seekContent) (seekResults, seekContent, bool) {
-	var results seekResults
+	var rets seekResults
 
 	// matchedIndex: 每次 matched 的结束 index
 	// beforeLen: 匹配项前面的内容
@@ -56,7 +56,7 @@ func (a *accurate) seeking(sc seekContent) (seekResults, seekContent, bool) {
 			matchedContent += _ph
 			matchedOrigin += _ph
 
-			results = append(results, seekResult{
+			rets = append(rets, seekResult{
 				index:   sc.index,
 				start:   matchedIndex,
 				width:   keyLen,
@@ -81,7 +81,7 @@ func (a *accurate) seeking(sc seekContent) (seekResults, seekContent, bool) {
 	sc.content = matchedContent
 
 	if hasMatch {
-		return results, sc, true
+		return rets, sc, true
 	} else {
 		return nil, sc, false
 	}

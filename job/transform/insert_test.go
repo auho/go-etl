@@ -57,7 +57,7 @@ func TestInsert_MostKey(t *testing.T) {
 }
 
 func TestInsert_SegWords(t *testing.T) {
-	ins := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewDefault()), nil)
+	ins := NewInsert(collector.NewKeysAll([]string{_keyName}, segword.NewSegWordsAll()), nil)
 	err := ins.Prepare()
 	if err != nil {
 		t.Fatal(err)

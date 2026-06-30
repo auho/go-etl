@@ -10,83 +10,92 @@ import (
 var _ extract.Extractor = (*Contains)(nil)
 
 type Contains struct {
-	subs   []string
-	export *extract.Exporter[Results]
-
-	subMode func([]string) Results
+	subs      []string
+	rule      extract.Rule
+	subMode   func([]string) results
+	toMaps    func(results, extract.Rule) []map[string]any
+	keys      []string
+	defaults  map[string]any
 }
 
-func newContains(subs []string, subMode func([]string) Results, export *extract.Exporter[Results]) *Contains {
+func newContains(subs []string, rule extract.Rule, subMode func([]string) results, toMaps func(results, extract.Rule) []map[string]any, keys []string, defaults map[string]any) *Contains {
 	return &Contains{
-		subs:    subs,
-		subMode: subMode,
-		export:  export,
+		subs:     subs,
+		rule:     rule,
+		subMode:  subMode,
+		toMaps:   toMaps,
+		keys:     keys,
+		defaults: defaults,
 	}
 }
 
 func (c *Contains) Prepare() error { return nil }
 
 func (c *Contains) Title() string {
-	return fmt.Sprintf("Contains[%s]", c.export.GetRule().Name())
+	return fmt.Sprintf("Contains[%s]", c.rule.Name())
 }
 
-func (c *Contains) NewExport() extract.FieldSpec {
-	return c.export
+func (c *Contains) Keys() []string {
+	return c.keys
 }
 
-func (c *Contains) Search(contents []string) extract.Result {
+func (c *Contains) DefaultValues() map[string]any {
+	return c.defaults
+}
+
+func (c *Contains) Extract(contents []string) extract.Result {
 	rets := c.subMode(contents)
-
-	return c.export.ToToken(rets, len(rets) > 0)
+	if len(rets) == 0 {
+		return extract.Result{}
+	}
+	return extract.NewResult(true, c.toMaps(rets, c.rule))
 }
 
 func (c *Contains) Close() error { return nil }
 
-// NewContainsAll
-// all sub of all contents
-func NewContainsAll(subs []string, export *extract.Exporter[Results]) *Contains {
-	return newContains(subs, func(contents []string) Results {
-		var results Results
+// allSubMode collects all subs of all contents.
+func allSubMode(subs []string) func([]string) results {
+	return func(contents []string) results {
+		var rs results
 		for _, content := range contents {
 			for _, sub := range subs {
 				_c := strings.Count(content, sub)
 				if _c > 0 {
-					results = append(results, Result{
-						Sub:    sub,
-						Amount: _c,
+					rs = append(rs, result{
+						sub:    sub,
+						amount: _c,
 					})
 				}
 			}
 		}
 
-		var newResults Results
+		var newResults results
 		resultFlag := make(map[string]int)
 
-		for _, result := range results {
-			if index, ok := resultFlag[result.Sub]; ok {
-				newResults[index].Amount += 1
+		for _, result := range rs {
+			if index, ok := resultFlag[result.sub]; ok {
+				newResults[index].amount += 1
 			} else {
 				newResults = append(newResults, result)
-				resultFlag[result.Sub] = len(newResults) - 1
+				resultFlag[result.sub] = len(newResults) - 1
 			}
 		}
 
 		return newResults
-	}, export)
+	}
 }
 
-// NewContainsFirst
-// first sub of contents
-func NewContainsFirst(subs []string, export *extract.Exporter[Results]) *Contains {
-	return newContains(subs, func(contents []string) Results {
-		var results Results
+// firstSubMode collects the first sub found in contents.
+func firstSubMode(subs []string) func([]string) results {
+	return func(contents []string) results {
+		var rs results
 		for _, content := range contents {
 			for _, sub := range subs {
 				_c := strings.Count(content, sub)
 				if _c > 0 {
-					results = append(results, Result{
-						Sub:    sub,
-						Amount: _c,
+					rs = append(rs, result{
+						sub:    sub,
+						amount: _c,
 					})
 
 					goto LOOP
@@ -94,6 +103,51 @@ func NewContainsFirst(subs []string, export *extract.Exporter[Results]) *Contain
 			}
 		}
 	LOOP:
-		return results
-	}, export)
+		return rs
+	}
+}
+
+// NewContainsAll
+// all sub of all contents
+func NewContainsAll(subs []string, rule extract.Rule) *Contains {
+	return newContains(subs, rule, allSubMode(subs),
+		func(r results, rule extract.Rule) []map[string]any { return r.toAll(rule) },
+		[]string{rule.NameAlias(), rule.KeywordAmountNameAlias()},
+		map[string]any{rule.NameAlias(): "", rule.KeywordAmountNameAlias(): 0})
+}
+
+// NewContainsAllLine
+// all sub of all contents, line export
+func NewContainsAllLine(subs []string, rule extract.Rule) *Contains {
+	return newContains(subs, rule, allSubMode(subs),
+		func(r results, rule extract.Rule) []map[string]any { return r.toLine(rule) },
+		[]string{rule.NameAlias(), rule.KeywordNumNameAlias(), rule.KeywordAmountNameAlias()},
+		map[string]any{rule.NameAlias(): "", rule.KeywordNumNameAlias(): 0, rule.KeywordAmountNameAlias(): 0})
+}
+
+// NewContainsAllFlag
+// all sub of all contents, flag export
+func NewContainsAllFlag(subs []string, rule extract.Rule) *Contains {
+	return newContains(subs, rule, allSubMode(subs),
+		func(r results, rule extract.Rule) []map[string]any { return r.toFlag(rule) },
+		[]string{rule.NameAlias(), rule.KeywordNameAlias()},
+		map[string]any{rule.NameAlias(): 0, rule.KeywordNameAlias(): ""})
+}
+
+// NewContainsFirst
+// first sub of contents
+func NewContainsFirst(subs []string, rule extract.Rule) *Contains {
+	return newContains(subs, rule, firstSubMode(subs),
+		func(r results, rule extract.Rule) []map[string]any { return r.toAll(rule) },
+		[]string{rule.NameAlias(), rule.KeywordAmountNameAlias()},
+		map[string]any{rule.NameAlias(): "", rule.KeywordAmountNameAlias(): 0})
+}
+
+// NewContainsFirstLine
+// first sub of contents, line export
+func NewContainsFirstLine(subs []string, rule extract.Rule) *Contains {
+	return newContains(subs, rule, firstSubMode(subs),
+		func(r results, rule extract.Rule) []map[string]any { return r.toLine(rule) },
+		[]string{rule.NameAlias(), rule.KeywordNumNameAlias(), rule.KeywordAmountNameAlias()},
+		map[string]any{rule.NameAlias(): "", rule.KeywordNumNameAlias(): 0, rule.KeywordAmountNameAlias(): 0})
 }

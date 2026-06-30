@@ -4,43 +4,43 @@ import (
 	"strings"
 )
 
-const NameWord = "word"
+const nameWord = "word"
 
-var DefaultFormat = Format{
-	WordName: NameWord,
-	Sep:      " ",
+var defaultFormat = format{
+	wordName: nameWord,
+	sep:      " ",
 }
 
-type Format struct {
-	WordName string
-	Sep      string
+type format struct {
+	wordName string
+	sep      string
 }
 
-func (f *Format) check() {
-	if f.WordName == "" {
-		f.WordName = NameWord
+func (f *format) check() {
+	if f.wordName == "" {
+		f.wordName = nameWord
 	}
 
-	if f.Sep == "" {
-		f.Sep = " "
+	if f.sep == "" {
+		f.sep = " "
 	}
 }
 
-type Results []string
+type results []string
 
-func (rs Results) ToAll(format Format) []map[string]any {
+func (rs results) toAll(format format) []map[string]any {
 	var rets []map[string]any
 	for _, r := range rs {
 		rets = append(rets, map[string]any{
-			format.WordName: r,
+			format.wordName: r,
 		})
 	}
 
 	return rets
 }
 
-func (rs Results) ToLine(format Format) []map[string]any {
+func (rs results) toLine(format format) []map[string]any {
 	return []map[string]any{{
-		format.WordName: strings.Join(rs, format.Sep),
+		format.wordName: strings.Join(rs, format.sep),
 	}}
 }

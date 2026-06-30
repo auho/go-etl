@@ -13,14 +13,14 @@ func TestSegWords(t *testing.T) {
 	}
 
 	t.Run("all", func(t *testing.T) {
-		sw := NewSegWords(NewExportAll())
+		sw := NewSegWordsAll()
 		err := sw.Prepare()
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		token := sw.Search(contents)
-		rets := token.Rows()
+		token := sw.Extract(contents)
+		_, rets := token.Get()
 		if len(rets) <= 0 {
 			t.Error("tag error")
 		}
@@ -29,14 +29,14 @@ func TestSegWords(t *testing.T) {
 	})
 
 	t.Run("line", func(t *testing.T) {
-		sw := NewSegWords(NewExportLine())
+		sw := NewSegWordsLine()
 		err := sw.Prepare()
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		token := sw.Search(contents)
-		rets := token.Rows()
+		token := sw.Extract(contents)
+		_, rets := token.Get()
 		if len(rets) <= 0 {
 			t.Error("tag error")
 		}
@@ -47,22 +47,15 @@ func TestSegWords(t *testing.T) {
 
 func TestSegWords_Interface(t *testing.T) {
 	t.Run("Title", func(t *testing.T) {
-		sw := NewDefault()
+		sw := NewSegWordsAll()
 		if sw.Title() != "Seg" {
 			t.Fatalf("expected Title() to be %q, got %q", "Seg", sw.Title())
 		}
 	})
 
-	t.Run("NewExport", func(t *testing.T) {
-		sw := NewDefault()
-		if sw.NewExport() == nil {
-			t.Fatal("NewExport() returned nil")
-		}
-	})
-
 	t.Run("Keys", func(t *testing.T) {
-		e := NewExportAll()
-		keys := e.Keys()
+		sw := NewSegWordsAll()
+		keys := sw.Keys()
 		if len(keys) != 2 {
 			t.Fatalf("expected 2 keys, got %d", len(keys))
 		}
@@ -70,30 +63,30 @@ func TestSegWords_Interface(t *testing.T) {
 		for _, k := range keys {
 			keySet[k] = true
 		}
-		if !keySet[NameToken] {
-			t.Errorf("expected key %q", NameToken)
+		if !keySet[nameToken] {
+			t.Errorf("expected key %q", nameToken)
 		}
-		if !keySet[NameFlag] {
-			t.Errorf("expected key %q", NameFlag)
+		if !keySet[nameFlag] {
+			t.Errorf("expected key %q", nameFlag)
 		}
 	})
 
 	t.Run("DefaultValues", func(t *testing.T) {
-		e := NewExportAll()
-		dv := e.DefaultValues()
+		sw := NewSegWordsAll()
+		dv := sw.DefaultValues()
 		if len(dv) != 2 {
 			t.Fatalf("expected 2 default values, got %d", len(dv))
 		}
-		if _, ok := dv[NameToken]; !ok {
-			t.Errorf("expected default value for %q", NameToken)
+		if _, ok := dv[nameToken]; !ok {
+			t.Errorf("expected default value for %q", nameToken)
 		}
-		if _, ok := dv[NameFlag]; !ok {
-			t.Errorf("expected default value for %q", NameFlag)
+		if _, ok := dv[nameFlag]; !ok {
+			t.Errorf("expected default value for %q", nameFlag)
 		}
 	})
 
 	t.Run("Prepare and Close", func(t *testing.T) {
-		sw := NewDefault()
+		sw := NewSegWordsAll()
 		if err := sw.Prepare(); err != nil {
 			t.Fatal(err)
 		}
@@ -103,13 +96,13 @@ func TestSegWords_Interface(t *testing.T) {
 	})
 
 	t.Run("FormatCheck", func(t *testing.T) {
-		f := Format{}
+		f := format{}
 		f.check()
-		if f.TokenName != NameToken {
-			t.Errorf("expected TokenName %q, got %q", NameToken, f.TokenName)
+		if f.tokenName != nameToken {
+			t.Errorf("expected tokenName %q, got %q", nameToken, f.tokenName)
 		}
-		if f.FlagName != NameFlag {
-			t.Errorf("expected FlagName %q, got %q", NameFlag, f.FlagName)
+		if f.flagName != nameFlag {
+			t.Errorf("expected flagName %q, got %q", nameFlag, f.flagName)
 		}
 	})
 }

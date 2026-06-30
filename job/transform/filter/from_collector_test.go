@@ -13,25 +13,26 @@ type mockExtractor struct {
 	ok bool
 }
 
-func (m *mockExtractor) Title() string                { return "mock" }
-func (m *mockExtractor) Prepare() error               { return nil }
-func (m *mockExtractor) NewExport() extract.FieldSpec { return nil }
-func (m *mockExtractor) Search(contents []string) extract.Result {
-	r := extract.Result{}
+func (m *mockExtractor) Title() string                 { return "mock" }
+func (m *mockExtractor) Prepare() error                { return nil }
+func (m *mockExtractor) Keys() []string                { return nil }
+func (m *mockExtractor) DefaultValues() map[string]any { return nil }
+func (m *mockExtractor) Extract(contents []string) extract.Result {
 	if m.ok {
-		r.SetOK()
+		return extract.NewResult(true, nil)
 	}
-	return r
+	return extract.Result{}
 }
 func (m *mockExtractor) Close() error { return nil }
 
 // errorMockExtractor fails on Prepare.
 type errorMockExtractor struct{}
 
-func (m *errorMockExtractor) Title() string                { return "mock" }
-func (m *errorMockExtractor) Prepare() error               { return errors.New("prepare failed") }
-func (m *errorMockExtractor) NewExport() extract.FieldSpec { return nil }
-func (m *errorMockExtractor) Search(contents []string) extract.Result {
+func (m *errorMockExtractor) Title() string                 { return "mock" }
+func (m *errorMockExtractor) Prepare() error                { return errors.New("prepare failed") }
+func (m *errorMockExtractor) Keys() []string                { return nil }
+func (m *errorMockExtractor) DefaultValues() map[string]any { return nil }
+func (m *errorMockExtractor) Extract(contents []string) extract.Result {
 	return extract.Result{}
 }
 func (m *errorMockExtractor) Close() error { return nil }

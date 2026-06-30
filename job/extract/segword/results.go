@@ -4,64 +4,64 @@ import (
 	"strings"
 )
 
-const NameToken = "token"
-const NameFlag = "flag"
+const nameToken = "token"
+const nameFlag = "flag"
 
-var DefaultFormat = Format{
-	TokenName: NameToken,
-	FlagName:  NameFlag,
-	Sep:       " ",
+var defaultFormat = format{
+	tokenName: nameToken,
+	flagName:  nameFlag,
+	sep:       " ",
 }
 
-type Format struct {
-	TokenName string
-	FlagName  string
-	Sep       string
+type format struct {
+	tokenName string
+	flagName  string
+	sep       string
 }
 
-func (f *Format) check() {
-	if f.TokenName == "" {
-		f.TokenName = NameToken
+func (f *format) check() {
+	if f.tokenName == "" {
+		f.tokenName = nameToken
 	}
 
-	if f.FlagName == "" {
-		f.FlagName = NameFlag
+	if f.flagName == "" {
+		f.flagName = nameFlag
 	}
 
-	if f.Sep == "" {
-		f.Sep = ""
+	if f.sep == "" {
+		f.sep = ""
 	}
 }
 
-type Result struct {
-	Token string
-	Flag  string
+type result struct {
+	token string
+	flag  string
 }
 
-func (r *Result) ToTag(format Format) map[string]any {
+func (r *result) toTag(format format) map[string]any {
 	return map[string]any{
-		format.TokenName: r.Token,
-		format.FlagName:  r.Flag,
+		format.tokenName: r.token,
+		format.flagName:  r.flag,
 	}
 }
 
-type Results []Result
+type results []result
 
-func (rs Results) ToAll(format Format) []map[string]any {
+func (rs results) toAll(format format) []map[string]any {
 	var results []map[string]any
 	for _, result := range rs {
-		results = append(results, result.ToTag(format))
+		results = append(results, result.toTag(format))
 	}
 
 	return results
 }
 
-func (rs Results) ToLine(format Format) []map[string]any {
+func (rs results) toLine(format format) []map[string]any {
 	var ss []string
 
 	for _, result := range rs {
-		ss = append(ss, result.Token)
+		ss = append(ss, result.token)
 	}
 
-	return []map[string]any{{format.TokenName: strings.Join(ss, format.Sep)}}
+	return []map[string]any{{format.tokenName: strings.Join(ss, format.sep)}}
 }

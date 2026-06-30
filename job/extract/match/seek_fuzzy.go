@@ -7,6 +7,26 @@ import (
 
 var _ seeker = (*fuzzy)(nil)
 
+type FuzzyConfig struct {
+	enabled bool
+	Window  int
+	Sep     string
+}
+
+func (fc *FuzzyConfig) check() {
+	if fc.Sep == "" {
+		fc.Sep = "_"
+	}
+
+	if fc.Window <= 0 {
+		fc.Window = 3
+	}
+}
+
+func (fc *FuzzyConfig) shouldFuzzy(key string) bool {
+	return fc.enabled && strings.Index(key, fc.Sep) > -1
+}
+
 type fuzzyKey struct {
 	key    string
 	keyLen int
@@ -28,15 +48,15 @@ type fuzzy struct {
 	keysWidth int               // 所有词的总宽度 byte
 }
 
-func newFuzzy(keyIndex int, originKey, key string, tags map[string]string, fuzzyConfig FuzzyConfig, config seekConfig) *fuzzy {
-	keys := strings.Split(key, fuzzyConfig.Sep)
+func newFuzzy(keyIndex int, originKey, key string, tags map[string]string, fc FuzzyConfig, sc seekConfig) *fuzzy {
+	keys := strings.Split(key, fc.Sep)
 
 	f := &fuzzy{}
 	f.keyIndex = keyIndex
 	f.originKey = originKey
 	f.key = key
 	f.tags = tags
-	f.config = config
+	f.config = sc
 
 	for _, _k := range keys {
 		_kLen := len(_k)
@@ -45,7 +65,7 @@ func newFuzzy(keyIndex int, originKey, key string, tags map[string]string, fuzzy
 			keyLen: _kLen,
 		})
 
-		f.windows = append(f.windows, fuzzyConfig.Window)
+		f.windows = append(f.windows, fc.Window)
 		f.keysWidth += _kLen
 	}
 
@@ -54,7 +74,7 @@ func newFuzzy(keyIndex int, originKey, key string, tags map[string]string, fuzzy
 
 // seeking
 func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
-	var results seekResults
+	var rets seekResults
 
 	// matchedIndex: 每次 matched 的结束 index
 	// beforeLen: 匹配项前面的内容
@@ -83,7 +103,7 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 			matchedContent += _ph
 			matchedOrigin += _ph
 
-			results = append(results, seekResult{
+			rets = append(rets, seekResult{
 				index:   sc.index,
 				start:   matchedIndex,
 				width:   textLen,
@@ -123,7 +143,7 @@ func (f *fuzzy) seeking(sc seekContent) (seekResults, seekContent, bool) {
 	sc.content = matchedContent
 
 	if hasMatch {
-		return results, sc, true
+		return rets, sc, true
 	} else {
 		return nil, sc, false
 	}

@@ -1,9 +1,9 @@
 package containment
 
 func ExampleNewContainsAll() {
-	NewContainsAll([]string{"1", "2", "12", "ab"}, NewExportAll(_rule))
+	NewContainsAll([]string{"1", "2", "12", "ab"}, _rule)
 }
 
-func ExampleNewContainsFirst() {
-	NewContainsFirst([]string{"1", "2", "12", "ab"}, NewExportLine(_rule))
+func ExampleNewContainsFirstLine() {
+	NewContainsFirstLine([]string{"1", "2", "12", "ab"}, _rule)
 }
