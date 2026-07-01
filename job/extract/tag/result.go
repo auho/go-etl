@@ -9,18 +9,19 @@ import (
 	maps "github.com/auho/go-etl/v3/tool/mapx"
 )
 
+// defaultFormat is the default output format: keyword amount appended, comma-separated.
 var defaultFormat = format{
 	withKeywordAmount: true,
 	sep:               ",",
 }
 
+// format controls how matched keywords are serialized.
 type format struct {
-	withKeywordAmount bool
-	sep               string
+	withKeywordAmount bool   // if true, appends " <amount>" to each keyword
+	sep               string // separator between multiple keyword values
 }
 
-// result
-// result 匹配结果
+// result holds the match outcome for a single keyword.
 type result struct {
 	amount  int               // matched amount
 	keyword string            // keyword
@@ -113,8 +114,8 @@ func (rs results) mergeKeysToWhole(rule extract.Rule, format format) map[string]
 	return m
 }
 
-// labelResult
-// label result
+// labelResult holds the match outcome for a label-oriented extraction,
+// grouping matches by tag identity.
 type labelResult struct {
 	identity string
 	amount   int                       // match amount
@@ -167,8 +168,7 @@ func (lr *labelResult) toTag(rule extract.Rule, format format) map[string]any {
 	return m
 }
 
-// labelResults
-// label results
+// labelResults is a slice of labelResult, used for label-oriented extraction.
 type labelResults []labelResult
 
 func (lrs labelResults) toAll(rule extract.Rule, format format) []map[string]any {

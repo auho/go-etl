@@ -48,19 +48,19 @@ func (r *result) toTag(format format) map[string]any {
 type results []result
 
 func (rs results) toAll(format format) []map[string]any {
-	var results []map[string]any
-	for _, result := range rs {
-		results = append(results, result.toTag(format))
+	var rets []map[string]any
+	for _, ret := range rs {
+		rets = append(rets, ret.toTag(format))
 	}
 
-	return results
+	return rets
 }
 
 func (rs results) toLine(format format) []map[string]any {
 	var ss []string
 
-	for _, result := range rs {
-		ss = append(ss, result.token)
+	for _, ret := range rs {
+		ss = append(ss, ret.token)
 	}
 
 	return []map[string]any{{format.tokenName: strings.Join(ss, format.sep)}}

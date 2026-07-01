@@ -7,10 +7,11 @@ import (
 
 var _ seeker = (*fuzzy)(nil)
 
+// FuzzyConfig controls fuzzy (approximate) matching behavior.
 type FuzzyConfig struct {
 	enabled bool
-	Window  int
-	Sep     string
+	Window  int    // max gap (in runes) between consecutive sub-keys
+	Sep     string // separator used to split a keyword into sub-keys; defaults to "_"
 }
 
 func (fc *FuzzyConfig) check() {

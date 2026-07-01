@@ -53,14 +53,14 @@ func (s *SplitWords) DefaultValues() map[string]any {
 }
 
 func (s *SplitWords) Extract(contents []string) extract.Result {
-	var results results
+	var rets results
 	for _, c := range contents {
-		results = append(results, strings.Split(c, s.sep)...)
+		rets = append(rets, strings.Split(c, s.sep)...)
 	}
-	if len(results) == 0 {
+	if len(rets) == 0 {
 		return extract.Result{}
 	}
-	return extract.NewResult(true, s.toMaps(results, s.format))
+	return extract.NewResult(true, s.toMaps(rets, s.format))
 }
 
 func (s *SplitWords) Close() error { return nil }

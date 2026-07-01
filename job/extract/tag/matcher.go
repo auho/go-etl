@@ -12,20 +12,35 @@ var _ extract.Extractor = (*Matcher[labelResults])(nil)
 var _ extract.Extractor = (*MatcherResults)(nil)
 var _ extract.Extractor = (*MatcherLabelResults)(nil)
 
+// MatcherResults is a pre-defined alias for Matcher[results].
 type MatcherResults = Matcher[results]
+
+// MatcherLabelResults is a pre-defined alias for Matcher[labelResults].
 type MatcherLabelResults = Matcher[labelResults]
+
+// matcherContextResults and matcherContextLabelResults are type aliases
+// used internally to reduce generic boilerplate.
 type matcherContextResults = matcherContext[results]
 type matcherContextLabelResults = matcherContext[labelResults]
 
+// resultsEntity is a type constraint that accepts both results and labelResults.
 type resultsEntity interface {
 	results | labelResults
 }
 
+// matcherResultsFunc is the scanning strategy: given a context and content,
+// it returns the matched results T.
 type matcherResultsFunc[T resultsEntity] func(*matcherContext[T], []string) T
+
+// matcherContext holds the scanner instance used during extraction.
 type matcherContext[T resultsEntity] struct {
 	scanner *scanner
 }
 
+// Matcher is a generic extractor that drives a scanner to find keywords/labels
+// in content via regex, then transforms the results into structured rows.
+//
+// T is either results (keyword-oriented) or labelResults (label-oriented).
 type Matcher[T resultsEntity] struct {
 	scanner *scanner
 
@@ -61,10 +76,13 @@ func newMatcher[T resultsEntity](
 	}
 }
 
+// Title returns a human-readable identifier for the matcher.
 func (s *Matcher[T]) Title() string {
 	return fmt.Sprintf("Matcher{%s:%s}", s.rule.Name(), strings.Join(s.Keys(), ","))
 }
 
+// Keys returns the column names for extraction results.
+// If WithPluckKeys was called, only plucked keys are returned.
 func (s *Matcher[T]) Keys() []string {
 	if len(s.pluckKeys) == 0 {
 		return s.keys
@@ -85,6 +103,8 @@ func (s *Matcher[T]) Keys() []string {
 	return keys
 }
 
+// DefaultValues returns default values for each key.
+// If WithPluckKeys was called, only plucked key defaults are returned.
 func (s *Matcher[T]) DefaultValues() map[string]any {
 	if len(s.pluckKeys) == 0 {
 		return s.defaults
@@ -105,6 +125,7 @@ func (s *Matcher[T]) DefaultValues() map[string]any {
 	return dv
 }
 
+// Extract runs the scanner on the given contents and converts results to rows.
 func (s *Matcher[T]) Extract(contents []string) extract.Result {
 	rets := s.matcherResultsFun(s.context, contents)
 	if len(rets) == 0 {
@@ -137,8 +158,10 @@ func (s *Matcher[T]) Prepare() error {
 	return nil
 }
 
+// Close releases resources. Currently a no-op.
 func (s *Matcher[T]) Close() error { return nil }
 
+// WithPluckKeys restricts output rows to the specified keys only.
 func (s *Matcher[T]) WithPluckKeys(keys []string) *Matcher[T] {
 	s.pluckKeys = keys
 

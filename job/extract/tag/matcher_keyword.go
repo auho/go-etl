@@ -3,7 +3,6 @@ package tag
 import "github.com/auho/go-etl/v3/job/extract"
 
 // keyword export configurations (toMaps / keys / defaults)
-// mirroring the former NewExportKeyword{All,Line,Flag} helpers.
 
 func keywordAllToMaps(r results, rule extract.Rule, _ format) []map[string]any {
 	return r.toAll(rule)

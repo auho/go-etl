@@ -3,7 +3,6 @@ package tag
 import "github.com/auho/go-etl/v3/job/extract"
 
 // label export configurations (toMaps / keys / defaults)
-// mirroring the former NewExportLabel{All,Line,Flag} helpers.
 
 func labelAllToMaps(r labelResults, rule extract.Rule, f format) []map[string]any {
 	return r.toAll(rule, f)

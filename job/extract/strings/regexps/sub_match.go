@@ -105,12 +105,12 @@ func _mergeResults(rs results) results {
 	var newResults results
 	resultFlag := make(map[string]int)
 
-	for _, result := range rs {
-		if index, ok := resultFlag[result.text]; ok {
+	for _, ret := range rs {
+		if index, ok := resultFlag[ret.text]; ok {
 			newResults[index].amount += 1
 		} else {
-			newResults = append(newResults, result)
-			resultFlag[result.text] = len(newResults) - 1
+			newResults = append(newResults, ret)
+			resultFlag[ret.text] = len(newResults) - 1
 		}
 	}
 

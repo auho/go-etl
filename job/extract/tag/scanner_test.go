@@ -8,7 +8,7 @@ import (
 )
 
 var _expectItemsAmount = 7
-var _expectMatcherAmount = 31
+var _expectScanAmount = 31
 var _expectTextAmount = 17
 var _expectKeyAmount = 4
 var _expectLabelAmount = 3
@@ -19,7 +19,7 @@ var _expect_中文_Amount = 4
 var _expect_中_文_Amount = 17
 var _expect_中_文_Num = 14
 
-func _genMatcher() *scanner {
+func _genScanner() *scanner {
 	// keyword: a
 	// labels: b c
 	items := []map[string]string{
@@ -48,8 +48,8 @@ func _genMatcher() *scanner {
 	return _scanner
 }
 
-func TestMatcher(t *testing.T) {
-	_scanner := _genMatcher()
+func TestScanner(t *testing.T) {
+	_scanner := _genScanner()
 	if len(_scanner.regexpItems) != _expectItemsAmount {
 		t.Fatal()
 	}
@@ -61,7 +61,7 @@ func TestMatcher(t *testing.T) {
 		rets = _scanner.Scan(_contents)
 		_outputResults(rets)
 
-		_assertResults(t, rets, _expectMatcherAmount, _expectMatcherAmount)
+		_assertResults(t, rets, _expectScanAmount, _expectScanAmount)
 
 		_assertResult(t, rets[0], "b", 1, 1, map[string]int{"b": 1})
 		_assertResult(t, rets[1], "123", 1, 1, map[string]int{"123": 1})
@@ -73,20 +73,20 @@ func TestMatcher(t *testing.T) {
 		rets = _scanner.ScanInKeyOrder(_contents)
 		_outputResults(rets)
 
-		_assertResults(t, rets, _expectMatcherAmount, _expectMatcherAmount)
+		_assertResults(t, rets, _expectScanAmount, _expectScanAmount)
 
 		_assertResult(t, rets[0], "123", 1, 1, map[string]int{"123": 1})
 		_assertResult(t, rets[_expect_123_Amount], "b", 1, 1, map[string]int{"b": 1})
 		_assertResult(t, rets[_expect_b_Amount+_expect_123_Amount], "中文", 1, 1, map[string]int{"中文": 1})
 		_assertResult(t, rets[_expect_b_Amount+_expect_123_Amount+_expect_中文_Amount], "中_文", 1, 1, map[string]int{"中bb文": 1})
-		_assertResult(t, rets[_expectMatcherAmount-1], "中_文", 1, 1, map[string]int{"中123文": 1})
+		_assertResult(t, rets[_expectScanAmount-1], "中_文", 1, 1, map[string]int{"中123文": 1})
 	})
 
 	t.Run("ScanText", func(t *testing.T) {
 		rets = _scanner.ScanText(_contents)
 		_outputResults(rets)
 
-		_assertResults(t, rets, _expectMatcherAmount, _expectTextAmount)
+		_assertResults(t, rets, _expectScanAmount, _expectTextAmount)
 
 		_assertResult(t, rets[0], "b", _expect_b_Amount, 1, map[string]int{"b": _expect_b_Amount})
 		_assertResult(t, rets[1], "123", _expect_123_Amount, 1, map[string]int{"123": _expect_123_Amount})
@@ -128,7 +128,7 @@ func TestMatcher(t *testing.T) {
 		rets = _scanner.ScanKey(_contents)
 		_outputResults(rets)
 
-		_assertResults(t, rets, _expectMatcherAmount, _expectKeyAmount)
+		_assertResults(t, rets, _expectScanAmount, _expectKeyAmount)
 
 		_assertResult(t, rets[0], "123", _expect_123_Amount, 1, map[string]int{"123": _expect_123_Amount})
 		_assertResult(t, rets[1], "b", _expect_b_Amount, 1, map[string]int{"b": _expect_b_Amount})
@@ -180,7 +180,7 @@ func TestMatcher(t *testing.T) {
 		labelRets = _scanner.ScanLabel(_contents)
 		_outputResults(labelRets)
 
-		_assertLabelResults(t, labelRets, _expectMatcherAmount, _expectLabelAmount)
+		_assertLabelResults(t, labelRets, _expectScanAmount, _expectLabelAmount)
 
 		_assertLabelResult(t, labelRets[0], "-b-c", _expect_123_Amount+_expect_b_Amount, 2, 2, map[string]int{
 			"123": _expect_123_Amount,

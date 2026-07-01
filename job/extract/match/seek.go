@@ -6,8 +6,10 @@ import (
 	"strings"
 )
 
+// placeholder is the null character used to mask matched text in debug output.
 var placeholder = fmt.Sprintf("%c", 0x00)
 
+// seekType distinguishes accurate from fuzzy seekers.
 type seekType uint8
 
 const (
@@ -42,21 +44,20 @@ type seekResult struct {
 
 type seekResults []seekResult
 
-// seek config
+// seekConfig holds per-scan configuration passed to each seeker.
 type seekConfig struct {
 	debug bool
 }
 
-// seeker
-// content，keyword 大小写在 scanner 已经处理过
-// 这里区分大小写
+// seeker matches a keyword against content and returns matched results.
+//
+// Content and keywords are pre-processed by scanner (e.g. lowercased).
+// The seeker operates case-sensitively on the already-processed input.
 type seeker interface {
-	// origin string:
-	// toLower string:
-
-	// seekResult
-	// seekContent
-	// bool: true has matched；false has not matched
+	// seeking performs matching and returns:
+	//   seekResults  — matched entries
+	//   seekContent  — updated content with matched text replaced by placeholder
+	//   bool         — true if at least one match was found
 	seeking(seekContent) (seekResults, seekContent, bool)
 }
 
@@ -73,6 +74,8 @@ func (s *seek) matchedToPlaceholder(matched string) string {
 	return strings.Repeat(placeholder, len(matched))
 }
 
+// newSeeker creates an accurate or fuzzy seeker depending on whether
+// fuzzy matching is enabled and applicable to the given key.
 func newSeeker(keyIndex int, originKey, key string, tags map[string]string, fc FuzzyConfig, sc seekConfig) (seeker, seekType) {
 	newTags := maps.Clone(tags)
 

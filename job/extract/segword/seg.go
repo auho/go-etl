@@ -19,7 +19,7 @@ func NewSeg() *Seg {
 }
 
 func (s *Seg) tag(contents []string) results {
-	var results results
+	var rets results
 	for _, content := range contents {
 		items := s.jieBa.Tag(content)
 		if len(items) <= 0 {
@@ -27,16 +27,16 @@ func (s *Seg) tag(contents []string) results {
 		}
 
 		for _, item := range items {
-			rets := strings.Split(item, "/")
-			results = append(results, result{
-				token: rets[0],
-				flag:  rets[1],
+			ret := strings.Split(item, "/")
+			rets = append(rets, result{
+				token: ret[0],
+				flag:  ret[1],
 			})
 
 		}
 	}
 
-	return results
+	return rets
 }
 
 func (s *Seg) Close() error {

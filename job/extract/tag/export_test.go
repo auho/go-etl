@@ -8,7 +8,7 @@ import (
 )
 
 // TestExport_KeywordAll tests the full pipeline via NewKey
-// (NewExportKeywordAll / results.toAll)
+// (toAll)
 func TestExport_KeywordAll(t *testing.T) {
 	rule := &ruleTest{}
 	s := NewKey(rule)
@@ -66,8 +66,8 @@ func TestExport_KeywordAll(t *testing.T) {
 	}
 }
 
-// TestExport_KeywordLine tests NewExportKeywordLine with newMatcherKey
-// (Results.ToLine / MergeKeysToWhole)
+// TestExport_KeywordLine tests keyword line export with newMatcherKey
+// (toLine)
 func TestExport_KeywordLine(t *testing.T) {
 	rule := &ruleTest{}
 	s := newMatcherKey(rule, keywordLineToMaps, keywordLineKeys(rule), keywordLineDefaults(rule))
@@ -97,8 +97,8 @@ func TestExport_KeywordLine(t *testing.T) {
 	}
 }
 
-// TestExport_KeywordFlag tests NewExportKeywordFlag with newMatcherKey
-// (Results.ToFlag / MergeKeysToWhole)
+// TestExport_KeywordFlag tests keyword flag export with newMatcherKey
+// (toFlag)
 func TestExport_KeywordFlag(t *testing.T) {
 	rule := &ruleTest{}
 	s := newMatcherKey(rule, keywordFlagToMaps, keywordFlagKeys(rule), keywordFlagDefaults(rule))
@@ -126,7 +126,7 @@ func TestExport_KeywordFlag(t *testing.T) {
 }
 
 // TestExport_LabelAll tests the full pipeline via NewLabel
-// (NewExportLabelAll / LabelResults.ToAll)
+// (labelResults.toAll)
 func TestExport_LabelAll(t *testing.T) {
 	rule := &ruleTest{}
 	s := NewLabel(rule)
@@ -157,7 +157,7 @@ func TestExport_LabelAll(t *testing.T) {
 }
 
 // TestExport_LabelLine tests the full pipeline via NewWholeLabels
-// (label line export / LabelResults.ToLine / MergeLabelsToWhole)
+// (labelResults.toLine / mergeLabelsToWhole)
 func TestExport_LabelLine(t *testing.T) {
 	rule := &ruleTest{}
 	s := NewWholeLabels(rule)
@@ -188,7 +188,7 @@ func TestExport_LabelLine(t *testing.T) {
 }
 
 // TestExport_LabelFlag tests label flag export with newMatcherLabels
-// (LabelResults.ToFlag / MergeLabelsToWhole)
+// (labelResults.toFlag / mergeLabelsToWhole)
 func TestExport_LabelFlag(t *testing.T) {
 	rule := &ruleTest{}
 	s := newMatcherLabels(rule, labelFlagToMaps, labelFlagKeys(rule), labelFlagDefaults(rule))
@@ -333,9 +333,9 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 				t.Fatalf("Prepare failed: %v", err)
 			}
 
-			result := s.Extract(_contents)
-			_ = result.IsOK()
-			_, _ = result.Get()
+			ret := s.Extract(_contents)
+			_ = ret.IsOK()
+			_, _ = ret.Get()
 		})
 	}
 }

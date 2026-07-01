@@ -181,7 +181,7 @@ func (s *scanner) ScanInKeyOrder(contents []string) results {
 }
 
 // ScanText
-// scanner text 合并相同的 scanned text
+// scan text, merging identical scanned text
 func (s *scanner) ScanText(contents []string) results {
 	sts := s.findScanAll(contents)
 	if sts == nil {
@@ -244,7 +244,7 @@ func (s *scanner) ScanMostText(contents []string) results {
 }
 
 // ScanKey
-// scanner key 合并相同的 keyword（同时也合并 scanned text）
+// scan key, merging identical keywords (and their scanned texts)
 // in scanned key order
 func (s *scanner) ScanKey(contents []string) results {
 	sts := s.findScanAllInKeyOrder(contents)
@@ -294,7 +294,7 @@ func (s *scanner) ScanLastKey(contents []string) results {
 }
 
 // ScanMostKey
-// scanner most key 被匹配次数最多的 keyword
+// scan most key: the keyword with the highest match count
 func (s *scanner) ScanMostKey(contents []string) results {
 	rets := s.ScanKey(contents)
 	if rets == nil {
@@ -309,7 +309,7 @@ func (s *scanner) ScanMostKey(contents []string) results {
 }
 
 // ScanLabel
-// scanner label 合并重复的 tags 组合
+// scan label, merging identical tag combinations
 func (s *scanner) ScanLabel(contents []string) labelResults {
 	sts := s.findScanAll(contents)
 	if sts == nil {
@@ -320,7 +320,7 @@ func (s *scanner) ScanLabel(contents []string) labelResults {
 }
 
 // ScanLabelMostText
-// scanner label most text 合并重复的 tags 组合中，text 最多次数
+// scan label most text: from merged tag combinations, pick the one with the most texts
 func (s *scanner) ScanLabelMostText(contents []string) labelResults {
 	rets := s.ScanLabel(contents)
 	if rets == nil {
@@ -413,7 +413,7 @@ func (s *scanner) scansToLabelResults(sts []scannedText) labelResults {
 }
 
 // findScanAllInKeyOrder
-// all regexp scanner, in scanned keyword order
+// all regex search results, sorted by scanned keyword order
 func (s *scanner) findScanAllInKeyOrder(contents []string) []scannedText {
 	sts := s.findScanAll(contents)
 	if sts == nil {
@@ -428,8 +428,7 @@ func (s *scanner) findScanAllInKeyOrder(contents []string) []scannedText {
 }
 
 // findScanAll
-// all regexp scanner, is regexp scanner order, in scanned text order
-// the leftmost text is at the front
+// all regex search results, in scan text order (leftmost first)
 func (s *scanner) findScanAll(contents []string) []scannedText {
 	rets := make([]scannedText, 0)
 
@@ -448,7 +447,7 @@ func (s *scanner) findScanAll(contents []string) []scannedText {
 }
 
 // findScanFirst
-// first regexp scanner
+// first regex match result
 func (s *scanner) findScanFirst(contents []string) []scannedText {
 	var rets []scannedText
 

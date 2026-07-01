@@ -14,15 +14,15 @@ type result struct {
 type results []result
 
 func (rs results) toAll(rule extract.Rule) []map[string]any {
-	var results []map[string]any
+	var rets []map[string]any
 	for _, _r := range rs {
-		results = append(results, map[string]any{
+		rets = append(rets, map[string]any{
 			rule.NameAlias():              _r.text,
 			rule.KeywordAmountNameAlias(): _r.amount,
 		})
 	}
 
-	return results
+	return rets
 }
 
 func (rs results) toLine(rule extract.Rule) []map[string]any {

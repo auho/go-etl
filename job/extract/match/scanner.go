@@ -11,19 +11,24 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
+// seekMode controls the order in which seekers (accurate vs fuzzy) are tried.
 type seekMode int
 
 const (
+	// modeSequence: try all seekers (accurate + fuzzy) in definition order.
 	modeSequence seekMode = iota
+	// modePriorityAccurate: try accurate seekers first, fall back to fuzzy.
 	modePriorityAccurate
+	// modePriorityFuzzy: try fuzzy seekers first, fall back to accurate.
 	modePriorityFuzzy
 )
 
+// ScannerConfig holds all knobs that control scanner behavior.
 type ScannerConfig struct {
-	IgnoreCase bool
-	Debug      bool
-	Mode       seekMode
-	Fuzzy      FuzzyConfig
+	IgnoreCase bool       // if true, keywords are lowercased before matching
+	Debug      bool       // if true, prints debug info during scanning
+	Mode       seekMode   // ordering strategy for accurate/fuzzy seekers
+	Fuzzy      FuzzyConfig // fuzzy matching configuration
 }
 
 func (sc *ScannerConfig) check() {
@@ -39,19 +44,22 @@ func defaultScanner(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
 	return newScanner(rule.KeywordNameAlias(), items, sc), nil
 }
 
+// scanner drives keyword scanning over content using a list of seekers.
 type scanner struct {
 	hasItems bool
 
 	keyName  string
 	tagsName []string
 
-	allSeek      []seeker
-	fuzzySeek    []seeker
-	accurateSeek []seeker
+	allSeek      []seeker // all seekers in evaluation order
+	fuzzySeek    []seeker // fuzzy (approximate) seekers
+	accurateSeek []seeker // accurate (exact) seekers
 
 	config ScannerConfig
 }
 
+// newScanner creates a scanner from items. Each item's keyName value becomes a keyword;
+// remaining columns become tags. The ScannerConfig controls case sensitivity, mode, and fuzzy settings.
 func newScanner(keyName string, items []map[string]string, sc ScannerConfig) *scanner {
 	sc.check()
 
@@ -118,7 +126,7 @@ func newScanner(keyName string, items []map[string]string, sc ScannerConfig) *sc
 
 // Scan
 // all scanned
-// in key order
+// in scanned keyword order
 func (s *scanner) Scan(contents []string) results {
 	items := s.findAll(contents)
 	if items == nil {
@@ -318,17 +326,19 @@ func (s *scanner) findAllInTextOrder(contents []string) seekResults {
 }
 
 // findAll
-// all scan, in scanned keyword order
+// all scanned results, in scanned keyword order
 func (s *scanner) findAll(contents []string) seekResults {
 	return s.seekContents(contents, false)
 }
 
-// findScanFirst
-// first scanned keyword
+// findFirst
+// the first scanned keyword found
 func (s *scanner) findFirst(contents []string) seekResults {
 	return s.seekContents(contents, true)
 }
 
+// seekContents runs all seekers against every content string.
+// If onlyFirst is true, stops after the first match.
 func (s *scanner) seekContents(contents []string, onlyFirst bool) seekResults {
 	if !s.hasItems {
 		return nil
@@ -384,6 +394,8 @@ func (s *scanner) seekContents(contents []string, onlyFirst bool) seekResults {
 	return allRets
 }
 
+// seeking iterates seekers and collects their results.
+// If onlyFirst, returns the first result set and stops.
 func (s *scanner) seeking(seekers []seeker, sc seekContent, onlyFirst bool) (seekResults, seekContent, bool) {
 	var allRets seekResults
 
@@ -407,6 +419,7 @@ func (s *scanner) seeking(seekers []seeker, sc seekContent, onlyFirst bool) (see
 	return allRets, sc, has
 }
 
+// toResults converts seekResults to a results slice.
 func (s *scanner) toResults(items seekResults) results {
 	var rets results
 
@@ -417,6 +430,7 @@ func (s *scanner) toResults(items seekResults) results {
 	return rets
 }
 
+// toResult converts a single seekResult to a result.
 func (s *scanner) toResult(item seekResult) result {
 	rets := newResult()
 	rets.keyword = item.keyword
@@ -427,6 +441,7 @@ func (s *scanner) toResult(item seekResult) result {
 	return rets
 }
 
+// toLabelResults converts seekResults to labelResults, merging by tags identity.
 func (s *scanner) toLabelResults(items seekResults) labelResults {
 	var rets labelResults
 	resultIndex := make(map[string]int)

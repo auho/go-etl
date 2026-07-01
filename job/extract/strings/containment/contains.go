@@ -10,12 +10,12 @@ import (
 var _ extract.Extractor = (*Contains)(nil)
 
 type Contains struct {
-	subs      []string
-	rule      extract.Rule
-	subMode   func([]string) results
-	toMaps    func(results, extract.Rule) []map[string]any
-	keys      []string
-	defaults  map[string]any
+	subs     []string
+	rule     extract.Rule
+	subMode  func([]string) results
+	toMaps   func(results, extract.Rule) []map[string]any
+	keys     []string
+	defaults map[string]any
 }
 
 func newContains(subs []string, rule extract.Rule, subMode func([]string) results, toMaps func(results, extract.Rule) []map[string]any, keys []string, defaults map[string]any) *Contains {
@@ -56,12 +56,12 @@ func (c *Contains) Close() error { return nil }
 // allSubMode collects all subs of all contents.
 func allSubMode(subs []string) func([]string) results {
 	return func(contents []string) results {
-		var rs results
+		var rets results
 		for _, content := range contents {
 			for _, sub := range subs {
 				_c := strings.Count(content, sub)
 				if _c > 0 {
-					rs = append(rs, result{
+					rets = append(rets, result{
 						sub:    sub,
 						amount: _c,
 					})
@@ -72,12 +72,12 @@ func allSubMode(subs []string) func([]string) results {
 		var newResults results
 		resultFlag := make(map[string]int)
 
-		for _, result := range rs {
-			if index, ok := resultFlag[result.sub]; ok {
+		for _, ret := range rets {
+			if index, ok := resultFlag[ret.sub]; ok {
 				newResults[index].amount += 1
 			} else {
-				newResults = append(newResults, result)
-				resultFlag[result.sub] = len(newResults) - 1
+				newResults = append(newResults, ret)
+				resultFlag[ret.sub] = len(newResults) - 1
 			}
 		}
 
