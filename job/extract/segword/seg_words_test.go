@@ -21,7 +21,7 @@ func TestSegWords(t *testing.T) {
 
 		token := sw.Extract(contents)
 		_, rets := token.Get()
-		if len(rets) <= 0 {
+		if len(rets) == 0 {
 			t.Error("tag error")
 		}
 
@@ -37,7 +37,7 @@ func TestSegWords(t *testing.T) {
 
 		token := sw.Extract(contents)
 		_, rets := token.Get()
-		if len(rets) <= 0 {
+		if len(rets) == 0 {
 			t.Error("tag error")
 		}
 

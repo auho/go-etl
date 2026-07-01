@@ -19,7 +19,7 @@ func (fc *FuzzyConfig) check() {
 		fc.Sep = "_"
 	}
 
-	if fc.Window <= 0 {
+	if fc.Window == 0 {
 		fc.Window = 3
 	}
 }

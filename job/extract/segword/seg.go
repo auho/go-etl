@@ -22,7 +22,7 @@ func (s *Seg) tag(contents []string) results {
 	var rets results
 	for _, content := range contents {
 		items := s.jieBa.Tag(content)
-		if len(items) <= 0 {
+		if len(items) == 0 {
 			continue
 		}
 

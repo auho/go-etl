@@ -492,18 +492,18 @@ func TestExport_MatchOptions(t *testing.T) {
 	})
 }
 
-// TestExport_Constructors tests newMatcher with custom toMaps/keysFun and WithPluck
+// TestExport_Constructors tests newMatcher with custom rowsFunc/keysFunc and WithPluck
 func TestExport_Constructors(t *testing.T) {
 	rule := &ruleTest{}
 
 	t.Run("newMatcher_Keyword", func(t *testing.T) {
-		keysFun := func(r extract.Rule) ([]string, map[string]any) {
+		keysFunc := func(r extract.Rule) ([]string, map[string]any) {
 			return []string{"k1", "k2"}, map[string]any{"k1": "v1", "k2": 0}
 		}
-		toMaps := func(r results, rule extract.Rule, f Format) []map[string]any {
+		rowsFunc := func(r results, rule extract.Rule, f Format) []map[string]any {
 			return []map[string]any{{"k1": "x", "k2": 1}}
 		}
-		s := newMatcher[results](rule, toMaps, keysFun, func(ctx *matcherContextResults, c []string) results {
+		s := newMatcher[results](rule, rowsFunc, keysFunc, func(s *scanner, c []string) results {
 			return nil
 		})
 
@@ -521,13 +521,13 @@ func TestExport_Constructors(t *testing.T) {
 	})
 
 	t.Run("newMatcher_Label", func(t *testing.T) {
-		keysFun := func(r extract.Rule) ([]string, map[string]any) {
+		keysFunc := func(r extract.Rule) ([]string, map[string]any) {
 			return []string{"k1"}, map[string]any{"k1": "v1"}
 		}
-		toMaps := func(r labelResults, rule extract.Rule, f Format) []map[string]any {
+		rowsFunc := func(r labelResults, rule extract.Rule, f Format) []map[string]any {
 			return []map[string]any{{"k1": "x"}}
 		}
-		s := newMatcher[labelResults](rule, toMaps, keysFun, func(ctx *matcherContextLabelResults, c []string) labelResults {
+		s := newMatcher[labelResults](rule, rowsFunc, keysFunc, func(s *scanner, c []string) labelResults {
 			return nil
 		})
 
@@ -541,13 +541,13 @@ func TestExport_Constructors(t *testing.T) {
 	})
 
 	t.Run("Pluck_Direct", func(t *testing.T) {
-		keysFun := func(r extract.Rule) ([]string, map[string]any) {
+		keysFunc := func(r extract.Rule) ([]string, map[string]any) {
 			return []string{"k1", "k2", "k3"}, map[string]any{"k1": "v1", "k2": 0, "k3": "v3"}
 		}
-		toMaps := func(r results, rule extract.Rule, f Format) []map[string]any {
+		rowsFunc := func(r results, rule extract.Rule, f Format) []map[string]any {
 			return nil
 		}
-		s := newMatcher[results](rule, toMaps, keysFun, func(ctx *matcherContextResults, c []string) results {
+		s := newMatcher[results](rule, rowsFunc, keysFunc, func(s *scanner, c []string) results {
 			return nil
 		})
 		s.WithPluckKeys([]string{"k1", "k3"})
@@ -574,13 +574,13 @@ func TestExport_Constructors(t *testing.T) {
 	})
 
 	t.Run("Pluck_NonExistentKey", func(t *testing.T) {
-		keysFun := func(r extract.Rule) ([]string, map[string]any) {
+		keysFunc := func(r extract.Rule) ([]string, map[string]any) {
 			return []string{"k1"}, map[string]any{"k1": "v1"}
 		}
-		toMaps := func(r results, rule extract.Rule, f Format) []map[string]any {
+		rowsFunc := func(r results, rule extract.Rule, f Format) []map[string]any {
 			return nil
 		}
-		s := newMatcher[results](rule, toMaps, keysFun, func(ctx *matcherContextResults, c []string) results {
+		s := newMatcher[results](rule, rowsFunc, keysFunc, func(s *scanner, c []string) results {
 			return nil
 		})
 		s.WithPluckKeys([]string{"k1", "nonexistent"})

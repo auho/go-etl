@@ -25,9 +25,9 @@ const (
 
 // ScannerConfig holds all knobs that control scanner behavior.
 type ScannerConfig struct {
-	IgnoreCase bool       // if true, keywords are lowercased before matching
-	Debug      bool       // if true, prints debug info during scanning
-	Mode       seekMode   // ordering strategy for accurate/fuzzy seekers
+	IgnoreCase bool        // if true, keywords are lowercased before matching
+	Debug      bool        // if true, prints debug info during scanning
+	Mode       seekMode    // ordering strategy for accurate/fuzzy seekers
 	Fuzzy      FuzzyConfig // fuzzy matching configuration
 }
 
@@ -36,6 +36,10 @@ func (sc *ScannerConfig) check() {
 }
 
 func defaultScanner(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
+	return newScannerFromRule(rule, sc)
+}
+
+func newScannerFromRule(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
 	items, err := rule.ItemsAlias()
 	if err != nil {
 		return nil, fmt.Errorf("ItemsAlias: %w", err)
@@ -49,11 +53,11 @@ type scanner struct {
 	hasItems bool
 
 	keyName  string
-	tagsName []string
+	tagNames []string
 
-	allSeek      []seeker // all seekers in evaluation order
-	fuzzySeek    []seeker // fuzzy (approximate) seekers
-	accurateSeek []seeker // accurate (exact) seekers
+	allSeekers      []seeker // all seekers in evaluation order
+	fuzzySeekers    []seeker // fuzzy (approximate) seekers
+	accurateSeekers []seeker // accurate (exact) seekers
 
 	config ScannerConfig
 }
@@ -68,7 +72,7 @@ func newScanner(keyName string, items []map[string]string, sc ScannerConfig) *sc
 		config:  sc,
 	}
 
-	if len(items) <= 0 {
+	if len(items) == 0 {
 		return m
 	}
 
@@ -77,12 +81,12 @@ func newScanner(keyName string, items []map[string]string, sc ScannerConfig) *sc
 	// tags name
 	for k := range items[0] {
 		if k != keyName {
-			m.tagsName = append(m.tagsName, k)
+			m.tagNames = append(m.tagNames, k)
 		}
 	}
 
-	sort.SliceStable(m.tagsName, func(i, j int) bool {
-		return m.tagsName[i] < m.tagsName[j]
+	sort.SliceStable(m.tagNames, func(i, j int) bool {
+		return m.tagNames[i] < m.tagNames[j]
 	})
 
 	for _i, item := range items {
@@ -95,18 +99,18 @@ func newScanner(keyName string, items []map[string]string, sc ScannerConfig) *sc
 		}
 
 		_tags := make(map[string]string)
-		for _, _ln := range m.tagsName {
+		for _, _ln := range m.tagNames {
 			_tags[_ln] = item[_ln]
 		}
 
 		_seeker, _st := newSeeker(_i, _originKeyValue, _keyValue, _tags, sc.Fuzzy, seekConfig{debug: sc.Debug})
 		if sc.Mode == modeSequence {
-			m.allSeek = append(m.allSeek, _seeker)
+			m.allSeekers = append(m.allSeekers, _seeker)
 		} else {
 			if _st == seekAccurate {
-				m.accurateSeek = append(m.accurateSeek, _seeker)
+				m.accurateSeekers = append(m.accurateSeekers, _seeker)
 			} else {
-				m.fuzzySeek = append(m.fuzzySeek, _seeker)
+				m.fuzzySeekers = append(m.fuzzySeekers, _seeker)
 			}
 		}
 	}
@@ -114,9 +118,9 @@ func newScanner(keyName string, items []map[string]string, sc ScannerConfig) *sc
 	switch sc.Mode {
 	case modeSequence:
 	case modePriorityAccurate:
-		m.allSeek = append(m.accurateSeek, m.fuzzySeek...)
+		m.allSeekers = append(m.accurateSeekers, m.fuzzySeekers...)
 	case modePriorityFuzzy:
-		m.allSeek = append(m.fuzzySeek, m.accurateSeek...)
+		m.allSeekers = append(m.fuzzySeekers, m.accurateSeekers...)
 	default:
 		panic(fmt.Sprintf("unknown mode[%d]", sc.Mode))
 	}
@@ -367,7 +371,7 @@ func (s *scanner) seekContents(contents []string, onlyFirst bool) seekResults {
 
 		var ok bool
 		var rets seekResults
-		rets, sc, ok = s.seeking(s.allSeek, sc, onlyFirst)
+		rets, sc, ok = s.seeking(s.allSeekers, sc, onlyFirst)
 		if ok {
 			if onlyFirst {
 				contentResults = rets[0:1]
@@ -451,7 +455,7 @@ func (s *scanner) toLabelResults(items seekResults) labelResults {
 		text := item.text
 
 		tagsIdentity := ""
-		for _, _tn := range s.tagsName {
+		for _, _tn := range s.tagNames {
 			tagsIdentity += "-" + item.tags[_tn]
 		}
 

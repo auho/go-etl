@@ -18,24 +18,14 @@ type MatcherResults = Matcher[results]
 // MatcherLabelResults is a pre-defined alias for Matcher[labelResults].
 type MatcherLabelResults = Matcher[labelResults]
 
-// matcherContextResults and matcherContextLabelResults are type aliases
-// used internally to reduce generic boilerplate.
-type matcherContextResults = matcherContext[results]
-type matcherContextLabelResults = matcherContext[labelResults]
-
 // resultsEntity is a type constraint that accepts both results and labelResults.
 type resultsEntity interface {
 	results | labelResults
 }
 
-// matcherResultsFunc is the scanning strategy: given a context and content,
+// resultsFunc is the scanning strategy: given a scanner and content,
 // it returns the matched results T.
-type matcherResultsFunc[T resultsEntity] func(*matcherContext[T], []string) T
-
-// matcherContext holds the scanner instance used during extraction.
-type matcherContext[T resultsEntity] struct {
-	scanner *scanner
-}
+type resultsFunc[T resultsEntity] func(*scanner, []string) T
 
 // Matcher is a generic extractor that drives a scanner to find keywords/labels
 // in content via regex, then transforms the results into structured rows.
@@ -44,126 +34,130 @@ type matcherContext[T resultsEntity] struct {
 type Matcher[T resultsEntity] struct {
 	scanner *scanner
 
-	toMaps    func(T, extract.Rule, Format) []map[string]any
 	rule      extract.Rule
 	format    Format
 	keys      []string
 	defaults  map[string]any
 	pluckKeys []string
 
-	context           *matcherContext[T]
-	matcherResultsFun matcherResultsFunc[T]
-
-	scannerConfig scannerConfig
-	newScannerFun func(extract.Rule, scannerConfig) (*scanner, error)
+	rowsFunc      func(T, extract.Rule, Format) []map[string]any
+	resultsFunc   resultsFunc[T]
+	scannerFunc   func(extract.Rule, ScannerConfig) (*scanner, error)
+	scannerConfig ScannerConfig
 }
 
 func newMatcher[T resultsEntity](
 	rule extract.Rule,
-	toMaps func(T, extract.Rule, Format) []map[string]any,
+	rowsFunc func(T, extract.Rule, Format) []map[string]any,
 	keys []string,
 	defaults map[string]any,
-	fn matcherResultsFunc[T],
+	fn resultsFunc[T],
 ) *Matcher[T] {
 	return &Matcher[T]{
-		rule:              rule,
-		format:            defaultFormat,
-		toMaps:            toMaps,
-		keys:              keys,
-		defaults:          defaults,
-		matcherResultsFun: fn,
-		scannerConfig:     scannerConfig{},
+		rule:          rule,
+		format:        defaultFormat,
+		rowsFunc:      rowsFunc,
+		keys:          keys,
+		defaults:      defaults,
+		resultsFunc:   fn,
+		scannerConfig: ScannerConfig{},
 	}
 }
 
-// Title returns a human-readable identifier for the matcher.
-func (s *Matcher[T]) Title() string {
-	return fmt.Sprintf("Matcher{%s:%s}", s.rule.Name(), strings.Join(s.Keys(), ","))
-}
-
-// Keys returns the column names for extraction results.
-// If WithPluckKeys was called, only plucked keys are returned.
-func (s *Matcher[T]) Keys() []string {
-	if len(s.pluckKeys) == 0 {
-		return s.keys
-	}
-
-	keySet := make(map[string]bool, len(s.keys))
-	for _, k := range s.keys {
-		keySet[k] = true
-	}
-
-	keys := make([]string, 0, len(s.pluckKeys))
-	for _, pk := range s.pluckKeys {
-		if keySet[pk] {
-			keys = append(keys, pk)
-		}
-	}
-
-	return keys
-}
-
-// DefaultValues returns default values for each key.
-// If WithPluckKeys was called, only plucked key defaults are returned.
-func (s *Matcher[T]) DefaultValues() map[string]any {
-	if len(s.pluckKeys) == 0 {
-		return s.defaults
-	}
-
-	pluckSet := make(map[string]bool, len(s.pluckKeys))
-	for _, k := range s.pluckKeys {
-		pluckSet[k] = true
-	}
-
-	dv := make(map[string]any)
-	for k, v := range s.defaults {
-		if pluckSet[k] {
-			dv[k] = v
-		}
-	}
-
-	return dv
-}
-
-// Extract runs the scanner on the given contents and converts results to rows.
-func (s *Matcher[T]) Extract(contents []string) extract.Result {
-	rets := s.matcherResultsFun(s.context, contents)
-	if len(rets) == 0 {
-		return extract.Result{}
-	}
-
-	rows := s.toMaps(rets, s.rule, s.format)
-	if len(s.pluckKeys) > 0 {
-		rows = extract.PluckRows(rows, s.pluckKeys)
-	}
-
-	return extract.NewResult(true, rows)
-}
-
-func (s *Matcher[T]) Prepare() error {
-	if s.newScannerFun == nil {
-		s.newScannerFun = defaultScanner
+func (m *Matcher[T]) Prepare() error {
+	if m.scannerFunc == nil {
+		m.scannerFunc = defaultScanner
 	}
 
 	var err error
-	s.scanner, err = s.newScannerFun(s.rule, s.scannerConfig)
+	m.scanner, err = m.scannerFunc(m.rule, m.scannerConfig)
 	if err != nil {
-		return fmt.Errorf("newScannerFun: %w", err)
+		return fmt.Errorf("scannerFunc: %w", err)
 	}
 
-	s.context = &matcherContext[T]{
-		scanner: s.scanner,
+	if len(m.pluckKeys) > 0 {
+		pluckedKeys := make([]string, 0, len(m.pluckKeys))
+		pluckedDefaults := make(map[string]any)
+		for _, k := range m.pluckKeys {
+			if v, ok := m.defaults[k]; ok {
+				pluckedKeys = append(pluckedKeys, k)
+				pluckedDefaults[k] = v
+			}
+		}
+		m.keys = pluckedKeys
+		m.defaults = pluckedDefaults
 	}
 
 	return nil
 }
 
+// Title returns a human-readable identifier for the matcher.
+func (m *Matcher[T]) Title() string {
+	return fmt.Sprintf("Matcher{%s:%s}", m.rule.Name(), strings.Join(m.Keys(), ","))
+}
+
+// Keys returns the column names for extraction results.
+func (m *Matcher[T]) Keys() []string {
+	return m.keys
+}
+
+// DefaultValues returns default values for each key.
+func (m *Matcher[T]) DefaultValues() map[string]any {
+	return m.defaults
+}
+
+// Extract runs the scanner on the given contents and converts results to rows.
+func (m *Matcher[T]) Extract(contents []string) extract.Result {
+	rets := m.resultsFunc(m.scanner, contents)
+	if len(rets) == 0 {
+		return extract.Result{}
+	}
+
+	rows := m.rowsFunc(rets, m.rule, m.format)
+	if len(m.pluckKeys) > 0 {
+		rows = extract.PluckRows(rows, m.pluckKeys)
+	}
+
+	return extract.NewResult(true, rows)
+}
+
 // Close releases resources. Currently a no-op.
-func (s *Matcher[T]) Close() error { return nil }
+func (m *Matcher[T]) Close() error { return nil }
 
 // WithPluckKeys restricts output rows to the specified keys only.
-func (s *Matcher[T]) WithPluckKeys(keys []string) *Matcher[T] {
-	s.pluckKeys = keys
+func (m *Matcher[T]) WithPluckKeys(keys []string) *Matcher[T] {
+	m.pluckKeys = keys
 
-	return s
+	return m
+}
+
+// WithFormat sets a custom output format (keyword amount suffix and separator).
+func (m *Matcher[T]) WithFormat(f Format) *Matcher[T] {
+	m.format = f
+
+	return m
+}
+
+// WithScannerConfig replaces the default ScannerConfig entirely.
+func (m *Matcher[T]) WithScannerConfig(sc ScannerConfig) *Matcher[T] {
+	m.scannerConfig = sc
+
+	return m
+}
+
+// WithDebug enables debug output during scanning.
+func (m *Matcher[T]) WithDebug() *Matcher[T] {
+	m.scannerConfig.Debug = true
+
+	return m
+}
+
+// WithScanner configures the matcher to use a custom key-name and items list
+// instead of the default rule-based scanner.
+func (m *Matcher[T]) WithScanner(keyName string, items []map[string]string, opts ...ScannerOption) *Matcher[T] {
+	m.scannerFunc = func(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
+		return newScanner(keyName, items, opts...), nil
+	}
+
+	return m
 }

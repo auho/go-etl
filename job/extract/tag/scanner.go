@@ -10,10 +10,12 @@ import (
 	"github.com/auho/go-etl/v3/job/extract"
 )
 
-type scannerConfig struct {
-	debug bool
+// ScannerConfig scanner config
+type ScannerConfig struct {
+	Debug bool
 }
 
+// scanned text
 type scannedText struct {
 	keyword string
 	text    string
@@ -22,45 +24,46 @@ type scannedText struct {
 	stop    int // 不包含 (
 }
 
-// scannerOption
+// ScannerOption
 // tag scanner option
-type scannerOption func(mt *scanner)
+type ScannerOption func(mt *scanner)
 
-// scannerKeyFormatFunc
+// ScannerKeyFormatter
 // 匹配前格式化 keyword 的 func list
-type scannerKeyFormatFunc func(string) string
+type ScannerKeyFormatter func(string) string
 
-func withScannerKeyFormatFunc(f ...scannerKeyFormatFunc) scannerOption {
+func WithScannerKeyFormatter(fs ...ScannerKeyFormatter) ScannerOption {
 	return func(m *scanner) {
-		m.addKeyFormatFunc(f...)
+		m.addKeyFormatters(fs...)
 	}
 }
 
-func defaultScannerKeyFormatFunc(s string) string {
+func defaultScannerKeyFormatter(s string) string {
 	s = strings.TrimSpace(s)
-	res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
+	ok, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 	if err != nil {
 		return s
 	}
 
-	if res {
+	if ok {
 		return fmt.Sprintf(`\b%s\b`, s)
 	} else {
 		return strings.ReplaceAll(s, "_", `.{1,3}`)
 	}
 }
 
-func defaultScanner(rule extract.Rule, sc scannerConfig) (*scanner, error) {
+// default scanner
+func defaultScanner(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
+	return newScannerFromRule(rule, sc, WithScannerKeyFormatter(defaultScannerKeyFormatter))
+}
+
+func newScannerFromRule(rule extract.Rule, sc ScannerConfig, opts ...ScannerOption) (*scanner, error) {
 	items, err := rule.ItemsForRegexp()
 	if err != nil {
 		return nil, fmt.Errorf("ItemsForRegexp: %w", err)
 	}
 
-	return newScanner(
-		rule.KeywordNameAlias(),
-		items,
-		withScannerKeyFormatFunc(defaultScannerKeyFormatFunc),
-	), nil
+	return newScanner(rule.KeywordNameAlias(), items, opts...), nil
 }
 
 // scanner
@@ -71,27 +74,27 @@ func defaultScanner(rule extract.Rule, sc scannerConfig) (*scanner, error) {
 // label：label
 // tag：name +label
 type scanner struct {
-	keyFormatFunc    []scannerKeyFormatFunc // 在匹配前格式化关键词（使匹配更精确、丰富）
-	keysIndex        map[string]int
+	keyFormatters    []ScannerKeyFormatter // 在匹配前格式化关键词（使匹配更精确、丰富）
+	keyIndex         map[string]int
 	regexpItems      map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名][标签值]
 	regexp           *regexp.Regexp               // 所有关键词的 regexp
 	regexpString     string                       // regular expression "(<?P<group name of keyword>...)"
-	allSubGroupsName []string
+	allSubGroupNames []string
 
 	// 普通匹配：不包含 regular expression（纯文本）
 	// 非普通匹配：包含 regular expression（需要指定 group name 与 keyword 关联）
-	normalRegexpName string            // 普通匹配、非普通匹配的分组名称前缀（防止和自定义名称冲突，或 group 不支持的特殊字符）
-	badKeyMap        map[string]string // 非普通匹配分组名称
-	tagsName         []string          // 标签的名称
-	hasItems         bool              // 是否有 items
+	groupNamePrefix string            // 普通匹配、非普通匹配的分组名称前缀（防止和自定义名称冲突，或 group 不支持的特殊字符）
+	groupNameMap    map[string]string // 非普通匹配分组名称
+	tagNames        []string          // 标签的名称
+	hasItems        bool              // 是否有 items
 }
 
-func newScanner(keyName string, items []map[string]string, Options ...scannerOption) *scanner {
+func newScanner(keyName string, items []map[string]string, opts ...ScannerOption) *scanner {
 	m := &scanner{}
-	m.normalRegexpName = "_rEgEx_"
-	m.badKeyMap = make(map[string]string)
+	m.groupNamePrefix = "_rEgEx_"
+	m.groupNameMap = make(map[string]string)
 
-	for _, option := range Options {
+	for _, option := range opts {
 		option(m)
 	}
 
@@ -104,56 +107,56 @@ func newScanner(keyName string, items []map[string]string, Options ...scannerOpt
 // keyName keyword
 // items map[keyword, tags]
 func (s *scanner) prepare(keyName string, items []map[string]string) {
-	if len(items) <= 0 {
+	if len(items) == 0 {
 		return
 	}
 
 	s.hasItems = true
 	s.regexpItems = make(map[string]map[string]string, len(items))
-	s.keysIndex = make(map[string]int, len(items))
+	s.keyIndex = make(map[string]int, len(items))
 
 	for k := range items[0] {
 		if k != keyName {
-			s.tagsName = append(s.tagsName, k)
+			s.tagNames = append(s.tagNames, k)
 		}
 	}
 
-	sort.SliceStable(s.tagsName, func(i, j int) bool {
-		return s.tagsName[i] < s.tagsName[j]
+	sort.SliceStable(s.tagNames, func(i, j int) bool {
+		return s.tagNames[i] < s.tagNames[j]
 	})
 
 	// 普通匹配和非普通匹配的表达式（英文、数字等需要通过前后限定符分组精确匹配）
 	var normalItems []string
 	var groupRegexps []string
 
-	for itemK := range items {
-		keyValue := items[itemK][keyName]
-		delete(items[itemK], keyName)
-		s.regexpItems[keyValue] = items[itemK]
+	for item := range items {
+		keyValue := items[item][keyName]
+		delete(items[item], keyName)
+		s.regexpItems[keyValue] = items[item]
 
-		s.keysIndex[keyValue] = itemK
+		s.keyIndex[keyValue] = item
 
 		newKeyValue := regexp.QuoteMeta(keyValue)
-		for _, keyFormatFun := range s.keyFormatFunc {
-			newKeyValue = keyFormatFun(newKeyValue)
+		for _, kf := range s.keyFormatters {
+			newKeyValue = kf(newKeyValue)
 		}
 
 		if newKeyValue == keyValue { // 普通匹配
 			normalItems = append(normalItems, newKeyValue)
 		} else { // 非普通匹配
-			keyGroupName := s.correctBadKeyOfGroupName(keyValue, itemK)
+			keyGroupName := s.correctBadKeyOfGroupName(keyValue, item)
 			groupRegexps = append(groupRegexps, fmt.Sprintf(`(?P<%s>%s)`, keyGroupName, newKeyValue))
 		}
 	}
 
 	if len(normalItems) > 0 {
-		groupRegexps = append(groupRegexps, fmt.Sprintf("(?P<%s>%s)", s.normalRegexpName, strings.Join(normalItems, "|")))
+		groupRegexps = append(groupRegexps, fmt.Sprintf("(?P<%s>%s)", s.groupNamePrefix, strings.Join(normalItems, "|")))
 	}
 
 	s.regexpString = strings.Join(groupRegexps, "|")
 	s.regexp = regexp.MustCompile(s.regexpString)
 	s.regexp.Longest()
-	s.allSubGroupsName = s.regexp.SubexpNames()
+	s.allSubGroupNames = s.regexp.SubexpNames()
 }
 
 // Scan
@@ -334,15 +337,15 @@ func (s *scanner) ScanLabelMostText(contents []string) labelResults {
 	return rets[0:1]
 }
 
-func (s *scanner) addKeyFormatFunc(f ...scannerKeyFormatFunc) {
-	s.keyFormatFunc = append(s.keyFormatFunc, f...)
+func (s *scanner) addKeyFormatters(fs ...ScannerKeyFormatter) {
+	s.keyFormatters = append(s.keyFormatters, fs...)
 }
 
 // correctBadKeyOfGroupName
 // 避免不合法的分组名称
 func (s *scanner) correctBadKeyOfGroupName(key string, keyIndex int) string {
-	newKey := fmt.Sprintf("%s%d", s.normalRegexpName, keyIndex)
-	s.badKeyMap[newKey] = key
+	newKey := fmt.Sprintf("%s%d", s.groupNamePrefix, keyIndex)
+	s.groupNameMap[newKey] = key
 
 	return newKey
 }
@@ -381,7 +384,7 @@ func (s *scanner) scansToLabelResults(sts []scannedText) labelResults {
 		tags := s.regexpItems[key]
 
 		tagsIdentity := ""
-		for _, tag := range s.tagsName {
+		for _, tag := range s.tagNames {
 			tagsIdentity += "-" + tags[tag]
 		}
 
@@ -421,7 +424,7 @@ func (s *scanner) findScanAllInKeyOrder(contents []string) []scannedText {
 	}
 
 	sort.SliceStable(sts, func(i, j int) bool {
-		return s.keysIndex[sts[i].keyword] < s.keysIndex[sts[j].keyword]
+		return s.keyIndex[sts[i].keyword] < s.keyIndex[sts[j].keyword]
 	})
 
 	return sts
@@ -434,12 +437,10 @@ func (s *scanner) findScanAll(contents []string) []scannedText {
 
 	for i, content := range contents {
 		ret := s.findAllSubMatch(i, content, -1)
-		if ret != nil {
-			rets = append(rets, ret...)
-		}
+		rets = append(rets, ret...)
 	}
 
-	if len(rets) <= 0 {
+	if len(rets) == 0 {
 		return nil
 	}
 
@@ -453,7 +454,7 @@ func (s *scanner) findScanFirst(contents []string) []scannedText {
 
 	for i, content := range contents {
 		rets = s.findAllSubMatch(i, content, 1)
-		if rets != nil {
+		if len(rets) == 0 {
 			break
 		}
 	}
@@ -490,20 +491,16 @@ func (s *scanner) findAllSubMatch(index int, content string, n int) []scannedTex
 		sts = append(sts, _mt)
 	}
 
-	if len(sts) <= 0 {
-		return nil
-	}
-
 	return sts
 }
 
 func (s *scanner) getGroupName(groupIndex int, text string) string {
-	group := s.allSubGroupsName[groupIndex]
+	group := s.allSubGroupNames[groupIndex]
 
-	if group == s.normalRegexpName {
+	if group == s.groupNamePrefix {
 		group = text
 	} else {
-		if key, ok := s.badKeyMap[group]; ok {
+		if key, ok := s.groupNameMap[group]; ok {
 			group = key
 		}
 	}
@@ -533,10 +530,6 @@ func (s *scanner) findAllSubMatchBackup(content string, n int) [][]string {
 
 			break
 		}
-	}
-
-	if len(matches) <= 0 {
-		return nil
 	}
 
 	return matches

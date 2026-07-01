@@ -75,46 +75,46 @@ func (r *SubMatch) Extract(contents []string) extract.Result {
 
 func (r *SubMatch) Close() error { return nil }
 
-func _subMatch(ret []string) (result, bool) {
+func subMatch(matched []string) (result, bool) {
 	var has bool
 	var text string
 
-	retLen := len(ret)
+	retLen := len(matched)
 	if retLen == 1 {
-		text = ret[0]
+		text = matched[0]
 		has = true
 	} else if retLen > 1 {
-		text = ret[1]
+		text = matched[1]
 		has = true
 	}
 
-	var result result
+	var ret result
 	if has {
-		result.text = text
-		result.amount = 1
+		ret.text = text
+		ret.amount = 1
 	}
 
-	return result, has
+	return ret, has
 }
 
-func _mergeResults(rs results) results {
-	if rs == nil {
+func mergeResults(rets results) results {
+	if len(rets) == 0 {
 		return nil
 	}
 
-	var newResults results
-	resultFlag := make(map[string]int)
+	var newRets results
+	retFlag := make(map[string]int)
 
-	for _, ret := range rs {
-		if index, ok := resultFlag[ret.text]; ok {
-			newResults[index].amount += 1
+	for _, ret := range rets {
+		if index, ok := retFlag[ret.text]; ok {
+			newRets[index].amount += 1
 		} else {
-			newResults = append(newResults, ret)
-			resultFlag[ret.text] = len(newResults) - 1
+			newRets = append(newRets, ret)
+			retFlag[ret.text] = len(newRets) - 1
 		}
 	}
 
-	return newResults
+	return newRets
 }
 
 // allSubMode finds all sub matches of all contents.
@@ -122,18 +122,16 @@ func allSubMode(regexps []*regexp.Regexp, contents []string) results {
 	var rets results
 	for _, content := range contents {
 		for _, re := range regexps {
-			ret := re.FindAllStringSubmatch(content, -1)
-			if ret != nil {
-				for _, _ret := range ret {
-					if result, ok := _subMatch(_ret); ok {
-						rets = append(rets, result)
-					}
+			subMatched := re.FindAllStringSubmatch(content, -1)
+			for _, matched := range subMatched {
+				if ret, ok := subMatch(matched); ok {
+					rets = append(rets, ret)
 				}
 			}
 		}
 	}
 
-	return _mergeResults(rets)
+	return mergeResults(rets)
 }
 
 // leftmostSubMode finds the leftmost sub match of all contents.
@@ -141,14 +139,14 @@ func leftmostSubMode(regexps []*regexp.Regexp, contents []string) results {
 	var rets results
 	for _, content := range contents {
 		for _, re := range regexps {
-			ret := re.FindStringSubmatch(content)
-			if result, ok := _subMatch(ret); ok {
-				rets = append(rets, result)
+			matched := re.FindStringSubmatch(content)
+			if ret, ok := subMatch(matched); ok {
+				rets = append(rets, ret)
 			}
 		}
 	}
 
-	return _mergeResults(rets)
+	return mergeResults(rets)
 }
 
 // firstSubMode finds the leftmost sub match of the first matching content.
@@ -156,16 +154,16 @@ func firstSubMode(regexps []*regexp.Regexp, contents []string) results {
 	var rets results
 	for _, content := range contents {
 		for _, re := range regexps {
-			ret := re.FindStringSubmatch(content)
-			if result, ok := _subMatch(ret); ok {
-				rets = append(rets, result)
+			matched := re.FindStringSubmatch(content)
+			if ret, ok := subMatch(matched); ok {
+				rets = append(rets, ret)
 				goto LOOP
 			}
 		}
 	}
 LOOP:
 
-	return _mergeResults(rets)
+	return mergeResults(rets)
 }
 
 // NewAllSubMatch

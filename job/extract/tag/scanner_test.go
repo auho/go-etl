@@ -32,7 +32,7 @@ func _genScanner() *scanner {
 		{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"},
 	}
 
-	_scanner := newScanner("a", items, withScannerKeyFormatFunc(func(s string) string {
+	_scanner := newScanner("a", items, WithScannerKeyFormatter(func(s string) string {
 		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 		if err != nil {
 			return s
