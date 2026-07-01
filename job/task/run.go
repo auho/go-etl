@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v3/job"
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 	"github.com/auho/go-toolkit-flow/v3/flow"
 	"github.com/auho/go-toolkit-flow/v3/storage"
 	"github.com/auho/go-toolkit-flow/v3/storage/database/source"
@@ -51,7 +51,7 @@ func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.Ma
 		fields = append(fields, p.GetFields()...)
 	}
 
-	fields = slices.SliceDropDuplicates(fields)
+	fields = slicex.SliceDropDuplicates(fields)
 
 	ds, err := source.NewSectionMapWithGorm(
 		source.SectionConfig{

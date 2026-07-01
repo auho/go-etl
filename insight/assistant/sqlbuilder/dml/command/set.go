@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
 type Set struct {
@@ -38,13 +38,13 @@ func newSet(l string, fields []string, r string, values []any, flag string) *Set
 // NewSetField
 // 传入 field name => field name
 func NewSetField(l string, lFields []string, r string, rFields []string) *Set {
-	return newSet(l, lFields, r, slices.SliceToAny(rFields), "")
+	return newSet(l, lFields, r, slicex.SliceToAny(rFields), "")
 }
 
 // NewSetExpression
 // 传入 field name => expression
 func NewSetExpression(l string, lFields []string, r string, expression []string) *Set {
-	return newSet(l, lFields, r, slices.SliceToAny(expression), FlagExpression)
+	return newSet(l, lFields, r, slicex.SliceToAny(expression), FlagExpression)
 }
 
 // NewSetValue

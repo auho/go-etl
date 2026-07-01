@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v3/job/transform"
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
 var _ processor = (*Noop)(nil)
@@ -34,7 +34,7 @@ func (f *Noop) GetFields() []string {
 		fields = append(fields, m.GetFields()...)
 	}
 
-	return slices.SliceDropDuplicates(fields)
+	return slicex.SliceDropDuplicates(fields)
 }
 
 func (f *Noop) Prepare() error {

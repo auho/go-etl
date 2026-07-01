@@ -7,7 +7,7 @@ import (
 
 	"github.com/auho/go-etl/v3/job"
 	"github.com/auho/go-etl/v3/job/transform"
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 	"github.com/auho/go-toolkit-flow/v3/storage"
 	"github.com/auho/go-toolkit-flow/v3/storage/database/destination"
 )
@@ -75,7 +75,7 @@ func (u *UpdateTransfer) GetFields() []string {
 	}
 
 	fields = append(fields, columns...)
-	fields = slices.SliceDropDuplicates(fields)
+	fields = slicex.SliceDropDuplicates(fields)
 
 	return fields
 }

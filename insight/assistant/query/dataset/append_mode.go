@@ -1,7 +1,7 @@
 package dataset
 
 import (
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
 var _ Mode = (*AppendMode)(nil)
@@ -24,7 +24,7 @@ func (am *AppendMode) Data() (*Data, error) {
 	}
 
 	data := &Data{}
-	data.addRowsWithTitles(am.dataset.Name, slices.SliceToAny(am.dataset.Titles), rows)
+	data.addRowsWithTitles(am.dataset.Name, slicex.SliceToAny(am.dataset.Titles), rows)
 
 	return data, nil
 }

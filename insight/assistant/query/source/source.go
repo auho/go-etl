@@ -7,7 +7,7 @@ import (
 
 	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
-	maps "github.com/auho/go-etl/v3/tool/mapx"
+	"github.com/auho/go-etl/v3/tool/mapx"
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
@@ -61,5 +61,5 @@ func (s *SourceBase) querySql(sql string, fields []string) ([][]any, time.Durati
 		return nil, 0, fmt.Errorf("scan: %w", err)
 	}
 
-	return maps.SliceMapStringAnyToSliceSliceAny(rows, fields), time.Now().Sub(_start), nil
+	return mapx.SliceMapStringAnyToSliceSliceAny(rows, fields), time.Now().Sub(_start), nil
 }

@@ -1,7 +1,7 @@
 package dataset
 
 import (
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
 var _ Mode = (*SpreadMode)(nil)
@@ -19,7 +19,7 @@ func NewSpreadMode(ds *Dataset) *SpreadMode {
 func (sm *SpreadMode) Data() (*Data, error) {
 	data := &Data{}
 
-	titles := slices.SliceToAny(sm.dataset.Titles)
+	titles := slicex.SliceToAny(sm.dataset.Titles)
 	for _, set := range sm.dataset.Sets {
 		var rows [][]any
 		data.addRowsWithTitles(set.Name, titles, append(rows, set.Rows...))

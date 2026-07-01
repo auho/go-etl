@@ -3,10 +3,10 @@ package transform
 import (
 	"fmt"
 	"maps"
-	slices2 "slices"
+	"slices"
 	"strings"
 
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
 var _ InsertOperator = (*InsertComposeSpread)(nil)
@@ -42,9 +42,9 @@ func (ic *InsertComposeSpread) GetFields() []string {
 		ic.keys = append(ic.keys, m.GetFields()...)
 	}
 
-	ic.keys = slices.SliceDropDuplicates(ic.keys)
+	ic.keys = slicex.SliceDropDuplicates(ic.keys)
 
-	return slices2.Clone(ic.keys)
+	return slices.Clone(ic.keys)
 }
 
 func (ic *InsertComposeSpread) Keys() []string {
@@ -69,7 +69,7 @@ func (ic *InsertComposeSpread) Prepare() error {
 		maps.Copy(ic.defaultValues, m.DefaultValues())
 	}
 
-	ic.insertKeys = slices.SliceDropDuplicates(ic.insertKeys)
+	ic.insertKeys = slicex.SliceDropDuplicates(ic.insertKeys)
 
 	return nil
 }

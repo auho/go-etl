@@ -5,7 +5,7 @@ import (
 
 	"github.com/auho/go-etl/v3/insight/assistant/excel/reader"
 	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
 type ImportToDB struct {
@@ -110,7 +110,7 @@ func (it *ImportToDB) importResourceToTable(resource Resource, table buildtable.
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {
 		err = sheetData.HandleRows(func(rows [][]string) ([][]string, error) {
-			rows = slices.SliceSliceDropDuplicates(rows, resource.GetColumnDropDuplicates())
+			rows = slicex.SliceSliceDropDuplicates(rows, resource.GetColumnDropDuplicates())
 
 			return rows, nil
 		})

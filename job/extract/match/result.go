@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v3/job/extract"
-	maps "github.com/auho/go-etl/v3/tool/mapx"
+	"github.com/auho/go-etl/v3/tool/mapx"
 )
 
 // defaultFormat is the default output format: keyword amount appended, comma-separated.
@@ -59,7 +59,7 @@ func (rs results) toAll(rule extract.Rule) []map[string]any {
 
 	items := make([]map[string]any, 0, len(rs))
 	for _, _r := range rs {
-		items = append(items, maps.PluckMap(_r.toTag(rule), keys))
+		items = append(items, mapx.PluckMap(_r.toTag(rule), keys))
 	}
 
 	return items
@@ -69,7 +69,7 @@ func (rs results) toLine(rule extract.Rule, format Format) []map[string]any {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordNumNameAlias())
 	m := rs.mergeKeysToWhole(rule, format)
 
-	return []map[string]any{maps.PluckMap(m, keys)}
+	return []map[string]any{mapx.PluckMap(m, keys)}
 }
 
 func (rs results) toFlag(rule extract.Rule, format Format) []map[string]any {
@@ -77,7 +77,7 @@ func (rs results) toFlag(rule extract.Rule, format Format) []map[string]any {
 	m := rs.mergeKeysToWhole(rule, format)
 	m[rule.NameAlias()] = 1
 
-	return []map[string]any{maps.PluckMap(m, keys)}
+	return []map[string]any{mapx.PluckMap(m, keys)}
 }
 
 func (rs results) mergeKeysToWhole(rule extract.Rule, format Format) map[string]any {
@@ -175,7 +175,7 @@ func (lrs labelResults) toAll(rule extract.Rule, format Format) []map[string]any
 
 	items := make([]map[string]any, 0, len(lrs))
 	for _, _r := range lrs {
-		items = append(items, maps.PluckMap(_r.toTag(rule, format), keys))
+		items = append(items, mapx.PluckMap(_r.toTag(rule, format), keys))
 	}
 
 	return items
@@ -185,7 +185,7 @@ func (lrs labelResults) toLine(rule extract.Rule, format Format) []map[string]an
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.LabelNumNameAlias(), rule.KeywordNumNameAlias(), rule.KeywordAmountNameAlias())
 	m := lrs.mergeLabelsToWhole(rule, format)
 
-	return []map[string]any{maps.PluckMap(m, keys)}
+	return []map[string]any{mapx.PluckMap(m, keys)}
 }
 
 func (lrs labelResults) toFlag(rule extract.Rule, format Format) []map[string]any {
@@ -193,7 +193,7 @@ func (lrs labelResults) toFlag(rule extract.Rule, format Format) []map[string]an
 	m := lrs.mergeLabelsToWhole(rule, format)
 	m[rule.NameAlias()] = 1
 
-	return []map[string]any{maps.PluckMap(m, keys)}
+	return []map[string]any{mapx.PluckMap(m, keys)}
 }
 
 func (lrs labelResults) mergeLabelsToWhole(rule extract.Rule, format Format) map[string]any {

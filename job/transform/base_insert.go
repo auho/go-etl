@@ -5,7 +5,7 @@ import (
 	"maps"
 	"strings"
 
-	slices "github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
 type baseInsert struct {
@@ -37,7 +37,7 @@ func (bi *baseInsert) Keys() []string {
 		keys = append(keys, _i.Keys()...)
 	}
 
-	keys = slices.SliceDropDuplicates(keys)
+	keys = slicex.SliceDropDuplicates(keys)
 
 	return keys
 }
