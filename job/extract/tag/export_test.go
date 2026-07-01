@@ -45,12 +45,12 @@ func TestExport_KeywordAll(t *testing.T) {
 	}
 
 	// Extract should return OK result with rows
-	result := s.Extract(_contents)
-	if !result.IsOK() {
+	ret := s.Extract(_contents)
+	if !ret.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	_, rows := result.Get()
+	_, rows := ret.Get()
 	if len(rows) == 0 {
 		t.Fatal("rows should not be empty")
 	}
@@ -66,24 +66,24 @@ func TestExport_KeywordAll(t *testing.T) {
 	}
 }
 
-// TestExport_KeywordLine tests NewExportKeywordLine with NewSearchKey
+// TestExport_KeywordLine tests NewExportKeywordLine with newMatcherKey
 // (Results.ToLine / MergeKeysToWhole)
 func TestExport_KeywordLine(t *testing.T) {
 	rule := &ruleTest{}
-	s := newSearchKey(rule, keywordLineToMaps, keywordLineKeys(rule), keywordLineDefaults(rule))
+	s := newMatcherKey(rule, keywordLineToMaps, keywordLineKeys(rule), keywordLineDefaults(rule))
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Extract(_contents)
-	if !result.IsOK() {
+	ret := s.Extract(_contents)
+	if !ret.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
 	// ToLine merges all results into a single row
-	_, rows := result.Get()
+	_, rows := ret.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToLine should return 1 row, got %d", len(rows))
 	}
@@ -97,24 +97,24 @@ func TestExport_KeywordLine(t *testing.T) {
 	}
 }
 
-// TestExport_KeywordFlag tests NewExportKeywordFlag with NewSearchKey
+// TestExport_KeywordFlag tests NewExportKeywordFlag with newMatcherKey
 // (Results.ToFlag / MergeKeysToWhole)
 func TestExport_KeywordFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := newSearchKey(rule, keywordFlagToMaps, keywordFlagKeys(rule), keywordFlagDefaults(rule))
+	s := newMatcherKey(rule, keywordFlagToMaps, keywordFlagKeys(rule), keywordFlagDefaults(rule))
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Extract(_contents)
-	if !result.IsOK() {
+	ret := s.Extract(_contents)
+	if !ret.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
 	// ToFlag merges all results into a single row with a flag
-	_, rows := result.Get()
+	_, rows := ret.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToFlag should return 1 row, got %d", len(rows))
 	}
@@ -136,12 +136,12 @@ func TestExport_LabelAll(t *testing.T) {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Extract(_contents)
-	if !result.IsOK() {
+	ret := s.Extract(_contents)
+	if !ret.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	_, rows := result.Get()
+	_, rows := ret.Get()
 	if len(rows) == 0 {
 		t.Fatal("rows should not be empty")
 	}
@@ -167,13 +167,13 @@ func TestExport_LabelLine(t *testing.T) {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Extract(_contents)
-	if !result.IsOK() {
+	ret := s.Extract(_contents)
+	if !ret.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
 	// ToLine merges all labels into a single row
-	_, rows := result.Get()
+	_, rows := ret.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToLine should return 1 row, got %d", len(rows))
 	}
@@ -187,23 +187,23 @@ func TestExport_LabelLine(t *testing.T) {
 	}
 }
 
-// TestExport_LabelFlag tests label flag export with NewSearchLabels
+// TestExport_LabelFlag tests label flag export with newMatcherLabels
 // (LabelResults.ToFlag / MergeLabelsToWhole)
 func TestExport_LabelFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := newSearchLabels(rule, labelFlagToMaps, labelFlagKeys(rule), labelFlagDefaults(rule))
+	s := newMatcherLabels(rule, labelFlagToMaps, labelFlagKeys(rule), labelFlagDefaults(rule))
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Extract(_contents)
-	if !result.IsOK() {
+	ret := s.Extract(_contents)
+	if !ret.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	_, rows := result.Get()
+	_, rows := ret.Get()
 	if len(rows) != 1 {
 		t.Fatalf("ToFlag should return 1 row, got %d", len(rows))
 	}
@@ -214,11 +214,11 @@ func TestExport_LabelFlag(t *testing.T) {
 	}
 }
 
-// TestExport_Pluck tests WithPluck functionality
+// TestExport_Pluck tests WithPluckKeys functionality
 func TestExport_Pluck(t *testing.T) {
 	rule := &ruleTest{}
 	pluckedKey := rule.KeywordNameAlias()
-	s := NewKey(rule).WithPluck([]string{pluckedKey})
+	s := NewKey(rule).WithPluckKeys([]string{pluckedKey})
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -243,12 +243,12 @@ func TestExport_Pluck(t *testing.T) {
 		t.Errorf("DefaultValues should contain %s", pluckedKey)
 	}
 
-	result := s.Extract(_contents)
-	if !result.IsOK() {
+	ret := s.Extract(_contents)
+	if !ret.IsOK() {
 		t.Fatal("result.IsOK() should be true")
 	}
 
-	_, rows := result.Get()
+	_, rows := ret.Get()
 	if len(rows) == 0 {
 		t.Fatal("rows should not be empty")
 	}
@@ -274,12 +274,12 @@ func TestExport_EmptyResults(t *testing.T) {
 		t.Fatalf("Prepare failed: %v", err)
 	}
 
-	result := s.Extract([]string{"zzzzz_no_match_content_xxxxx"})
-	if result.IsOK() {
+	ret := s.Extract([]string{"zzzzz_no_match_content_xxxxx"})
+	if ret.IsOK() {
 		t.Fatal("result.IsOK() should be false for no match")
 	}
 
-	_, rows := result.Get()
+	_, rows := ret.Get()
 	if rows != nil {
 		t.Fatalf("rows should be nil for no match, got %v", rows)
 	}
@@ -291,7 +291,7 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 
 	entryFuncs := []struct {
 		name string
-		fn   func(extract.Rule) *searchResults
+		fn   func(extract.Rule) *MatcherResults
 	}{
 		{"NewKey", NewKey},
 		{"NewMostKey", NewMostKey},
@@ -309,16 +309,16 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 				t.Fatalf("Prepare failed: %v", err)
 			}
 
-			result := s.Extract(_contents)
+			ret := s.Extract(_contents)
 			// just verify no panic; some may match, some may not
-			_ = result.IsOK()
-			_, _ = result.Get()
+			_ = ret.IsOK()
+			_, _ = ret.Get()
 		})
 	}
 
 	labelFuncs := []struct {
 		name string
-		fn   func(extract.Rule) *searchLabelResults
+		fn   func(extract.Rule) *MatcherLabelResults
 	}{
 		{"NewLabel", NewLabel},
 		{"NewWholeLabels", NewWholeLabels},
@@ -340,39 +340,39 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 	}
 }
 
-// TestExport_ExtraSearchFunctions tests NewSearchLastText and NewSearchLastKey
+// TestExport_ExtraMatcherFunctions tests newMatcherLastText and NewMatcherLastKey
 // which are not covered by entry.go entry functions
-func TestExport_ExtraSearchFunctions(t *testing.T) {
+func TestExport_ExtraMatcherFunctions(t *testing.T) {
 	rule := &ruleTest{}
 
-	t.Run("NewSearchLastText", func(t *testing.T) {
-		s := newSearchLastText(rule, keywordAllToMaps, keywordAllKeys(rule), keywordAllDefaults(rule))
+	t.Run("newMatcherLastText", func(t *testing.T) {
+		s := newMatcherLastText(rule, keywordAllToMaps, keywordAllKeys(rule), keywordAllDefaults(rule))
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Extract(_contents)
-		_ = result.IsOK()
-		_, _ = result.Get()
+		ret := s.Extract(_contents)
+		_ = ret.IsOK()
+		_, _ = ret.Get()
 	})
 
-	t.Run("NewSearchLastKey", func(t *testing.T) {
-		s := newSearchLastKey(rule, keywordAllToMaps, keywordAllKeys(rule), keywordAllDefaults(rule))
+	t.Run("newMatcherLastKey", func(t *testing.T) {
+		s := newMatcherLastKey(rule, keywordAllToMaps, keywordAllKeys(rule), keywordAllDefaults(rule))
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
 			t.Fatalf("Prepare failed: %v", err)
 		}
 
-		result := s.Extract(_contents)
-		_ = result.IsOK()
-		_, _ = result.Get()
+		ret := s.Extract(_contents)
+		_ = ret.IsOK()
+		_, _ = ret.Get()
 	})
 }
 
-// TestExport_ResultConstructors tests NewResult, NewLabelResult, ToTag methods
+// TestExport_ResultConstructors tests newResult, newLabelResult, ToTag methods
 func TestExport_ResultConstructors(t *testing.T) {
 	rule := &ruleTest{}
 
@@ -386,13 +386,13 @@ func TestExport_ResultConstructors(t *testing.T) {
 		}
 	})
 
-	t.Run("NewLabelResult", func(t *testing.T) {
+	t.Run("newLabelResult", func(t *testing.T) {
 		lr := newLabelResult()
 		if lr.tags == nil {
 			t.Error("Tags should not be nil")
 		}
 		if lr.match == nil {
-			t.Error("Match should not be nil")
+			t.Error("Scan should not be nil")
 		}
 	})
 

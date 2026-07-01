@@ -72,18 +72,18 @@ func labelFlagDefaults(rule extract.Rule) map[string]any {
 
 // constructors
 
-func newSearchLabel(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any, srf searchResultsFunc[labelResults]) *searchLabelResults {
-	return newSearch[labelResults](rule, toMaps, keys, defaults, srf)
+func newMatcherLabel(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any, srf matcherResultsFunc[labelResults]) *MatcherLabelResults {
+	return newMatcher[labelResults](rule, toMaps, keys, defaults, srf)
 }
 
-func newSearchWholeLabels(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *searchLabelResults {
-	return newSearchLabel(rule, toMaps, keys, defaults, func(ctx *searchContextLabelResults, c []string) labelResults {
-		return ctx.matcher.MatchLabel(c)
+func newMatcherWholeLabels(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherLabelResults {
+	return newMatcherLabel(rule, toMaps, keys, defaults, func(ctx *matcherContextLabelResults, c []string) labelResults {
+		return ctx.scanner.ScanLabel(c)
 	})
 }
 
-func newSearchLabels(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *searchLabelResults {
-	return newSearchLabel(rule, toMaps, keys, defaults, func(ctx *searchContextLabelResults, c []string) labelResults {
-		return ctx.matcher.MatchLabel(c)
+func newMatcherLabels(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherLabelResults {
+	return newMatcherLabel(rule, toMaps, keys, defaults, func(ctx *matcherContextLabelResults, c []string) labelResults {
+		return ctx.scanner.ScanLabel(c)
 	})
 }

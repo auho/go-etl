@@ -19,7 +19,7 @@ var _expect_中文_Amount = 4
 var _expect_中_文_Amount = 17
 var _expect_中_文_Num = 14
 
-func _genMatcher() *matcher {
+func _genMatcher() *scanner {
 	// keyword: a
 	// labels: b c
 	items := []map[string]string{
@@ -32,7 +32,7 @@ func _genMatcher() *matcher {
 		{"a": ".+*?()|[]{}^$`))", "b": "b6", "c": "c6"},
 	}
 
-	_matcher := newMatcher("a", items, withMatcherKeyFormatFunc(func(s string) string {
+	_scanner := newScanner("a", items, withScannerKeyFormatFunc(func(s string) string {
 		res, err := regexp.MatchString(`^[\w+._\s()]+$`, s)
 		if err != nil {
 			return s
@@ -45,20 +45,20 @@ func _genMatcher() *matcher {
 		}
 	}))
 
-	return _matcher
+	return _scanner
 }
 
 func TestMatcher(t *testing.T) {
-	_matcher := _genMatcher()
-	if len(_matcher.regexpItems) != _expectItemsAmount {
+	_scanner := _genMatcher()
+	if len(_scanner.regexpItems) != _expectItemsAmount {
 		t.Fatal()
 	}
 
 	var rets results
 	var labelRets labelResults
 
-	t.Run("Match", func(t *testing.T) {
-		rets = _matcher.Match(_contents)
+	t.Run("Scan", func(t *testing.T) {
+		rets = _scanner.Scan(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, _expectMatcherAmount, _expectMatcherAmount)
@@ -69,8 +69,8 @@ func TestMatcher(t *testing.T) {
 		_assertResult(t, rets[30], "中_文", 1, 1, map[string]int{"中123文": 1})
 	})
 
-	t.Run("MatchInKeyOrder", func(t *testing.T) {
-		rets = _matcher.MatchInKeyOrder(_contents)
+	t.Run("ScanInKeyOrder", func(t *testing.T) {
+		rets = _scanner.ScanInKeyOrder(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, _expectMatcherAmount, _expectMatcherAmount)
@@ -82,8 +82,8 @@ func TestMatcher(t *testing.T) {
 		_assertResult(t, rets[_expectMatcherAmount-1], "中_文", 1, 1, map[string]int{"中123文": 1})
 	})
 
-	t.Run("MatchText", func(t *testing.T) {
-		rets = _matcher.MatchText(_contents)
+	t.Run("ScanText", func(t *testing.T) {
+		rets = _scanner.ScanText(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, _expectMatcherAmount, _expectTextAmount)
@@ -97,8 +97,8 @@ func TestMatcher(t *testing.T) {
 
 	})
 
-	t.Run("MatchFirstText", func(t *testing.T) {
-		rets = _matcher.MatchFirstText(_contents)
+	t.Run("ScanFirstText", func(t *testing.T) {
+		rets = _scanner.ScanFirstText(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, 1, 1)
@@ -106,8 +106,8 @@ func TestMatcher(t *testing.T) {
 		_assertResult(t, rets[0], "b", 1, 1, map[string]int{"b": 1})
 	})
 
-	t.Run("MatchLastText", func(t *testing.T) {
-		rets = _matcher.MatchLastText(_contents)
+	t.Run("ScanLastText", func(t *testing.T) {
+		rets = _scanner.ScanLastText(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, 1, 1)
@@ -115,8 +115,8 @@ func TestMatcher(t *testing.T) {
 		_assertResult(t, rets[0], "中_文", 1, 1, map[string]int{"中123文": 1})
 	})
 
-	t.Run("MatchMostText", func(t *testing.T) {
-		rets = _matcher.MatchMostText(_contents)
+	t.Run("ScanMostText", func(t *testing.T) {
+		rets = _scanner.ScanMostText(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, _expect_123_Amount, 1)
@@ -124,8 +124,8 @@ func TestMatcher(t *testing.T) {
 		_assertResult(t, rets[0], "123", _expect_123_Amount, 1, map[string]int{"123": _expect_123_Amount})
 	})
 
-	t.Run("MatchKey", func(t *testing.T) {
-		rets = _matcher.MatchKey(_contents)
+	t.Run("ScanKey", func(t *testing.T) {
+		rets = _scanner.ScanKey(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, _expectMatcherAmount, _expectKeyAmount)
@@ -144,16 +144,16 @@ func TestMatcher(t *testing.T) {
 		})
 	})
 
-	t.Run("MatchFirstKey", func(t *testing.T) {
-		rets = _matcher.MatchFirstKey(_contents)
+	t.Run("ScanFirstKey", func(t *testing.T) {
+		rets = _scanner.ScanFirstKey(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, 1, 1)
 		_assertResult(t, rets[0], "123", 1, 1, map[string]int{"123": 1})
 	})
 
-	t.Run("MatchLastKey", func(t *testing.T) {
-		rets = _matcher.MatchLastKey(_contents)
+	t.Run("ScanLastKey", func(t *testing.T) {
+		rets = _scanner.ScanLastKey(_contents)
 		_outputResults(rets)
 
 		_assertResults(t, rets, 1, 1)
@@ -161,8 +161,8 @@ func TestMatcher(t *testing.T) {
 		_assertResult(t, rets[0], "中_文", 1, 1, map[string]int{"中123文": 1})
 	})
 
-	t.Run("MatchMostKey", func(t *testing.T) {
-		rets = _matcher.MatchMostKey(_contents)
+	t.Run("ScanMostKey", func(t *testing.T) {
+		rets = _scanner.ScanMostKey(_contents)
 		_outputResults(rets)
 
 		_assertResult(t, rets[0], "中_文", _expect_中_文_Amount, _expect_中_文_Num, map[string]int{
@@ -176,8 +176,8 @@ func TestMatcher(t *testing.T) {
 		})
 	})
 
-	t.Run("MatchLabel", func(t *testing.T) {
-		labelRets = _matcher.MatchLabel(_contents)
+	t.Run("ScanLabel", func(t *testing.T) {
+		labelRets = _scanner.ScanLabel(_contents)
 		_outputResults(labelRets)
 
 		_assertLabelResults(t, labelRets, _expectMatcherAmount, _expectLabelAmount)
@@ -206,8 +206,8 @@ func TestMatcher(t *testing.T) {
 		})
 	})
 
-	t.Run("MatchLabelMostText", func(t *testing.T) {
-		labelRets = _matcher.MatchLabelMostText(_contents)
+	t.Run("ScanLabelMostText", func(t *testing.T) {
+		labelRets = _scanner.ScanLabelMostText(_contents)
 		_outputResults(labelRets)
 
 		_assertLabelResults(t, labelRets, _expect_中_文_Amount, 1)
