@@ -44,9 +44,9 @@ type matcherContext[T resultsEntity] struct {
 type Matcher[T resultsEntity] struct {
 	scanner *scanner
 
-	toMaps    func(T, extract.Rule, format) []map[string]any
+	toMaps    func(T, extract.Rule, Format) []map[string]any
 	rule      extract.Rule
-	format    format
+	format    Format
 	keys      []string
 	defaults  map[string]any
 	pluckKeys []string
@@ -54,13 +54,13 @@ type Matcher[T resultsEntity] struct {
 	context           *matcherContext[T]
 	matcherResultsFun matcherResultsFunc[T]
 
-	scannerConfig *scannerConfig
-	newScannerFun func(extract.Rule, *scannerConfig) (*scanner, error)
+	scannerConfig scannerConfig
+	newScannerFun func(extract.Rule, scannerConfig) (*scanner, error)
 }
 
 func newMatcher[T resultsEntity](
 	rule extract.Rule,
-	toMaps func(T, extract.Rule, format) []map[string]any,
+	toMaps func(T, extract.Rule, Format) []map[string]any,
 	keys []string,
 	defaults map[string]any,
 	fn matcherResultsFunc[T],
@@ -72,7 +72,7 @@ func newMatcher[T resultsEntity](
 		keys:              keys,
 		defaults:          defaults,
 		matcherResultsFun: fn,
-		scannerConfig:     &scannerConfig{},
+		scannerConfig:     scannerConfig{},
 	}
 }
 

@@ -4,15 +4,15 @@ import "github.com/auho/go-etl/v3/job/extract"
 
 // keyword export configurations (toMaps / keys / defaults)
 
-func keywordAllToMaps(r results, rule extract.Rule, _ format) []map[string]any {
+func keywordAllToMaps(r results, rule extract.Rule, _ Format) []map[string]any {
 	return r.toAll(rule)
 }
 
-func keywordLineToMaps(r results, rule extract.Rule, f format) []map[string]any {
+func keywordLineToMaps(r results, rule extract.Rule, f Format) []map[string]any {
 	return r.toLine(rule, f)
 }
 
-func keywordFlagToMaps(r results, rule extract.Rule, f format) []map[string]any {
+func keywordFlagToMaps(r results, rule extract.Rule, f Format) []map[string]any {
 	return r.toFlag(rule, f)
 }
 
@@ -69,47 +69,47 @@ func keywordFlagDefaults(rule extract.Rule) map[string]any {
 
 // constructors
 
-func newMatcherKeyword(rule extract.Rule, toMaps func(results, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any, ste matcherResultsFunc[results]) *MatcherResults {
+func newMatcherKeyword(rule extract.Rule, toMaps func(results, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any, ste matcherResultsFunc[results]) *MatcherResults {
 	return newMatcher[results](rule, toMaps, keys, defaults, ste)
 }
 
-func newMatcherFirstText(rule extract.Rule, toMaps func(results, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
+func newMatcherFirstText(rule extract.Rule, toMaps func(results, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
 	return newMatcherKeyword(rule, toMaps, keys, defaults, func(ctx *matcherContextResults, c []string) results {
 		return ctx.scanner.ScanFirstText(c)
 	})
 }
 
-func newMatcherLastText(rule extract.Rule, toMaps func(results, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
+func newMatcherLastText(rule extract.Rule, toMaps func(results, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
 	return newMatcherKeyword(rule, toMaps, keys, defaults, func(ctx *matcherContextResults, c []string) results {
 		return ctx.scanner.ScanLastText(c)
 	})
 }
 
-func newMatcherMostText(rule extract.Rule, toMaps func(results, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
+func newMatcherMostText(rule extract.Rule, toMaps func(results, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
 	return newMatcherKeyword(rule, toMaps, keys, defaults, func(ctx *matcherContextResults, c []string) results {
 		return ctx.scanner.ScanMostText(c)
 	})
 }
 
-func newMatcherKey(rule extract.Rule, toMaps func(results, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
+func newMatcherKey(rule extract.Rule, toMaps func(results, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
 	return newMatcherKeyword(rule, toMaps, keys, defaults, func(ctx *matcherContextResults, c []string) results {
 		return ctx.scanner.ScanKey(c)
 	})
 }
 
-func newMatcherFirstKey(rule extract.Rule, toMaps func(results, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
+func newMatcherFirstKey(rule extract.Rule, toMaps func(results, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
 	return newMatcherKeyword(rule, toMaps, keys, defaults, func(ctx *matcherContextResults, c []string) results {
 		return ctx.scanner.ScanFirstKey(c)
 	})
 }
 
-func newMatcherLastKey(rule extract.Rule, toMaps func(results, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
+func newMatcherLastKey(rule extract.Rule, toMaps func(results, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
 	return newMatcherKeyword(rule, toMaps, keys, defaults, func(ctx *matcherContextResults, c []string) results {
 		return ctx.scanner.ScanLastKey(c)
 	})
 }
 
-func newMatcherMostKey(rule extract.Rule, toMaps func(results, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
+func newMatcherMostKey(rule extract.Rule, toMaps func(results, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherResults {
 	return newMatcherKeyword(rule, toMaps, keys, defaults, func(ctx *matcherContextResults, c []string) results {
 		return ctx.scanner.ScanMostKey(c)
 	})

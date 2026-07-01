@@ -4,15 +4,15 @@ import "github.com/auho/go-etl/v3/job/extract"
 
 // label export configurations (toMaps / keys / defaults)
 
-func labelAllToMaps(r labelResults, rule extract.Rule, f format) []map[string]any {
+func labelAllToMaps(r labelResults, rule extract.Rule, f Format) []map[string]any {
 	return r.toAll(rule, f)
 }
 
-func labelLineToMaps(r labelResults, rule extract.Rule, f format) []map[string]any {
+func labelLineToMaps(r labelResults, rule extract.Rule, f Format) []map[string]any {
 	return r.toLine(rule, f)
 }
 
-func labelFlagToMaps(r labelResults, rule extract.Rule, f format) []map[string]any {
+func labelFlagToMaps(r labelResults, rule extract.Rule, f Format) []map[string]any {
 	return r.toFlag(rule, f)
 }
 
@@ -71,17 +71,17 @@ func labelFlagDefaults(rule extract.Rule) map[string]any {
 
 // constructors
 
-func newMatcherLabel(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any, srf matcherResultsFunc[labelResults]) *MatcherLabelResults {
+func newMatcherLabel(rule extract.Rule, toMaps func(labelResults, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any, srf matcherResultsFunc[labelResults]) *MatcherLabelResults {
 	return newMatcher[labelResults](rule, toMaps, keys, defaults, srf)
 }
 
-func newMatcherWholeLabels(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherLabelResults {
+func newMatcherWholeLabels(rule extract.Rule, toMaps func(labelResults, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherLabelResults {
 	return newMatcherLabel(rule, toMaps, keys, defaults, func(ctx *matcherContextLabelResults, c []string) labelResults {
 		return ctx.scanner.ScanLabel(c)
 	})
 }
 
-func newMatcherLabels(rule extract.Rule, toMaps func(labelResults, extract.Rule, format) []map[string]any, keys []string, defaults map[string]any) *MatcherLabelResults {
+func newMatcherLabels(rule extract.Rule, toMaps func(labelResults, extract.Rule, Format) []map[string]any, keys []string, defaults map[string]any) *MatcherLabelResults {
 	return newMatcherLabel(rule, toMaps, keys, defaults, func(ctx *matcherContextLabelResults, c []string) labelResults {
 		return ctx.scanner.ScanLabel(c)
 	})

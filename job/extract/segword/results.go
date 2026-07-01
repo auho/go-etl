@@ -38,30 +38,30 @@ type result struct {
 	flag  string
 }
 
-func (r *result) toTag(format format) map[string]any {
+func (r *result) toTag(f format) map[string]any {
 	return map[string]any{
-		format.tokenName: r.token,
-		format.flagName:  r.flag,
+		f.tokenName: r.token,
+		f.flagName:  r.flag,
 	}
 }
 
 type results []result
 
-func (rs results) toAll(format format) []map[string]any {
+func (rs results) toAll(f format) []map[string]any {
 	var rets []map[string]any
 	for _, ret := range rs {
-		rets = append(rets, ret.toTag(format))
+		rets = append(rets, ret.toTag(f))
 	}
 
 	return rets
 }
 
-func (rs results) toLine(format format) []map[string]any {
+func (rs results) toLine(f format) []map[string]any {
 	var ss []string
 
 	for _, ret := range rs {
 		ss = append(ss, ret.token)
 	}
 
-	return []map[string]any{{format.tokenName: strings.Join(ss, format.sep)}}
+	return []map[string]any{{f.tokenName: strings.Join(ss, f.sep)}}
 }

@@ -50,7 +50,7 @@ func defaultScannerKeyFormatFunc(s string) string {
 	}
 }
 
-func defaultScanner(rule extract.Rule, config *scannerConfig) (*scanner, error) {
+func defaultScanner(rule extract.Rule, sc scannerConfig) (*scanner, error) {
 	items, err := rule.ItemsForRegexp()
 	if err != nil {
 		return nil, fmt.Errorf("ItemsForRegexp: %w", err)

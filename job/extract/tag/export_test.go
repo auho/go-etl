@@ -446,7 +446,7 @@ func TestExport_ResultConstructors(t *testing.T) {
 		lr.match["key1"] = map[string]int{"text1": 2, "text2": 1}
 		lr.keywords = []string{"key1"}
 
-		format := format{withKeywordAmount: false, sep: ","}
+		format := Format{withKeywordAmount: false, sep: ","}
 		ltag := lr.toTag(rule, format)
 		// WithKeywordAmount=false, keyText = "key1" (no amount)
 		if ltag[rule.KeywordNameAlias()] != "key1" {
