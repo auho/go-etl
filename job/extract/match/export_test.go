@@ -11,7 +11,8 @@ import (
 // (toAll)
 func TestExport_KeywordAll(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewKey(rule).WithScanner("a", _scannerItems)
+	s := NewKey(rule)
+	s.scanner = _scanner
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -70,7 +71,8 @@ func TestExport_KeywordAll(t *testing.T) {
 // (toLine)
 func TestExport_KeywordLine(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherKey(rule, keywordToMapsLine, keywordKeysLine).WithScanner("a", _scannerItems)
+	s := newMatcherKey(rule, keywordToMapsLine, keywordKeysLine)
+	s.scanner = _scanner
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -101,7 +103,8 @@ func TestExport_KeywordLine(t *testing.T) {
 // (toFlag)
 func TestExport_KeywordFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherKey(rule, keywordToMapsFlag, keywordKeysFlag).WithScanner("a", _scannerItems)
+	s := newMatcherKey(rule, keywordToMapsFlag, keywordKeysFlag)
+	s.scanner = _scanner
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -129,7 +132,8 @@ func TestExport_KeywordFlag(t *testing.T) {
 // (labelResults.toAll)
 func TestExport_LabelAll(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewLabel(rule).WithScanner("a", _scannerItems)
+	s := NewLabel(rule)
+	s.scanner = _scanner
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -160,7 +164,8 @@ func TestExport_LabelAll(t *testing.T) {
 // (labelResults.toLine / mergeLabelsToWhole)
 func TestExport_LabelLine(t *testing.T) {
 	rule := &ruleTest{}
-	s := NewWholeLabels(rule).WithScanner("a", _scannerItems)
+	s := NewWholeLabels(rule)
+	s.scanner = _scanner
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -191,7 +196,8 @@ func TestExport_LabelLine(t *testing.T) {
 // (labelResults.toFlag / mergeLabelsToWhole)
 func TestExport_LabelFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherLabels(rule, labelToMapsFlag, labelKeysFlag).WithScanner("a", _scannerItems)
+	s := newMatcherLabels(rule, labelToMapsFlag, labelKeysFlag)
+	s.scanner = _scanner
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -218,7 +224,8 @@ func TestExport_LabelFlag(t *testing.T) {
 func TestExport_Pluck(t *testing.T) {
 	rule := &ruleTest{}
 	pluckedKey := rule.KeywordNameAlias()
-	s := NewKey(rule).WithScanner("a", _scannerItems).WithPluckKeys([]string{pluckedKey})
+	s := NewKey(rule).WithPluckKeys([]string{pluckedKey})
+	s.scanner = _scanner
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -269,8 +276,8 @@ func TestExport_WithFormat(t *testing.T) {
 	rule := &ruleTest{}
 	customFormat := Format{withKeywordAmount: false, sep: "|"}
 	s := newMatcherKey(rule, keywordToMapsLine, keywordKeysLine).
-		WithScanner("a", _scannerItems).
 		WithFormat(customFormat)
+	s.scanner = _scanner
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -339,7 +346,8 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 
 	for _, ef := range entryFuncs {
 		t.Run(ef.name, func(t *testing.T) {
-			s := ef.fn(rule).WithScanner("a", _scannerItems)
+			s := ef.fn(rule)
+			s.scanner = _scanner
 			defer s.Close()
 
 			if err := s.Prepare(); err != nil {
@@ -362,7 +370,8 @@ func TestExport_AllEntryFunctions(t *testing.T) {
 
 	for _, lf := range labelFuncs {
 		t.Run(lf.name, func(t *testing.T) {
-			s := lf.fn(rule).WithScanner("a", _scannerItems)
+			s := lf.fn(rule)
+			s.scanner = _scanner
 			defer s.Close()
 
 			if err := s.Prepare(); err != nil {
@@ -382,7 +391,8 @@ func TestExport_ExtraMatcherFunctions(t *testing.T) {
 	rule := &ruleTest{}
 
 	t.Run("newMatcherLastText", func(t *testing.T) {
-		s := newMatcherLastText(rule, keywordToMapsAll, keywordKeysAll).WithScanner("a", _scannerItems)
+		s := newMatcherLastText(rule, keywordToMapsAll, keywordKeysAll)
+		s.scanner = _scanner
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
@@ -395,7 +405,8 @@ func TestExport_ExtraMatcherFunctions(t *testing.T) {
 	})
 
 	t.Run("newMatcherLastKey", func(t *testing.T) {
-		s := newMatcherLastKey(rule, keywordToMapsAll, keywordKeysAll).WithScanner("a", _scannerItems)
+		s := newMatcherLastKey(rule, keywordToMapsAll, keywordKeysAll)
+		s.scanner = _scanner
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
@@ -415,8 +426,8 @@ func TestExport_MatchOptions(t *testing.T) {
 
 	t.Run("WithIgnoreCase", func(t *testing.T) {
 		s := NewKey(rule).
-			WithScanner("a", _scannerItems).
 			WithIgnoreCase()
+		s.scanner = _scanner
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
@@ -430,8 +441,8 @@ func TestExport_MatchOptions(t *testing.T) {
 
 	t.Run("WithFuzzy", func(t *testing.T) {
 		s := NewKey(rule).
-			WithScanner("a", _scannerItems).
 			WithFuzzy(FuzzyConfig{Window: 3, Sep: "_"})
+		s.scanner = _scanner
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
@@ -445,7 +456,6 @@ func TestExport_MatchOptions(t *testing.T) {
 
 	t.Run("WithPriorityFuzzy", func(t *testing.T) {
 		s := NewKey(rule).
-			WithScanner("a", _scannerItems).
 			WithModePriorityFuzzy()
 		defer s.Close()
 
@@ -460,8 +470,8 @@ func TestExport_MatchOptions(t *testing.T) {
 
 	t.Run("WithDebug", func(t *testing.T) {
 		s := NewKey(rule).
-			WithScanner("a", _scannerItems).
 			WithDebug()
+		s.scanner = _scanner
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
@@ -475,11 +485,11 @@ func TestExport_MatchOptions(t *testing.T) {
 
 	t.Run("CombinedOptions", func(t *testing.T) {
 		s := NewKey(rule).
-			WithScanner("a", _scannerItems).
 			WithIgnoreCase().
 			WithFuzzy(FuzzyConfig{Window: 3, Sep: "_"}).
 			WithModePriorityFuzzy().
 			WithDebug()
+		s.scanner = _scanner
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {

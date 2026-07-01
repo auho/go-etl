@@ -15,8 +15,8 @@ import (
 type seekMode int
 
 const (
-	// modeSequence: try all seekers (accurate + fuzzy) in definition order.
-	modeSequence seekMode = iota
+	// modeNone: try all seekers (accurate + fuzzy) in definition order, no priority.
+	modeNone seekMode = iota
 	// modePriorityAccurate: try accurate seekers first, fall back to fuzzy.
 	modePriorityAccurate
 	// modePriorityFuzzy: try fuzzy seekers first, fall back to accurate.
@@ -35,17 +35,29 @@ func (sc *ScannerConfig) check() {
 	sc.Fuzzy.check()
 }
 
-func defaultScanner(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
-	return newScannerFromRule(rule, sc)
+// ScannerOption
+// tag scanner option
+type ScannerOption func(*scanner)
+
+func WithScannerConfig(sc ScannerConfig) ScannerOption {
+	return func(s *scanner) {
+		s.config = sc
+	}
 }
 
-func newScannerFromRule(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
+// default scanner from rule
+func defaultScannerFromRule(rule extract.Rule, opts ...ScannerOption) (*scanner, error) {
+	return newScannerFromRule(rule, opts...)
+}
+
+// new scanner from rule
+func newScannerFromRule(rule extract.Rule, opts ...ScannerOption) (*scanner, error) {
 	items, err := rule.ItemsAlias()
 	if err != nil {
 		return nil, fmt.Errorf("ItemsAlias: %w", err)
 	}
 
-	return newScanner(rule.KeywordNameAlias(), items, sc), nil
+	return newScanner(rule.KeywordNameAlias(), items, opts...), nil
 }
 
 // scanner drives keyword scanning over content using a list of seekers.
@@ -64,68 +76,69 @@ type scanner struct {
 
 // newScanner creates a scanner from items. Each item's keyName value becomes a keyword;
 // remaining columns become tags. The ScannerConfig controls case sensitivity, mode, and fuzzy settings.
-func newScanner(keyName string, items []map[string]string, sc ScannerConfig) *scanner {
-	sc.check()
+func newScanner(keyName string, items []map[string]string, opts ...ScannerOption) *scanner {
+	s := &scanner{keyName: keyName}
 
-	m := &scanner{
-		keyName: keyName,
-		config:  sc,
+	for _, opt := range opts {
+		opt(s)
 	}
+
+	s.config.check()
 
 	if len(items) == 0 {
-		return m
+		return s
 	}
 
-	m.hasItems = true
+	s.hasItems = true
 
 	// tags name
 	for k := range items[0] {
 		if k != keyName {
-			m.tagNames = append(m.tagNames, k)
+			s.tagNames = append(s.tagNames, k)
 		}
 	}
 
-	sort.SliceStable(m.tagNames, func(i, j int) bool {
-		return m.tagNames[i] < m.tagNames[j]
+	sort.SliceStable(s.tagNames, func(i, j int) bool {
+		return s.tagNames[i] < s.tagNames[j]
 	})
 
 	for _i, item := range items {
 		var _keyValue string
 		_originKeyValue := item[keyName]
-		if sc.IgnoreCase {
+		if s.config.IgnoreCase {
 			_keyValue = strings.ToLower(_originKeyValue)
 		} else {
 			_keyValue = _originKeyValue
 		}
 
 		_tags := make(map[string]string)
-		for _, _ln := range m.tagNames {
+		for _, _ln := range s.tagNames {
 			_tags[_ln] = item[_ln]
 		}
 
-		_seeker, _st := newSeeker(_i, _originKeyValue, _keyValue, _tags, sc.Fuzzy, seekConfig{debug: sc.Debug})
-		if sc.Mode == modeSequence {
-			m.allSeekers = append(m.allSeekers, _seeker)
+		_seeker, _st := newSeeker(_i, _originKeyValue, _keyValue, _tags, s.config.Fuzzy, seekConfig{debug: s.config.Debug})
+		if s.config.Mode == modeNone {
+			s.allSeekers = append(s.allSeekers, _seeker)
 		} else {
 			if _st == seekAccurate {
-				m.accurateSeekers = append(m.accurateSeekers, _seeker)
+				s.accurateSeekers = append(s.accurateSeekers, _seeker)
 			} else {
-				m.fuzzySeekers = append(m.fuzzySeekers, _seeker)
+				s.fuzzySeekers = append(s.fuzzySeekers, _seeker)
 			}
 		}
 	}
 
-	switch sc.Mode {
-	case modeSequence:
+	switch s.config.Mode {
+	case modeNone:
 	case modePriorityAccurate:
-		m.allSeekers = append(m.accurateSeekers, m.fuzzySeekers...)
+		s.allSeekers = append(s.accurateSeekers, s.fuzzySeekers...)
 	case modePriorityFuzzy:
-		m.allSeekers = append(m.fuzzySeekers, m.accurateSeekers...)
+		s.allSeekers = append(s.fuzzySeekers, s.accurateSeekers...)
 	default:
-		panic(fmt.Sprintf("unknown mode[%d]", sc.Mode))
+		panic(fmt.Sprintf("unknown mode[%d]", s.config.Mode))
 	}
 
-	return m
+	return s
 }
 
 // Scan

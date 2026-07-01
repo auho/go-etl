@@ -30,7 +30,7 @@ var _corpus = []string{
 }
 
 func TestScanner(t *testing.T) {
-	_m := newScanner("a", _scannerItems, ScannerConfig{})
+	_m := newScanner("a", _scannerItems)
 	_m.Scan(_corpus)
 	_m.ScanInTextOrder(_corpus)
 	_m.ScanText(_corpus)
@@ -46,7 +46,7 @@ func TestScanner(t *testing.T) {
 }
 
 func TestScanner_ScanKey_Accurate(t *testing.T) {
-	_m := newScanner("a", _scannerItems, ScannerConfig{
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{
 		IgnoreCase: false,
 		Mode:       modePriorityAccurate,
 		Debug:      true,
@@ -55,7 +55,7 @@ func TestScanner_ScanKey_Accurate(t *testing.T) {
 			Window:  3,
 			Sep:     "_",
 		},
-	})
+	}))
 
 	rets := _m.ScanKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaB"})
 	_outputResults(rets)
@@ -74,7 +74,7 @@ func TestScanner_ScanKey_Accurate(t *testing.T) {
 }
 
 func TestScanner_ScanKey_Accurate_IgnoreCase(t *testing.T) {
-	_m := newScanner("a", _scannerItems, ScannerConfig{
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{
 		IgnoreCase: true,
 		Mode:       modePriorityFuzzy,
 		Debug:      true,
@@ -83,7 +83,7 @@ func TestScanner_ScanKey_Accurate_IgnoreCase(t *testing.T) {
 			Window:  3,
 			Sep:     "_",
 		},
-	})
+	}))
 
 	rets := _m.ScanKey([]string{"ABCDABcAbabacabABBaAc_aE_F_G_e_f_g_h_i_j_H_I_J_iefgAxxciaBAc_aabacaE_F_G_aB"})
 	_outputResults(rets)
@@ -118,7 +118,7 @@ func TestScanner_ScanKey_Accurate_IgnoreCase(t *testing.T) {
 
 func TestScanner_ScanKey_Fuzzy(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{
 		IgnoreCase: true,
 		Mode:       modePriorityFuzzy,
 		Debug:      true,
@@ -127,7 +127,7 @@ func TestScanner_ScanKey_Fuzzy(t *testing.T) {
 			Window:  3,
 			Sep:     "_",
 		},
-	})
+	}))
 
 	rets = _m.ScanKey([]string{"acAbcabbCAbbbCABbbBc"})
 	_outputResults(rets)
@@ -171,9 +171,7 @@ func TestScanner_ScanKey_Fuzzy(t *testing.T) {
 
 func TestScanner_ScanText(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{
-		Debug: true,
-	})
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{Debug: true}))
 
 	rets = _m.ScanText([]string{
 		"efgE一f一gE一f一gE一二三FgeF一GE一FGEF一二三四G",
@@ -186,11 +184,11 @@ func TestScanner_ScanText(t *testing.T) {
 	_assertResult(t, rets[1], "ca", 1, 1, map[string]int{"ca": 1})
 	_assertResult(t, rets[2], "hij", 1, 1, map[string]int{"hij": 1})
 
-	_m = newScanner("a", _scannerItems, ScannerConfig{
+	_m = newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{
 		IgnoreCase: true,
 		Fuzzy:      FuzzyConfig{enabled: true},
 		Debug:      true,
-	})
+	}))
 
 	rets = _m.ScanText([]string{
 		"efgE一f一gE一f一gE一二三FgeF一GE一FGEF一二三四G",
@@ -207,9 +205,7 @@ func TestScanner_ScanText(t *testing.T) {
 
 func TestScanner_ScanFirstText(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{
-		Debug: true,
-	})
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{Debug: true}))
 
 	rets = _m.ScanFirstText([]string{"abcdef-abcd-abc-ab-a"})
 	_assertResults(t, rets, 1, 1)
@@ -242,9 +238,7 @@ func TestScanner_ScanFirstText(t *testing.T) {
 
 func TestScanner_ScanLastText(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{
-		Debug: true,
-	})
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{Debug: true}))
 
 	rets = _m.ScanLastText([]string{"abcdef-abc-ab-a-abcd"})
 	_assertResults(t, rets, 1, 1)
@@ -277,9 +271,9 @@ func TestScanner_ScanLastText(t *testing.T) {
 
 func TestScanner_ScanMostText(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{
 		Debug: true,
-	})
+	}))
 
 	rets = _m.ScanMostText([]string{
 		"acAbcabbCAbbbCABbbBc",
@@ -291,11 +285,11 @@ func TestScanner_ScanMostText(t *testing.T) {
 
 	_assertResult(t, rets[0], "a", 3, 1, map[string]int{"a": 3})
 
-	_m = newScanner("a", _scannerItems, ScannerConfig{
+	_m = newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{
 		IgnoreCase: true,
 		Fuzzy:      FuzzyConfig{enabled: true},
 		Debug:      true,
-	})
+	}))
 
 	rets = _m.ScanMostText([]string{
 		"acAbcabbCAbbbCABbbBc",
@@ -311,7 +305,7 @@ func TestScanner_ScanMostText(t *testing.T) {
 
 func TestScanner_ScanKey(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{})
+	_m := newScanner("a", _scannerItems)
 
 	rets = _m.ScanKey([]string{"abc-abcdef-abcd-ab-abcdef-abcd-ab-a"})
 	_outputResults(rets)
@@ -338,7 +332,7 @@ func TestScanner_ScanKey(t *testing.T) {
 
 	_assertResults(t, rets, 2, 2)
 
-	_m = newScanner("a", _scannerItems, ScannerConfig{IgnoreCase: true})
+	_m = newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{IgnoreCase: true}))
 
 	rets = _m.ScanKey([]string{"ABCDEF-ABCD-abc-ab-A"})
 	_outputResults(rets)
@@ -353,9 +347,7 @@ func TestScanner_ScanKey(t *testing.T) {
 
 func TestScanner_ScanFirstKey(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{
-		Debug: true,
-	})
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{Debug: true}))
 
 	rets = _m.ScanFirstKey([]string{"abc-abcdef-abcd-ab-a"})
 	_assertResults(t, rets, 1, 1)
@@ -384,9 +376,7 @@ func TestScanner_ScanFirstKey(t *testing.T) {
 
 func TestScanner_ScanLastKey(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{
-		Debug: true,
-	})
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{Debug: true}))
 
 	rets = _m.ScanLastKey([]string{"abcdef-abcd-abc-ab-a"})
 	_assertResults(t, rets, 1, 1)
@@ -415,15 +405,13 @@ func TestScanner_ScanLastKey(t *testing.T) {
 
 func TestScanner_ScanMostKey(t *testing.T) {
 	var rets results
-	_m := newScanner("a", _scannerItems, ScannerConfig{
-		Debug: true,
-	})
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{Debug: true}))
 
 	rets = _m.ScanMostKey([]string{"abcdef-abcd-abc-ab-aabcafasbabcdabcdabefabacabdabadabcdd"})
 	_assertResults(t, rets, 1, 5)
 	_assertResult(t, rets[0], "a", 5, 1, map[string]int{"a": 5})
 
-	_m = newScanner("a", _scannerItems, ScannerConfig{
+	_m = newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{
 		IgnoreCase: true,
 		Fuzzy: FuzzyConfig{
 			enabled: true,
@@ -431,7 +419,7 @@ func TestScanner_ScanMostKey(t *testing.T) {
 			Sep:     "_",
 		},
 		Debug: true,
-	})
+	}))
 
 	rets = _m.ScanMostKey([]string{
 		"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J",
@@ -452,9 +440,7 @@ func TestScanner_ScanMostKey(t *testing.T) {
 
 func TestScanner_ScanLabel(t *testing.T) {
 	var rets labelResults
-	_m := newScanner("a", _scannerItems, ScannerConfig{
-		Debug: true,
-	})
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{Debug: true}))
 
 	rets = _m.ScanLabel([]string{"abcdef-abcd-abc-ab-a"})
 	_assertLabelResults(t, rets, 5, 5)
@@ -465,7 +451,7 @@ func TestScanner_ScanLabel(t *testing.T) {
 	_assertLabelResult(t, rets[3], "-b5", 1, 1, 1, map[string]int{"ab": 1})
 	_assertLabelResult(t, rets[4], "-b6", 1, 1, 1, map[string]int{"a": 1})
 
-	_m = newScanner("a", _scannerItems, ScannerConfig{
+	_m = newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{
 		IgnoreCase: true,
 		Fuzzy: FuzzyConfig{
 			enabled: true,
@@ -473,7 +459,7 @@ func TestScanner_ScanLabel(t *testing.T) {
 			Sep:     "_",
 		},
 		Debug: true,
-	})
+	}))
 
 	rets = _m.ScanLabel([]string{
 		"hijH1ijxH二二IjxxH三三三I123Jh三三三I333JxxxHiJHIJHI四四四四J",
@@ -499,7 +485,7 @@ func TestScanner_ScanLabel(t *testing.T) {
 
 func TestScanner_ScanLabelMostText(t *testing.T) {
 	var rets labelResults
-	_m := newScanner("a", _scannerItems, ScannerConfig{Debug: true})
+	_m := newScanner("a", _scannerItems, WithScannerConfig(ScannerConfig{Debug: true}))
 
 	rets = _m.ScanLabelMostText([]string{"abcdef-abcd-abc-ab-a"})
 	_assertLabelResults(t, rets, 1, 1)

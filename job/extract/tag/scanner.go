@@ -26,15 +26,21 @@ type scannedText struct {
 
 // ScannerOption
 // tag scanner option
-type ScannerOption func(mt *scanner)
+type ScannerOption func(*scanner)
 
 // ScannerKeyFormatter
 // 匹配前格式化 keyword 的 func list
 type ScannerKeyFormatter func(string) string
 
+func WithScannerConfig(sc ScannerConfig) ScannerOption {
+	return func(s *scanner) {
+		s.config = sc
+	}
+}
+
 func WithScannerKeyFormatter(fs ...ScannerKeyFormatter) ScannerOption {
-	return func(m *scanner) {
-		m.addKeyFormatters(fs...)
+	return func(s *scanner) {
+		s.addKeyFormatters(fs...)
 	}
 }
 
@@ -52,12 +58,14 @@ func defaultScannerKeyFormatter(s string) string {
 	}
 }
 
-// default scanner
-func defaultScanner(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
-	return newScannerFromRule(rule, sc, WithScannerKeyFormatter(defaultScannerKeyFormatter))
+// default scanner from rule
+func defaultScannerFromRule(rule extract.Rule, opts ...ScannerOption) (*scanner, error) {
+	opts = append(opts, WithScannerKeyFormatter(defaultScannerKeyFormatter))
+	return newScannerFromRule(rule, opts...)
 }
 
-func newScannerFromRule(rule extract.Rule, sc ScannerConfig, opts ...ScannerOption) (*scanner, error) {
+// new scanner from rule
+func newScannerFromRule(rule extract.Rule, opts ...ScannerOption) (*scanner, error) {
 	items, err := rule.ItemsForRegexp()
 	if err != nil {
 		return nil, fmt.Errorf("ItemsForRegexp: %w", err)
@@ -74,6 +82,8 @@ func newScannerFromRule(rule extract.Rule, sc ScannerConfig, opts ...ScannerOpti
 // label：label
 // tag：name +label
 type scanner struct {
+	config ScannerConfig
+
 	keyFormatters    []ScannerKeyFormatter // 在匹配前格式化关键词（使匹配更精确、丰富）
 	keyIndex         map[string]int
 	regexpItems      map[string]map[string]string // 关键词规则列表 map[关键词]map[标签名][标签值]

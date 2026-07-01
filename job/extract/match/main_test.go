@@ -17,6 +17,8 @@ var _contents = []string{
 	`一中文一中b文一中1文一中2文一中3文一中ab文一中12文一中13文一中23文一中123文`,
 }
 
+var _scanner *scanner
+
 func TestMain(m *testing.M) {
 	setUp()
 	code := m.Run()
@@ -24,7 +26,10 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func setUp()    {}
+func setUp() {
+	_scanner = newScanner("a", _scannerItems)
+}
+
 func tearDown() {}
 
 func _outputResults[T any](sm []T) {

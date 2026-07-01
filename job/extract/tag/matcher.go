@@ -42,7 +42,7 @@ type Matcher[T resultsEntity] struct {
 
 	rowsFunc      func(T, extract.Rule, Format) []map[string]any
 	resultsFunc   resultsFunc[T]
-	scannerFunc   func(extract.Rule, ScannerConfig) (*scanner, error)
+	scannerFunc   func(ScannerConfig) (*scanner, error)
 	scannerConfig ScannerConfig
 }
 
@@ -65,14 +65,18 @@ func newMatcher[T resultsEntity](
 }
 
 func (m *Matcher[T]) Prepare() error {
-	if m.scannerFunc == nil {
-		m.scannerFunc = defaultScanner
-	}
+	if m.scanner == nil {
+		if m.scannerFunc == nil {
+			m.scannerFunc = func(sc ScannerConfig) (*scanner, error) {
+				return defaultScannerFromRule(m.rule, WithScannerConfig(sc))
+			}
+		}
 
-	var err error
-	m.scanner, err = m.scannerFunc(m.rule, m.scannerConfig)
-	if err != nil {
-		return fmt.Errorf("scannerFunc: %w", err)
+		var err error
+		m.scanner, err = m.scannerFunc(m.scannerConfig)
+		if err != nil {
+			return fmt.Errorf("scannerFunc: %w", err)
+		}
 	}
 
 	if len(m.pluckKeys) > 0 {
@@ -152,11 +156,12 @@ func (m *Matcher[T]) WithDebug() *Matcher[T] {
 	return m
 }
 
-// WithScanner configures the matcher to use a custom key-name and items list
-// instead of the default rule-based scanner.
-func (m *Matcher[T]) WithScanner(keyName string, items []map[string]string, opts ...ScannerOption) *Matcher[T] {
-	m.scannerFunc = func(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
-		return newScanner(keyName, items, opts...), nil
+// WithRuleScanner replaces the default scanner factory with one that builds
+// the scanner from the rule using the given ScannerOptions.
+func (m *Matcher[T]) WithRuleScanner(opts ...ScannerOption) *Matcher[T] {
+	m.scannerFunc = func(sc ScannerConfig) (*scanner, error) {
+		opts = append([]ScannerOption{WithScannerConfig(sc)}, opts...)
+		return newScannerFromRule(m.rule, opts...)
 	}
 
 	return m

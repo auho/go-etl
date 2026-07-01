@@ -34,16 +34,16 @@ type resultsFunc[T resultsEntity] func(*scanner, []string) T
 type Matcher[T resultsEntity] struct {
 	scanner *scanner
 
-	rule          extract.Rule
-	format        Format
-	keys          []string
-	defaults      map[string]any
-	pluckKeys     []string
+	rule      extract.Rule
+	format    Format
+	keys      []string
+	defaults  map[string]any
+	pluckKeys []string
 
 	rowsFunc      func(T, extract.Rule, Format) []map[string]any
 	keysFunc      func(extract.Rule) ([]string, map[string]any)
 	resultsFunc   resultsFunc[T]
-	scannerFunc   func(extract.Rule, ScannerConfig) (*scanner, error)
+	scannerFunc   func(sc ScannerConfig) (*scanner, error)
 	scannerConfig ScannerConfig
 }
 
@@ -62,11 +62,13 @@ func newMatcher[T resultsEntity](rule extract.Rule, rowsFunc func(T, extract.Rul
 // Must be called before Extract.
 func (m *Matcher[T]) Prepare() error {
 	if m.scannerFunc == nil {
-		m.scannerFunc = defaultScanner
+		m.scannerFunc = func(sc ScannerConfig) (*scanner, error) {
+			return defaultScannerFromRule(m.rule, WithScannerConfig(sc))
+		}
 	}
 
 	var err error
-	m.scanner, err = m.scannerFunc(m.rule, m.scannerConfig)
+	m.scanner, err = m.scannerFunc(m.scannerConfig)
 	if err != nil {
 		return fmt.Errorf("scannerFunc: %w", err)
 	}
@@ -181,11 +183,12 @@ func (m *Matcher[T]) WithDebug() *Matcher[T] {
 	return m
 }
 
-// WithScanner configures the matcher to use a custom key-name and items list
-// instead of the default rule-based scanner.
-func (m *Matcher[T]) WithScanner(keyName string, items []map[string]string) *Matcher[T] {
-	m.scannerFunc = func(rule extract.Rule, sc ScannerConfig) (*scanner, error) {
-		return newScanner(keyName, items, sc), nil
+// WithRuleScanner replaces the default scanner factory with one that builds
+// the scanner from the rule using the given ScannerOptions.
+func (m *Matcher[T]) WithRuleScanner(opts ...ScannerOption) *Matcher[T] {
+	m.scannerFunc = func(sc ScannerConfig) (*scanner, error) {
+		opts = append([]ScannerOption{WithScannerConfig(sc)}, opts...)
+		return newScannerFromRule(m.rule, opts...)
 	}
 
 	return m
