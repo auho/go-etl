@@ -5,6 +5,7 @@
 
 .worktree
 .env
+.env.test
 
 /vendor
 /office/

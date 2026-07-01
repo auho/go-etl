@@ -29,5 +29,5 @@ func projectRoot() string {
 // It is a no-op if the file does not exist; variables already set in the
 // environment take precedence and are not overwritten.
 func LoadEnv() {
-	_ = godotenv.Load(filepath.Join(projectRoot(), ".env"))
+	_ = godotenv.Load(filepath.Join(projectRoot(), ".env.test"))
 }

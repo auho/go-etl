@@ -72,10 +72,13 @@ func (tm *Transfer) Apply(item map[string]any) (map[string]any, error) {
 		}
 	}
 
+	// Apply fixed values. Alias results take precedence: if a fixed key
+	// collides with an alias output key already set above, the alias
+	// value wins and the fixed value is skipped.
 	for k, v := range tm.fixed {
 		if ka, ok := tm.alias[k]; ok {
 			newItem[ka] = v
-		} else {
+		} else if _, exists := newItem[k]; !exists {
 			newItem[k] = v
 		}
 	}
