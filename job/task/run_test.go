@@ -9,18 +9,8 @@ import (
 	"github.com/auho/go-etl/v3/job/transform/collector"
 )
 
-// Expected counts derived from base data (10 items, cycled by i%10):
-//
-//	#0,#1:    a一a一b一ab一123一中文   -> MostKey=a(amt=2),  ScanKey=5 rows (a,b,ab,123,中文)
-//	#2,#3:    中文一中文一中文          -> MostKey=中文(amt=3), ScanKey=1 row  (中文)
-//	#4,#5,#6: xyz_no_match            -> no match
-//	#7:       b一b一b一a              -> MostKey=b(amt=3),  ScanKey=2 rows (b,a)
-//	#8:       123一123一ab            -> MostKey=123(amt=2), ScanKey=2 rows (123,ab)
-//	#9:       ab一ab一ab              -> MostKey=ab(amt=3),  ScanKey=1 row  (ab)
-//
-// Base rows per pattern: a=2, 中文=2, noMatch=3, b=1, 123=1, ab=1 (out of 10)
-// _maxA is a multiple of 10, so each pattern appears (_maxA/10) times per batch,
-// repeated _maxB batches => total = patternCount * (_maxA/10) * _maxB.
+// Expected-counts mapping lives with the data: see setup_test.go (baseNames).
+// Helpers below derive counts from _maxA/_maxB driven by that mapping.
 
 func baseMultiplier() int64 {
 	return int64(_maxA / 10)
