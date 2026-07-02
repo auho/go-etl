@@ -54,7 +54,7 @@ func (tm *Transfer) Title() string {
 	return tm.genTitle("Transfer", "")
 }
 
-func (tm *Transfer) GetFields() []string {
+func (tm *Transfer) Fields() []string {
 	return tm.keys
 }
 

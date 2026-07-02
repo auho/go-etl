@@ -11,7 +11,7 @@ import (
 const batchSize = 2000
 
 type processor interface {
-	GetFields() []string
+	Fields() ([]string, error)
 }
 
 type itemConsumer interface {

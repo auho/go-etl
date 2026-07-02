@@ -14,18 +14,29 @@ type executor interface {
 	options() ([]flow.Option[map[string]any, map[string]any], error)
 }
 
-func run(jb job.Table, ps []processor, e executor, opts ...ConfigOption) {
+func toProcessors[T processor](items []T) []processor {
+	ps := make([]processor, len(items))
+	for i, item := range items {
+		ps[i] = item
+	}
+	return ps
+}
+
+func run(table job.Table, ps []processor, e executor, opts ...ConfigOption) error {
 	r := &Runner{}
 	r.prepare(opts)
-	ds, err := r.source(jb, ps)
+
+	ds, err := r.source(table, ps)
 	if err != nil {
-		panic(fmt.Sprintf("source: %v", err))
+		return fmt.Errorf("source: %w", err)
 	}
 
 	err = r.run(ds, e)
 	if err != nil {
-		panic(fmt.Sprintf("run: %v", err))
+		return fmt.Errorf("run: %w", err)
 	}
+
+	return nil
 }
 
 type Runner struct {
@@ -45,10 +56,15 @@ func (r *Runner) prepare(opts []ConfigOption) {
 	r.config.Init()
 }
 
-func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.MapEntry], error) {
-	fields := []string{s.IDName()}
+func (r *Runner) source(table job.Table, ps []processor) (*source.Section[storage.MapEntry], error) {
+	fields := []string{table.IDName()}
 	for _, p := range ps {
-		fields = append(fields, p.GetFields()...)
+		pFields, err := p.Fields()
+		if err != nil {
+			return nil, fmt.Errorf("SourceFields: %w", err)
+		}
+
+		fields = append(fields, pFields...)
 	}
 
 	fields = slicex.SliceDropDuplicates(fields)
@@ -62,14 +78,14 @@ func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.Ma
 			PageSize:    r.config.source.PageSize,
 		},
 		source.ScanConfig{
-			TableName:     s.TableName(),
-			SegmentIDName: s.IDName(),
+			TableName:     table.TableName(),
+			SegmentIDName: table.IDName(),
 			Where:         "",
 			Order:         "",
 			SelectFields:  fields,
 			WhereArgs:     nil,
 		},
-		s.GetDB().GormDB(),
+		table.GetDB().GormDB(),
 	)
 
 	if err != nil {

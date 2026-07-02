@@ -2,7 +2,6 @@ package task
 
 import (
 	"fmt"
-	"runtime"
 	"strings"
 
 	"github.com/auho/go-etl/v3/job"
@@ -15,18 +14,7 @@ import (
 var _ itemProducer = (*Update)(nil)
 
 type UpdateConfig struct {
-	BatchSize   int
-	Concurrency int
-}
-
-func (uc *UpdateConfig) check() {
-	if uc.BatchSize <= 0 {
-		uc.BatchSize = batchSize
-	}
-
-	if uc.Concurrency <= 0 {
-		uc.Concurrency = runtime.NumCPU()
-	}
+	baseConfig
 }
 
 func WithUpdateConfig(cc UpdateConfig) func(update *Update) {
@@ -59,17 +47,17 @@ func NewUpdate(source job.Table, modes []transform.UpdateOperator, opts ...func(
 	return u
 }
 
-func (u *Update) GetFields() []string {
+func (u *Update) Fields() ([]string, error) {
 	fields := make([]string, 0)
 	fields = append(fields, u.source.IDName())
 
 	for _, m := range u.modes {
-		fields = append(fields, m.GetFields()...)
+		fields = append(fields, m.Fields()...)
 	}
 
 	fields = slicex.SliceDropDuplicates(fields)
 
-	return fields
+	return fields, nil
 }
 
 func (u *Update) Summary() string {
@@ -98,25 +86,25 @@ func (u *Update) BeforeRun() error {
 }
 
 func (u *Update) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	_does := make(map[string]any)
+	does := make(map[string]any)
 	for _, m := range u.modes {
-		_do, err := m.Apply(item)
+		do, err := m.Apply(item)
 		if err != nil {
 			return nil, false, fmt.Errorf("apply: %w", err)
 		}
-		for k, v := range _do {
-			_does[k] = v
+		for k, v := range do {
+			does[k] = v
 		}
 	}
 
-	if len(_does) <= 0 {
+	if len(does) <= 0 {
 		return nil, false, nil
 	}
 
 	newItem := make(map[string]any)
 	newItem[u.source.IDName()] = item[u.source.IDName()]
 
-	for k, v := range _does {
+	for k, v := range does {
 		newItem[k] = v
 	}
 

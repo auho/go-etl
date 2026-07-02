@@ -8,7 +8,6 @@ type ConfigOption func(*Config)
 
 type Config struct {
 	source SourceConfig
-	target TargetConfig
 }
 
 func (c *Config) Init() {
@@ -35,16 +34,23 @@ func (sc *SourceConfig) check() {
 	}
 }
 
-type TargetConfig struct{}
+type baseConfig struct {
+	BatchSize   int
+	Concurrency int
+}
+
+func (bc *baseConfig) check() {
+	if bc.BatchSize <= 0 {
+		bc.BatchSize = batchSize
+	}
+
+	if bc.Concurrency <= 0 {
+		bc.Concurrency = runtime.NumCPU()
+	}
+}
 
 func WithSourceConfig(sc SourceConfig) func(config *Config) {
 	return func(config *Config) {
 		config.source = sc
-	}
-}
-
-func WithTargetConfig(tc TargetConfig) func(config *Config) {
-	return func(config *Config) {
-		config.target = tc
 	}
 }

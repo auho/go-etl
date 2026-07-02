@@ -37,9 +37,9 @@ func (ic *InsertComposeSpread) Title() string {
 	return ic.genTitle("InsertComposeSpread", strings.Join(ss, ";"))
 }
 
-func (ic *InsertComposeSpread) GetFields() []string {
+func (ic *InsertComposeSpread) Fields() []string {
 	for _, m := range ic.operators {
-		ic.keys = append(ic.keys, m.GetFields()...)
+		ic.keys = append(ic.keys, m.Fields()...)
 	}
 
 	ic.keys = slicex.SliceDropDuplicates(ic.keys)

@@ -27,14 +27,14 @@ func (f *Noop) Title() string {
 	return fmt.Sprintf("Noop {%s}", strings.Join(ss, ", "))
 }
 
-func (f *Noop) GetFields() []string {
+func (f *Noop) Fields() ([]string, error) {
 	fields := make([]string, 0)
 
 	for _, m := range f.modes {
-		fields = append(fields, m.GetFields()...)
+		fields = append(fields, m.Fields()...)
 	}
 
-	return slicex.SliceDropDuplicates(fields)
+	return slicex.SliceDropDuplicates(fields), nil
 }
 
 func (f *Noop) Prepare() error {

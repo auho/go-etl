@@ -26,7 +26,7 @@ func (bi *baseInsert) Title() string {
 	return bi.genTitle(bi.name, strings.Join(ss, ","))
 }
 
-func (bi *baseInsert) GetFields() []string {
+func (bi *baseInsert) Fields() []string {
 	return bi.keys
 }
 
@@ -60,7 +60,7 @@ func (bi *baseInsert) Prepare() error {
 			return err
 		}
 
-		bi.keys = append(bi.keys, _i.GetFields()...)
+		bi.keys = append(bi.keys, _i.Fields()...)
 		maps.Copy(bi.defaultValues, _i.DefaultValues())
 	}
 

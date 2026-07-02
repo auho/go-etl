@@ -21,7 +21,7 @@ func TestInsertComposeSpread(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_ = cs.GetFields()
+	_ = cs.Fields()
 	_ = cs.Keys()
 	_ = cs.DefaultValues()
 

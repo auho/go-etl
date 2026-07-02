@@ -2,7 +2,6 @@ package task
 
 import (
 	"fmt"
-	"runtime"
 
 	"github.com/auho/go-etl/v3/job"
 	"github.com/auho/go-etl/v3/job/transform"
@@ -11,21 +10,10 @@ import (
 )
 
 type InsertConfig struct {
-	NotTruncate      bool
-	BatchSize        int
-	Concurrency      int
+	baseConfig
+	SkipTruncate     bool
 	AllowInsertEmpty bool
-	ExtraKeys        []string // 附加写入到 target 的 source 字段
-}
-
-func (ic *InsertConfig) check() {
-	if ic.BatchSize <= 0 {
-		ic.BatchSize = batchSize
-	}
-
-	if ic.Concurrency <= 0 {
-		ic.Concurrency = runtime.NumCPU()
-	}
+	ExtraKeys        []string // source fields appended to target
 }
 
 func WithInsertConfig(ic InsertConfig) func(*Insert) {
@@ -46,9 +34,9 @@ type Insert struct {
 
 // NewInsert
 // insert
-func NewInsert(target job.Table, moder transform.InsertOperator, opts ...func(*Insert)) *Insert {
+func NewInsert(target job.Table, mode transform.InsertOperator, opts ...func(*Insert)) *Insert {
 	i := &Insert{}
-	i.mode = moder
+	i.mode = mode
 	i.target = target
 
 	for _, opt := range opts {
@@ -60,10 +48,8 @@ func NewInsert(target job.Table, moder transform.InsertOperator, opts ...func(*I
 	return i
 }
 
-// GetFields
-// source data filed
-func (i *Insert) GetFields() []string {
-	return append(i.mode.GetFields(), i.config.ExtraKeys...)
+func (i *Insert) Fields() ([]string, error) {
+	return append(i.mode.Fields(), i.config.ExtraKeys...), nil
 }
 
 func (i *Insert) Summary() string {
@@ -119,7 +105,7 @@ func (i *Insert) destinations() ([]storage.Destination[storage.MapEntry], error)
 	var ds []storage.Destination[storage.MapEntry]
 	dest, err := destination.NewBulkInsertMapWithGorm(
 		destination.BulkConfig{
-			IsTruncate:  !i.config.NotTruncate,
+			IsTruncate:  !i.config.SkipTruncate,
 			Concurrency: i.config.Concurrency,
 			PageSize:    int64(i.config.BatchSize),
 		},

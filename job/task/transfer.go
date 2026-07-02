@@ -18,16 +18,16 @@ type Transfer struct {
 	target job.Table
 }
 
-func NewTransfer(target job.Table, moder transform.TransferOperator) *Transfer {
+func NewTransfer(target job.Table, mode transform.TransferOperator) *Transfer {
 	t := &Transfer{}
 	t.target = target
-	t.mode = moder
+	t.mode = mode
 
 	return t
 }
 
-func (t *Transfer) GetFields() []string {
-	return t.mode.GetFields()
+func (t *Transfer) Fields() ([]string, error) {
+	return t.mode.Fields(), nil
 }
 
 func (t *Transfer) Summary() string {

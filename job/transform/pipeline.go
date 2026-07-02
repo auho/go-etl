@@ -63,7 +63,7 @@ func (p *pipeline) Title() string {
 	return p.collector.Title()
 }
 
-func (p *pipeline) GetFields() []string {
+func (p *pipeline) Fields() []string {
 	return p.collector.Fields()
 }
 

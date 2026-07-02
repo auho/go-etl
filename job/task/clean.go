@@ -3,7 +3,6 @@ package task
 import (
 	"fmt"
 	"maps"
-	"runtime"
 	"strings"
 
 	"github.com/auho/go-etl/v3/job"
@@ -15,21 +14,10 @@ import (
 )
 
 type CleanConfig struct {
-	NotTruncate  bool
-	AddExtraTags bool // tags to deleted data
-	BatchSize    int
-	Concurrency  int
-	Keys         []string // source columns name，priority of use this keys
-}
-
-func (cc *CleanConfig) check() {
-	if cc.BatchSize <= 0 {
-		cc.BatchSize = batchSize
-	}
-
-	if cc.Concurrency <= 0 {
-		cc.Concurrency = runtime.NumCPU()
-	}
+	baseConfig
+	SkipTruncate bool
+	AddExtraTags bool     // tags to deleted data
+	Keys         []string // source columns name, priority of use this keys
 }
 
 func WithCleanConfig(cc CleanConfig) func(*Clean) {
@@ -47,16 +35,12 @@ type Clean struct {
 	consumerTask
 
 	cleanTarget job.CleanResource
-	keys        []string
 	modes       []transform.UpdateOperator
 
 	config CleanConfig
 
 	dataDest    *destination.Bulk[storage.MapEntry]
 	deletedDest *destination.Bulk[storage.MapEntry]
-
-	dataDestLine    int
-	deletedDestLine int
 }
 
 func NewClean(cr job.CleanResource, modes []transform.UpdateOperator, opts ...func(*Clean)) *Clean {
@@ -68,27 +52,29 @@ func NewClean(cr job.CleanResource, modes []transform.UpdateOperator, opts ...fu
 		opt(c)
 	}
 
+	c.config.check()
+
 	return c
 }
 
-func (c *Clean) GetFields() []string {
+func (c *Clean) Fields() ([]string, error) {
+	var keys []string
 	if len(c.config.Keys) > 0 {
-		c.keys = append(c.keys, c.config.Keys...)
+		keys = append(keys, c.config.Keys...)
 		for _, m := range c.modes {
-			c.keys = append(c.keys, m.GetFields()...)
+			keys = append(keys, m.Fields()...)
 		}
 
-		c.keys = slicex.SliceDropDuplicates(c.keys)
-
+		keys = slicex.SliceDropDuplicates(keys)
 	} else {
 		var err error
-		c.keys, err = c.cleanTarget.Deleted().GetDB().GetTableColumns(c.cleanTarget.Deleted().TableName())
+		keys, err = c.cleanTarget.Deleted().GetDB().GetTableColumns(c.cleanTarget.Deleted().TableName())
 		if err != nil {
-			panic(fmt.Errorf("GetTableColumns: %w", err))
+			return nil, fmt.Errorf("GetTableColumns: %w", err)
 		}
 	}
 
-	return c.keys
+	return keys, nil
 }
 
 func (c *Clean) Summary() string {
@@ -113,8 +99,8 @@ func (c *Clean) Prepare() error {
 	}
 
 	bConfig := destination.BulkConfig{
-		IsTruncate: true,
-		PageSize:   batchSize,
+		IsTruncate: !c.config.SkipTruncate,
+		PageSize:   int64(c.config.BatchSize),
 	}
 
 	c.dataDest, err = destination.NewBulkInsertMapWithGorm(
@@ -143,17 +129,17 @@ func (c *Clean) BeforeRun() error {
 }
 
 func (c *Clean) Exec(item map[string]any) (bool, error) {
-	_needDeleted := false
+	needDeleted := false
 	for _, m := range c.modes {
-		_res, err := m.Apply(item)
+		res, err := m.Apply(item)
 		if err != nil {
 			return false, fmt.Errorf("apply: %w", err)
 		}
-		if len(_res) > 0 {
-			_needDeleted = true
+		if len(res) > 0 {
+			needDeleted = true
 
 			if c.config.AddExtraTags {
-				maps.Copy(item, _res)
+				maps.Copy(item, res)
 			}
 
 			break
@@ -162,7 +148,7 @@ func (c *Clean) Exec(item map[string]any) (bool, error) {
 
 	var err error
 
-	if _needDeleted {
+	if needDeleted {
 		err = c.deletedDest.Receive([]map[string]any{item})
 		if err != nil {
 			return false, fmt.Errorf("deletedDest.Receive: %w", err)

@@ -2,7 +2,6 @@ package task
 
 import (
 	"fmt"
-	"runtime"
 	"strings"
 
 	"github.com/auho/go-etl/v3/job"
@@ -15,19 +14,8 @@ import (
 var _ itemProducer = (*UpdateTransfer)(nil)
 
 type UpdateTransferConfig struct {
-	NotTruncate bool // for update and transfer
-	BatchSize   int  // for update and transfer
-	Concurrency int  // for update and transfer
-}
-
-func (uc *UpdateTransferConfig) check() {
-	if uc.BatchSize <= 0 {
-		uc.BatchSize = batchSize
-	}
-
-	if uc.Concurrency <= 0 {
-		uc.Concurrency = runtime.NumCPU()
-	}
+	baseConfig
+	SkipTruncate bool // for update and transfer
 }
 
 func WithUpdateTransferConfig(cc UpdateTransferConfig) func(update *UpdateTransfer) {
@@ -61,23 +49,23 @@ func NewUpdateTransfer(source job.Table, target job.Table, modes []transform.Upd
 	return u
 }
 
-func (u *UpdateTransfer) GetFields() []string {
+func (u *UpdateTransfer) Fields() ([]string, error) {
 	fields := make([]string, 0)
 	fields = append(fields, u.source.IDName())
 
 	for _, m := range u.modes {
-		fields = append(fields, m.GetFields()...)
+		fields = append(fields, m.Fields()...)
 	}
 
 	columns, err := u.target.GetDB().GetTableColumns(u.target.TableName())
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("GetTableColumns: %w", err)
 	}
 
 	fields = append(fields, columns...)
 	fields = slicex.SliceDropDuplicates(fields)
 
-	return fields
+	return fields, nil
 }
 
 func (u *UpdateTransfer) Summary() string {
@@ -104,22 +92,22 @@ func (u *UpdateTransfer) Prepare() error {
 func (u *UpdateTransfer) BeforeRun() error { return nil }
 
 func (u *UpdateTransfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	_does := make(map[string]any)
+	does := make(map[string]any)
 	for _, m := range u.modes {
-		_do, err := m.Apply(item)
+		do, err := m.Apply(item)
 		if err != nil {
 			return nil, false, fmt.Errorf("apply: %w", err)
 		}
-		for k, v := range _do {
-			_does[k] = v
+		for k, v := range do {
+			does[k] = v
 		}
 	}
 
-	if len(_does) <= 0 {
+	if len(does) <= 0 {
 		return nil, false, nil
 	}
 
-	for k, v := range _does {
+	for k, v := range does {
 		item[k] = v
 	}
 
@@ -145,7 +133,7 @@ func (u *UpdateTransfer) destinations() ([]storage.Destination[storage.MapEntry]
 	var ds []storage.Destination[storage.MapEntry]
 	dest, err := destination.NewBulkInsertMapWithGorm(
 		destination.BulkConfig{
-			IsTruncate:  true,
+			IsTruncate:  !u.config.SkipTruncate,
 			Concurrency: u.config.Concurrency,
 			PageSize:    int64(u.config.BatchSize),
 		},

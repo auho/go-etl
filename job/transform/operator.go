@@ -2,7 +2,7 @@ package transform
 
 type Operator interface {
 	Title() string
-	GetFields() []string // source data 里的 key name
+	Fields() []string // source data 里的 key name
 	Prepare() error
 	Close() error
 }

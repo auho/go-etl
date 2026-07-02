@@ -15,7 +15,7 @@ import (
 
 var _ruleName = "a"
 var _ruleTable = "rule_" + _ruleName
-var _dataTable = "data"                              // data source
+var _dataTable = "data"                              // master data source (read-only, copied per test)
 var _updateAndTransferTable = "data_update_transfer" // for update and transfer
 var _transferTable = "data_transfer"                 // for transfer
 var _cleanDataTable = "clean_data"                   // for clean data
@@ -26,13 +26,23 @@ var _keyName = "name"
 var _simpleDB *simpledb.SimpleDB
 var _gormDB *gorm.DB
 var _rule = &ruleTest{}
-var _source = &sourceTest{}
 var _targetTagA = &targetTagATest{}
-var _targetTagA1 = &targetTagA1Test{}
-var _targetTagA2 = &targetTagA2Test{}
 var _targetTransfer = &targetTransferTest{}
 var _targetUpdateTransfer = &targetUpdateTransferTest{}
-var _targetClean = &targetCleanTest{}
+
+// test data dimensions (set in setUp, used in test assertions)
+var _maxA int
+var _maxB int
+var _pageSize int64
+
+// per-keyword expected counts derived from _maxA/_maxB
+// base rows (10 items, cycled by i%10):
+//   #0,#1: a一a一b一ab一123一中文      -> MostKey=a(amt=2),  ScanKey=5 rows (a,b,ab,123,中文)
+//   #2,#3: 中文一中文一中文             -> MostKey=中文(amt=3), ScanKey=1 row (中文)
+//   #4,#5,#6: xyz_no_match             -> no match
+//   #7:     b一b一b一a                 -> MostKey=b(amt=3),  ScanKey=2 rows (b,a)
+//   #8:     123一123一ab               -> MostKey=123(amt=2), ScanKey=2 rows (123,ab)
+//   #9:     ab一ab一ab                 -> MostKey=ab(amt=3),  ScanKey=1 row (ab)
 
 func TestMain(m *testing.M) {
 	setUp()
@@ -69,7 +79,7 @@ func setUp() {
 		panic(err)
 	}
 
-	// data table
+	// data table (master)
 	err = _simpleDB.Drop(_dataTable)
 	if err != nil {
 		panic(err)
@@ -91,24 +101,39 @@ func setUp() {
 		panic(err)
 	}
 
+	// 10 base rows, cycled by i%10:
+	// #0,#1: a一a一b一ab一123一中文      -> MostKey=a(amt=2),  ScanKey=5 rows
+	// #2,#3: 中文一中文一中文             -> MostKey=中文(amt=3), ScanKey=1 row
+	// #4,#5,#6: xyz_no_match             -> no match
+	// #7:     b一b一b一a                 -> MostKey=b(amt=3),  ScanKey=2 rows
+	// #8:     123一123一ab               -> MostKey=123(amt=2), ScanKey=2 rows
+	// #9:     ab一ab一ab                 -> MostKey=ab(amt=3),  ScanKey=1 row
 	items := []any{
-		"b一ab一bc一abc一123b一b123一123一0123一1234一01234",
-		`中文一b中文123一123中文b一中bb文一中123文一中00文一中aa文一中00文一中aa文一中中文文一中二二文一
-123一一`,
-		`文中ba321b--#$%^&*()_`,
+		"a一a一b一ab一123一中文",
+		"a一a一b一ab一123一中文",
+		"中文一中文一中文",
+		"中文一中文一中文",
+		"xyz_no_match",
+		"xyz_no_match",
+		"xyz_no_match",
+		"b一b一b一a",
+		"123一123一ab",
+		"ab一ab一ab",
 	}
 
-	maxA := (rand.Intn(100) + 10) * 3
-	maxB := rand.Intn(100) + 10
-	maxA = 10
-	maxB = 10
+	// maxA: 20~100, multiple of 10; total rows = maxA*maxB (200~1000)
+	_maxA = (rand.Intn(9) + 2) * 10
+	minB := (200 + _maxA - 1) / _maxA
+	maxB := 1000 / _maxA
+	_maxB = minB + rand.Intn(maxB-minB+1)
+	_pageSize = int64(rand.Intn(31) + 20) // 20~50
 
 	rows := make([][]any, 0)
-	for i := 0; i < maxA; i++ {
-		rows = append(rows, []any{items[i%3]})
+	for i := 0; i < _maxA; i++ {
+		rows = append(rows, []any{items[i%10]})
 	}
 
-	for i := 0; i < maxB; i++ {
+	for i := 0; i < _maxB; i++ {
 		err = _simpleDB.BulkInsertFromSliceSlice(_dataTable, []string{"name"}, rows, 2000)
 		if err != nil {
 			panic(err)
@@ -121,8 +146,8 @@ func setUp() {
 		panic(err)
 	}
 
-	if count != int64(maxA*maxB) {
-		panic(fmt.Sprintf("got: %d, want: %d", count, maxA*maxB))
+	if count != int64(_maxA*_maxB) {
+		panic(fmt.Sprintf("got: %d, want: %d", count, _maxA*_maxB))
 	}
 
 	err = _simpleDB.Drop(_updateAndTransferTable)
@@ -216,4 +241,22 @@ func tearDown() {
 	_ = _simpleDB.Drop(_cleanDataTable)
 	_ = _simpleDB.Drop(_deletedDataTable)
 	_ = _simpleDB.Drop(_tagATable)
+}
+
+// newTestSource creates a fresh copy of the master data table for a specific test,
+// avoiding data competition between tests.
+func newTestSource(t *testing.T, suffix string) *sourceTest {
+	t.Helper()
+	tableName := _dataTable + "_" + suffix
+	_ = _simpleDB.Drop(tableName)
+	err := _gormDB.Exec(fmt.Sprintf("CREATE TABLE `%s` LIKE `%s`", tableName, _dataTable)).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = _gormDB.Exec(fmt.Sprintf("INSERT INTO `%s` SELECT * FROM `%s`", tableName, _dataTable)).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = _simpleDB.Drop(tableName) })
+	return &sourceTest{tableName: tableName}
 }

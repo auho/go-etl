@@ -11,9 +11,9 @@ func TestNewTransfer(t *testing.T) {
 	}
 }
 
-func TestTransfer_GetFields(t *testing.T) {
+func TestTransfer_Fields(t *testing.T) {
 	tm := NewTransfer([]string{"a", "b"}, nil, nil)
-	fields := tm.GetFields()
+	fields := tm.Fields()
 	if len(fields) != 2 || fields[0] != "a" || fields[1] != "b" {
 		t.Fatalf("expected [a b], got %v", fields)
 	}

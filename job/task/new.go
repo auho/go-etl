@@ -5,27 +5,27 @@ import (
 	"github.com/auho/go-etl/v3/job/transform"
 )
 
-func CleanTask(resource job.CleanResource, modes []transform.UpdateOperator, opts ...func(clean *Clean)) {
+func CleanTask(resource job.CleanResource, modes []transform.UpdateOperator, opts ...func(clean *Clean)) error {
 	clean := NewClean(resource, modes, opts...)
-	RunConsumer(resource.Source(), []itemConsumer{clean})
+	return RunConsumer(resource.Source(), []itemConsumer{clean})
 }
 
-func InsertTask(source job.Table, target job.Table, moder transform.InsertOperator, opts ...func(*Insert)) {
-	insert := NewInsert(target, moder, opts...)
-	RunProducer(source, []itemProducer{insert})
+func InsertTask(source job.Table, target job.Table, mode transform.InsertOperator, opts ...func(*Insert)) error {
+	insert := NewInsert(target, mode, opts...)
+	return RunProducer(source, []itemProducer{insert})
 }
 
-func TransferTask(source job.Table, target job.Table, moder transform.TransferOperator) {
-	transfer := NewTransfer(target, moder)
-	RunProducer(source, []itemProducer{transfer})
+func TransferTask(source job.Table, target job.Table, mode transform.TransferOperator) error {
+	transfer := NewTransfer(target, mode)
+	return RunProducer(source, []itemProducer{transfer})
 }
 
-func UpdateTransferTask(source job.Table, target job.Table, modes []transform.UpdateOperator) {
+func UpdateTransferTask(source job.Table, target job.Table, modes []transform.UpdateOperator) error {
 	updateTransfer := NewUpdateTransfer(source, target, modes)
-	RunProducer(source, []itemProducer{updateTransfer})
+	return RunProducer(source, []itemProducer{updateTransfer})
 }
 
-func UpdateTask(source job.Table, modes []transform.UpdateOperator) {
+func UpdateTask(source job.Table, modes []transform.UpdateOperator) error {
 	update := NewUpdate(source, modes)
-	RunProducer(source, []itemProducer{update})
+	return RunProducer(source, []itemProducer{update})
 }

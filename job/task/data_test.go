@@ -8,8 +8,6 @@ import (
 
 var _ job.Table = (*sourceTest)(nil)
 var _ job.Table = (*targetTagATest)(nil)
-var _ job.Table = (*targetTagA1Test)(nil)
-var _ job.Table = (*targetTagA2Test)(nil)
 var _ job.Table = (*targetTransferTest)(nil)
 var _ job.Table = (*targetUpdateTransferTest)(nil)
 var _ job.Table = (*targetCleanDataTest)(nil)
@@ -17,17 +15,19 @@ var _ job.Table = (*targetCleanDeletedTest)(nil)
 var _ job.CleanResource = (*targetCleanTest)(nil)
 
 // sourceTest
-type sourceTest struct{}
+type sourceTest struct {
+	tableName string
+}
 
-func (s sourceTest) IDName() string {
+func (s *sourceTest) IDName() string {
 	return _pkName
 }
 
-func (s sourceTest) TableName() string {
-	return _dataTable
+func (s *sourceTest) TableName() string {
+	return s.tableName
 }
 
-func (s sourceTest) GetDB() *simpledb.SimpleDB {
+func (s *sourceTest) GetDB() *simpledb.SimpleDB {
 	simpleDB, _ := mysql.NewDB()
 	return simpleDB
 }
@@ -51,24 +51,6 @@ type targetTagATest struct {
 
 func (t targetTagATest) TableName() string {
 	return _tagATable
-}
-
-// targetTagA1Test
-type targetTagA1Test struct {
-	targetTagATest
-}
-
-func (t targetTagA1Test) TableName() string {
-	return _tagATable + "1"
-}
-
-// targetTagA2Test
-type targetTagA2Test struct {
-	targetTagATest
-}
-
-func (t targetTagA2Test) TableName() string {
-	return _tagATable + "2"
 }
 
 // targetTransferTest
@@ -110,16 +92,17 @@ func (t targetCleanDeletedTest) TableName() string {
 // targetCleanTest
 type targetCleanTest struct {
 	targetTest
+	source job.Table
 }
 
-func (t targetCleanTest) Source() job.Table {
-	return &sourceTest{}
+func (t *targetCleanTest) Source() job.Table {
+	return t.source
 }
 
-func (t targetCleanTest) Data() job.Table {
+func (t *targetCleanTest) Data() job.Table {
 	return &targetCleanDataTest{}
 }
 
-func (t targetCleanTest) Deleted() job.Table {
+func (t *targetCleanTest) Deleted() job.Table {
 	return &targetCleanDeletedTest{}
 }

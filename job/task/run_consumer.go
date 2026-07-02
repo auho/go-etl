@@ -16,10 +16,10 @@ type consumerExecutor struct {
 func (c *consumerExecutor) options() ([]flow.Option[map[string]any, map[string]any], error) {
 	var opts []flow.Option[map[string]any, map[string]any]
 
-	for _, _c := range c.consumers {
+	for _, consumer := range c.consumers {
 		opts = append(opts, flow.WithGroup(
 			[]exec.Runner[map[string]any, map[string]any]{
-				item.NewRunner[map[string]any, map[string]any](_c),
+				item.NewRunner[map[string]any, map[string]any](consumer),
 			},
 		))
 	}
@@ -27,13 +27,6 @@ func (c *consumerExecutor) options() ([]flow.Option[map[string]any, map[string]a
 	return opts, nil
 }
 
-func RunConsumer(js job.Table, consumers []itemConsumer, opts ...ConfigOption) {
-	var ps []processor
-	for _, _c := range consumers {
-		ps = append(ps, _c)
-	}
-
-	e := &consumerExecutor{consumers: consumers}
-
-	run(js, ps, e, opts...)
+func RunConsumer(table job.Table, consumers []itemConsumer, opts ...ConfigOption) error {
+	return run(table, toProcessors(consumers), &consumerExecutor{consumers: consumers}, opts...)
 }
