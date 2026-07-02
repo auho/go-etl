@@ -39,11 +39,11 @@ func WithUpdateTransferConfig(cc UpdateTransferConfig) func(update *UpdateTransf
 type UpdateTransfer struct {
 	producerTask
 
-	source job.Table
 	modes  []transform.UpdateOperator
-
-	config UpdateTransferConfig
+	source job.Table
+	target job.Table
 	dst    *destination.Bulk[storage.MapEntry]
+	config UpdateTransferConfig
 }
 
 func NewUpdateTransfer(source job.Table, target job.Table, modes []transform.UpdateOperator, opts ...func(*UpdateTransfer)) *UpdateTransfer {
@@ -139,4 +139,25 @@ func (u *UpdateTransfer) Close() error {
 	}
 
 	return nil
+}
+
+func (u *UpdateTransfer) destinations() ([]storage.Destination[storage.MapEntry], error) {
+	var ds []storage.Destination[storage.MapEntry]
+	dest, err := destination.NewBulkInsertMapWithGorm(
+		destination.BulkConfig{
+			IsTruncate:  true,
+			Concurrency: u.config.Concurrency,
+			PageSize:    int64(u.config.BatchSize),
+		},
+		destination.WriteConfig{
+			TableName: u.target.TableName(),
+		},
+		u.target.GetDB().GormDB(),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("NewBulkInsertMapWithGorm: %w", err)
+	}
+
+	ds = append(ds, dest)
+	return ds, nil
 }

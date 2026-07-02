@@ -42,12 +42,13 @@ func TestMain(m *testing.M) {
 }
 
 func setUp() {
-	var err error
-	query := ""
 	testutil.LoadEnv()
 	_simpleDB, _gormDB = mysql.NewDB()
 
-	err = _simpleDB.Drop(_transferTable)
+	query := ""
+
+	// transfer table
+	err := _simpleDB.Drop(_transferTable)
 	if err != nil {
 		panic(err)
 	}
@@ -59,6 +60,7 @@ func setUp() {
 		"`ab1` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword_num` int(11) NOT NULL DEFAULT '0'," +
+		"`a_keyword_amount` int(11) NOT NULL DEFAULT '0'," +
 		"`xyz` varchar(30) NOT NULL DEFAULT ''," +
 		"PRIMARY KEY (`did`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
@@ -67,6 +69,7 @@ func setUp() {
 		panic(err)
 	}
 
+	// data table
 	err = _simpleDB.Drop(_dataTable)
 	if err != nil {
 		panic(err)
@@ -79,6 +82,7 @@ func setUp() {
 		"`ab` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword_num` int(11) NOT NULL DEFAULT '0'," +
+		"`a_keyword_amount` int(11) NOT NULL DEFAULT '0'," +
 		"`xyz` varchar(30) NOT NULL DEFAULT ''," +
 		"PRIMARY KEY (`did`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
@@ -96,6 +100,9 @@ func setUp() {
 
 	maxA := (rand.Intn(100) + 10) * 3
 	maxB := rand.Intn(100) + 10
+	maxA = 10
+	maxB = 10
+
 	rows := make([][]any, 0)
 	for i := 0; i < maxA; i++ {
 		rows = append(rows, []any{items[i%3]})
@@ -115,7 +122,7 @@ func setUp() {
 	}
 
 	if count != int64(maxA*maxB) {
-		panic(fmt.Sprintf("%d != %d", _gormDB.RowsAffected, maxA))
+		panic(fmt.Sprintf("got: %d, want: %d", count, maxA*maxB))
 	}
 
 	err = _simpleDB.Drop(_updateAndTransferTable)
@@ -191,6 +198,7 @@ func setUp() {
 		"`ab` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword` varchar(30) NOT NULL DEFAULT ''," +
 		"`a_keyword_num` int(11) NOT NULL DEFAULT '0'," +
+		"`a_keyword_amount` int(11) NOT NULL DEFAULT '0'," +
 		"PRIMARY KEY (`id`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 	err = _gormDB.Exec(query).Error

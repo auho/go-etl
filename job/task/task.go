@@ -3,7 +3,6 @@ package task
 import (
 	"runtime"
 
-	"github.com/auho/go-etl/v3/job"
 	"github.com/auho/go-toolkit-flow/v3/processor/consumer"
 	"github.com/auho/go-toolkit-flow/v3/processor/producer"
 	"github.com/auho/go-toolkit-flow/v3/storage"
@@ -23,8 +22,8 @@ type itemConsumer interface {
 
 type itemProducer interface {
 	processor
-
 	producer.Item[storage.MapEntry, storage.MapEntry]
+	destinations() ([]storage.Destination[storage.MapEntry], error)
 }
 
 type task struct{}
@@ -41,7 +40,6 @@ type consumerTask struct {
 
 type producerTask struct {
 	task
-	target job.Table
 
 	producer.Processor
 }

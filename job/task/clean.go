@@ -194,6 +194,6 @@ func (c *Clean) Close() error {
 	return nil
 }
 
-func (c *Clean) Destinations() []storage.Destination[storage.MapEntry] {
-	return []storage.Destination[storage.MapEntry]{c.dataDest, c.deletedDest}
+func (c *Clean) Destinations() ([]storage.Destination[storage.MapEntry], error) {
+	return []storage.Destination[storage.MapEntry]{c.dataDest, c.deletedDest}, nil
 }

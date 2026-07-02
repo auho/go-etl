@@ -11,7 +11,7 @@ import (
 )
 
 type executor interface {
-	options() []flow.Option[map[string]any, map[string]any]
+	options() ([]flow.Option[map[string]any, map[string]any], error)
 }
 
 func run(jb job.Table, ps []processor, e executor, opts ...ConfigOption) {
@@ -80,13 +80,18 @@ func (r *Runner) source(s job.Table, ps []processor) (*source.Section[storage.Ma
 }
 
 func (r *Runner) run(d *source.Section[storage.MapEntry], e executor) error {
+	eOpts, err := e.options()
+	if err != nil {
+		return fmt.Errorf("options: %w", err)
+	}
+
 	opts := []flow.Option[map[string]any, map[string]any]{
 		flow.WithSource[map[string]any, map[string]any](d),
 	}
 
-	opts = append(opts, e.options()...)
+	opts = append(opts, eOpts...)
 
-	err := flow.RunFlow[map[string]any](opts...)
+	err = flow.RunFlow[map[string]any](opts...)
 	if err != nil {
 		return fmt.Errorf("RunFlow: %w", err)
 	}

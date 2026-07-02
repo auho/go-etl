@@ -6,6 +6,8 @@ import (
 
 	"github.com/auho/go-etl/v3/job"
 	"github.com/auho/go-etl/v3/job/transform"
+	"github.com/auho/go-toolkit-flow/v3/storage"
+	"github.com/auho/go-toolkit-flow/v3/storage/database/destination"
 )
 
 type InsertConfig struct {
@@ -37,8 +39,8 @@ var _ itemProducer = (*Insert)(nil)
 type Insert struct {
 	producerTask
 
-	mode transform.InsertOperator
-
+	mode   transform.InsertOperator
+	target job.Table
 	config InsertConfig
 }
 
@@ -111,4 +113,25 @@ func (i *Insert) AppendState() {}
 
 func (i *Insert) Close() error {
 	return i.mode.Close()
+}
+
+func (i *Insert) destinations() ([]storage.Destination[storage.MapEntry], error) {
+	var ds []storage.Destination[storage.MapEntry]
+	dest, err := destination.NewBulkInsertMapWithGorm(
+		destination.BulkConfig{
+			IsTruncate:  !i.config.NotTruncate,
+			Concurrency: i.config.Concurrency,
+			PageSize:    int64(i.config.BatchSize),
+		},
+		destination.WriteConfig{
+			TableName: i.target.TableName(),
+		},
+		i.target.GetDB().GormDB(),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("NewBulkInsertMapWithGorm: %w", err)
+	}
+
+	ds = append(ds, dest)
+	return ds, nil
 }

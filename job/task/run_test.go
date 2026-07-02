@@ -36,13 +36,14 @@ func Test_UpdateTransfer(t *testing.T) {
 	transferCount := getAmount(_updateAndTransferTable, t)
 
 	if dataCount != transferCount {
-		t.Error("update and transfer error")
+		t.Error("got:", transferCount, "want:", dataCount)
 	}
 }
 
 func Test_Insert(t *testing.T) {
 	insertConfig := WithInsertConfig(InsertConfig{
-		ExtraKeys: []string{_source.IDName()},
+		NotTruncate: true,
+		ExtraKeys:   []string{_source.IDName()},
 	})
 
 	m := transform.NewInsert(collector.NewKeysAll([]string{_keyName}, tag.NewKey(_rule)), nil)

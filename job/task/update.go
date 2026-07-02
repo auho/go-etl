@@ -15,7 +15,6 @@ import (
 var _ itemProducer = (*Update)(nil)
 
 type UpdateConfig struct {
-	NotTruncate bool
 	BatchSize   int
 	Concurrency int
 }
@@ -137,4 +136,31 @@ func (u *Update) Close() error {
 	}
 
 	return nil
+}
+
+func (u *Update) destinations() ([]storage.Destination[storage.MapEntry], error) {
+	var ds []storage.Destination[storage.MapEntry]
+
+	target, err := u.source.GetDB().Clone()
+	if err != nil {
+		return nil, fmt.Errorf("GetDB.Clone: %w", err)
+	}
+
+	dest, err := destination.NewBulkUpdateMapWithGorm(
+		destination.BulkConfig{
+			IsTruncate:  false,
+			Concurrency: u.config.Concurrency,
+			PageSize:    int64(u.config.BatchSize),
+		},
+		destination.WriteConfig{
+			TableName: u.source.TableName(),
+		},
+		u.source.IDName(), target.GormDB(),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("NewBulkUpdateMapWithGorm: %w", err)
+	}
+
+	ds = append(ds, dest)
+	return ds, nil
 }

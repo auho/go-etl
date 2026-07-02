@@ -1,6 +1,7 @@
 package task
 
 import (
+	"github.com/auho/go-etl/v3/internal/testutil/mysql"
 	"github.com/auho/go-etl/v3/job"
 	simpledb "github.com/auho/go-simple-db/v3"
 )
@@ -27,7 +28,8 @@ func (s sourceTest) TableName() string {
 }
 
 func (s sourceTest) GetDB() *simpledb.SimpleDB {
-	return _simpleDB
+	simpleDB, _ := mysql.NewDB()
+	return simpleDB
 }
 
 // targetTest
@@ -38,7 +40,8 @@ func (t targetTest) IDName() string {
 }
 
 func (t targetTest) GetDB() *simpledb.SimpleDB {
-	return _simpleDB
+	simpleDB, _ := mysql.NewDB()
+	return simpleDB
 }
 
 // targetTagATest
@@ -77,6 +80,7 @@ func (t targetTransferTest) TableName() string {
 	return _transferTable
 }
 
+// targetUpdateTransferTest
 type targetUpdateTransferTest struct {
 	targetTest
 }
