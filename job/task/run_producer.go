@@ -35,6 +35,6 @@ func (p *producerExecutor) options() ([]flow.Option[map[string]any, map[string]a
 	return opts, nil
 }
 
-func RunProducer(table job.Table, producers []itemProducer, opts ...ConfigOption) error {
+func RunProducer(table job.Table, producers []itemProducer, opts ...RunnerOption) error {
 	return run(table, toProcessors(producers), &producerExecutor{producers: producers}, opts...)
 }

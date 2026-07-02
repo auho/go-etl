@@ -16,7 +16,7 @@ import (
 type CleanConfig struct {
 	baseConfig
 	SkipTruncate bool
-	AddExtraTags bool     // tags to deleted data
+	ExtraTags    bool     // tags to deleted data
 	Keys         []string // source columns name, priority of use this keys
 }
 
@@ -135,10 +135,11 @@ func (c *Clean) Exec(item map[string]any) (bool, error) {
 		if err != nil {
 			return false, fmt.Errorf("apply: %w", err)
 		}
+
 		if len(res) > 0 {
 			needDeleted = true
 
-			if c.config.AddExtraTags {
+			if c.config.ExtraTags {
 				maps.Copy(item, res)
 			}
 

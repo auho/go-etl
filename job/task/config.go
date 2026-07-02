@@ -4,20 +4,29 @@ import (
 	"runtime"
 )
 
-type ConfigOption func(*Config)
-
-type Config struct {
-	source SourceConfig
+// baseConfig is the shared configuration embedded by task-specific configs
+// (UpdateConfig, InsertConfig, UpdateTransferConfig, CleanConfig). It controls
+// the destination write batch size and concurrency.
+type baseConfig struct {
+	BatchSize   int // destination write batch size; defaults to batchSize (2000)
+	Concurrency int // destination write concurrency; defaults to NumCPU
 }
 
-func (c *Config) Init() {
-	c.source.check()
+func (bc *baseConfig) check() {
+	if bc.BatchSize <= 0 {
+		bc.BatchSize = batchSize
+	}
+
+	if bc.Concurrency <= 0 {
+		bc.Concurrency = runtime.NumCPU()
+	}
 }
 
+// SourceConfig configures the source reader (pagination + concurrency).
 type SourceConfig struct {
-	Concurrency int
-	Maximum     int64
-	PageSize    int64
+	Concurrency int   // source scan concurrency; defaults to NumCPU
+	Maximum     int64 // max rows to scan; 0 = unlimited
+	PageSize    int64 // rows per page; defaults to batchSize (2000)
 }
 
 func (sc *SourceConfig) check() {
@@ -34,23 +43,12 @@ func (sc *SourceConfig) check() {
 	}
 }
 
-type baseConfig struct {
-	BatchSize   int
-	Concurrency int
-}
+// RunnerOption configures the Runner.
+type RunnerOption func(*Runner)
 
-func (bc *baseConfig) check() {
-	if bc.BatchSize <= 0 {
-		bc.BatchSize = batchSize
-	}
-
-	if bc.Concurrency <= 0 {
-		bc.Concurrency = runtime.NumCPU()
-	}
-}
-
-func WithSourceConfig(sc SourceConfig) func(config *Config) {
-	return func(config *Config) {
-		config.source = sc
+// WithRunnerSourceConfig returns a RunnerOption that sets the source configuration.
+func WithRunnerSourceConfig(sc SourceConfig) RunnerOption {
+	return func(r *Runner) {
+		r.sourceConfig = sc
 	}
 }

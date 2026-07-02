@@ -40,7 +40,7 @@ func ExampleNewClean() {
 		[]transform.UpdateOperator{mode},
 		WithCleanConfig(CleanConfig{
 			SkipTruncate: false,
-			AddExtraTags: false,
+			ExtraTags:    false,
 			Keys:         []string{"key3", "key4"},
 		}),
 	)

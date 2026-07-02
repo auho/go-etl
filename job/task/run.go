@@ -22,7 +22,7 @@ func toProcessors[T processor](items []T) []processor {
 	return ps
 }
 
-func run(table job.Table, ps []processor, e executor, opts ...ConfigOption) error {
+func run(table job.Table, ps []processor, e executor, opts ...RunnerOption) error {
 	r := &Runner{}
 	r.prepare(opts)
 
@@ -40,20 +40,19 @@ func run(table job.Table, ps []processor, e executor, opts ...ConfigOption) erro
 }
 
 type Runner struct {
-	config *Config
+	sourceConfig SourceConfig
 }
 
-func (r *Runner) prepare(opts []ConfigOption) {
-	r.config = &Config{}
+func (r *Runner) prepare(opts []RunnerOption) {
 	for _, opt := range opts {
 		if opt == nil {
 			continue
 		}
 
-		opt(r.config)
+		opt(r)
 	}
 
-	r.config.Init()
+	r.sourceConfig.check()
 }
 
 func (r *Runner) source(table job.Table, ps []processor) (*source.Section[storage.MapEntry], error) {
@@ -71,11 +70,11 @@ func (r *Runner) source(table job.Table, ps []processor) (*source.Section[storag
 
 	ds, err := source.NewSectionMapWithGorm(
 		source.SectionConfig{
-			Concurrency: r.config.source.Concurrency,
-			MaxItems:    r.config.source.Maximum,
+			Concurrency: r.sourceConfig.Concurrency,
+			MaxItems:    r.sourceConfig.Maximum,
 			StartID:     0,
 			EndID:       0,
-			PageSize:    r.config.source.PageSize,
+			PageSize:    r.sourceConfig.PageSize,
 		},
 		source.ScanConfig{
 			TableName:     table.TableName(),

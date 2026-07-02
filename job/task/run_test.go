@@ -35,7 +35,7 @@ func Test_Update(t *testing.T) {
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)
 	ua := NewUpdate(src, []transform.UpdateOperator{m})
 
-	err := RunProducer(src, []itemProducer{ua}, WithSourceConfig(sourceConfig()))
+	err := RunProducer(src, []itemProducer{ua}, WithRunnerSourceConfig(sourceConfig()))
 	if err != nil {
 		t.Error(err)
 	}
@@ -94,11 +94,11 @@ func Test_Update(t *testing.T) {
 }
 
 func Test_UpdateTransfer(t *testing.T) {
-	src := newTestSource(t, "update_transfer")
+	src := newTestSource(t, "ut_src")
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)
 	ut := NewUpdateTransfer(src, _targetUpdateTransfer, []transform.UpdateOperator{m})
 
-	err := RunProducer(src, []itemProducer{ut}, WithSourceConfig(sourceConfig()))
+	err := RunProducer(src, []itemProducer{ut}, WithRunnerSourceConfig(sourceConfig()))
 	if err != nil {
 		t.Error(err)
 	}
@@ -147,7 +147,7 @@ func Test_Insert(t *testing.T) {
 	m := transform.NewInsert(collector.NewKeysAll([]string{_keyName}, tag.NewKey(_rule)), nil)
 	ia := NewInsert(_targetTagA, m, insertConfig)
 
-	err = RunProducer(src, []itemProducer{ia}, WithSourceConfig(sourceConfig()))
+	err = RunProducer(src, []itemProducer{ia}, WithRunnerSourceConfig(sourceConfig()))
 	if err != nil {
 		t.Error(err)
 	}
@@ -185,7 +185,7 @@ func Test_Insert(t *testing.T) {
 	}
 
 	for _, tc := range keywordCases {
-		got := countByKeywordAmount(_targetTagA.TableName(), tc.keyword, tc.amount, t)
+		got = countByKeywordAmount(_targetTagA.TableName(), tc.keyword, tc.amount, t)
 		want := expectedRows(tc.base)
 		if got != want {
 			t.Errorf("keyword=%s amount=%d: got %d, want %d", tc.keyword, tc.amount, got, want)
@@ -226,7 +226,7 @@ func Test_Insert(t *testing.T) {
 }
 
 func Test_Transfer(t *testing.T) {
-	src := newTestSource(t, "transfer")
+	src := newTestSource(t, "tf_src")
 	keys := []string{"did", "name", "a", "ab", "a_keyword", "a_keyword_num", "a_keyword_amount"}
 	alias := map[string]string{
 		"did":           "did",
@@ -240,7 +240,7 @@ func Test_Transfer(t *testing.T) {
 	m := transform.NewTransfer(keys, alias, map[string]any{"xyz": "xyz1"})
 	tf := NewTransfer(_targetTransfer, m)
 
-	err := RunProducer(src, []itemProducer{tf}, WithSourceConfig(sourceConfig()))
+	err := RunProducer(src, []itemProducer{tf}, WithRunnerSourceConfig(sourceConfig()))
 	if err != nil {
 		t.Error(err)
 	}
@@ -285,7 +285,7 @@ func Test_Clean(t *testing.T) {
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)
 
 	clean := NewClean(resource, []transform.UpdateOperator{m})
-	err := RunConsumer(resource.Source(), []itemConsumer{clean}, WithSourceConfig(sourceConfig()))
+	err := RunConsumer(resource.Source(), []itemConsumer{clean}, WithRunnerSourceConfig(sourceConfig()))
 	if err != nil {
 		t.Error(err)
 	}

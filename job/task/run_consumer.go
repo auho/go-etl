@@ -27,6 +27,6 @@ func (c *consumerExecutor) options() ([]flow.Option[map[string]any, map[string]a
 	return opts, nil
 }
 
-func RunConsumer(table job.Table, consumers []itemConsumer, opts ...ConfigOption) error {
+func RunConsumer(table job.Table, consumers []itemConsumer, opts ...RunnerOption) error {
 	return run(table, toProcessors(consumers), &consumerExecutor{consumers: consumers}, opts...)
 }
