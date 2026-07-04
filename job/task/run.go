@@ -10,10 +10,13 @@ import (
 	"github.com/auho/go-toolkit-flow/v3/storage/database/source"
 )
 
+// executor builds the flow options that wire processors/destinations into a flow.
 type executor interface {
-	options() ([]flow.Option[map[string]any, map[string]any], error)
+	flowOptions() ([]flow.Option[map[string]any, map[string]any], error)
+	processors() []processor
 }
 
+// toProcessors converts a typed slice of processors into a []processor.
 func toProcessors[T processor](items []T) []processor {
 	ps := make([]processor, len(items))
 	for i, item := range items {
@@ -22,16 +25,18 @@ func toProcessors[T processor](items []T) []processor {
 	return ps
 }
 
-func run(table job.Table, ps []processor, e executor, opts ...RunnerOption) error {
+// run builds a Runner from opts, constructs the source over table, and executes
+// the flow driven by executor e.
+func run(table job.Table, e executor, opts ...RunnerOption) error {
 	r := &Runner{}
 	r.prepare(opts)
 
-	ds, err := r.source(table, ps)
+	s, err := r.source(table, e.processors())
 	if err != nil {
 		return fmt.Errorf("source: %w", err)
 	}
 
-	err = r.run(ds, e)
+	err = r.run(s, e)
 	if err != nil {
 		return fmt.Errorf("run: %w", err)
 	}
@@ -39,10 +44,12 @@ func run(table job.Table, ps []processor, e executor, opts ...RunnerOption) erro
 	return nil
 }
 
+// Runner drives the source scan and the flow execution.
 type Runner struct {
 	sourceConfig SourceConfig
 }
 
+// prepare applies the given options to the Runner and validates the config.
 func (r *Runner) prepare(opts []RunnerOption) {
 	for _, opt := range opts {
 		if opt == nil {
@@ -55,12 +62,14 @@ func (r *Runner) prepare(opts []RunnerOption) {
 	r.sourceConfig.check()
 }
 
+// source builds the paginated source section over table, selecting the union of
+// fields required by all processors.
 func (r *Runner) source(table job.Table, ps []processor) (*source.Section[storage.MapEntry], error) {
 	fields := []string{table.IDName()}
 	for _, p := range ps {
 		pFields, err := p.Fields()
 		if err != nil {
-			return nil, fmt.Errorf("SourceFields: %w", err)
+			return nil, fmt.Errorf("fields: %w", err)
 		}
 
 		fields = append(fields, pFields...)
@@ -94,14 +103,15 @@ func (r *Runner) source(table job.Table, ps []processor) (*source.Section[storag
 	return ds, nil
 }
 
-func (r *Runner) run(d *source.Section[storage.MapEntry], e executor) error {
-	eOpts, err := e.options()
+// run assembles the flow from the source section and executor options, then runs it.
+func (r *Runner) run(s *source.Section[storage.MapEntry], e executor) error {
+	eOpts, err := e.flowOptions()
 	if err != nil {
 		return fmt.Errorf("options: %w", err)
 	}
 
 	opts := []flow.Option[map[string]any, map[string]any]{
-		flow.WithSource[map[string]any, map[string]any](d),
+		flow.WithSource[map[string]any, map[string]any](s),
 	}
 
 	opts = append(opts, eOpts...)

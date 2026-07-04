@@ -11,23 +11,26 @@ import (
 
 var _ itemProducer = (*Transfer)(nil)
 
+// Transfer is a producer that transforms each source row via operator and writes it
+// to the target table (target is truncated first).
 type Transfer struct {
 	producerTask
 
-	mode   transform.TransferOperator
-	target job.Table
+	operator transform.TransferOperator
+	target   job.Table
 }
 
-func NewTransfer(target job.Table, mode transform.TransferOperator) *Transfer {
+// NewTransfer creates a Transfer producer writing to target via operator.
+func NewTransfer(target job.Table, operator transform.TransferOperator) *Transfer {
 	t := &Transfer{}
 	t.target = target
-	t.mode = mode
+	t.operator = operator
 
 	return t
 }
 
 func (t *Transfer) Fields() ([]string, error) {
-	return t.mode.Fields(), nil
+	return t.operator.Fields(), nil
 }
 
 func (t *Transfer) Summary() string {
@@ -39,9 +42,9 @@ func (t *Transfer) Prepare() error {
 }
 
 func (t *Transfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	newItem, err := t.mode.Apply(item)
+	newItem, err := t.operator.Apply(item)
 	if err != nil {
-		return nil, false, fmt.Errorf("mode.Apply: %w", err)
+		return nil, false, fmt.Errorf("operator.Apply: %w", err)
 	}
 
 	return []map[string]any{newItem}, true, nil
@@ -51,11 +54,10 @@ func (t *Transfer) AppendState()     {}
 func (t *Transfer) BeforeRun() error { return nil }
 func (t *Transfer) AfterRun() error  { return nil }
 func (t *Transfer) Close() error {
-	return t.mode.Close()
+	return t.operator.Close()
 }
 
 func (t *Transfer) destinations() ([]storage.Destination[storage.MapEntry], error) {
-	var ds []storage.Destination[storage.MapEntry]
 	dest, err := destination.NewBulkInsertMapWithGorm(
 		destination.BulkConfig{
 			IsTruncate:  true,
@@ -71,6 +73,5 @@ func (t *Transfer) destinations() ([]storage.Destination[storage.MapEntry], erro
 		return nil, fmt.Errorf("NewBulkInsertMapWithGorm: %w", err)
 	}
 
-	ds = append(ds, dest)
-	return ds, nil
+	return []storage.Destination[storage.MapEntry]{dest}, nil
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/auho/go-toolkit-flow/v3/storage/database/destination"
 )
 
+// CleanConfig configures a Clean task.
 type CleanConfig struct {
 	baseConfig
 	SkipTruncate bool
@@ -20,6 +21,7 @@ type CleanConfig struct {
 	Keys         []string // source columns name, priority of use this keys
 }
 
+// WithCleanConfig returns an option that sets the Clean config.
 func WithCleanConfig(cc CleanConfig) func(*Clean) {
 	return func(c *Clean) {
 		c.config = cc
@@ -29,13 +31,13 @@ func WithCleanConfig(cc CleanConfig) func(*Clean) {
 var _ itemConsumer = (*Clean)(nil)
 var _ consumer.DestinationHolder[storage.MapEntry] = (*Clean)(nil)
 
-// Clean
-// filter
+// Clean is a consumer that filters source rows: rows matching any operator are
+// routed to the deleted table, the rest to the data table.
 type Clean struct {
 	consumerTask
 
-	cleanTarget job.CleanResource
-	modes       []transform.UpdateOperator
+	resource  job.CleanResource
+	operators []transform.UpdateOperator
 
 	config CleanConfig
 
@@ -43,10 +45,11 @@ type Clean struct {
 	deletedDest *destination.Bulk[storage.MapEntry]
 }
 
-func NewClean(cr job.CleanResource, modes []transform.UpdateOperator, opts ...func(*Clean)) *Clean {
+// NewClean creates a Clean consumer over the given resource and operators.
+func NewClean(cr job.CleanResource, operators []transform.UpdateOperator, opts ...func(*Clean)) *Clean {
 	c := &Clean{}
-	c.cleanTarget = cr
-	c.modes = modes
+	c.resource = cr
+	c.operators = operators
 
 	for _, opt := range opts {
 		opt(c)
@@ -61,14 +64,14 @@ func (c *Clean) Fields() ([]string, error) {
 	var keys []string
 	if len(c.config.Keys) > 0 {
 		keys = append(keys, c.config.Keys...)
-		for _, m := range c.modes {
-			keys = append(keys, m.Fields()...)
+		for _, op := range c.operators {
+			keys = append(keys, op.Fields()...)
 		}
 
 		keys = slicex.SliceDropDuplicates(keys)
 	} else {
 		var err error
-		keys, err = c.cleanTarget.Deleted().GetDB().GetTableColumns(c.cleanTarget.Deleted().TableName())
+		keys, err = c.resource.Deleted().GetDB().GetTableColumns(c.resource.Deleted().TableName())
 		if err != nil {
 			return nil, fmt.Errorf("GetTableColumns: %w", err)
 		}
@@ -79,34 +82,35 @@ func (c *Clean) Fields() ([]string, error) {
 
 func (c *Clean) Summary() string {
 	s := make([]string, 0)
-	for _, m := range c.modes {
-		s = append(s, m.Title())
+	for _, op := range c.operators {
+		s = append(s, op.Title())
 	}
 
 	return fmt.Sprintf("Clean[%s, %s] {%s}",
-		c.cleanTarget.Data().TableName(),
-		c.cleanTarget.Deleted().TableName(),
+		c.resource.Data().TableName(),
+		c.resource.Deleted().TableName(),
 		strings.Join(s, ", "))
 }
 
 func (c *Clean) Prepare() error {
 	var err error
-	for _, m := range c.modes {
-		err = m.Prepare()
+	for _, op := range c.operators {
+		err = op.Prepare()
 		if err != nil {
 			return fmt.Errorf("prepare: %w", err)
 		}
 	}
 
 	bConfig := destination.BulkConfig{
-		IsTruncate: !c.config.SkipTruncate,
-		PageSize:   int64(c.config.BatchSize),
+		IsTruncate:  !c.config.SkipTruncate,
+		Concurrency: c.config.Concurrency,
+		PageSize:    int64(c.config.BatchSize),
 	}
 
 	c.dataDest, err = destination.NewBulkInsertMapWithGorm(
 		bConfig,
-		destination.WriteConfig{TableName: c.cleanTarget.Data().TableName()},
-		c.cleanTarget.Data().GetDB().GormDB(),
+		destination.WriteConfig{TableName: c.resource.Data().TableName()},
+		c.resource.Data().GetDB().GormDB(),
 	)
 	if err != nil {
 		return fmt.Errorf("NewBulkInsertMapWithGorm DataTarget: %w", err)
@@ -114,8 +118,8 @@ func (c *Clean) Prepare() error {
 
 	c.deletedDest, err = destination.NewBulkInsertMapWithGorm(
 		bConfig,
-		destination.WriteConfig{TableName: c.cleanTarget.Deleted().TableName()},
-		c.cleanTarget.Deleted().GetDB().GormDB(),
+		destination.WriteConfig{TableName: c.resource.Deleted().TableName()},
+		c.resource.Deleted().GetDB().GormDB(),
 	)
 	if err != nil {
 		return fmt.Errorf("NewBulkInsertMapWithGorm DeletedTarget: %w", err)
@@ -130,8 +134,8 @@ func (c *Clean) BeforeRun() error {
 
 func (c *Clean) Exec(item map[string]any) (bool, error) {
 	needDeleted := false
-	for _, m := range c.modes {
-		res, err := m.Apply(item)
+	for _, op := range c.operators {
+		res, err := op.Apply(item)
 		if err != nil {
 			return false, fmt.Errorf("apply: %w", err)
 		}
@@ -171,8 +175,8 @@ func (c *Clean) AfterRun() error {
 func (c *Clean) AppendState() {}
 
 func (c *Clean) Close() error {
-	for _, m := range c.modes {
-		err := m.Close()
+	for _, op := range c.operators {
+		err := op.Close()
 		if err != nil {
 			return err
 		}

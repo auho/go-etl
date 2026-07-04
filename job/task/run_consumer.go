@@ -9,11 +9,13 @@ import (
 
 var _ executor = (*consumerExecutor)(nil)
 
+// consumerExecutor is the executor for consumer tasks: it wires each consumer
+// (no destinations) into the flow.
 type consumerExecutor struct {
 	consumers []itemConsumer
 }
 
-func (c *consumerExecutor) options() ([]flow.Option[map[string]any, map[string]any], error) {
+func (c *consumerExecutor) flowOptions() ([]flow.Option[map[string]any, map[string]any], error) {
 	var opts []flow.Option[map[string]any, map[string]any]
 
 	for _, consumer := range c.consumers {
@@ -27,6 +29,11 @@ func (c *consumerExecutor) options() ([]flow.Option[map[string]any, map[string]a
 	return opts, nil
 }
 
+func (c *consumerExecutor) processors() []processor {
+	return toProcessors(c.consumers)
+}
+
+// RunConsumer runs consumer tasks over table with the given runner options.
 func RunConsumer(table job.Table, consumers []itemConsumer, opts ...RunnerOption) error {
-	return run(table, toProcessors(consumers), &consumerExecutor{consumers: consumers}, opts...)
+	return run(table, &consumerExecutor{consumers: consumers}, opts...)
 }

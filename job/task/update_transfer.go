@@ -13,31 +13,36 @@ import (
 
 var _ itemProducer = (*UpdateTransfer)(nil)
 
+// UpdateTransferConfig configures an UpdateTransfer task.
 type UpdateTransferConfig struct {
 	baseConfig
 	SkipTruncate bool // for update and transfer
 }
 
+// WithUpdateTransferConfig returns an option that sets the UpdateTransfer config.
 func WithUpdateTransferConfig(cc UpdateTransferConfig) func(update *UpdateTransfer) {
 	return func(c *UpdateTransfer) {
 		c.config = cc
 	}
 }
 
+// UpdateTransfer is a producer that updates each source row in place via operators
+// and copies the updated row to the target table.
 type UpdateTransfer struct {
 	producerTask
 
-	modes  []transform.UpdateOperator
-	source job.Table
-	target job.Table
-	dst    *destination.Bulk[storage.MapEntry]
-	config UpdateTransferConfig
+	operators []transform.UpdateOperator
+	source    job.Table
+	target    job.Table
+	dst       *destination.Bulk[storage.MapEntry]
+	config    UpdateTransferConfig
 }
 
-func NewUpdateTransfer(source job.Table, target job.Table, modes []transform.UpdateOperator, opts ...func(*UpdateTransfer)) *UpdateTransfer {
+// NewUpdateTransfer creates an UpdateTransfer producer from source to target.
+func NewUpdateTransfer(source job.Table, target job.Table, operators []transform.UpdateOperator, opts ...func(*UpdateTransfer)) *UpdateTransfer {
 	u := &UpdateTransfer{}
 	u.source = source
-	u.modes = modes
+	u.operators = operators
 	u.target = target
 
 	for _, opt := range opts {
@@ -53,8 +58,8 @@ func (u *UpdateTransfer) Fields() ([]string, error) {
 	fields := make([]string, 0)
 	fields = append(fields, u.source.IDName())
 
-	for _, m := range u.modes {
-		fields = append(fields, m.Fields()...)
+	for _, op := range u.operators {
+		fields = append(fields, op.Fields()...)
 	}
 
 	columns, err := u.target.GetDB().GetTableColumns(u.target.TableName())
@@ -70,8 +75,8 @@ func (u *UpdateTransfer) Fields() ([]string, error) {
 
 func (u *UpdateTransfer) Summary() string {
 	s := make([]string, 0)
-	for _, m := range u.modes {
-		s = append(s, m.Title())
+	for _, op := range u.operators {
+		s = append(s, op.Title())
 	}
 
 	return fmt.Sprintf("UpdateTransfer[%s] {%s}", u.source.TableName(), strings.Join(s, ", "))
@@ -79,8 +84,8 @@ func (u *UpdateTransfer) Summary() string {
 
 func (u *UpdateTransfer) Prepare() error {
 	var err error
-	for _, m := range u.modes {
-		err = m.Prepare()
+	for _, op := range u.operators {
+		err = op.Prepare()
 		if err != nil {
 			return fmt.Errorf("prepare: %w", err)
 		}
@@ -93,8 +98,8 @@ func (u *UpdateTransfer) BeforeRun() error { return nil }
 
 func (u *UpdateTransfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
 	does := make(map[string]any)
-	for _, m := range u.modes {
-		do, err := m.Apply(item)
+	for _, op := range u.operators {
+		do, err := op.Apply(item)
 		if err != nil {
 			return nil, false, fmt.Errorf("apply: %w", err)
 		}
@@ -119,8 +124,8 @@ func (u *UpdateTransfer) AppendState() {}
 func (u *UpdateTransfer) AfterRun() error { return nil }
 
 func (u *UpdateTransfer) Close() error {
-	for _, m := range u.modes {
-		err := m.Close()
+	for _, op := range u.operators {
+		err := op.Close()
 		if err != nil {
 			return err
 		}
@@ -130,7 +135,6 @@ func (u *UpdateTransfer) Close() error {
 }
 
 func (u *UpdateTransfer) destinations() ([]storage.Destination[storage.MapEntry], error) {
-	var ds []storage.Destination[storage.MapEntry]
 	dest, err := destination.NewBulkInsertMapWithGorm(
 		destination.BulkConfig{
 			IsTruncate:  !u.config.SkipTruncate,
@@ -146,6 +150,5 @@ func (u *UpdateTransfer) destinations() ([]storage.Destination[storage.MapEntry]
 		return nil, fmt.Errorf("NewBulkInsertMapWithGorm: %w", err)
 	}
 
-	ds = append(ds, dest)
-	return ds, nil
+	return []storage.Destination[storage.MapEntry]{dest}, nil
 }

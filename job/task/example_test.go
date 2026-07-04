@@ -34,10 +34,10 @@ func (_ cleanResource) Data() job.Table    { return &jobTarget{} }
 func (_ cleanResource) Deleted() job.Table { return &jobTarget{} }
 
 func ExampleNewClean() {
-	mode := transform.NewUpdate(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
+	operator := transform.NewUpdate(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
 	_ = NewClean(
 		&cleanResource{},
-		[]transform.UpdateOperator{mode},
+		[]transform.UpdateOperator{operator},
 		WithCleanConfig(CleanConfig{
 			SkipTruncate: false,
 			ExtraTags:    false,
@@ -47,43 +47,43 @@ func ExampleNewClean() {
 }
 
 func ExampleNewInsert() {
-	mode := transform.NewInsert(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
+	operator := transform.NewInsert(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
 	insMulti1 := transform.NewInsert(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
 	insMulti2 := transform.NewInsert(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
-	modeMulti := transform.NewInsertStack(insMulti1, insMulti2)
+	operatorMulti := transform.NewInsertStack(insMulti1, insMulti2)
 	insCross1 := transform.NewInsert(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewMostKey(ruler)), nil)
 	insCross2 := transform.NewInsert(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewMostText(ruler)), nil)
-	modeCross := transform.NewInsertCross(insCross1, insCross2)
+	operatorCross := transform.NewInsertCross(insCross1, insCross2)
 	insSpread1 := transform.NewInsert(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
 	insSpread2 := transform.NewInsert(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
-	modeSpread := transform.NewInsertSpread(insSpread1, insSpread2)
+	operatorSpread := transform.NewInsertSpread(insSpread1, insSpread2)
 
-	_ = NewInsert(&jobTarget{}, mode, WithInsertConfig(InsertConfig{
+	_ = NewInsert(&jobTarget{}, operator, WithInsertConfig(InsertConfig{
 		SkipTruncate: false,
 		ExtraKeys:    nil,
 	}))
 
-	_ = NewInsert(&jobTarget{}, modeMulti)
-	_ = NewInsert(&jobTarget{}, modeCross)
-	_ = NewInsert(&jobTarget{}, modeSpread)
+	_ = NewInsert(&jobTarget{}, operatorMulti)
+	_ = NewInsert(&jobTarget{}, operatorCross)
+	_ = NewInsert(&jobTarget{}, operatorSpread)
 }
 
 func ExampleNewTransfer() {
-	mode := transform.NewTransfer(
+	operator := transform.NewTransfer(
 		[]string{"key1", "key2"},
 		map[string]string{"key1": "alias1"},
 		map[string]any{"fixed1": "fixed value"},
 	)
 
-	_ = NewTransfer(&jobTarget{}, mode)
+	_ = NewTransfer(&jobTarget{}, operator)
 }
 
 func ExampleNewUpdate() {
-	mode := transform.NewUpdate(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
+	operator := transform.NewUpdate(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
 
-	_ = NewUpdate(&jobSource{}, []transform.UpdateOperator{mode})
+	_ = NewUpdate(&jobSource{}, []transform.UpdateOperator{operator})
 
-	_ = NewUpdateTransfer(&jobSource{}, &jobTarget{}, []transform.UpdateOperator{mode}, WithUpdateTransferConfig(UpdateTransferConfig{
+	_ = NewUpdateTransfer(&jobSource{}, &jobTarget{}, []transform.UpdateOperator{operator}, WithUpdateTransferConfig(UpdateTransferConfig{
 		SkipTruncate: false,
 	}))
 }

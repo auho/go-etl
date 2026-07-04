@@ -9,6 +9,7 @@ import (
 	"github.com/auho/go-toolkit-flow/v3/storage/database/destination"
 )
 
+// InsertConfig configures an Insert task.
 type InsertConfig struct {
 	baseConfig
 	SkipTruncate     bool
@@ -16,6 +17,7 @@ type InsertConfig struct {
 	ExtraKeys        []string // source fields appended to target
 }
 
+// WithInsertConfig returns an option that sets the Insert config.
 func WithInsertConfig(ic InsertConfig) func(*Insert) {
 	return func(i *Insert) {
 		i.config = ic
@@ -24,19 +26,20 @@ func WithInsertConfig(ic InsertConfig) func(*Insert) {
 
 var _ itemProducer = (*Insert)(nil)
 
+// Insert is a producer that transforms each source row via operator and inserts the
+// result into the target table.
 type Insert struct {
 	producerTask
 
-	mode   transform.InsertOperator
-	target job.Table
-	config InsertConfig
+	operator transform.InsertOperator
+	target   job.Table
+	config   InsertConfig
 }
 
-// NewInsert
-// insert
-func NewInsert(target job.Table, mode transform.InsertOperator, opts ...func(*Insert)) *Insert {
+// NewInsert creates an Insert producer writing to target via operator.
+func NewInsert(target job.Table, operator transform.InsertOperator, opts ...func(*Insert)) *Insert {
 	i := &Insert{}
-	i.mode = mode
+	i.operator = operator
 	i.target = target
 
 	for _, opt := range opts {
@@ -49,17 +52,17 @@ func NewInsert(target job.Table, mode transform.InsertOperator, opts ...func(*In
 }
 
 func (i *Insert) Fields() ([]string, error) {
-	return append(i.mode.Fields(), i.config.ExtraKeys...), nil
+	return append(i.operator.Fields(), i.config.ExtraKeys...), nil
 }
 
 func (i *Insert) Summary() string {
-	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.mode.Title())
+	return fmt.Sprintf("Insert[%s] {%s}", i.target.TableName(), i.operator.Title())
 }
 
 func (i *Insert) Prepare() error {
-	err := i.mode.Prepare()
+	err := i.operator.Prepare()
 	if err != nil {
-		return fmt.Errorf("mode.Prepare: %w", err)
+		return fmt.Errorf("operator.Prepare: %w", err)
 	}
 
 	return nil
@@ -70,13 +73,13 @@ func (i *Insert) BeforeRun() error {
 }
 
 func (i *Insert) Exec(item map[string]any) ([]map[string]any, bool, error) {
-	newItems, err := i.mode.Apply(item)
+	newItems, err := i.operator.Apply(item)
 	if err != nil {
-		return nil, false, fmt.Errorf("mode.Apply: %w", err)
+		return nil, false, fmt.Errorf("operator.Apply: %w", err)
 	}
 	if len(newItems) <= 0 {
 		if i.config.AllowInsertEmpty {
-			newItems = []map[string]any{i.mode.DefaultValues()}
+			newItems = []map[string]any{i.operator.DefaultValues()}
 		} else {
 			return nil, false, nil
 		}
@@ -98,11 +101,10 @@ func (i *Insert) AfterRun() error { return nil }
 func (i *Insert) AppendState() {}
 
 func (i *Insert) Close() error {
-	return i.mode.Close()
+	return i.operator.Close()
 }
 
 func (i *Insert) destinations() ([]storage.Destination[storage.MapEntry], error) {
-	var ds []storage.Destination[storage.MapEntry]
 	dest, err := destination.NewBulkInsertMapWithGorm(
 		destination.BulkConfig{
 			IsTruncate:  !i.config.SkipTruncate,
@@ -118,6 +120,5 @@ func (i *Insert) destinations() ([]storage.Destination[storage.MapEntry], error)
 		return nil, fmt.Errorf("NewBulkInsertMapWithGorm: %w", err)
 	}
 
-	ds = append(ds, dest)
-	return ds, nil
+	return []storage.Destination[storage.MapEntry]{dest}, nil
 }
