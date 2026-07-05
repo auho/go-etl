@@ -133,7 +133,8 @@ func (sm *SortMap) Load(k string) string {
 }
 
 func (sm *SortMap) Next() bool {
-	sm.RWMutex.RLock()
+	sm.RWMutex.Lock()
+	defer sm.RWMutex.Unlock()
 	if sm.index+1 >= len(sm.keys) {
 		sm.index = -1
 		return false
@@ -145,11 +146,11 @@ func (sm *SortMap) Next() bool {
 }
 
 func (sm *SortMap) Scan() (string, string) {
-	// TODO
+	sm.RWMutex.RLock()
 	defer sm.RWMutex.RUnlock()
 	key := sm.keys[sm.index]
 
-	return key, sm.Load(key)
+	return key, sm.m[key]
 }
 
 func (sm *SortMap) Len() int {

@@ -38,7 +38,7 @@ func (e *Excel) NewSheetWithData(sheetName string, rows [][]any) (int, error) {
 		}
 	}
 
-	return -1, nil
+	return index, nil
 }
 
 func (e *Excel) SaveAs() error {
