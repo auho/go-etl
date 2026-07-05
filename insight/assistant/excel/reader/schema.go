@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
+	"github.com/auho/go-etl/v3/insight/assistant/schema/create"
 	"github.com/auho/go-toolkit/v2/farmtools/sort/maps"
 )
 
@@ -14,13 +14,13 @@ import (
 // sheet to table schema
 type Schema struct {
 	excel  *Excel
-	table  buildtable.Tabler
+	table  create.Tabler
 	config Config
 
 	titleFunc []func(string) string
 }
 
-func NewSchemaWithPath(xlsxPath string, table buildtable.Tabler, config Config) (*Schema, error) {
+func NewSchemaWithPath(xlsxPath string, table create.Tabler, config Config) (*Schema, error) {
 	excel, err := NewExcel(xlsxPath)
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func NewSchemaWithPath(xlsxPath string, table buildtable.Tabler, config Config) 
 	return NewSchema(excel, table, config)
 }
 
-func NewSchema(excel *Excel, table buildtable.Tabler, config Config) (*Schema, error) {
+func NewSchema(excel *Excel, table create.Tabler, config Config) (*Schema, error) {
 	return &Schema{
 		excel:  excel,
 		table:  table,
@@ -60,7 +60,7 @@ func (s *Schema) WithTitleAliasByIndex() {
 	panic("implement me")
 }
 
-func (s *Schema) BuildTable() (buildtable.Tabler, error) {
+func (s *Schema) BuildTable() (create.Tabler, error) {
 	if s.config.EndRow <= 0 {
 		s.config.EndRow = 100
 	}

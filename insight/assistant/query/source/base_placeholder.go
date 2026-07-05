@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-type basePlaceHolder struct {
+type basePlaceholder struct {
 }
 
-func (bph *basePlaceHolder) buildKeys(sql string) []string {
+func (bph *basePlaceholder) buildKeys(sql string) []string {
 	re := regexp.MustCompile(`##[^#]+##`)
 	keys := re.FindAllString(sql, -1)
 	for i, key := range keys {
@@ -21,7 +21,7 @@ func (bph *basePlaceHolder) buildKeys(sql string) []string {
 
 // []string []item id
 // map[string]string map[item id]sql
-func (bph *basePlaceHolder) buildPlaceholderItemsSqlSet(s SourceBase, sql string, keys []string, items []map[string]any) ([]string, map[string]string) {
+func (bph *basePlaceholder) buildPlaceholderItemsSqlSet(s SourceBase, sql string, keys []string, items []map[string]any) ([]string, map[string]string) {
 	var itemsId []string
 	itemsSql := make(map[string]string, len(items))
 
@@ -49,7 +49,7 @@ func (bph *basePlaceHolder) buildPlaceholderItemsSqlSet(s SourceBase, sql string
 }
 
 // []string sql
-func (bph *basePlaceHolder) buildPlaceholderItemsSqlList(sql string, items []map[string]any) []string {
+func (bph *basePlaceholder) buildPlaceholderItemsSqlList(sql string, items []map[string]any) []string {
 	var itemsSql []string
 	for _, item := range items {
 		itemsSql = append(itemsSql, bph.buildPlaceholderItemSql(sql, item))
@@ -59,7 +59,7 @@ func (bph *basePlaceHolder) buildPlaceholderItemsSqlList(sql string, items []map
 }
 
 // string sql
-func (bph *basePlaceHolder) buildPlaceholderItemSql(sql string, item map[string]any) string {
+func (bph *basePlaceholder) buildPlaceholderItemSql(sql string, item map[string]any) string {
 	for key, value := range item {
 		sql = strings.ReplaceAll(sql, fmt.Sprintf("##%s##", key), fmt.Sprintf("%v", value))
 	}

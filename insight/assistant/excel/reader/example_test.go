@@ -1,15 +1,15 @@
 package reader
 
 import (
-	"github.com/auho/go-etl/v3/insight/assistant/model"
-	"github.com/auho/go-etl/v3/insight/assistant/schema/buildtable"
+	"github.com/auho/go-etl/v3/insight/assistant/entity"
+	"github.com/auho/go-etl/v3/insight/assistant/schema/create"
 )
 
 var _excel *Excel
-var _raw *model.Raw
+var _raw *entity.Raw
 
 func ExampleNewSchema() {
-	s, _ := NewSchema(_excel, buildtable.NewRawTable(_raw), Config{
+	s, _ := NewSchema(_excel, create.NewRawTable(_raw), Config{
 		SheetName:  "",
 		SheetIndex: 0,
 		StartRow:   0,
@@ -29,7 +29,7 @@ func ExampleNewSchema() {
 }
 
 func ExampleNewSchemaWithPath() {
-	s, _ := NewSchemaWithPath("xlsxPath", buildtable.NewRawTable(_raw), Config{
+	s, _ := NewSchemaWithPath("xlsxPath", create.NewRawTable(_raw), Config{
 		SheetName:  "",
 		SheetIndex: 0,
 		StartRow:   0,

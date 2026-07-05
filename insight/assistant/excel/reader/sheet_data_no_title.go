@@ -22,6 +22,7 @@ func NewSheetDataNoTitle(excel *Excel, config Config) (*SheetDataNoTitle, error)
 
 	return sd, nil
 }
+
 func (sd *SheetDataNoTitle) ReadData() error {
 	return sd.readSheet()
 }

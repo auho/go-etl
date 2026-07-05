@@ -11,7 +11,7 @@ var _ Source = (*PlaceholderSource)(nil)
 type PlaceholderSource struct {
 	SourceBase
 	baseCross
-	basePlaceHolder
+	basePlaceholder
 	items []map[string]any // []map[field][field value]
 }
 
