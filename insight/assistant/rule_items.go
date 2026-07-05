@@ -6,7 +6,7 @@ import (
 
 	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
 	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml/command"
-	"github.com/auho/go-etl/v3/job/extract"
+	"github.com/auho/go-etl/v3/task/extract"
 )
 
 var _ extract.Rule = (*RuleItems)(nil)

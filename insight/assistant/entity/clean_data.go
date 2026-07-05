@@ -1,10 +1,10 @@
 package entity
 
 import (
-	"github.com/auho/go-etl/v3/job"
+	"github.com/auho/go-etl/v3/task"
 )
 
-var _ job.CleanResource = (*CleanData)(nil)
+var _ task.CleanResource = (*CleanData)(nil)
 
 type CleanData struct {
 	model
@@ -23,14 +23,14 @@ func NewCleanData(rows *Rows) *CleanData {
 	return cd
 }
 
-func (cd *CleanData) Source() job.Table {
+func (cd *CleanData) Source() task.Table {
 	return cd.rows
 }
 
-func (cd *CleanData) Data() job.Table {
+func (cd *CleanData) Data() task.Table {
 	return cd.data
 }
 
-func (cd *CleanData) Deleted() job.Table {
+func (cd *CleanData) Deleted() task.Table {
 	return cd.deleted
 }

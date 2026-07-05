@@ -2,10 +2,10 @@ package entity
 
 import (
 	"github.com/auho/go-etl/v3/insight/assistant"
-	"github.com/auho/go-etl/v3/job"
+	"github.com/auho/go-etl/v3/task"
 )
 
-var _ job.CleanResource = (*CleanRows)(nil)
+var _ task.CleanResource = (*CleanRows)(nil)
 
 type CleanRows struct {
 	model
@@ -32,14 +32,14 @@ func (cd *CleanRows) DeletedRows() *Rows {
 	return cd.deleted
 }
 
-func (cd *CleanRows) Source() job.Table {
+func (cd *CleanRows) Source() task.Table {
 	return cd.raw
 }
 
-func (cd *CleanRows) Data() job.Table {
+func (cd *CleanRows) Data() task.Table {
 	return cd.rows
 }
 
-func (cd *CleanRows) Deleted() job.Table {
+func (cd *CleanRows) Deleted() task.Table {
 	return cd.deleted
 }
