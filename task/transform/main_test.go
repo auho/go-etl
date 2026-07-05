@@ -11,7 +11,7 @@ import (
 	"github.com/auho/go-etl/v3/internal/testutil/mysql"
 )
 
-var _ruleName = "a"
+var _ruleName = "transform"
 var _ruleTableName = "rule_" + _ruleName
 var _keyName = "name"
 var _simpleDB *simpledb.SimpleDB

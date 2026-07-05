@@ -12,14 +12,14 @@ import (
 )
 
 // --- table names ---
-var _ruleName = "a"
+var _ruleName = "runner"
 var _ruleTable = "rule_" + _ruleName
-var _dataTable = "data"                              // master data source (read-only, copied per test)
-var _updateAndTransferTable = "data_update_transfer" // for update and transfer
-var _transferTable = "data_transfer"                 // for transfer
-var _cleanDataTable = "clean_data"                   // for clean data
-var _deletedDataTable = "deleted_data"               // for clean deleted
-var _tagATable = "tag_data_a"
+var _dataTable = "runner_data"                              // master data source (read-only, copied per test)
+var _updateAndTransferTable = "runner_data_update_transfer" // for update and transfer
+var _transferTable = "runner_data_transfer"                 // for transfer
+var _cleanDataTable = "runner_clean_data"                   // for clean data
+var _deletedDataTable = "runner_deleted_data"               // for clean deleted
+var _tagATable = "runner_tag_data_a"
 
 // --- field names ---
 var _pkName = "did"

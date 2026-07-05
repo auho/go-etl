@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var _ruleName = "a"
+var _ruleName = "tag"
 var _ruleTableName = "rule_" + _ruleName
 var _rule = &ruleTest{}
 var _ruleAliasFixed = &ruleAliasFixedTest{}

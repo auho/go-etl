@@ -1,4 +1,4 @@
 package containment
 
-var _ruleName = "a"
+var _ruleName = "containment"
 var _ruleTableName = "rule_" + _ruleName
