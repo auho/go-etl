@@ -31,11 +31,16 @@ func Do(xlsxName, xlsxPath string, fn func(q *Query)) error {
 	return DoWithPath(path.Join(xlsxPath, xlsxName+".xlsx"), fn)
 }
 
-func DoWithPath(xlsxFilePath string, fn func(q *Query)) error {
+func DoWithPath(xlsxFilePath string, fn func(q *Query)) (err error) {
 	q, err := NewQueryWithPath(xlsxFilePath)
 	if err != nil {
 		return err
 	}
+	defer func() {
+		if closeErr := q.Close(); closeErr != nil && err == nil {
+			err = fmt.Errorf("excel.Close: %w", closeErr)
+		}
+	}()
 
 	fn(q)
 
@@ -158,6 +163,10 @@ func (q *Query) doQuery(sq *subQuery) error {
 	}
 
 	return nil
+}
+
+func (q *Query) Close() error {
+	return q.excel.Close()
 }
 
 func (q *Query) Save() error {

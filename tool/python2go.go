@@ -9,7 +9,6 @@ import (
 )
 
 type Python2Go struct {
-	f    *os.File
 	name string
 	path string
 	c    string
@@ -25,13 +24,13 @@ func NewPython2Go(s string) *Python2Go {
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 
 	p := &Python2Go{}
 	p.name = fs.Name()
 	p.path = f.Name()
-	p.f = f
 
-	b, err := io.ReadAll(p.f)
+	b, err := io.ReadAll(f)
 	if err != nil {
 		panic(err)
 	}

@@ -23,14 +23,18 @@ func RunLoad(xlsxPath string, sr ...Resource) error {
 	return e.Import()
 }
 
-func (it *Loader) Import() error {
+func (it *Loader) Import() (err error) {
 	fmt.Println(fmt.Sprintf("import start[%s]", it.xlsxPath))
 
-	var err error
 	it.excel, err = reader.NewExcel(it.xlsxPath)
 	if err != nil {
 		return fmt.Errorf("NewExcel: %w", err)
 	}
+	defer func() {
+		if closeErr := it.excel.Close(); closeErr != nil && err == nil {
+			err = fmt.Errorf("excel.Close: %w", closeErr)
+		}
+	}()
 
 	for _, resource := range it.resource {
 		fmt.Println(fmt.Sprintf("import resource[%s]", resource.GetName()))

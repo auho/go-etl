@@ -39,34 +39,40 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 		return nil, errors.New("sheet name or index does not exist")
 	}
 
-	rowsScan, err := e.excelFile.Rows(config.SheetName)
+	rows, err := func() (rows [][]string, err error) {
+		rowsScan, err := e.excelFile.Rows(config.SheetName)
+		if err != nil {
+			return nil, fmt.Errorf("excelFile.Rows: %w", err)
+		}
+		defer func() {
+			if closeErr := rowsScan.Close(); closeErr != nil && err == nil {
+				err = fmt.Errorf("close: %w", closeErr)
+			}
+		}()
+
+		var _i = 0
+		for rowsScan.Next() {
+			_i += 1
+			if _i < config.StartRow {
+				continue
+			}
+
+			// end row > 0 AND current > end row
+			if config.EndRow > 0 && _i > config.EndRow {
+				break
+			}
+
+			row, err1 := rowsScan.Columns()
+			if err1 != nil {
+				return nil, fmt.Errorf("columns: %w", err1)
+			}
+
+			rows = append(rows, row)
+		}
+		return rows, nil
+	}()
 	if err != nil {
-		return nil, fmt.Errorf("excelFile.Rows: %w", err)
-	}
-
-	var _i = 0
-	var rows [][]string
-	for rowsScan.Next() {
-		_i += 1
-		if _i < config.StartRow {
-			continue
-		}
-
-		// end row > 0 AND current > end row
-		if config.EndRow > 0 && _i > config.EndRow {
-			break
-		}
-
-		row, err1 := rowsScan.Columns()
-		if err1 != nil {
-			return nil, fmt.Errorf("columns: %w", err1)
-		}
-
-		rows = append(rows, row)
-	}
-
-	if err = rowsScan.Close(); err != nil {
-		return nil, fmt.Errorf("close: %w", err)
+		return nil, err
 	}
 
 	if len(config.ColsIndex) > 0 {
