@@ -2,6 +2,7 @@ package segword
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/yanyiwu/gojieba"
 )
@@ -9,6 +10,7 @@ import (
 type Seg struct {
 	userHmm bool
 	jieBa   *gojieba.Jieba
+	mu      sync.Mutex
 }
 
 func NewSeg() *Seg {
@@ -19,6 +21,9 @@ func NewSeg() *Seg {
 }
 
 func (s *Seg) tag(contents []string) results {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	var rets results
 	for _, content := range contents {
 		items := s.jieBa.Tag(content)

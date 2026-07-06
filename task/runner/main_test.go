@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -52,6 +53,10 @@ func TestMain(m *testing.M) {
 // generation live in setup_test.go; this function only orchestrates the order.
 func setUp() {
 	testutil.LoadEnv()
+	if os.Getenv("MYSQL_DSN") == "" {
+		fmt.Println("skip: MYSQL_DSN not set")
+		os.Exit(0)
+	}
 	_simpleDB, _gormDB = mysql.NewDB()
 
 	setupDataDimensions()
