@@ -1,6 +1,8 @@
 package dml
 
 import (
+	"context"
+
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
@@ -24,7 +26,7 @@ func (s *manipulation) InsertSQL(name string) string {
 func (s *manipulation) Insert(name string, db *simpledb.SimpleDB) (string, error) {
 	_sql := s.InsertSQL(name)
 
-	return _sql, db.GormDB().Exec(_sql).Error
+	return _sql, db.GormDB().WithContext(context.TODO()).Exec(_sql).Error
 }
 
 func (s *manipulation) InsertWithFieldsSQL(name string, fields []string) string {
@@ -36,7 +38,7 @@ func (s *manipulation) InsertWithFieldsSQL(name string, fields []string) string 
 func (s *manipulation) InsertWithFields(name string, fields []string, db *simpledb.SimpleDB) (string, error) {
 	_sql := s.InsertWithFieldsSQL(name, fields)
 
-	return _sql, db.GormDB().Exec(_sql).Error
+	return _sql, db.GormDB().WithContext(context.TODO()).Exec(_sql).Error
 }
 
 func (s *manipulation) UpdateSQL() string {
@@ -48,7 +50,7 @@ func (s *manipulation) UpdateSQL() string {
 func (s *manipulation) Update(db *simpledb.SimpleDB) (string, error) {
 	_sql := s.UpdateSQL()
 
-	return _sql, db.GormDB().Exec(_sql).Error
+	return _sql, db.GormDB().WithContext(context.TODO()).Exec(_sql).Error
 }
 
 func (s *manipulation) DeleteSQL() string {
@@ -60,5 +62,5 @@ func (s *manipulation) DeleteSQL() string {
 func (s *manipulation) Delete(db *simpledb.SimpleDB) (string, error) {
 	_sql := s.DeleteSQL()
 
-	return _sql, db.GormDB().Exec(_sql).Error
+	return _sql, db.GormDB().WithContext(context.TODO()).Exec(_sql).Error
 }

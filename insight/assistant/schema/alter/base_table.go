@@ -1,6 +1,7 @@
 package alter
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/auho/go-etl/v3/insight/assistant/schema"
@@ -39,7 +40,7 @@ func (bt *baseTable) SqlForChange() []string {
 
 func (bt *baseTable) build(sqls []string, db *simpledb.SimpleDB) error {
 	for _, sql := range sqls {
-		err := db.GormDB().Exec(sql).Error
+		err := db.GormDB().WithContext(context.TODO()).Exec(sql).Error
 		if err != nil {
 			return fmt.Errorf("exec[%s]: %w", bt.TableName(), err)
 		}

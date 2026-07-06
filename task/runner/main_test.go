@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -80,6 +81,6 @@ func tearDown() {
 		_deletedDataTable,
 		_tagATable,
 	} {
-		_ = _simpleDB.Drop(table)
+		_ = _simpleDB.Drop(context.TODO(), table)
 	}
 }

@@ -1,6 +1,7 @@
 package source
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/auho/go-etl/v3/insight/assistant"
@@ -26,7 +27,7 @@ func NewRaw(name string, raw assistant.Raw) *RawSource {
 }
 
 func (rs *RawSource) Dataset() (*dataset.Dataset, error) {
-	fields, err := rs.Raw.GetDB().GetTableColumns(rs.Raw.TableName())
+	fields, err := rs.Raw.GetDB().GetTableColumns(context.TODO(), rs.Raw.TableName())
 	if err != nil {
 		return nil, err
 	}

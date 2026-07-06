@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"fmt"
 	"maps"
 	"strings"
@@ -71,7 +72,7 @@ func (c *Clean) Fields() ([]string, error) {
 		keys = slicex.SliceDropDuplicates(keys)
 	} else {
 		var err error
-		keys, err = c.resource.Deleted().GetDB().GetTableColumns(c.resource.Deleted().TableName())
+		keys, err = c.resource.Deleted().GetDB().GetTableColumns(context.TODO(), c.resource.Deleted().TableName())
 		if err != nil {
 			return nil, fmt.Errorf("GetTableColumns: %w", err)
 		}

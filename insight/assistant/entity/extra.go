@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/auho/go-etl/v3/insight/assistant"
@@ -35,7 +36,7 @@ func (e *extra) InsertWithTableField(table dml.Tabler, fields []string) (string,
 }
 
 func (e *extra) GetTableColumns() ([]string, error) {
-	return e.model.GetDB().GetTableColumns(e.model.TableName())
+	return e.model.GetDB().GetTableColumns(context.TODO(), e.model.TableName())
 }
 
 func (e *extra) RecreateFromSql(sql string) error {
@@ -48,20 +49,20 @@ func (e *extra) RecreateFromSql(sql string) error {
 }
 
 func (e *extra) Drop() error {
-	return e.model.GetDB().Drop(e.model.TableName())
+	return e.model.GetDB().Drop(context.TODO(), e.model.TableName())
 }
 
 func (e *extra) Truncate() error {
-	return e.model.GetDB().Truncate(e.model.TableName())
+	return e.model.GetDB().Truncate(context.TODO(), e.model.TableName())
 }
 
 func (e *extra) CopyBuild(dst assistant.Raw) error {
-	err := dst.GetDB().Drop(dst.TableName())
+	err := dst.GetDB().Drop(context.TODO(), dst.TableName())
 	if err != nil {
 		return err
 	}
 
-	return e.model.GetDB().CopyStructure(e.model.TableName(), dst.TableName())
+	return e.model.GetDB().CopyStructure(context.TODO(), e.model.TableName(), dst.TableName())
 }
 
 func (e *extra) CopyBuildAndData(dst assistant.Raw) error {
@@ -70,15 +71,15 @@ func (e *extra) CopyBuildAndData(dst assistant.Raw) error {
 		return err
 	}
 
-	return e.model.GetDB().GormDB().Exec(
+	return e.model.GetDB().GormDB().WithContext(context.TODO()).Exec(
 		fmt.Sprintf("INSERT INTO %s SELECT * FROM %s", dst.TableName(), e.model.TableName()),
 	).Error
 }
 
 func (e *extra) RawSqlAndScan(dst any, sql string, v ...any) error {
-	return e.model.GetDB().GormDB().Raw(sql, v...).Scan(dst).Error
+	return e.model.GetDB().GormDB().WithContext(context.TODO()).Raw(sql, v...).Scan(dst).Error
 }
 
 func (e *extra) ExecSql(sql string, v ...any) error {
-	return e.model.GetDB().GormDB().Exec(sql, v...).Error
+	return e.model.GetDB().GormDB().WithContext(context.TODO()).Exec(sql, v...).Error
 }

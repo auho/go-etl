@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -62,7 +63,7 @@ func (u *UpdateTransfer) Fields() ([]string, error) {
 		fields = append(fields, op.Fields()...)
 	}
 
-	columns, err := u.target.GetDB().GetTableColumns(u.target.TableName())
+	columns, err := u.target.GetDB().GetTableColumns(context.TODO(), u.target.TableName())
 	if err != nil {
 		return nil, fmt.Errorf("GetTableColumns: %w", err)
 	}

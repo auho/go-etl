@@ -1,6 +1,7 @@
 package load
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/auho/go-etl/v3/insight/assistant/excel/reader"
@@ -85,12 +86,12 @@ func (it *Loader) buildResourceTable(resource Resource, table create.Tabler) err
 
 	// TODO Optimize 合并 recreate 至 table
 	isRecreateTable := resource.GetIsRecreateTable()
-	_, err := resource.GetDB().GetTableColumns(table.GetTableName())
+	_, err := resource.GetDB().GetTableColumns(context.TODO(), table.GetTableName())
 	if err != nil {
 		isRecreateTable = true
 	} else {
 		if isRecreateTable {
-			err = resource.GetDB().Drop(table.GetTableName())
+			err = resource.GetDB().Drop(context.TODO(), table.GetTableName())
 			if err != nil {
 				return fmt.Errorf("drop: %w", err)
 			}
@@ -124,13 +125,13 @@ func (it *Loader) importResourceToTable(resource Resource, table create.Tabler, 
 	}
 
 	if !resource.GetIsAppendData() {
-		err = resource.GetDB().Truncate(table.GetTableName())
+		err = resource.GetDB().Truncate(context.TODO(), table.GetTableName())
 		if err != nil {
 			return fmt.Errorf("truncate: %w", err)
 		}
 	}
 
-	err = resource.GetDB().BulkInsertFromSliceSlice(table.GetTableName(), resource.GetTitlesName(), sheetData.GetRowsWithAny(), resource.GetBatchInsertSize())
+	err = resource.GetDB().BulkInsertFromSliceSlice(context.TODO(), table.GetTableName(), resource.GetTitlesName(), sheetData.GetRowsWithAny(), resource.GetBatchInsertSize())
 	if err != nil {
 		return err
 	}

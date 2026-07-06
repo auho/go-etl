@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -38,7 +39,7 @@ func setUp() {
 	_simpleDB, _gormDB = mysql.NewDB()
 
 	query := ""
-	err = _simpleDB.Drop(_ruleTableName)
+	err = _simpleDB.Drop(context.TODO(), _ruleTableName)
 	if err != nil {
 		panic(err)
 	}
@@ -70,5 +71,5 @@ func setUp() {
 }
 
 func tearDown() {
-	_ = _simpleDB.Drop(_ruleTableName)
+	_ = _simpleDB.Drop(context.TODO(), _ruleTableName)
 }

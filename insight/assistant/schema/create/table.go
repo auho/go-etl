@@ -1,6 +1,7 @@
 package create
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -46,12 +47,12 @@ func (t *table) SQL() string {
 
 func (t *table) Build() error {
 	if t.config.Recreate {
-		err := t.db.Drop(t.TableName())
+		err := t.db.Drop(context.TODO(), t.TableName())
 		if err != nil {
 			return t.formatError(fmt.Errorf("db.Drop: %w", err))
 		}
 	} else if t.config.Truncate {
-		err := t.db.Truncate(t.TableName())
+		err := t.db.Truncate(context.TODO(), t.TableName())
 		if err != nil {
 			return t.formatError(fmt.Errorf("db.Truncate: %w", err))
 		}
@@ -66,7 +67,7 @@ func (t *table) Build() error {
 		return t.formatError(errors.New("db empty error"))
 	}
 
-	err := t.db.GormDB().Exec(sql).Error
+	err := t.db.GormDB().WithContext(context.TODO()).Exec(sql).Error
 	if err != nil {
 		return t.formatError(err)
 	}

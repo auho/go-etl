@@ -1,6 +1,7 @@
 package source
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -56,7 +57,7 @@ func (b *Base) querySql(sql string, fields []string) ([][]any, time.Duration, er
 	var rows []map[string]any
 
 	_start := time.Now()
-	err := b.DB.GormDB().Raw(sql).Scan(&rows).Error
+	err := b.DB.GormDB().WithContext(context.TODO()).Raw(sql).Scan(&rows).Error
 	if err != nil {
 		return nil, 0, fmt.Errorf("scan: %w", err)
 	}

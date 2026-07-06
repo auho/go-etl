@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"testing"
@@ -100,7 +101,7 @@ func mustExec(query string) {
 }
 
 func mustDrop(table string) {
-	must(_simpleDB.Drop(table))
+	must(_simpleDB.Drop(context.TODO(), table))
 }
 
 // --- setup steps, called from setUp() in main_test.go ---
@@ -129,7 +130,7 @@ func generateMasterData() {
 	}
 
 	for i := 0; i < _maxB; i++ {
-		must(_simpleDB.BulkInsertFromSliceSlice(_dataTable, []string{"name"}, rows, 2000))
+		must(_simpleDB.BulkInsertFromSliceSlice(context.TODO(), _dataTable, []string{"name"}, rows, 2000))
 	}
 
 	var count int64
@@ -148,15 +149,15 @@ func createTransferTable() {
 // createUpdateAndTransferTable clones the master structure for update+transfer.
 func createUpdateAndTransferTable() {
 	mustDrop(_updateAndTransferTable)
-	must(_simpleDB.CopyStructure(_dataTable, _updateAndTransferTable))
+	must(_simpleDB.CopyStructure(context.TODO(), _dataTable, _updateAndTransferTable))
 }
 
 // createCleanTables clones the master structure for clean data + deleted data.
 func createCleanTables() {
 	mustDrop(_cleanDataTable)
-	must(_simpleDB.CopyStructure(_dataTable, _cleanDataTable))
+	must(_simpleDB.CopyStructure(context.TODO(), _dataTable, _cleanDataTable))
 	mustDrop(_deletedDataTable)
-	must(_simpleDB.CopyStructure(_dataTable, _deletedDataTable))
+	must(_simpleDB.CopyStructure(context.TODO(), _dataTable, _deletedDataTable))
 }
 
 // createTagATable builds the tag destination table.
@@ -181,6 +182,6 @@ func newTestSource(t *testing.T, suffix string) *sourceTest {
 	mustDrop(tableName)
 	mustExec(fmt.Sprintf("CREATE TABLE `%s` LIKE `%s`", tableName, _dataTable))
 	mustExec(fmt.Sprintf("INSERT INTO `%s` SELECT * FROM `%s`", tableName, _dataTable))
-	t.Cleanup(func() { _ = _simpleDB.Drop(tableName) })
+	t.Cleanup(func() { _ = _simpleDB.Drop(context.TODO(), tableName) })
 	return &sourceTest{tableName: tableName}
 }

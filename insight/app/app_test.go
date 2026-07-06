@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"testing"
 )
 
@@ -11,7 +12,7 @@ func Test_App(t *testing.T) {
 		t.Error("app error")
 	}
 
-	err := app.DB.Ping()
+	err := app.DB.Ping(context.TODO())
 	if err != nil {
 		t.Error(err)
 	}
