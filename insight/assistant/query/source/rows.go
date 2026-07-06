@@ -11,11 +11,11 @@ var _ Source = (*RowsSource)(nil)
 // RowsSource
 // general queries
 type RowsSource struct {
-	SourceBase
+	Base
 }
 
-func NewRows(s SourceBase) *RowsSource {
-	return &RowsSource{SourceBase: s}
+func NewRows(s Base) *RowsSource {
+	return &RowsSource{Base: s}
 }
 
 func (ts *RowsSource) Dataset() (*dataset.Dataset, error) {

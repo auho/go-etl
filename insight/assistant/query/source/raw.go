@@ -11,14 +11,14 @@ type RawSource struct {
 	Name string
 	Raw  assistant.Raw
 
-	source SourceBase
+	source Base
 }
 
 func NewRaw(name string, raw assistant.Raw) *RawSource {
 	return &RawSource{
 		Name: name,
 		Raw:  raw,
-		source: SourceBase{
+		source: Base{
 			Name: name,
 			DB:   raw.GetDB(),
 		},

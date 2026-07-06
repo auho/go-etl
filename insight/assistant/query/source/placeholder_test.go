@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewPlaceholder(t *testing.T) {
-	p := NewPlaceholder(SourceBase{}).
+	p := NewPlaceholder(Base{}).
 		WithItems([]map[string]any{
 			{"one": "1", "two": "2"},
 			{"one": "1", "two": "21"},

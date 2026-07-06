@@ -15,33 +15,33 @@ type Source interface {
 	Dataset() (*dataset.Dataset, error)
 }
 
-// SourceBase
+// Base
 // select data from db
-type SourceBase struct {
+type Base struct {
 	HasNamePrefix bool // Add the name prefix before the item
 	Name          string
 	Table         dml.Tabler
 	DB            *simpledb.SimpleDB
 }
 
-func (s *SourceBase) itemValuesToIdentification(itemValues []string) string {
-	id := s.keysToIdentification(itemValues)
-	if s.HasNamePrefix {
-		id = fmt.Sprintf("%s_%s", s.Name, id)
+func (b *Base) itemValuesToIdentification(itemValues []string) string {
+	id := b.keysToIdentification(itemValues)
+	if b.HasNamePrefix {
+		id = fmt.Sprintf("%s_%s", b.Name, id)
 	}
 
 	return id
 }
 
-func (s *SourceBase) keysToIdentification(keys []string) string {
+func (b *Base) keysToIdentification(keys []string) string {
 	return strings.Join(keys, "_")
 }
 
-func (s *SourceBase) queryItemsSet(fields, itemsId []string, itemsSql map[string]string) ([]dataset.Set, error) {
+func (b *Base) queryItemsSet(fields, itemsId []string, itemsSql map[string]string) ([]dataset.Set, error) {
 	var sets []dataset.Set
 
 	for _, itemId := range itemsId {
-		rows, _d, err := s.querySql(itemsSql[itemId], fields)
+		rows, _d, err := b.querySql(itemsSql[itemId], fields)
 		if err != nil {
 			return nil, fmt.Errorf("querySql: %w", err)
 		}
@@ -52,11 +52,11 @@ func (s *SourceBase) queryItemsSet(fields, itemsId []string, itemsSql map[string
 	return sets, nil
 }
 
-func (s *SourceBase) querySql(sql string, fields []string) ([][]any, time.Duration, error) {
+func (b *Base) querySql(sql string, fields []string) ([][]any, time.Duration, error) {
 	var rows []map[string]any
 
 	_start := time.Now()
-	err := s.DB.GormDB().Raw(sql).Scan(&rows).Error
+	err := b.DB.GormDB().Raw(sql).Scan(&rows).Error
 	if err != nil {
 		return nil, 0, fmt.Errorf("scan: %w", err)
 	}

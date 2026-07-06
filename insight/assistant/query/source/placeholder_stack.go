@@ -32,14 +32,14 @@ c: 6
 type PlaceholderStackSource struct {
 	baseCross
 	basePlaceholder
-	SourceBase
+	Base
 	categories []map[string]any // []map[field][field value]
 	stacks     []map[string]any // []map[field][field value]
 }
 
-func NewPlaceholderStack(s SourceBase) *PlaceholderStackSource {
+func NewPlaceholderStack(s Base) *PlaceholderStackSource {
 	return &PlaceholderStackSource{
-		SourceBase: s,
+		Base: s,
 	}
 }
 
@@ -164,7 +164,7 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 			_items = append(_items, _newItem)
 		}
 
-		_categoryPs := NewPlaceholder(pss.SourceBase).WithItems(_items)
+		_categoryPs := NewPlaceholder(pss.Base).WithItems(_items)
 		_psDs, err := _categoryPs.Dataset()
 		if err != nil {
 			return nil, fmt.Errorf("dataset: %w", err)

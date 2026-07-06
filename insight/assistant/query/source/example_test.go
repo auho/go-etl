@@ -5,10 +5,10 @@ import (
 )
 
 func ExampleNewRows() {
-	_, _ = NewRows(SourceBase{}).
+	_, _ = NewRows(Base{}).
 		Dataset()
 
-	_ = NewRows(SourceBase{
+	_ = NewRows(Base{
 		Name:  "name",
 		DB:    nil,
 		Table: dml.NewTable("table_name").Select([]string{"field1", "field2"}),
@@ -16,7 +16,7 @@ func ExampleNewRows() {
 }
 
 func ExampleNewPlaceholder() {
-	_, _ = NewPlaceholder(SourceBase{}).
+	_, _ = NewPlaceholder(Base{}).
 		WithItems(nil).
 		WithItemsCross(nil).
 		Dataset()
@@ -24,7 +24,7 @@ func ExampleNewPlaceholder() {
 	// one two
 
 	// WithItems
-	_ = NewPlaceholder(SourceBase{
+	_ = NewPlaceholder(Base{
 		Name: "name",
 		DB:   nil,
 		Table: dml.NewTable("table_name").
@@ -38,7 +38,7 @@ func ExampleNewPlaceholder() {
 	})
 
 	// WithItemsCross
-	_ = NewPlaceholder(SourceBase{
+	_ = NewPlaceholder(Base{
 		Name: "name",
 		DB:   nil,
 		Table: dml.NewTable("table_name").
@@ -51,7 +51,7 @@ func ExampleNewPlaceholder() {
 }
 
 func ExampleNewPlaceholderStack() {
-	_, _ = NewPlaceholderStack(SourceBase{}).
+	_, _ = NewPlaceholderStack(Base{}).
 		WithCategories(nil).
 		WithCategoriesCross(nil).
 		WithStacks(nil).
@@ -62,7 +62,7 @@ func ExampleNewPlaceholderStack() {
 
 	// WithCategories
 	// WithStacks
-	_ = NewPlaceholderStack(SourceBase{
+	_ = NewPlaceholderStack(Base{
 		Name: "name",
 		DB:   nil,
 		Table: dml.NewTable("table_name").
@@ -80,7 +80,7 @@ func ExampleNewPlaceholderStack() {
 
 	// WithCategoriesCross
 	// WithStacksCross
-	_ = NewPlaceholderStack(SourceBase{
+	_ = NewPlaceholderStack(Base{
 		Name: "name",
 		DB:   nil,
 		Table: dml.NewTable("table_name").

@@ -9,15 +9,15 @@ import (
 var _ Source = (*PlaceholderSource)(nil)
 
 type PlaceholderSource struct {
-	SourceBase
+	Base
 	baseCross
 	basePlaceholder
 	items []map[string]any // []map[field][field value]
 }
 
-func NewPlaceholder(s SourceBase) *PlaceholderSource {
+func NewPlaceholder(s Base) *PlaceholderSource {
 	return &PlaceholderSource{
-		SourceBase: s,
+		Base: s,
 	}
 }
 
@@ -74,7 +74,7 @@ func (ps *PlaceholderSource) Dataset() (*dataset.Dataset, error) {
 	sql := ps.Table.SQL()
 	keys := ps.buildKeys(sql)
 
-	itemsId, itemsSql := ps.buildPlaceholderItemsSqlSet(ps.SourceBase, sql, keys, ps.items)
+	itemsId, itemsSql := ps.buildPlaceholderItemsSqlSet(ps.Base, sql, keys, ps.items)
 	sets, err := ps.queryItemsSet(fields, itemsId, itemsSql)
 	if err != nil {
 		return nil, fmt.Errorf("queryItemsSet: %w", err)

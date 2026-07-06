@@ -15,7 +15,7 @@ type RowsStackSource struct {
 	rss  []*RowsSource
 }
 
-func NewRowsStack(name string, ss ...SourceBase) *RowsStackSource {
+func NewRowsStack(name string, ss ...Base) *RowsStackSource {
 	rs := &RowsStackSource{}
 	rs.name = name
 

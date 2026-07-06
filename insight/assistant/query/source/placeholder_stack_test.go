@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewPlaceholderStack(t *testing.T) {
-	ps := NewPlaceholderStack(SourceBase{}).
+	ps := NewPlaceholderStack(Base{}).
 		WithCategories([]map[string]any{
 			{"three": "1"},
 			{"three": "2"},

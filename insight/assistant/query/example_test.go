@@ -13,7 +13,7 @@ func ExampleNewQuery() {
 	}
 
 	// append mode
-	_q.AddAppend(source.NewRows(source.SourceBase{
+	_q.AddAppend(source.NewRows(source.Base{
 		Name:  "one",
 		Table: nil,
 		DB:    nil,
@@ -21,18 +21,18 @@ func ExampleNewQuery() {
 
 	// rows stack
 	_q.AddAppend(source.NewRowsStack("name",
-		source.SourceBase{
+		source.Base{
 			Table: nil,
 			DB:    nil,
 		},
-		source.SourceBase{
+		source.Base{
 			Table: nil,
 			DB:    nil,
 		},
 	))
 
 	// spread mode
-	_q.AddSpread(source.NewPlaceholder(source.SourceBase{
+	_q.AddSpread(source.NewPlaceholder(source.Base{
 		HasNamePrefix: false,
 		Name:          "",
 		Table:         nil,
@@ -53,7 +53,7 @@ func ExampleNewQueryWithPath() {
 	}
 
 	// append mode
-	_q.AddAppend(source.NewRows(source.SourceBase{
+	_q.AddAppend(source.NewRows(source.Base{
 		Name:  "one",
 		Table: nil,
 		DB:    nil,
@@ -61,18 +61,18 @@ func ExampleNewQueryWithPath() {
 
 	// rows stack
 	_q.AddAppend(source.NewRowsStack("name",
-		source.SourceBase{
+		source.Base{
 			Table: nil,
 			DB:    nil,
 		},
-		source.SourceBase{
+		source.Base{
 			Table: nil,
 			DB:    nil,
 		},
 	))
 
 	// spread mode
-	_q.AddSpread(source.NewPlaceholder(source.SourceBase{
+	_q.AddSpread(source.NewPlaceholder(source.Base{
 		HasNamePrefix: false,
 		Name:          "",
 		Table:         nil,
