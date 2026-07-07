@@ -11,10 +11,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var APP *Application
+var App *Application
 
 func NewApp() {
-	APP = NewApplication()
+	App = NewApplication()
 }
 
 type Application struct {

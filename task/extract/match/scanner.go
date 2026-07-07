@@ -527,14 +527,14 @@ func (s *scanner) debugInfo(index int, originContent string, sc seekContent, ret
 	}
 
 	debugContent += originContent[preStop:]
-	fmt.Println(fmt.Sprintf("%-16s", "index:"), index)
-	fmt.Println(fmt.Sprintf("%-16s", "origin:"), originContent)
-	fmt.Println(fmt.Sprintf("%-16s", "debug origin:"), debugContent)
-	fmt.Println(fmt.Sprintf("%-16s", "scanned origin:"), sc.origin)
-	fmt.Println(fmt.Sprintf("%-16s", "scanned content:"), sc.content)
+	fmt.Printf("%-16s %v\n", "index:", index)
+	fmt.Printf("%-16s %v\n", "origin:", originContent)
+	fmt.Printf("%-16s %v\n", "debug origin:", debugContent)
+	fmt.Printf("%-16s %v\n", "scanned origin:", sc.origin)
+	fmt.Printf("%-16s %v\n", "scanned content:", sc.content)
 	fmt.Println("results:")
 	for i, rt := range rets {
-		fmt.Println(fmt.Sprintf("  %-3d%+v", i, rt))
+		fmt.Printf("  %-3d%+v\n", i, rt)
 	}
 
 	fmt.Println()

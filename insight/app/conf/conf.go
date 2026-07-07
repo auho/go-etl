@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {

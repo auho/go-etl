@@ -5,7 +5,7 @@ import (
 )
 
 func Initial() {
-	_app := app.APP
+	_app := app.App
 
 	_ = _app
 }

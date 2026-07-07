@@ -8,7 +8,7 @@ require (
 	github.com/auho/go-toolkit/v2 v2.0.0
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/joho/godotenv v1.5.1
-	github.com/pelletier/go-toml v1.9.3
+	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/spf13/cobra v1.10.2
 	github.com/xuri/excelize/v2 v2.10.1
 	github.com/yanyiwu/gojieba v1.3.0

@@ -35,10 +35,10 @@ func NewTable(name string) *Table {
 	return newTable(name, "")
 }
 
-// NewSqlTable
+// NewSQLTable
 // new sql from sql. SQL result set as data source
 // name as the table alias of the result set
-func NewSqlTable(name, sql string) *Table {
+func NewSQLTable(name, sql string) *Table {
 	t := NewTable(name)
 	t.asSql = sql
 
@@ -256,7 +256,7 @@ func (t *Table) GetSelectFields() []string {
 }
 
 func (t *Table) ToSqlTable(name string) *Table {
-	return NewSqlTable(name, t.SQL())
+	return NewSQLTable(name, t.SQL())
 }
 
 func (t *Table) prepare() {

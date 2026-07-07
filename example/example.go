@@ -41,7 +41,7 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use: "root",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			return app.APP.RunPreRunE(cmd)
+			return app.App.RunPreRunE(cmd)
 		},
 	}
 
@@ -59,7 +59,7 @@ func initial(rootCmd *cobra.Command) {
 	// init app
 	app.NewApp()
 
-	rootCmd.Use = app.APP.Name
+	rootCmd.Use = app.App.Name
 	rootCmd.PersistentFlags().StringVarP(&confName, "config", "c", "", "config")
 
 	fmt.Println("env:", env)
@@ -68,20 +68,20 @@ func initial(rootCmd *cobra.Command) {
 	fmt.Println()
 
 	// app start
-	app.APP.AddPreRunE(func() error {
+	app.App.AddPreRunE(func() error {
 		_confName := ""
 		if confName != "" {
 			_confName = confName
 		} else {
-			if app.APP.ConfName != "" {
-				_confName = app.APP.ConfName
+			if app.App.ConfName != "" {
+				_confName = app.App.ConfName
 			} else {
 				_confName = env
 			}
 		}
 
-		app.APP.Build(_confName)
-		app.APP.PrintlnState()
+		app.App.Build(_confName)
+		app.App.PrintlnState()
 
 		return nil
 	})

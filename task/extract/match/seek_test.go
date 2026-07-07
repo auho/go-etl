@@ -59,7 +59,7 @@ func _assertSeekResult(t *testing.T, sr seekResult, keyword, text string) {
 
 func _outputSeekResults(sr seekResults, sc seekContent) {
 	for _, _r := range sr {
-		fmt.Println(fmt.Sprintf("%+v", _r))
+		fmt.Printf("%+v\n", _r)
 	}
 
 	for i := 5; i < 50; i += 5 {

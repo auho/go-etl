@@ -23,7 +23,7 @@ func init() {
 }
 
 func Initial(parentCmd *cobra.Command) {
-	_app = app.APP
+	_app = app.App
 
 	parentCmd.AddCommand(tagCmd)
 }

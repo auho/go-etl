@@ -25,7 +25,7 @@ func RunLoad(xlsxPath string, sr ...Resource) error {
 }
 
 func (it *Loader) Import() (err error) {
-	fmt.Println(fmt.Sprintf("import start[%s]", it.xlsxPath))
+	fmt.Printf("import start[%s]\n", it.xlsxPath)
 
 	it.excel, err = reader.NewExcel(it.xlsxPath)
 	if err != nil {
@@ -38,7 +38,7 @@ func (it *Loader) Import() (err error) {
 	}()
 
 	for _, resource := range it.resource {
-		fmt.Println(fmt.Sprintf("import resource[%s]", resource.GetName()))
+		fmt.Printf("import resource[%s]\n", resource.GetName())
 		err = it.importResource(resource)
 		if err != nil {
 			return fmt.Errorf("importResource[%s]: %w", resource.GetName(), err)

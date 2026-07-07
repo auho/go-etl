@@ -23,7 +23,7 @@ func (r *Run) AddPreRunE(fn ...func() error) {
 // RunPreRunE
 // 在执行 Run 或 RunE 之前执行
 func (r *Run) RunPreRunE(cmd *cobra.Command) error {
-	fmt.Println(fmt.Sprintf("cmd[%s] run pre", cmd.Use))
+	fmt.Printf("cmd[%s] run pre\n", cmd.Use)
 
 	_fns := slices.Clone(r.preFun)
 	r.preFun = nil
@@ -63,20 +63,20 @@ func (r *Run) execCommandsE(parentCmd *cobra.Command, args []string, cs ...[]*co
 		parentCmd = &cobra.Command{Use: "unknown"}
 	}
 
-	fmt.Println(fmt.Sprintf("parent cmd[%s] start", parentCmd.Use))
+	fmt.Printf("parent cmd[%s] start\n", parentCmd.Use)
 	for _, _cmd := range _commands {
-		fmt.Println(fmt.Sprintf("cmd[%s] begin ...", _cmd.Use))
+		fmt.Printf("cmd[%s] begin ...\n", _cmd.Use)
 
 		err = _cmd.RunE(_cmd, args)
 		if err != nil {
 			return fmt.Errorf("RunE[%s]: %w", _cmd.Use, err)
 		}
 
-		fmt.Println(fmt.Sprintf("cmd[%s] end", _cmd.Use))
+		fmt.Printf("cmd[%s] end\n", _cmd.Use)
 	}
 
 	fmt.Println("======")
-	fmt.Println(fmt.Sprintf("parent cmd[%s]:", parentCmd.Use))
+	fmt.Printf("parent cmd[%s]:\n", parentCmd.Use)
 	for _, _cmd := range _commands {
 		fmt.Println("  " + _cmd.Use)
 	}

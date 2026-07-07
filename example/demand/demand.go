@@ -12,7 +12,7 @@ import (
 var _app *app.Application
 
 func Initial(parentCmd *cobra.Command) {
-	_app = app.APP
+	_app = app.App
 
 	parentCmd.AddGroup(&cobra.Group{ID: "build", Title: "build"})
 	parentCmd.AddGroup(&cobra.Group{ID: "table", Title: "table"})

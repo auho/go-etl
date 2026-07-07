@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var dbName = "_test_elt"
+var dbName = "_test_etl"
 
 // NewDB creates a *simpledb.SimpleDB and *gorm.DB from the MYSQL_DSN
 // environment variable. It panics if MYSQL_DSN is unset or the connection fails.

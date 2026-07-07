@@ -29,6 +29,6 @@ func tearDown() {}
 
 func _outputResults[T any](sm []T) {
 	for i, _m := range sm {
-		fmt.Println(fmt.Sprintf("%-3d%+v", i, _m))
+		fmt.Printf("%-3d%+v\n", i, _m)
 	}
 }

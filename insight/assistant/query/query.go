@@ -155,8 +155,8 @@ func (q *Query) doQuery(sq *subQuery) error {
 		fmt.Println(_setSummary)
 
 		for _, _query := range _set.Queries {
-			fmt.Println(fmt.Sprintf("    %s => amount: %d, duration %s:", _query.Name, _query.Amount, timing.PrettyDuration(_query.Duration)))
-			fmt.Println(fmt.Sprintf("    %s", _query.SQL))
+			fmt.Printf("    %s => amount: %d, duration %s:\n", _query.Name, _query.Amount, timing.PrettyDuration(_query.Duration))
+			fmt.Printf("    %s\n", _query.SQL)
 		}
 
 		fmt.Println()

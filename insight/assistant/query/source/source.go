@@ -62,5 +62,5 @@ func (b *Base) querySql(sql string, fields []string) ([][]any, time.Duration, er
 		return nil, 0, fmt.Errorf("scan: %w", err)
 	}
 
-	return mapx.SliceMapStringAnyToSliceSliceAny(rows, fields), time.Now().Sub(_start), nil
+	return mapx.SliceMapStringAnyToSliceSliceAny(rows, fields), time.Since(_start), nil
 }

@@ -19,7 +19,7 @@ func TestTable(t *testing.T) {
 	s1 := t1.SQL()
 	fmt.Println(s1)
 
-	t2 := NewSqlTable("efg", s1).Select([]string{"b11", "a11"})
+	t2 := NewSQLTable("efg", s1).Select([]string{"b11", "a11"})
 	s2 := t2.SQL()
 	fmt.Println(s2)
 
