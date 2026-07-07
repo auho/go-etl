@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_App(t *testing.T) {
+func TestApp(t *testing.T) {
 	app = NewApplication()
 	app.Build("develop")
 	if app.ConfName != "develop" {

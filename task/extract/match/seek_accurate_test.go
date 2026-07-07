@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_accurate(t *testing.T) {
+func TestAccurate(t *testing.T) {
 	config := seekConfig{debug: true}
 
 	// lowercase

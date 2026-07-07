@@ -154,5 +154,7 @@ func (sm *SortMap) Scan() (string, string) {
 }
 
 func (sm *SortMap) Len() int {
+	sm.RWMutex.RLock()
+	defer sm.RWMutex.RUnlock()
 	return len(sm.m)
 }

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_baseCross_expandItems(t *testing.T) {
+func TestBaseCrossExpandItems(t *testing.T) {
 	bc := &baseCross{}
 	items := map[string][]any{
 		"one": {"1", "2", "3"},

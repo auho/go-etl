@@ -517,30 +517,3 @@ func (s *scanner) getGroupName(groupIndex int, text string) string {
 
 	return group
 }
-
-// findAllSubMatch
-// [][keyword, scanned text]
-func (s *scanner) findAllSubMatchBackup(content string, n int) [][]string {
-	if !s.hasItems {
-		return nil
-	}
-
-	// 所有分组的匹配结果
-	allSubMatch := s.regexp.FindAllStringSubmatch(content, n)
-
-	matches := make([][]string, 0, len(allSubMatch))
-	for _, subMatch := range allSubMatch {
-		for k, text := range subMatch {
-			if text == "" || k == 0 {
-				continue
-			}
-
-			group := s.getGroupName(k, text)
-			matches = append(matches, []string{group, text})
-
-			break
-		}
-	}
-
-	return matches
-}

@@ -30,7 +30,7 @@ func sourceConfig() SourceConfig {
 	}
 }
 
-func Test_Update(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	src := newTestSource(t, "update")
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)
 	ua := NewUpdate(src, []transform.UpdateOperator{m})
@@ -93,7 +93,7 @@ func Test_Update(t *testing.T) {
 	}
 }
 
-func Test_UpdateTransfer(t *testing.T) {
+func TestUpdateTransfer(t *testing.T) {
 	src := newTestSource(t, "ut_src")
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)
 	ut := NewUpdateTransfer(src, _targetUpdateTransfer, []transform.UpdateOperator{m})
@@ -131,7 +131,7 @@ func Test_UpdateTransfer(t *testing.T) {
 	}
 }
 
-func Test_Insert(t *testing.T) {
+func TestInsert(t *testing.T) {
 	src := newTestSource(t, "insert")
 
 	err := _gormDB.Exec(fmt.Sprintf("TRUNCATE TABLE `%s`", _targetTagA.TableName())).Error
@@ -225,7 +225,7 @@ func Test_Insert(t *testing.T) {
 	}
 }
 
-func Test_Transfer(t *testing.T) {
+func TestTransfer(t *testing.T) {
 	src := newTestSource(t, "tf_src")
 	keys := []string{"did", "name", "a", "ab", "a_keyword", "a_keyword_num", "a_keyword_amount"}
 	alias := map[string]string{
@@ -279,7 +279,7 @@ func Test_Transfer(t *testing.T) {
 	}
 }
 
-func Test_Clean(t *testing.T) {
+func TestClean(t *testing.T) {
 	src := newTestSource(t, "clean")
 	resource := &targetCleanTest{source: src}
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)

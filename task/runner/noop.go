@@ -10,8 +10,8 @@ import (
 
 var _ processor = (*Noop)(nil)
 
-// Noop
-// WIP
+// Noop is a no-operation processor for testing purposes.
+// It satisfies the processor interface without depending on external infrastructure.
 type Noop struct {
 	taskBase
 

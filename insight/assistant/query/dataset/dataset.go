@@ -19,8 +19,19 @@ type Data struct {
 	Amount     int                // rows total num (不包含 title)
 }
 
-func (d *Data) addRows() {
+func (d *Data) addRows(name string, rows [][]any) {
+	if len(d.Rows) <= 0 {
+		d.Rows = make(map[string][][]any)
+	}
 
+	if len(d.RowsAmount) <= 0 {
+		d.RowsAmount = make(map[string]int)
+	}
+
+	d.Names = append(d.Names, name)
+	d.RowsAmount[name] = len(rows)
+	d.Amount += d.RowsAmount[name]
+	d.Rows[name] = rows
 }
 
 func (d *Data) addRowsWithTitles(name string, titles []any, rows [][]any) {

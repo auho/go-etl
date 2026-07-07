@@ -95,5 +95,5 @@ func (t *table) execRawCommandFunc(r assistant.Raw) {
 }
 
 func (t *table) formatError(err error) error {
-	return fmt.Errorf("table.formatError: %s: %w", t.TableName(), err)
+	return fmt.Errorf("%s: %w", t.TableName(), err)
 }

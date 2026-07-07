@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_fuzzy(t *testing.T) {
+func TestFuzzy(t *testing.T) {
 	config := seekConfig{debug: true}
 
 	// lowercase
