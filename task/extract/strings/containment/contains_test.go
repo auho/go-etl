@@ -3,6 +3,8 @@ package containment
 import (
 	"math/rand"
 	"testing"
+
+	"github.com/auho/go-etl/v3/internal/testutil"
 )
 
 var _rule = &ruleTest{}
@@ -159,6 +161,7 @@ func TestContains_Interface(t *testing.T) {
 		if _, ok := dv[_rule.KeywordAmountNameAlias()]; !ok {
 			t.Errorf("expected default value for %q", _rule.KeywordAmountNameAlias())
 		}
+		testutil.AssertMapCloned(t, "Contains", c.DefaultValues)
 	})
 }
 

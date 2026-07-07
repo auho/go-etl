@@ -2,6 +2,8 @@ package splitword
 
 import (
 	"testing"
+
+	"github.com/auho/go-etl/v3/internal/testutil"
 )
 
 func TestSplitWords(t *testing.T) {
@@ -104,6 +106,7 @@ func TestSplitWords_Interface(t *testing.T) {
 		if _, ok := dv[nameWord]; !ok {
 			t.Errorf("expected default value for %q", nameWord)
 		}
+		testutil.AssertMapCloned(t, "SplitWords", s.DefaultValues)
 	})
 
 	t.Run("Prepare and Close", func(t *testing.T) {

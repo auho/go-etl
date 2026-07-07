@@ -105,7 +105,7 @@ func (c *Clean) Prepare() error {
 	bConfig := destination.BulkConfig{
 		IsTruncate:  !c.config.SkipTruncate,
 		Concurrency: c.config.Concurrency,
-		PageSize:    int64(c.config.BatchSize),
+		BatchSize:   int64(c.config.BatchSize),
 	}
 
 	c.dataDest, err = destination.NewBulkInsertMapWithGorm(

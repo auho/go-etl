@@ -1,6 +1,7 @@
 package segword
 
 import (
+	"maps"
 	"unicode/utf8"
 
 	"github.com/auho/go-etl/v3/task/extract"
@@ -58,7 +59,7 @@ func (sg *SegWords) Keys() []string {
 }
 
 func (sg *SegWords) DefaultValues() map[string]any {
-	return sg.defaults
+	return maps.Clone(sg.defaults)
 }
 
 func (sg *SegWords) Extract(contents []string) extract.Result {

@@ -10,6 +10,12 @@ import (
 	"github.com/auho/go-toolkit/v2/farmtools/sort/maps"
 )
 
+var (
+	intRe     = regexp.MustCompile(`^\d{1,10}$`)
+	int64Re   = regexp.MustCompile(`^\d{11,20}$`)
+	float64Re = regexp.MustCompile(`^\d+\.\d+$`)
+)
+
 // Schema
 // sheet to table schema
 type Schema struct {
@@ -111,10 +117,6 @@ func (s *Schema) buildTable(rows [][]string) {
 }
 
 func (s *Schema) detectColumnType(index int, rows [][]string) (reflect.Kind, int, int) {
-	intRe := regexp.MustCompile(`^\d{1,10}$`)
-	int64Re := regexp.MustCompile(`^\d{11,20}$`)
-	float64Re := regexp.MustCompile(`^\d+\.\d+$`)
-
 	_types := make(map[reflect.Kind]int, len(rows))
 	_len1 := 0
 	_len2 := 0

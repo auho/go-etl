@@ -3,6 +3,8 @@ package segword
 import (
 	"fmt"
 	"testing"
+
+	"github.com/auho/go-etl/v3/internal/testutil"
 )
 
 func TestSegWords(t *testing.T) {
@@ -83,6 +85,7 @@ func TestSegWords_Interface(t *testing.T) {
 		if _, ok := dv[nameFlag]; !ok {
 			t.Errorf("expected default value for %q", nameFlag)
 		}
+		testutil.AssertMapCloned(t, "SegWords", sw.DefaultValues)
 	})
 
 	t.Run("Prepare and Close", func(t *testing.T) {

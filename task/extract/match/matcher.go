@@ -2,6 +2,7 @@ package match
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/auho/go-etl/v3/task/extract"
@@ -102,7 +103,7 @@ func (m *Matcher[T]) Keys() []string {
 
 // DefaultValues returns default values for each key.
 func (m *Matcher[T]) DefaultValues() map[string]any {
-	return m.defaults
+	return maps.Clone(m.defaults)
 }
 
 // Extract runs the scanner on the given contents and converts results to rows.

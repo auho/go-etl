@@ -4,6 +4,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/auho/go-etl/v3/internal/testutil"
 	"github.com/auho/go-etl/v3/task/extract"
 )
 
@@ -43,6 +44,7 @@ func TestExport_KeywordAll(t *testing.T) {
 	if v := dv[rule.KeywordAmountNameAlias()]; v != 0 {
 		t.Errorf("DefaultValues()[%s] should be 0, got %v", rule.KeywordAmountNameAlias(), v)
 	}
+	testutil.AssertMapCloned(t, "tag.Matcher", s.DefaultValues)
 
 	// Extract should return OK result with rows
 	ret := s.Extract(_contents)

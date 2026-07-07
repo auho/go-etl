@@ -2,6 +2,7 @@ package containment
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/auho/go-etl/v3/task/extract"
@@ -40,7 +41,7 @@ func (c *Contains) Keys() []string {
 }
 
 func (c *Contains) DefaultValues() map[string]any {
-	return c.defaults
+	return maps.Clone(c.defaults)
 }
 
 func (c *Contains) Extract(contents []string) extract.Result {

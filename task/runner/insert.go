@@ -109,7 +109,7 @@ func (i *Insert) destinations() ([]storage.Destination[storage.MapEntry], error)
 		destination.BulkConfig{
 			IsTruncate:  !i.config.SkipTruncate,
 			Concurrency: i.config.Concurrency,
-			PageSize:    int64(i.config.BatchSize),
+			BatchSize:   int64(i.config.BatchSize),
 		},
 		destination.WriteConfig{
 			TableName: i.target.TableName(),

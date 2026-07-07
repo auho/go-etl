@@ -141,7 +141,7 @@ func (u *Update) destinations() ([]storage.Destination[storage.MapEntry], error)
 		destination.BulkConfig{
 			IsTruncate:  false,
 			Concurrency: u.config.Concurrency,
-			PageSize:    int64(u.config.BatchSize),
+			BatchSize:   int64(u.config.BatchSize),
 		},
 		destination.WriteConfig{
 			TableName: u.source.TableName(),

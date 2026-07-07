@@ -140,7 +140,7 @@ func (u *UpdateTransfer) destinations() ([]storage.Destination[storage.MapEntry]
 		destination.BulkConfig{
 			IsTruncate:  !u.config.SkipTruncate,
 			Concurrency: u.config.Concurrency,
-			PageSize:    int64(u.config.BatchSize),
+			BatchSize:   int64(u.config.BatchSize),
 		},
 		destination.WriteConfig{
 			TableName: u.target.TableName(),

@@ -62,7 +62,7 @@ func (t *Transfer) destinations() ([]storage.Destination[storage.MapEntry], erro
 		destination.BulkConfig{
 			IsTruncate:  true,
 			Concurrency: t.Concurrency(),
-			PageSize:    batchSize,
+			BatchSize:   batchSize,
 		},
 		destination.WriteConfig{
 			TableName: t.target.TableName(),

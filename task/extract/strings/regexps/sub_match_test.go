@@ -2,6 +2,8 @@ package regexps
 
 import (
 	"testing"
+
+	"github.com/auho/go-etl/v3/internal/testutil"
 )
 
 var _rule = &ruleTest{}
@@ -164,6 +166,7 @@ func TestSubMatch_Interface(t *testing.T) {
 		if _, ok := dv[_rule.KeywordAmountNameAlias()]; !ok {
 			t.Errorf("expected default value for %q", _rule.KeywordAmountNameAlias())
 		}
+		testutil.AssertMapCloned(t, "SubMatch", sm.DefaultValues)
 	})
 }
 

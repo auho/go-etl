@@ -2,6 +2,7 @@ package regexps
 
 import (
 	"fmt"
+	"maps"
 	"regexp"
 
 	"github.com/auho/go-etl/v3/task/extract"
@@ -56,7 +57,7 @@ func (r *SubMatch) Keys() []string {
 }
 
 func (r *SubMatch) DefaultValues() map[string]any {
-	return r.defaults
+	return maps.Clone(r.defaults)
 }
 
 func (r *SubMatch) Extract(contents []string) extract.Result {

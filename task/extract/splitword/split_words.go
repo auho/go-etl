@@ -2,6 +2,7 @@ package splitword
 
 import (
 	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/auho/go-etl/v3/task/extract"
@@ -49,7 +50,7 @@ func (s *SplitWords) Keys() []string {
 }
 
 func (s *SplitWords) DefaultValues() map[string]any {
-	return s.defaults
+	return maps.Clone(s.defaults)
 }
 
 func (s *SplitWords) Extract(contents []string) extract.Result {
