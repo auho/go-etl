@@ -1,18 +1,17 @@
-package runner
+package etl
 
 import (
 	"github.com/auho/go-etl/v3/internal/testutil/mysql"
-	"github.com/auho/go-etl/v3/task"
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
-var _ task.Table = (*sourceTest)(nil)
-var _ task.Table = (*targetTagATest)(nil)
-var _ task.Table = (*targetTransferTest)(nil)
-var _ task.Table = (*targetUpdateTransferTest)(nil)
-var _ task.Table = (*targetCleanDataTest)(nil)
-var _ task.Table = (*targetCleanDeletedTest)(nil)
-var _ task.CleanResource = (*targetCleanTest)(nil)
+var _ Table = (*sourceTest)(nil)
+var _ Table = (*targetTagATest)(nil)
+var _ Table = (*targetTransferTest)(nil)
+var _ Table = (*targetUpdateTransferTest)(nil)
+var _ Table = (*targetCleanDataTest)(nil)
+var _ Table = (*targetCleanDeletedTest)(nil)
+var _ CleanResource = (*targetCleanTest)(nil)
 
 // sourceTest
 type sourceTest struct {
@@ -92,17 +91,17 @@ func (t targetCleanDeletedTest) TableName() string {
 // targetCleanTest
 type targetCleanTest struct {
 	targetTest
-	source task.Table
+	source Table
 }
 
-func (t *targetCleanTest) Source() task.Table {
+func (t *targetCleanTest) Source() Table {
 	return t.source
 }
 
-func (t *targetCleanTest) Data() task.Table {
+func (t *targetCleanTest) Data() Table {
 	return &targetCleanDataTest{}
 }
 
-func (t *targetCleanTest) Deleted() task.Table {
+func (t *targetCleanTest) Deleted() Table {
 	return &targetCleanDeletedTest{}
 }

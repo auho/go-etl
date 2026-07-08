@@ -1,4 +1,4 @@
-package runner
+package etl
 
 import (
 	"fmt"
@@ -24,18 +24,14 @@ func totalRows() int64 {
 	return int64(_maxA * _maxB)
 }
 
-func sourceConfig() SourceConfig {
-	return SourceConfig{
-		PageSize: _pageSize,
-	}
-}
-
 func TestUpdate(t *testing.T) {
+	if _gormDB == nil {
+		t.Skip("MySQL not available")
+	}
 	src := newTestSource(t, "update")
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)
-	ua := NewUpdate(src, []transform.UpdateOperator{m})
 
-	err := RunProducer(src, []itemProducer{ua}, WithRunnerSourceConfig(sourceConfig()))
+	err := UpdateTask(src, []transform.UpdateOperator{m})
 	if err != nil {
 		t.Error(err)
 	}
@@ -94,11 +90,13 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateTransfer(t *testing.T) {
+	if _gormDB == nil {
+		t.Skip("MySQL not available")
+	}
 	src := newTestSource(t, "ut_src")
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)
-	ut := NewUpdateTransfer(src, _targetUpdateTransfer, []transform.UpdateOperator{m})
 
-	err := RunProducer(src, []itemProducer{ut}, WithRunnerSourceConfig(sourceConfig()))
+	err := UpdateTransferTask(src, _targetUpdateTransfer, []transform.UpdateOperator{m})
 	if err != nil {
 		t.Error(err)
 	}
@@ -132,6 +130,9 @@ func TestUpdateTransfer(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
+	if _gormDB == nil {
+		t.Skip("MySQL not available")
+	}
 	src := newTestSource(t, "insert")
 
 	err := _gormDB.Exec(fmt.Sprintf("TRUNCATE TABLE `%s`", _targetTagA.TableName())).Error
@@ -139,15 +140,12 @@ func TestInsert(t *testing.T) {
 		t.Error(err)
 	}
 
-	insertConfig := WithInsertConfig(InsertConfig{
+	m := transform.NewInsert(collector.NewKeysAll([]string{_keyName}, tag.NewKey(_rule)), nil)
+
+	err = InsertTask(src, _targetTagA, m, WithInsertConfig(InsertConfig{
 		SkipTruncate: true,
 		ExtraKeys:    []string{src.IDName()},
-	})
-
-	m := transform.NewInsert(collector.NewKeysAll([]string{_keyName}, tag.NewKey(_rule)), nil)
-	ia := NewInsert(_targetTagA, m, insertConfig)
-
-	err = RunProducer(src, []itemProducer{ia}, WithRunnerSourceConfig(sourceConfig()))
+	}))
 	if err != nil {
 		t.Error(err)
 	}
@@ -226,6 +224,9 @@ func TestInsert(t *testing.T) {
 }
 
 func TestTransfer(t *testing.T) {
+	if _gormDB == nil {
+		t.Skip("MySQL not available")
+	}
 	src := newTestSource(t, "tf_src")
 	keys := []string{"did", "name", "a", "ab", "a_keyword", "a_keyword_num", "a_keyword_amount"}
 	alias := map[string]string{
@@ -238,9 +239,8 @@ func TestTransfer(t *testing.T) {
 	}
 
 	m := transform.NewTransfer(keys, alias, map[string]any{"xyz": "xyz1"})
-	tf := NewTransfer(_targetTransfer, m)
 
-	err := RunProducer(src, []itemProducer{tf}, WithRunnerSourceConfig(sourceConfig()))
+	err := TransferTask(src, _targetTransfer, m)
 	if err != nil {
 		t.Error(err)
 	}
@@ -280,12 +280,14 @@ func TestTransfer(t *testing.T) {
 }
 
 func TestClean(t *testing.T) {
+	if _gormDB == nil {
+		t.Skip("MySQL not available")
+	}
 	src := newTestSource(t, "clean")
 	resource := &targetCleanTest{source: src}
 	m := transform.NewUpdate(collector.NewKeysAll([]string{_keyName}, tag.NewMostKey(_rule)), nil)
 
-	clean := NewClean(resource, []transform.UpdateOperator{m})
-	err := RunConsumer(resource.Source(), []itemConsumer{clean}, WithRunnerSourceConfig(sourceConfig()))
+	err := CleanTask(resource, []transform.UpdateOperator{m})
 	if err != nil {
 		t.Error(err)
 	}

@@ -1,25 +1,25 @@
-package runner
+package etl
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v3/task"
 	"github.com/auho/go-etl/v3/task/transform"
 	"github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-toolkit-flow/v3/processor/producer"
 	"github.com/auho/go-toolkit-flow/v3/storage"
 	"github.com/auho/go-toolkit-flow/v3/storage/database/destination"
 )
 
-var _ itemProducer = (*Update)(nil)
+var _ producer.Item[storage.MapEntry, storage.MapEntry] = (*Update)(nil)
 
 // UpdateConfig configures an Update task.
 type UpdateConfig struct {
-	baseConfig
+	BaseConfig
 }
 
 // WithUpdateConfig returns an option that sets the Update config.
-func WithUpdateConfig(cc UpdateConfig) func(update *Update) {
+func WithUpdateConfig(cc UpdateConfig) func(*Update) {
 	return func(c *Update) {
 		c.config = cc
 	}
@@ -28,17 +28,17 @@ func WithUpdateConfig(cc UpdateConfig) func(update *Update) {
 // Update is a producer that applies operators to each source row and writes the
 // changed columns back to the source table.
 type Update struct {
-	producerTask
+	producer.Processor
+	TaskBase
 
-	source    task.Table
+	source    Table
 	operators []transform.UpdateOperator
 
 	config UpdateConfig
-	dst    *destination.Bulk[storage.MapEntry]
 }
 
 // NewUpdate creates an Update producer over the given source and operators.
-func NewUpdate(source task.Table, operators []transform.UpdateOperator, opts ...func(*Update)) *Update {
+func NewUpdate(source Table, operators []transform.UpdateOperator, opts ...func(*Update)) *Update {
 	u := &Update{}
 	u.source = source
 	u.operators = operators
@@ -47,7 +47,7 @@ func NewUpdate(source task.Table, operators []transform.UpdateOperator, opts ...
 		opt(u)
 	}
 
-	u.config.check()
+	u.config.Check()
 
 	return u
 }
@@ -86,11 +86,9 @@ func (u *Update) Prepare() error {
 	return nil
 }
 
-func (u *Update) BeforeRun() error {
-	return nil
-}
+func (u *Update) BeforeRun() error { return nil }
 
-func (u *Update) Exec(item map[string]any) ([]map[string]any, bool, error) {
+func (u *Update) Exec(item storage.MapEntry) ([]storage.MapEntry, bool, error) {
 	does := make(map[string]any)
 	for _, op := range u.operators {
 		do, err := op.Apply(item)
@@ -131,21 +129,16 @@ func (u *Update) Close() error {
 	return nil
 }
 
-func (u *Update) destinations() ([]storage.Destination[storage.MapEntry], error) {
+// BuildDestinations constructs and returns the update destination for the source table.
+func (u *Update) BuildDestinations() ([]storage.Destination[storage.MapEntry], error) {
 	target, err := u.source.GetDB().Clone()
 	if err != nil {
 		return nil, fmt.Errorf("GetDB.Clone: %w", err)
 	}
 
 	dest, err := destination.NewBulkUpdateMapWithGorm(
-		destination.BulkConfig{
-			IsTruncate:  false,
-			Concurrency: u.config.Concurrency,
-			BatchSize:   int64(u.config.BatchSize),
-		},
-		destination.WriteConfig{
-			TableName: u.source.TableName(),
-		},
+		u.config.BulkConfig(false),
+		destination.WriteConfig{TableName: u.source.TableName()},
 		u.source.IDName(), target.GormDB(),
 	)
 	if err != nil {

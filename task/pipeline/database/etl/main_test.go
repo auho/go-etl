@@ -1,4 +1,4 @@
-package runner
+package etl
 
 import (
 	"context"
@@ -52,13 +52,29 @@ func TestMain(m *testing.M) {
 
 // setUp prepares the shared schema and master data. The detailed DDL and data
 // generation live in setup_test.go; this function only orchestrates the order.
+// When MySQL is unavailable _gormDB stays nil and the setup is skipped so that
+// in-memory tests (e.g. TestNoopConsumer) can still run.
 func setUp() {
 	testutil.LoadEnv()
 	if os.Getenv("MYSQL_DSN") == "" {
 		fmt.Println("skip: MYSQL_DSN not set")
-		os.Exit(0)
+		return
 	}
-	_simpleDB, _gormDB = mysql.NewDB()
+
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("MySQL not available:", r)
+				_simpleDB = nil
+				_gormDB = nil
+			}
+		}()
+		_simpleDB, _gormDB = mysql.NewDB()
+	}()
+
+	if _simpleDB == nil || _gormDB == nil {
+		return
+	}
 
 	setupDataDimensions()
 	createMasterDataTable()
@@ -72,6 +88,9 @@ func setUp() {
 
 // tearDown drops every shared table. Per-test copies are dropped via t.Cleanup.
 func tearDown() {
+	if _simpleDB == nil {
+		return
+	}
 	for _, table := range []string{
 		_ruleTable,
 		_dataTable,

@@ -1,7 +1,6 @@
-package runner
+package etl
 
 import (
-	"github.com/auho/go-etl/v3/task"
 	"github.com/auho/go-etl/v3/task/extract"
 	"github.com/auho/go-etl/v3/task/extract/tag"
 	"github.com/auho/go-etl/v3/task/transform"
@@ -9,9 +8,9 @@ import (
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
-var _ task.Table = (*jobSource)(nil)
-var _ task.Table = (*jobTarget)(nil)
-var _ task.CleanResource = (*cleanResource)(nil)
+var _ Table = (*jobSource)(nil)
+var _ Table = (*jobTarget)(nil)
+var _ CleanResource = (*cleanResource)(nil)
 
 var ruler extract.Rule
 
@@ -29,9 +28,9 @@ func (_ jobTarget) GetDB() *simpledb.SimpleDB { return nil }
 
 type cleanResource struct{}
 
-func (_ cleanResource) Source() task.Table  { return &jobSource{} }
-func (_ cleanResource) Data() task.Table    { return &jobTarget{} }
-func (_ cleanResource) Deleted() task.Table { return &jobTarget{} }
+func (_ cleanResource) Source() Table  { return &jobSource{} }
+func (_ cleanResource) Data() Table    { return &jobTarget{} }
+func (_ cleanResource) Deleted() Table { return &jobTarget{} }
 
 func ExampleNewClean() {
 	operator := transform.NewUpdate(collector.NewKeysAll([]string{"key1", "key2"}, tag.NewKey(ruler)), nil)
@@ -62,7 +61,6 @@ func ExampleNewInsert() {
 		SkipTruncate: false,
 		ExtraKeys:    nil,
 	}))
-
 	_ = NewInsert(&jobTarget{}, operatorMulti)
 	_ = NewInsert(&jobTarget{}, operatorCross)
 	_ = NewInsert(&jobTarget{}, operatorSpread)

@@ -1,17 +1,19 @@
-package runner
+package etl
 
 import (
 	"fmt"
 
-	"github.com/auho/go-etl/v3/task"
 	"github.com/auho/go-etl/v3/task/transform"
+	"github.com/auho/go-toolkit-flow/v3/processor/producer"
 	"github.com/auho/go-toolkit-flow/v3/storage"
 	"github.com/auho/go-toolkit-flow/v3/storage/database/destination"
 )
 
+var _ producer.Item[storage.MapEntry, storage.MapEntry] = (*Insert)(nil)
+
 // InsertConfig configures an Insert task.
 type InsertConfig struct {
-	baseConfig
+	BaseConfig
 	SkipTruncate     bool
 	AllowInsertEmpty bool
 	ExtraKeys        []string // source fields appended to target
@@ -24,20 +26,19 @@ func WithInsertConfig(ic InsertConfig) func(*Insert) {
 	}
 }
 
-var _ itemProducer = (*Insert)(nil)
-
-// Insert is a producer that transforms each source row via operator and inserts the
-// result into the target table.
+// Insert is a producer that transforms each source row via operator and inserts
+// the result into the target table.
 type Insert struct {
-	producerTask
+	producer.Processor
+	TaskBase
 
 	operator transform.InsertOperator
-	target   task.Table
+	target   Table
 	config   InsertConfig
 }
 
 // NewInsert creates an Insert producer writing to target via operator.
-func NewInsert(target task.Table, operator transform.InsertOperator, opts ...func(*Insert)) *Insert {
+func NewInsert(target Table, operator transform.InsertOperator, opts ...func(*Insert)) *Insert {
 	i := &Insert{}
 	i.operator = operator
 	i.target = target
@@ -46,7 +47,7 @@ func NewInsert(target task.Table, operator transform.InsertOperator, opts ...fun
 		opt(i)
 	}
 
-	i.config.check()
+	i.config.Check()
 
 	return i
 }
@@ -68,11 +69,9 @@ func (i *Insert) Prepare() error {
 	return nil
 }
 
-func (i *Insert) BeforeRun() error {
-	return nil
-}
+func (i *Insert) BeforeRun() error { return nil }
 
-func (i *Insert) Exec(item map[string]any) ([]map[string]any, bool, error) {
+func (i *Insert) Exec(item storage.MapEntry) ([]storage.MapEntry, bool, error) {
 	newItems, err := i.operator.Apply(item)
 	if err != nil {
 		return nil, false, fmt.Errorf("operator.Apply: %w", err)
@@ -104,16 +103,11 @@ func (i *Insert) Close() error {
 	return i.operator.Close()
 }
 
-func (i *Insert) destinations() ([]storage.Destination[storage.MapEntry], error) {
+// BuildDestinations constructs and returns the insert destination for the target table.
+func (i *Insert) BuildDestinations() ([]storage.Destination[storage.MapEntry], error) {
 	dest, err := destination.NewBulkInsertMapWithGorm(
-		destination.BulkConfig{
-			IsTruncate:  !i.config.SkipTruncate,
-			Concurrency: i.config.Concurrency,
-			BatchSize:   int64(i.config.BatchSize),
-		},
-		destination.WriteConfig{
-			TableName: i.target.TableName(),
-		},
+		i.config.BulkConfig(!i.config.SkipTruncate),
+		destination.WriteConfig{TableName: i.target.TableName()},
 		i.target.GetDB().GormDB(),
 	)
 	if err != nil {

@@ -1,27 +1,27 @@
-package runner
+package etl
 
 import (
 	"context"
 	"fmt"
 	"strings"
 
-	"github.com/auho/go-etl/v3/task"
 	"github.com/auho/go-etl/v3/task/transform"
 	"github.com/auho/go-etl/v3/tool/slicex"
+	"github.com/auho/go-toolkit-flow/v3/processor/producer"
 	"github.com/auho/go-toolkit-flow/v3/storage"
 	"github.com/auho/go-toolkit-flow/v3/storage/database/destination"
 )
 
-var _ itemProducer = (*UpdateTransfer)(nil)
+var _ producer.Item[storage.MapEntry, storage.MapEntry] = (*UpdateTransfer)(nil)
 
 // UpdateTransferConfig configures an UpdateTransfer task.
 type UpdateTransferConfig struct {
-	baseConfig
+	BaseConfig
 	SkipTruncate bool // for update and transfer
 }
 
 // WithUpdateTransferConfig returns an option that sets the UpdateTransfer config.
-func WithUpdateTransferConfig(cc UpdateTransferConfig) func(update *UpdateTransfer) {
+func WithUpdateTransferConfig(cc UpdateTransferConfig) func(*UpdateTransfer) {
 	return func(c *UpdateTransfer) {
 		c.config = cc
 	}
@@ -30,17 +30,17 @@ func WithUpdateTransferConfig(cc UpdateTransferConfig) func(update *UpdateTransf
 // UpdateTransfer is a producer that updates each source row in place via operators
 // and copies the updated row to the target table.
 type UpdateTransfer struct {
-	producerTask
+	producer.Processor
+	TaskBase
 
 	operators []transform.UpdateOperator
-	source    task.Table
-	target    task.Table
-	dst       *destination.Bulk[storage.MapEntry]
+	source    Table
+	target    Table
 	config    UpdateTransferConfig
 }
 
 // NewUpdateTransfer creates an UpdateTransfer producer from source to target.
-func NewUpdateTransfer(source task.Table, target task.Table, operators []transform.UpdateOperator, opts ...func(*UpdateTransfer)) *UpdateTransfer {
+func NewUpdateTransfer(source Table, target Table, operators []transform.UpdateOperator, opts ...func(*UpdateTransfer)) *UpdateTransfer {
 	u := &UpdateTransfer{}
 	u.source = source
 	u.operators = operators
@@ -50,7 +50,7 @@ func NewUpdateTransfer(source task.Table, target task.Table, operators []transfo
 		opt(u)
 	}
 
-	u.config.check()
+	u.config.Check()
 
 	return u
 }
@@ -97,7 +97,7 @@ func (u *UpdateTransfer) Prepare() error {
 
 func (u *UpdateTransfer) BeforeRun() error { return nil }
 
-func (u *UpdateTransfer) Exec(item map[string]any) ([]map[string]any, bool, error) {
+func (u *UpdateTransfer) Exec(item storage.MapEntry) ([]storage.MapEntry, bool, error) {
 	does := make(map[string]any)
 	for _, op := range u.operators {
 		do, err := op.Apply(item)
@@ -135,16 +135,11 @@ func (u *UpdateTransfer) Close() error {
 	return nil
 }
 
-func (u *UpdateTransfer) destinations() ([]storage.Destination[storage.MapEntry], error) {
+// BuildDestinations constructs and returns the insert destination for the target table.
+func (u *UpdateTransfer) BuildDestinations() ([]storage.Destination[storage.MapEntry], error) {
 	dest, err := destination.NewBulkInsertMapWithGorm(
-		destination.BulkConfig{
-			IsTruncate:  !u.config.SkipTruncate,
-			Concurrency: u.config.Concurrency,
-			BatchSize:   int64(u.config.BatchSize),
-		},
-		destination.WriteConfig{
-			TableName: u.target.TableName(),
-		},
+		u.config.BulkConfig(!u.config.SkipTruncate),
+		destination.WriteConfig{TableName: u.target.TableName()},
 		u.target.GetDB().GormDB(),
 	)
 	if err != nil {

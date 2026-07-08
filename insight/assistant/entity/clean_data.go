@@ -1,10 +1,10 @@
 package entity
 
 import (
-	"github.com/auho/go-etl/v3/task"
+	"github.com/auho/go-etl/v3/task/pipeline/database/etl"
 )
 
-var _ task.CleanResource = (*CleanData)(nil)
+var _ etl.CleanResource = (*CleanData)(nil)
 
 type CleanData struct {
 	model
@@ -23,14 +23,14 @@ func NewCleanData(rows *Rows) *CleanData {
 	return cd
 }
 
-func (cd *CleanData) Source() task.Table {
+func (cd *CleanData) Source() etl.Table {
 	return cd.rows
 }
 
-func (cd *CleanData) Data() task.Table {
+func (cd *CleanData) Data() etl.Table {
 	return cd.data
 }
 
-func (cd *CleanData) Deleted() task.Table {
+func (cd *CleanData) Deleted() etl.Table {
 	return cd.deleted
 }

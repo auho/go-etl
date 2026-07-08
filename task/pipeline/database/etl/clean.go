@@ -1,4 +1,4 @@
-package runner
+package etl
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/auho/go-etl/v3/task"
 	"github.com/auho/go-etl/v3/task/transform"
 	"github.com/auho/go-etl/v3/tool/slicex"
 	"github.com/auho/go-toolkit-flow/v3/processor/consumer"
@@ -14,9 +13,12 @@ import (
 	"github.com/auho/go-toolkit-flow/v3/storage/database/destination"
 )
 
+var _ consumer.Item[storage.MapEntry] = (*Clean)(nil)
+var _ consumer.DestinationHolder[storage.MapEntry] = (*Clean)(nil)
+
 // CleanConfig configures a Clean task.
 type CleanConfig struct {
-	baseConfig
+	BaseConfig
 	SkipTruncate bool
 	ExtraTags    bool     // tags to deleted data
 	Keys         []string // source columns name, priority of use this keys
@@ -29,25 +31,23 @@ func WithCleanConfig(cc CleanConfig) func(*Clean) {
 	}
 }
 
-var _ itemConsumer = (*Clean)(nil)
-var _ consumer.DestinationHolder[storage.MapEntry] = (*Clean)(nil)
-
 // Clean is a consumer that filters source rows: rows matching any operator are
 // routed to the deleted table, the rest to the data table.
 type Clean struct {
-	consumerTask
+	consumer.Processor
+	TaskBase
 
-	resource  task.CleanResource
+	resource  CleanResource
 	operators []transform.UpdateOperator
 
 	config CleanConfig
 
-	dataDest    *destination.Bulk[storage.MapEntry]
-	deletedDest *destination.Bulk[storage.MapEntry]
+	dataDest    storage.Destination[storage.MapEntry]
+	deletedDest storage.Destination[storage.MapEntry]
 }
 
 // NewClean creates a Clean consumer over the given resource and operators.
-func NewClean(cr task.CleanResource, operators []transform.UpdateOperator, opts ...func(*Clean)) *Clean {
+func NewClean(cr CleanResource, operators []transform.UpdateOperator, opts ...func(*Clean)) *Clean {
 	c := &Clean{}
 	c.resource = cr
 	c.operators = operators
@@ -56,7 +56,7 @@ func NewClean(cr task.CleanResource, operators []transform.UpdateOperator, opts 
 		opt(c)
 	}
 
-	c.config.check()
+	c.config.Check()
 
 	return c
 }
@@ -102,11 +102,7 @@ func (c *Clean) Prepare() error {
 		}
 	}
 
-	bConfig := destination.BulkConfig{
-		IsTruncate:  !c.config.SkipTruncate,
-		Concurrency: c.config.Concurrency,
-		BatchSize:   int64(c.config.BatchSize),
-	}
+	bConfig := c.config.BulkConfig(!c.config.SkipTruncate)
 
 	c.dataDest, err = destination.NewBulkInsertMapWithGorm(
 		bConfig,
@@ -129,11 +125,9 @@ func (c *Clean) Prepare() error {
 	return nil
 }
 
-func (c *Clean) BeforeRun() error {
-	return nil
-}
+func (c *Clean) BeforeRun() error { return nil }
 
-func (c *Clean) Exec(item map[string]any) (bool, error) {
+func (c *Clean) Exec(item storage.MapEntry) (bool, error) {
 	needDeleted := false
 	for _, op := range c.operators {
 		res, err := op.Apply(item)
@@ -169,9 +163,7 @@ func (c *Clean) Exec(item map[string]any) (bool, error) {
 	return true, nil
 }
 
-func (c *Clean) AfterRun() error {
-	return nil
-}
+func (c *Clean) AfterRun() error { return nil }
 
 func (c *Clean) AppendState() {}
 
