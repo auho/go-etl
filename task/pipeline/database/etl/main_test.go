@@ -55,22 +55,18 @@ func TestMain(m *testing.M) {
 // When MySQL is unavailable _gormDB stays nil and the setup is skipped so that
 // in-memory tests (e.g. TestNoopConsumer) can still run.
 func setUp() {
-	testutil.LoadEnv()
-	if os.Getenv("MYSQL_DSN") == "" {
-		fmt.Println("skip: MYSQL_DSN not set")
+	_, err := testutil.LoadEnv()
+	if err != nil {
+		fmt.Println(fmt.Errorf("LoadEnv: %w", err))
 		return
 	}
 
-	func() {
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Println("MySQL not available:", r)
-				_simpleDB = nil
-				_gormDB = nil
-			}
-		}()
-		_simpleDB, _gormDB = mysql.NewDB()
-	}()
+	_simpleDB, _gormDB, err = mysql.NewDB()
+	if err != nil {
+		fmt.Println("MySQL not available:", err)
+		_simpleDB = nil
+		_gormDB = nil
+	}
 
 	if _simpleDB == nil || _gormDB == nil {
 		return

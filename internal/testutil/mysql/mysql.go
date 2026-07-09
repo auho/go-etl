@@ -20,23 +20,24 @@ import (
 
 var dbName = "_test_etl"
 
-// NewDB creates a *simpledb.SimpleDB and *gorm.DB from the MYSQL_DSN
-// environment variable. It panics if MYSQL_DSN is unset or the connection fails.
-// MYSQL_DSN must not include a database name; the test database is created
+// NewDB creates a *simpledb.SimpleDB and *gorm.DB from the TEST_MYSQL_DSN
+// environment variable. It panics if TEST_MYSQL_DSN is unset or the connection fails.
+// TEST_MYSQL_DSN must not include a database name; the test database is created
 // automatically if it does not exist.
-func NewDB() (*simpledb.SimpleDB, *gorm.DB) {
+func NewDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 	// Build the full DSN with the database name.
 	fullDSN, err := SetupDSN()
 	if err != nil {
-		panic(fmt.Errorf("SetupDSN: %w", err))
+		return nil, nil, fmt.Errorf("SetupDSN: %w", err)
 	}
 
 	// Ensure the test database exists.
 	initDB, err := sql.Open("mysql", fullDSN)
 	if err != nil {
-		panic(err)
+		return nil, nil, fmt.Errorf("sql.Open: %w", err)
 	}
-	defer initDB.Close()
+
+	defer func() { _ = initDB.Close() }()
 
 	_, err = initDB.Exec("CREATE DATABASE IF NOT EXISTS " + dbName)
 	if err != nil {
@@ -64,13 +65,13 @@ func NewDB() (*simpledb.SimpleDB, *gorm.DB) {
 		sqlDB.SetConnMaxLifetime(5 * time.Minute)
 	}
 
-	return simpleDB, gormDB
+	return simpleDB, gormDB, nil
 }
 
 func LoadDSN() (string, error) {
-	baseDSN := os.Getenv("MYSQL_DSN")
+	baseDSN := os.Getenv("TEST_MYSQL_DSN")
 	if baseDSN == "" {
-		panic("MYSQL_DSN environment variable is not set")
+		panic("TEST_MYSQL_DSN environment variable is not set")
 	}
 
 	// Ensure baseDSN ends with "/" for MySQL driver compatibility.
@@ -88,7 +89,7 @@ func SetupDSN() (string, error) {
 	}
 
 	if dsn == "" {
-		return "", errors.New("MYSQL_DSN not set; create .env.test with MYSQL_DSN")
+		return "", errors.New("TEST_MYSQL_DSN not set; create .env.test with TEST_MYSQL_DSN")
 	}
 
 	cfg, err := mysql.ParseDSN(dsn)

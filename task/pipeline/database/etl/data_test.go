@@ -27,7 +27,10 @@ func (s *sourceTest) TableName() string {
 }
 
 func (s *sourceTest) GetDB() *simpledb.SimpleDB {
-	simpleDB, _ := mysql.NewDB()
+	simpleDB, _, err := mysql.NewDB()
+	if err != nil {
+		panic(err)
+	}
 	return simpleDB
 }
 
@@ -39,7 +42,11 @@ func (t targetTest) IDName() string {
 }
 
 func (t targetTest) GetDB() *simpledb.SimpleDB {
-	simpleDB, _ := mysql.NewDB()
+	simpleDB, _, err := mysql.NewDB()
+	if err != nil {
+		panic(err)
+	}
+
 	return simpleDB
 }
 

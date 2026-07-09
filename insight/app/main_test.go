@@ -32,7 +32,7 @@ func setup() {
 	}
 
 	if dsn == "" {
-		fmt.Println("skip: MYSQL_DSN not set")
+		fmt.Println("skip: mysql dsn not set")
 		os.Exit(0)
 	}
 

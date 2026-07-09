@@ -2,7 +2,6 @@ package transform
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
@@ -30,13 +29,15 @@ func TestMain(m *testing.M) {
 }
 
 func setUp() {
-	var err error
-	testutil.LoadEnv()
-	if os.Getenv("MYSQL_DSN") == "" {
-		fmt.Println("skip: MYSQL_DSN not set")
-		os.Exit(0)
+	_, err := testutil.LoadEnv()
+	if err != nil {
+		panic(err)
 	}
-	_simpleDB, _gormDB = mysql.NewDB()
+
+	_simpleDB, _gormDB, err = mysql.NewDB()
+	if err != nil {
+		panic(err)
+	}
 
 	query := ""
 	err = _simpleDB.Drop(context.TODO(), _ruleTableName)
