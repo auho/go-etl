@@ -37,7 +37,7 @@ func ExampleNewQuery() {
 		Name:          "",
 		Table:         nil,
 		DB:            nil,
-	}).WithItems(nil))
+	}).AppendItems(nil))
 
 	// save
 	err = _q.Save()
@@ -77,7 +77,7 @@ func ExampleNewQueryWithPath() {
 		Name:          "",
 		Table:         nil,
 		DB:            nil,
-	}).WithItems(nil))
+	}).AppendItems(nil))
 
 	// save
 	err = _q.Save()

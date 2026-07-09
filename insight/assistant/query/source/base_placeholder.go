@@ -19,8 +19,8 @@ func (bph *basePlaceholder) buildKeys(sql string) []string {
 	return keys
 }
 
-// []string []item id
-// map[string]string map[item id]sql
+// returns ([]string itemIds, map[string]string itemsSql)
+// where itemsSql maps itemId to its SQL statement
 func (bph *basePlaceholder) buildPlaceholderItemsSqlSet(s Base, sql string, keys []string, items []map[string]any) ([]string, map[string]string) {
 	var itemsId []string
 	itemsSql := make(map[string]string, len(items))
@@ -48,7 +48,7 @@ func (bph *basePlaceholder) buildPlaceholderItemsSqlSet(s Base, sql string, keys
 	return itemsId, itemsSql
 }
 
-// []string sql
+// returns []string of SQL statements
 func (bph *basePlaceholder) buildPlaceholderItemsSqlList(sql string, items []map[string]any) []string {
 	var itemsSql []string
 	for _, item := range items {
@@ -58,7 +58,7 @@ func (bph *basePlaceholder) buildPlaceholderItemsSqlList(sql string, items []map
 	return itemsSql
 }
 
-// string sql
+// returns SQL string with placeholders replaced by item values
 func (bph *basePlaceholder) buildPlaceholderItemSql(sql string, item map[string]any) string {
 	for key, value := range item {
 		sql = strings.ReplaceAll(sql, fmt.Sprintf("##%s##", key), fmt.Sprintf("%v", value))

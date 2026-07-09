@@ -29,7 +29,7 @@ func NewRaw(name string, raw assistant.Raw) *RawSource {
 func (rs *RawSource) Dataset() (*dataset.Dataset, error) {
 	fields, err := rs.Raw.DB().GetTableColumns(context.TODO(), rs.Raw.TableName())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getTableColumns: %w", err)
 	}
 
 	itemsId := []string{rs.Name}

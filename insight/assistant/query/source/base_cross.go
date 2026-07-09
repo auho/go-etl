@@ -7,27 +7,25 @@ import (
 type baseCross struct {
 }
 
-// map[string][]string => map[field][][field value]
-//
-// []map[string]string => []map[field]field value
+// map[string][]any => []map[string]any
 func (bc *baseCross) expandItemsCross(items map[string][]any) []map[string]any {
 	/*
 		a: 1, 2
 		b: 3, 4
 
-		step -:
-		a: 1
-		a: 2
+		step 1: expand first key
+			a: 1
+			a: 2
 
-		step -:
-		a: 1 b: 3
-		a: 2 b: 3
+		step 2: cross with second key
+			a: 1 b: 3
+			a: 2 b: 3
 
-		step -:
-		a: 1 b: 3
-		a: 2 b: 3
-		a: 1 b: 4
-		a: 2 b: 4
+		step 3: complete cross product
+			a: 1 b: 3
+			a: 2 b: 3
+			a: 1 b: 4
+			a: 2 b: 4
 	*/
 
 	var newItems []map[string]any

@@ -21,8 +21,8 @@ func NewPlaceholder(s Base) *PlaceholderSource {
 	}
 }
 
-// WithItems
-// []map[string]any => []map[field][field value]
+// AppendItems appends items to the existing items list.
+// Multiple calls accumulate items.
 //
 //	[]map[string]any{
 //		{"one": "a", "two": "c"},
@@ -30,39 +30,45 @@ func NewPlaceholder(s Base) *PlaceholderSource {
 //		{"one": "b", "two": "c"},
 //		{"one": "b", "two": "d"},
 //	}
-/*
- a: 1 b: 3
- a: 1 b: 3
- a: 2 b: 4
- a: 2 b: 4
-*/
 
-func (ps *PlaceholderSource) WithItems(items []map[string]any) *PlaceholderSource {
+func (ps *PlaceholderSource) AppendItems(items []map[string]any) *PlaceholderSource {
 	ps.items = append(ps.items, items...)
 
 	return ps
 }
 
-// WithItemsCross
-// []map[string][]any => []map[field][][field value]
+// SetItems replaces all items with the given items.
+func (ps *PlaceholderSource) SetItems(items []map[string]any) *PlaceholderSource {
+	ps.items = nil
+	return ps.AppendItems(items)
+}
+
+// AppendItemsCross expands items via cross product and appends to the existing items list.
+// Multiple calls accumulate items.
 //
-//	[]map[string][]any{
-//		"one": []any{"a", "b"}
-//		"two": []any{"c", "d"}
+//	map[string][]any{
+//		"one": []any{"a", "b"},
+//		"two": []any{"c", "d"},
 //	}
-/*
- a: 1, 2
- b: 3, 4
-=>
- a: 1 b: 3
- a: 1 b: 3
- a: 2 b: 4
- a: 2 b: 4
-*/
-func (ps *PlaceholderSource) WithItemsCross(items map[string][]any) *PlaceholderSource {
-	ps.WithItems(ps.expandItemsCross(items))
+//
+// =>
+//
+//	[]map[string]any{
+//		{"one": "a", "two": "c"},
+//		{"one": "a", "two": "d"},
+//		{"one": "b", "two": "c"},
+//		{"one": "b", "two": "d"},
+//	}
+func (ps *PlaceholderSource) AppendItemsCross(items map[string][]any) *PlaceholderSource {
+	ps.AppendItems(ps.expandItemsCross(items))
 
 	return ps
+}
+
+// SetItemsCross replaces all items with the cross-expanded items.
+func (ps *PlaceholderSource) SetItemsCross(items map[string][]any) *PlaceholderSource {
+	ps.items = nil
+	return ps.AppendItemsCross(items)
 }
 
 func (ps *PlaceholderSource) Dataset() (*dataset.Dataset, error) {

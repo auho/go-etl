@@ -17,34 +17,34 @@ func ExampleNewRows() {
 
 func ExampleNewPlaceholder() {
 	_, _ = NewPlaceholder(Base{}).
-		WithItems(nil).
-		WithItemsCross(nil).
+		AppendItems(nil).
+		AppendItemsCross(nil).
 		Dataset()
 
 	// one two
 
-	// WithItems
+	// AppendItems
 	_ = NewPlaceholder(Base{
 		Name: "name",
 		DB:   nil,
 		Table: dml.NewTable("table_name").
 			Select([]string{"field1", "field2"}).
 			Where("`field1` = '##two##' AND `field2` = '##one##'"),
-	}).WithItems([]map[string]any{
+	}).AppendItems([]map[string]any{
 		{"one": "1", "two": "2"},
 		{"one": "1", "two": "21"},
 		{"one": "11", "two": "2"},
 		{"one": "11", "two": "21"},
 	})
 
-	// WithItemsCross
+	// AppendItemsCross
 	_ = NewPlaceholder(Base{
 		Name: "name",
 		DB:   nil,
 		Table: dml.NewTable("table_name").
 			Select([]string{"field1", "field2"}).
 			Where("`field1` = '##two##' AND `field2` = '##one##' AND `field3` = ##three##"),
-	}).WithItemsCross(map[string][]any{
+	}).AppendItemsCross(map[string][]any{
 		"one": {"1", "11"},
 		"two": {"2", "21"},
 	})
@@ -52,44 +52,44 @@ func ExampleNewPlaceholder() {
 
 func ExampleNewPlaceholderStack() {
 	_, _ = NewPlaceholderStack(Base{}).
-		WithCategories(nil).
-		WithCategoriesCross(nil).
-		WithStacks(nil).
-		WithStacksCross(nil).
+		AppendCategories(nil).
+		AppendCategoriesCross(nil).
+		AppendStacks(nil).
+		AppendStacksCross(nil).
 		Dataset()
 
 	// one two three
 
-	// WithCategories
-	// WithStacks
+	// AppendCategories
+	// AppendStacks
 	_ = NewPlaceholderStack(Base{
 		Name: "name",
 		DB:   nil,
 		Table: dml.NewTable("table_name").
 			Select([]string{"field1", "field2"}).
 			Where("`field1` = '##two##' AND `field2` = '##one##' AND `field3` = ##three##"),
-	}).WithCategories([]map[string]any{
+	}).AppendCategories([]map[string]any{
 		{"three": 1},
 		{"three": 2},
-	}).WithStacks([]map[string]any{
+	}).AppendStacks([]map[string]any{
 		{"one": "1", "two": "2"},
 		{"one": "1", "two": "21"},
 		{"one": "11", "two": "2"},
 		{"one": "11", "two": "21"},
 	})
 
-	// WithCategoriesCross
-	// WithStacksCross
+	// AppendCategoriesCross
+	// AppendStacksCross
 	_ = NewPlaceholderStack(Base{
 		Name: "name",
 		DB:   nil,
 		Table: dml.NewTable("table_name").
 			Select([]string{"field1", "field2"}).
 			Where("`field1` = '##two##' AND `field2` = '##one##' AND `field3` = ##three## AND `field4`= ##four##"),
-	}).WithCategoriesCross(map[string][]any{
+	}).AppendCategoriesCross(map[string][]any{
 		"three": {1, 2},
 		"four":  {3, 4},
-	}).WithStacksCross(map[string][]any{
+	}).AppendStacksCross(map[string][]any{
 		"one": {"1", "11"},
 		"two": {"2", "21"},
 	})

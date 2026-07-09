@@ -3,7 +3,6 @@ package source
 import (
 	"fmt"
 	"maps"
-	"sort"
 
 	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 )
@@ -18,14 +17,14 @@ var _ Source = (*PlaceholderStackSource)(nil)
 =>
 c: 5
  a: 1 b: 3
- a: 1 b: 3
- a: 2 b: 4
+ a: 1 b: 4
+ a: 2 b: 3
  a: 2 b: 4
 
 c: 6
  a: 1 b: 3
- a: 1 b: 3
- a: 2 b: 4
+ a: 1 b: 4
+ a: 2 b: 3
  a: 2 b: 4
 */
 
@@ -43,8 +42,8 @@ func NewPlaceholderStack(s Base) *PlaceholderStackSource {
 	}
 }
 
-// WithCategories
-// []map[string]any => []map[category][category value]
+// AppendCategories appends categories to the existing categories list.
+// Multiple calls accumulate categories.
 //
 //	[]map[string]any{
 //		{"one": "a", "two": "c"},
@@ -52,20 +51,20 @@ func NewPlaceholderStack(s Base) *PlaceholderStackSource {
 //		{"one": "b", "two": "c"},
 //		{"one": "b", "two": "d"},
 //	}
-/*
- a: 1 b: 3
- a: 1 b: 3
- a: 2 b: 4
- a: 2 b: 4
-*/
-func (pss *PlaceholderStackSource) WithCategories(categories []map[string]any) *PlaceholderStackSource {
+func (pss *PlaceholderStackSource) AppendCategories(categories []map[string]any) *PlaceholderStackSource {
 	pss.categories = append(pss.categories, categories...)
 
 	return pss
 }
 
-// WithStacks
-// []map[string]any => []map[field][field value]
+// SetCategories replaces all categories with the given categories.
+func (pss *PlaceholderStackSource) SetCategories(categories []map[string]any) *PlaceholderStackSource {
+	pss.categories = nil
+	return pss.AppendCategories(categories)
+}
+
+// AppendStacks appends stacks to the existing stacks list.
+// Multiple calls accumulate stacks.
 //
 //	[]map[string]any{
 //		{"one": "a", "two": "c"},
@@ -73,56 +72,68 @@ func (pss *PlaceholderStackSource) WithCategories(categories []map[string]any) *
 //		{"one": "b", "two": "c"},
 //		{"one": "b", "two": "d"},
 //	}
-/*
- a: 1 b: 3
- a: 1 b: 3
- a: 2 b: 4
- a: 2 b: 4
-*/
-func (pss *PlaceholderStackSource) WithStacks(stacks []map[string]any) *PlaceholderStackSource {
+func (pss *PlaceholderStackSource) AppendStacks(stacks []map[string]any) *PlaceholderStackSource {
 	pss.stacks = append(pss.stacks, stacks...)
 
 	return pss
 }
 
-// WithCategoriesCross
-// []map[string][]any => []map[category][][category value]
-//
-//	[]map[string][]any{
-//		"one": []string{"a", "b"}
-//		"two": []string{"c", "d"}
-//	}
-/*
- a: 1, 2
- b: 3, 4
-=>
- a: 1 b: 3
- a: 1 b: 3
- a: 2 b: 4
- a: 2 b: 4
-*/
-func (pss *PlaceholderStackSource) WithCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
-	return pss.WithCategories(pss.expandItemsCross(categories))
+// SetStacks replaces all stacks with the given stacks.
+func (pss *PlaceholderStackSource) SetStacks(stacks []map[string]any) *PlaceholderStackSource {
+	pss.stacks = nil
+	return pss.AppendStacks(stacks)
 }
 
-// WithStacksCross
-// []map[string][]any => []map[field][][field value]
+// AppendCategoriesCross expands categories via cross product and appends to the existing categories list.
+// Multiple calls accumulate categories.
 //
-//	[]map[string][]any{
-//		"one": []string{"a", "b"}
-//		"two": []string{"c", "d"}
+//	map[string][]any{
+//		"one": []any{"a", "b"},
+//		"two": []any{"c", "d"},
 //	}
-/*
- a: 1, 2
- b: 3, 4
-=>
- a: 1 b: 3
- a: 1 b: 3
- a: 2 b: 4
- a: 2 b: 4
-*/
-func (pss *PlaceholderStackSource) WithStacksCross(stacks map[string][]any) *PlaceholderStackSource {
-	return pss.WithStacks(pss.expandItemsCross(stacks))
+//
+// =>
+//
+//	[]map[string]any{
+//		{"one": "a", "two": "c"},
+//		{"one": "a", "two": "d"},
+//		{"one": "b", "two": "c"},
+//		{"one": "b", "two": "d"},
+//	}
+func (pss *PlaceholderStackSource) AppendCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
+	return pss.AppendCategories(pss.expandItemsCross(categories))
+}
+
+// SetCategoriesCross replaces all categories with the cross-expanded categories.
+func (pss *PlaceholderStackSource) SetCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
+	pss.categories = nil
+	return pss.AppendCategoriesCross(categories)
+}
+
+// AppendStacksCross expands stacks via cross product and appends to the existing stacks list.
+// Multiple calls accumulate stacks.
+//
+//	map[string][]any{
+//		"one": []any{"a", "b"},
+//		"two": []any{"c", "d"},
+//	}
+//
+// =>
+//
+//	[]map[string]any{
+//		{"one": "a", "two": "c"},
+//		{"one": "a", "two": "d"},
+//		{"one": "b", "two": "c"},
+//		{"one": "b", "two": "d"},
+//	}
+func (pss *PlaceholderStackSource) AppendStacksCross(stacks map[string][]any) *PlaceholderStackSource {
+	return pss.AppendStacks(pss.expandItemsCross(stacks))
+}
+
+// SetStacksCross replaces all stacks with the cross-expanded stacks.
+func (pss *PlaceholderStackSource) SetStacksCross(stacks map[string][]any) *PlaceholderStackSource {
+	pss.stacks = nil
+	return pss.AppendStacksCross(stacks)
 }
 
 func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
@@ -164,7 +175,7 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 			_items = append(_items, _newItem)
 		}
 
-		_categoryPs := NewPlaceholder(pss.Base).WithItems(_items)
+		_categoryPs := NewPlaceholder(pss.Base).AppendItems(_items)
 		_psDs, err := _categoryPs.Dataset()
 		if err != nil {
 			return nil, fmt.Errorf("dataset: %w", err)
@@ -183,22 +194,11 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 func (pss *PlaceholderStackSource) categoryToID(category map[string]any, keys []string) string {
 	var values []string
 
-	_keysMap := make(map[string]struct{}, len(keys))
 	for _, _k := range keys {
-		_keysMap[_k] = struct{}{}
-	}
-
-	for _ck, _cv := range category {
-		if _, ok := _keysMap[_ck]; ok {
+		if _cv, ok := category[_k]; ok {
 			values = append(values, fmt.Sprintf("%v", _cv))
-		} else {
-			//panic(fmt.Sprintf("categoryToID category[%s] value not found", _ck))
 		}
 	}
-
-	sort.Slice(values, func(i, j int) bool {
-		return values[i] < values[j]
-	})
 
 	return pss.itemValuesToIdentification(values)
 }
