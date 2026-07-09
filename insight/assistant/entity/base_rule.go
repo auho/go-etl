@@ -56,7 +56,7 @@ func newBaseRule(name string, length, keywordLength int, labels map[string]int, 
 	return br
 }
 
-func (br *baseRule) GetDB() *simpledb.SimpleDB {
+func (br *baseRule) DB() *simpledb.SimpleDB {
 	return br.db
 }
 

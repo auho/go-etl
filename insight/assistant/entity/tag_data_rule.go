@@ -41,7 +41,7 @@ func (t *TagDataRule) GetName() string {
 	return fmt.Sprintf("%s_%s", t.data.GetName(), t.rule.GetName())
 }
 
-func (t *TagDataRule) GetDB() *simpledb.SimpleDB {
+func (t *TagDataRule) DB() *simpledb.SimpleDB {
 	return t.db
 }
 

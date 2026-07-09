@@ -13,7 +13,7 @@ type RawTable struct {
 func NewRawTable(raw assistant.Raw, opts ...TableOption) *RawTable {
 	t := &RawTable{}
 	t.raw = raw
-	t.db = raw.GetDB()
+	t.db = raw.DB()
 
 	t.options(opts)
 	t.build()

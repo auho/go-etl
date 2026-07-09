@@ -13,7 +13,7 @@ type TagDataRuleTable struct {
 func NewTagDataRuleTable(tag *entity.TagDataRule, opts ...TableOption) *TagDataRuleTable {
 	t := &TagDataRuleTable{}
 	t.tag = tag
-	t.db = tag.GetDB()
+	t.db = tag.DB()
 
 	t.options(opts)
 	t.build()

@@ -8,7 +8,7 @@ import (
 type Table interface {
 	IDName() string
 	TableName() string
-	GetDB() *simpledb.SimpleDB
+	DB() *simpledb.SimpleDB
 }
 
 // CleanResource groups the three tables involved in a clean (filter) task:

@@ -36,7 +36,7 @@ func NewRows(name, idName string, db *simpledb.SimpleDB) *Rows {
 	return NewRowsCustomTable(name, name, idName, db)
 }
 
-func (r *Rows) GetDB() *simpledb.SimpleDB {
+func (r *Rows) DB() *simpledb.SimpleDB {
 	return r.db
 }
 

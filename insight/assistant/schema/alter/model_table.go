@@ -15,7 +15,7 @@ type ModelTable struct {
 func NewModelTable(m assistant.Raw) *ModelTable {
 	return &ModelTable{
 		baseTable: newBaseTable(m.TableName()),
-		db:        m.GetDB(),
+		db:        m.DB(),
 	}
 }
 

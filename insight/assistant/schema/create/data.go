@@ -13,7 +13,7 @@ type DataTable struct {
 func NewDataTable(data assistant.Entity, opts ...TableOption) *DataTable {
 	t := &DataTable{}
 	t.data = data
-	t.db = t.data.GetDB()
+	t.db = t.data.DB()
 
 	t.options(opts)
 	t.build()

@@ -131,7 +131,7 @@ func (u *Update) Close() error {
 
 // BuildDestinations constructs and returns the update destination for the source table.
 func (u *Update) BuildDestinations() ([]storage.Destination[storage.MapEntry], error) {
-	target, err := u.source.GetDB().Clone()
+	target, err := u.source.DB().Clone()
 	if err != nil {
 		return nil, fmt.Errorf("GetDB.Clone: %w", err)
 	}

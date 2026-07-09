@@ -29,7 +29,7 @@ func NewDataContentSegWords(data assistant.Entity, contentName string, db *simpl
 	return dc
 }
 
-func (dc *DataContentSegWords) GetDB() *simpledb.SimpleDB {
+func (dc *DataContentSegWords) DB() *simpledb.SimpleDB {
 	return dc.db
 }
 

@@ -90,5 +90,5 @@ func (rs *RuleResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReade
 }
 
 func (rs *RuleResource) GetDB() *simpledb.SimpleDB {
-	return rs.Rule.GetDB()
+	return rs.Rule.DB()
 }

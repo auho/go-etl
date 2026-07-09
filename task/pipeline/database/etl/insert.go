@@ -108,7 +108,7 @@ func (i *Insert) BuildDestinations() ([]storage.Destination[storage.MapEntry], e
 	dest, err := destination.NewBulkInsertMapWithGorm(
 		i.config.BulkConfig(!i.config.SkipTruncate),
 		destination.WriteConfig{TableName: i.target.TableName()},
-		i.target.GetDB().GormDB(),
+		i.target.DB().GormDB(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("NewBulkInsertMapWithGorm: %w", err)

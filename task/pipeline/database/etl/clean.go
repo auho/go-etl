@@ -72,7 +72,7 @@ func (c *Clean) Fields() ([]string, error) {
 		keys = slicex.SliceDropDuplicates(keys)
 	} else {
 		var err error
-		keys, err = c.resource.Deleted().GetDB().GetTableColumns(context.TODO(), c.resource.Deleted().TableName())
+		keys, err = c.resource.Deleted().DB().GetTableColumns(context.TODO(), c.resource.Deleted().TableName())
 		if err != nil {
 			return nil, fmt.Errorf("GetTableColumns: %w", err)
 		}
@@ -107,7 +107,7 @@ func (c *Clean) Prepare() error {
 	c.dataDest, err = destination.NewBulkInsertMapWithGorm(
 		bConfig,
 		destination.WriteConfig{TableName: c.resource.Data().TableName()},
-		c.resource.Data().GetDB().GormDB(),
+		c.resource.Data().DB().GormDB(),
 	)
 	if err != nil {
 		return fmt.Errorf("NewBulkInsertMapWithGorm DataTarget: %w", err)
@@ -116,7 +116,7 @@ func (c *Clean) Prepare() error {
 	c.deletedDest, err = destination.NewBulkInsertMapWithGorm(
 		bConfig,
 		destination.WriteConfig{TableName: c.resource.Deleted().TableName()},
-		c.resource.Deleted().GetDB().GormDB(),
+		c.resource.Deleted().DB().GormDB(),
 	)
 	if err != nil {
 		return fmt.Errorf("NewBulkInsertMapWithGorm DeletedTarget: %w", err)

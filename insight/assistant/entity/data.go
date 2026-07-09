@@ -29,7 +29,7 @@ func NewData(name string, idName string, db *simpledb.SimpleDB) *Data {
 	return d
 }
 
-func (d *Data) GetDB() *simpledb.SimpleDB {
+func (d *Data) DB() *simpledb.SimpleDB {
 	return d.db
 }
 

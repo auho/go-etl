@@ -13,7 +13,7 @@ type RowsTable struct {
 func NewRowsTable(rows assistant.Entity, opts ...TableOption) *RowsTable {
 	t := &RowsTable{}
 	t.rows = rows
-	t.db = rows.GetDB()
+	t.db = rows.DB()
 
 	t.options(opts)
 	t.build()

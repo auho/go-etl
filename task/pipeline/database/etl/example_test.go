@@ -16,15 +16,15 @@ var ruler extract.Rule
 
 type jobSource struct{}
 
-func (_ jobSource) IDName() string            { return "id" }
-func (_ jobSource) TableName() string         { return "source" }
-func (_ jobSource) GetDB() *simpledb.SimpleDB { return nil }
+func (_ jobSource) IDName() string         { return "id" }
+func (_ jobSource) TableName() string      { return "source" }
+func (_ jobSource) DB() *simpledb.SimpleDB { return nil }
 
 type jobTarget struct{}
 
-func (_ jobTarget) IDName() string            { return "id" }
-func (_ jobTarget) TableName() string         { return "target" }
-func (_ jobTarget) GetDB() *simpledb.SimpleDB { return nil }
+func (_ jobTarget) IDName() string         { return "id" }
+func (_ jobTarget) TableName() string      { return "target" }
+func (_ jobTarget) DB() *simpledb.SimpleDB { return nil }
 
 type cleanResource struct{}
 

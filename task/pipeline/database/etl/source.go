@@ -42,7 +42,7 @@ func newSource(table Table, fields []string, cfg SourceConfig) (storage.Source[s
 			SelectFields:  fields,
 			WhereArgs:     nil,
 		},
-		table.GetDB().GormDB(),
+		table.DB().GormDB(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("NewSectionMapWithGorm: %w", err)

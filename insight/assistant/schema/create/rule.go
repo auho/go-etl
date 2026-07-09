@@ -14,7 +14,7 @@ type RuleTable struct {
 func NewRuleTable(rule assistant.Rule, opts ...TableOption) *RuleTable {
 	t := &RuleTable{}
 	t.rule = rule
-	t.db = rule.GetDB()
+	t.db = rule.DB()
 
 	t.options(opts)
 	t.build()

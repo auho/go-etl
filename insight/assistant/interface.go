@@ -7,7 +7,7 @@ import (
 )
 
 type Raw interface {
-	GetDB() *simpledb.SimpleDB
+	DB() *simpledb.SimpleDB
 	GetName() string
 	TableName() string
 	ExecCommand(*schema.Command) // exec command func

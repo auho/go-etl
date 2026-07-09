@@ -51,8 +51,8 @@ func (t *Transfer) Exec(item storage.MapEntry) ([]storage.MapEntry, bool, error)
 	return []map[string]any{newItem}, true, nil
 }
 
-func (t *Transfer) AppendState()     {}
-func (t *Transfer) AfterRun() error  { return nil }
+func (t *Transfer) AppendState()    {}
+func (t *Transfer) AfterRun() error { return nil }
 func (t *Transfer) Close() error {
 	return t.operator.Close()
 }
@@ -66,7 +66,7 @@ func (t *Transfer) BuildDestinations() ([]storage.Destination[storage.MapEntry],
 			BatchSize:   int64(batchSize),
 		},
 		destination.WriteConfig{TableName: t.target.TableName()},
-		t.target.GetDB().GormDB(),
+		t.target.DB().GormDB(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("NewBulkInsertMapWithGorm: %w", err)

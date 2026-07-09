@@ -27,8 +27,8 @@ func NewDataContent(data *Data, contentName string) *DataContent {
 	return d
 }
 
-func (d *DataContent) GetDB() *simpledb.SimpleDB {
-	return d.data.GetDB()
+func (d *DataContent) DB() *simpledb.SimpleDB {
+	return d.data.DB()
 }
 
 func (d *DataContent) GetName() string {

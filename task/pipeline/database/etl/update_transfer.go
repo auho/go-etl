@@ -63,7 +63,7 @@ func (u *UpdateTransfer) Fields() ([]string, error) {
 		fields = append(fields, op.Fields()...)
 	}
 
-	columns, err := u.target.GetDB().GetTableColumns(context.TODO(), u.target.TableName())
+	columns, err := u.target.DB().GetTableColumns(context.TODO(), u.target.TableName())
 	if err != nil {
 		return nil, fmt.Errorf("GetTableColumns: %w", err)
 	}
@@ -140,7 +140,7 @@ func (u *UpdateTransfer) BuildDestinations() ([]storage.Destination[storage.MapE
 	dest, err := destination.NewBulkInsertMapWithGorm(
 		u.config.BulkConfig(!u.config.SkipTruncate),
 		destination.WriteConfig{TableName: u.target.TableName()},
-		u.target.GetDB().GormDB(),
+		u.target.DB().GormDB(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("NewBulkInsertMapWithGorm: %w", err)

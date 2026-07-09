@@ -21,13 +21,13 @@ func NewRaw(name string, raw assistant.Raw) *RawSource {
 		Raw:  raw,
 		source: Base{
 			Name: name,
-			DB:   raw.GetDB(),
+			DB:   raw.DB(),
 		},
 	}
 }
 
 func (rs *RawSource) Dataset() (*dataset.Dataset, error) {
-	fields, err := rs.Raw.GetDB().GetTableColumns(context.TODO(), rs.Raw.TableName())
+	fields, err := rs.Raw.DB().GetTableColumns(context.TODO(), rs.Raw.TableName())
 	if err != nil {
 		return nil, err
 	}

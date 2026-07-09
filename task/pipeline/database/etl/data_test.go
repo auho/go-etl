@@ -26,7 +26,7 @@ func (s *sourceTest) TableName() string {
 	return s.tableName
 }
 
-func (s *sourceTest) GetDB() *simpledb.SimpleDB {
+func (s *sourceTest) DB() *simpledb.SimpleDB {
 	simpleDB, _, err := mysql.NewDB()
 	if err != nil {
 		panic(err)
@@ -41,7 +41,7 @@ func (t targetTest) IDName() string {
 	return "id"
 }
 
-func (t targetTest) GetDB() *simpledb.SimpleDB {
+func (t targetTest) DB() *simpledb.SimpleDB {
 	simpleDB, _, err := mysql.NewDB()
 	if err != nil {
 		panic(err)

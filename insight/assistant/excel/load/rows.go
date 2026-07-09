@@ -32,5 +32,5 @@ func (rs *RowsResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReade
 }
 
 func (rs *RowsResource) GetDB() *simpledb.SimpleDB {
-	return rs.Rows.GetDB()
+	return rs.Rows.DB()
 }

@@ -13,7 +13,7 @@ type DataContentSegWordsTable struct {
 func NewDataContentSegWordsTable(d *entity.DataContentSegWords, opts ...TableOption) *DataContentSegWordsTable {
 	t := &DataContentSegWordsTable{}
 	t.dataContentSegWords = d
-	t.db = d.GetDB()
+	t.db = d.DB()
 
 	t.options(opts)
 	t.build()

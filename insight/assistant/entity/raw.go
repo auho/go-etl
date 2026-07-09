@@ -24,7 +24,7 @@ func NewRaw(name string, db *simpledb.SimpleDB) *Raw {
 	return r
 }
 
-func (r *Raw) GetDB() *simpledb.SimpleDB {
+func (r *Raw) DB() *simpledb.SimpleDB {
 	return r.db
 }
 

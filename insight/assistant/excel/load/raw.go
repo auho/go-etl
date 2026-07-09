@@ -21,7 +21,7 @@ type RawResource struct {
 }
 
 func (rs *RawResource) GetDB() *simpledb.SimpleDB {
-	return rs.Rows.GetDB()
+	return rs.Rows.DB()
 }
 
 func (rs *RawResource) Prepare() error {

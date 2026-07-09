@@ -13,7 +13,7 @@ type DataContentSplitWordsTable struct {
 func NewDataContentSplitWordsTable(d *entity.DataContentSplitWords, opts ...TableOption) *DataContentSplitWordsTable {
 	t := &DataContentSplitWordsTable{}
 	t.dataContentSplitWords = d
-	t.db = d.GetDB()
+	t.db = d.DB()
 
 	t.options(opts)
 	t.build()

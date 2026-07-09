@@ -29,7 +29,7 @@ func NewDataContentSplitWords(data assistant.Entity, contentName string, db *sim
 	return dc
 }
 
-func (dc *DataContentSplitWords) GetDB() *simpledb.SimpleDB {
+func (dc *DataContentSplitWords) DB() *simpledb.SimpleDB {
 	return dc.db
 }
 
