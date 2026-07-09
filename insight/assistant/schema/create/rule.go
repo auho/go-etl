@@ -46,7 +46,7 @@ func (t *RuleTable) build() {
 // BuildLabels
 // labels
 func (t *RuleTable) BuildLabels(command *schema.Command) {
-	command.AddStringWithLength(t.rule.GetName(), t.rule.NameLength())
+	command.AddStringWithLength(t.rule.Name(), t.rule.NameLength())
 
 	for label, length := range t.rule.Labels() {
 		command.AddStringWithLength(label, length)
@@ -56,7 +56,7 @@ func (t *RuleTable) BuildLabels(command *schema.Command) {
 // BuildLabelsForWhole
 // labels for whole
 func (t *RuleTable) BuildLabelsForWhole(command *schema.Command, length int) {
-	command.AddStringWithLength(t.rule.GetName(), length)
+	command.AddStringWithLength(t.rule.Name(), length)
 
 	for label := range t.rule.Labels() {
 		command.AddStringWithLength(label, length)

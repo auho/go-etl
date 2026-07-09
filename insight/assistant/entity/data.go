@@ -33,7 +33,7 @@ func (d *Data) DB() *simpledb.SimpleDB {
 	return d.db
 }
 
-func (d *Data) GetName() string {
+func (d *Data) Name() string {
 	return d.name
 }
 

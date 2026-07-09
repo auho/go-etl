@@ -28,7 +28,7 @@ func (r *Raw) DB() *simpledb.SimpleDB {
 	return r.db
 }
 
-func (r *Raw) GetName() string {
+func (r *Raw) Name() string {
 	return r.name
 }
 

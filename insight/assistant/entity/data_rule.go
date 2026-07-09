@@ -33,7 +33,7 @@ func (dr *DataRule) handlerOrigin() *DataRule {
 }
 
 func (dr *DataRule) TableName() string {
-	return fmt.Sprintf("%s_%s_%s", NameRule, dr.data.GetName(), dr.GetName())
+	return fmt.Sprintf("%s_%s_%s", NameRule, dr.data.Name(), dr.Name())
 }
 
 func (dr *DataRule) ToOriginRule() assistant.Rule {

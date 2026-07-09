@@ -78,7 +78,7 @@ func NewRuleItems(rule Rule, opts ...func(items *RuleItems)) *RuleItems {
 
 func (ri *RuleItems) initName() {
 	ri.tableName = ri.rule.TableName()
-	ri.name = ri.rule.GetName()
+	ri.name = ri.rule.Name()
 	ri.nameAlias = ri.genAlias(ri.name)
 
 	ri.labelNumName = ri.rule.LabelNumName()
@@ -143,7 +143,7 @@ func (ri *RuleItems) ItemsAlias() ([]map[string]string, error) {
 	_originRule := ri.rule.ToOriginRule()
 
 	selects := make(map[string]string)
-	selects[_originRule.GetName()] = _rule.GetName()
+	selects[_originRule.Name()] = _rule.Name()
 
 	for _originLabel, _label := range _rule.LabelsAlias() {
 		selects[_originLabel] = _label

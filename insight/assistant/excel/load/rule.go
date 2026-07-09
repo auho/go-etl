@@ -25,7 +25,7 @@ func (rs *RuleResource) Prepare() error {
 }
 
 func (rs *RuleResource) GetName() string {
-	return rs.Rule.GetName()
+	return rs.Rule.Name()
 }
 
 func (rs *RuleResource) GetTable() create.Tabler {

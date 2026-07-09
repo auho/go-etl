@@ -31,7 +31,7 @@ func (d *DataContent) DB() *simpledb.SimpleDB {
 	return d.data.DB()
 }
 
-func (d *DataContent) GetName() string {
+func (d *DataContent) Name() string {
 	return fmt.Sprintf("%s_%s", d.data.name, d.contentName)
 }
 
@@ -40,5 +40,5 @@ func (d *DataContent) IDName() string {
 }
 
 func (d *DataContent) TableName() string {
-	return fmt.Sprintf("%s_%s", NameData, d.GetName())
+	return fmt.Sprintf("%s_%s", NameData, d.Name())
 }

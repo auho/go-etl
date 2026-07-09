@@ -20,7 +20,7 @@ func (rs *RowsResource) Prepare() error {
 }
 
 func (rs *RowsResource) GetName() string {
-	return rs.Rows.GetName()
+	return rs.Rows.Name()
 }
 
 func (rs *RowsResource) GetTable() create.Tabler {

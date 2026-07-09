@@ -37,8 +37,8 @@ func (t *TagDataRule) GetRule() assistant.Rule {
 	return t.rule
 }
 
-func (t *TagDataRule) GetName() string {
-	return fmt.Sprintf("%s_%s", t.data.GetName(), t.rule.GetName())
+func (t *TagDataRule) Name() string {
+	return fmt.Sprintf("%s_%s", t.data.Name(), t.rule.Name())
 }
 
 func (t *TagDataRule) DB() *simpledb.SimpleDB {
@@ -50,7 +50,7 @@ func (t *TagDataRule) IDName() string {
 }
 
 func (t *TagDataRule) TableName() string {
-	return fmt.Sprintf("%s_%s_%s", NameTag, t.data.GetName(), t.rule.GetName())
+	return fmt.Sprintf("%s_%s_%s", NameTag, t.data.Name(), t.rule.Name())
 }
 
 func (t *TagDataRule) WithCommand(fn func(*schema.Command)) *TagDataRule {

@@ -40,7 +40,7 @@ func (r *Rows) DB() *simpledb.SimpleDB {
 	return r.db
 }
 
-func (r *Rows) GetName() string {
+func (r *Rows) Name() string {
 	return r.name
 }
 

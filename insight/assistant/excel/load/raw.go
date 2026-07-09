@@ -29,7 +29,7 @@ func (rs *RawResource) Prepare() error {
 }
 
 func (rs *RawResource) GetName() string {
-	return rs.Rows.GetName()
+	return rs.Rows.Name()
 }
 
 func (rs *RawResource) GetTable() create.Tabler {

@@ -33,8 +33,8 @@ func (dc *DataContentSplitWords) DB() *simpledb.SimpleDB {
 	return dc.db
 }
 
-func (dc *DataContentSplitWords) GetName() string {
-	return fmt.Sprintf("%s_%s", dc.data.GetName(), dc.contentName)
+func (dc *DataContentSplitWords) Name() string {
+	return fmt.Sprintf("%s_%s", dc.data.Name(), dc.contentName)
 }
 
 func (dc *DataContentSplitWords) IDName() string {
@@ -42,7 +42,7 @@ func (dc *DataContentSplitWords) IDName() string {
 }
 
 func (dc *DataContentSplitWords) TableName() string {
-	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSplitWords)
+	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.Name(), dc.contentName, NameSplitWords)
 }
 
 func (dc *DataContentSplitWords) GetData() assistant.Entity {

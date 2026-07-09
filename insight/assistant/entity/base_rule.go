@@ -60,7 +60,7 @@ func (br *baseRule) DB() *simpledb.SimpleDB {
 	return br.db
 }
 
-func (br *baseRule) GetName() string {
+func (br *baseRule) Name() string {
 	return br.nameAlias
 }
 
@@ -82,7 +82,7 @@ func (br *baseRule) Labels() map[string]int {
 
 func (br *baseRule) TagsName() []string {
 	var tagsName []string
-	tagsName = append(tagsName, br.GetName())
+	tagsName = append(tagsName, br.Name())
 	tagsName = append(tagsName, br.LabelsName()...)
 
 	return tagsName

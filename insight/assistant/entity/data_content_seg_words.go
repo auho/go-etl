@@ -33,8 +33,8 @@ func (dc *DataContentSegWords) DB() *simpledb.SimpleDB {
 	return dc.db
 }
 
-func (dc *DataContentSegWords) GetName() string {
-	return fmt.Sprintf("%s_%s", dc.data.GetName(), dc.contentName)
+func (dc *DataContentSegWords) Name() string {
+	return fmt.Sprintf("%s_%s", dc.data.Name(), dc.contentName)
 }
 
 func (dc *DataContentSegWords) IDName() string {
@@ -50,7 +50,7 @@ func (dc *DataContentSegWords) GetContentName() string {
 }
 
 func (dc *DataContentSegWords) TableName() string {
-	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.GetName(), dc.contentName, NameSegWords)
+	return fmt.Sprintf("%s_%s_%s_%s", NameTag, dc.data.Name(), dc.contentName, NameSegWords)
 }
 
 func (dc *DataContentSegWords) WordName() string {

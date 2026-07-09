@@ -8,7 +8,7 @@ import (
 
 type Raw interface {
 	DB() *simpledb.SimpleDB
-	GetName() string
+	Name() string
 	TableName() string
 	ExecCommand(*schema.Command) // exec command func
 	DMLTable() *dml.Table
