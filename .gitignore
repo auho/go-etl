@@ -4,9 +4,6 @@
 .trae
 
 .worktree
-.env
-.env.test
-
 /vendor
 /office/
 
@@ -17,3 +14,10 @@ go.work.sum
 *.out
 *.pprof
 *_linux
+
+.env
+.env.test
+
+/data
+/xlsx
+/conf

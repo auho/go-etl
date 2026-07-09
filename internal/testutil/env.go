@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -8,9 +9,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// projectRoot walks up from this file's location to find the directory
+// ProjectRoot walks up from this file's location to find the directory
 // containing go.mod.
-func projectRoot() string {
+func ProjectRoot() string {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
 	for {
@@ -28,6 +29,12 @@ func projectRoot() string {
 // LoadEnv loads environment variables from the .env file at the project root.
 // It is a no-op if the file does not exist; variables already set in the
 // environment take precedence and are not overwritten.
-func LoadEnv() {
-	_ = godotenv.Load(filepath.Join(projectRoot(), ".env.test"))
+func LoadEnv() (string, error) {
+	projectRoot := ProjectRoot()
+	err := godotenv.Load(filepath.Join(projectRoot, ".env.test"))
+	if err != nil {
+		return "", fmt.Errorf("load[env.test]: %w", err)
+	}
+
+	return projectRoot, nil
 }

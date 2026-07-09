@@ -9,7 +9,7 @@ func ExampleNewApp() {
 }
 
 func ExampleNewApplication() {
-	_app := NewApplication()
+	_app := NewApplication("")
 
 	// build
 	_app.Build("config name")

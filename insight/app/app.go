@@ -14,7 +14,7 @@ import (
 var App *Application
 
 func NewApp() {
-	App = NewApplication()
+	App = NewApplication("")
 }
 
 type Application struct {
@@ -30,24 +30,27 @@ type Application struct {
 	ConfDir  string
 }
 
-func NewApplication() *Application {
+func NewApplication(dir string) *Application {
 	a := &Application{}
 
-	a.buildWorkDir()
+	a.buildWorkDir(dir)
 	a.checkDir()
 
 	return a
 }
 
-func (a *Application) buildWorkDir() {
-	workDir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
+func (a *Application) buildWorkDir(dir string) {
+	workDir := dir
+	if workDir == "" {
+		_wd, err := os.Getwd()
+		if err != nil {
+			panic(fmt.Errorf("os.Getwd: %w", err))
+		}
 
-	workDir, err = filepath.Abs(workDir)
-	if err != nil {
-		panic(err)
+		workDir, err = filepath.Abs(_wd)
+		if err != nil {
+			panic(fmt.Errorf("filepath.Abs: %w", err))
+		}
 	}
 
 	a.Name = filepath.Base(workDir)
@@ -60,7 +63,7 @@ func (a *Application) buildWorkDir() {
 }
 
 func (a *Application) checkDir() {
-	for _, _dir := range []string{a.DataDir, a.XlsxDir} {
+	for _, _dir := range []string{a.DataDir, a.XlsxDir, a.ConfDir} {
 		_, err := os.Stat(_dir)
 		if os.IsNotExist(err) {
 			err = os.Mkdir(_dir, 0744)

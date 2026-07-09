@@ -3,12 +3,15 @@ package app
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/auho/go-etl/v3/internal/testutil"
+	"github.com/auho/go-etl/v3/internal/testutil/mysql"
 )
 
 var app *Application
+var confDir string
 
 func TestMain(m *testing.M) {
 	setup()
@@ -18,37 +21,44 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	testutil.LoadEnv()
-	dsn := os.Getenv("MYSQL_DSN")
-	if dsn == "" {
-		fmt.Println("skip: MYSQL_DSN not set")
-		os.Exit(0)
-	}
-	testConfigContent := fmt.Sprintf(`[db]
-dsn = "%s"
-driver = "mysql"
-`, dsn)
-	_, err := os.Stat("conf")
-	if err != nil {
-		err = os.Mkdir("conf", 0700)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	err = os.WriteFile("conf/office.toml", []byte(testConfigContent), 0600)
+	pr, err := testutil.LoadEnv()
 	if err != nil {
 		panic(err)
 	}
 
-	err = os.WriteFile("conf/test.toml", []byte(testConfigContent), 0600)
+	dsn, err := mysql.SetupDSN()
+	if err != nil {
+		panic(err)
+	}
+
+	if dsn == "" {
+		fmt.Println("skip: MYSQL_DSN not set")
+		os.Exit(0)
+	}
+
+	testConfigContent := fmt.Sprintf(`[db]
+dsn = "%s"
+driver = "mysql"
+`, dsn)
+
+	confDir = filepath.Join(pr, "/conf")
+	_, err = os.Stat(confDir)
+	if err != nil {
+		err = os.Mkdir(confDir, 0700)
+		if err != nil {
+			panic(fmt.Sprintf("Mkdir[%s]: %v", confDir, err))
+		}
+	}
+
+	confPath := filepath.Join(confDir, "develop.toml")
+	err = os.WriteFile(confPath, []byte(testConfigContent), 0600)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func tearDown() {
-	err := os.RemoveAll("conf")
+	err := os.RemoveAll(confDir)
 	if err != nil {
 		panic(err)
 	}
