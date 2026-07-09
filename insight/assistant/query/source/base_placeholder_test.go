@@ -76,3 +76,32 @@ func TestBuildPlaceholderItemsSqlList(t *testing.T) {
 		t.Fatalf("expect[2] != actual[%d]", len(list))
 	}
 }
+
+func TestBuildPlaceholderItemsSqlSetDedupIDs(t *testing.T) {
+	bph := &basePlaceholder{}
+	s := Base{}
+	sql := "SELECT * FROM t WHERE a = '##one##'"
+	keys := []string{"one"}
+	items := []map[string]any{
+		{"one": "a"},
+		{"one": "a"}, // duplicate
+		{"one": "b"},
+		{"one": "b"}, // duplicate
+		{"one": "c"},
+	}
+	itemIds, _ := bph.buildPlaceholderItemsSqlSet(s, sql, keys, items)
+	if len(itemIds) != 3 {
+		t.Fatalf("expect[3] != actual[%d]", len(itemIds))
+	}
+
+	// verify IDs
+	idMap := make(map[string]bool)
+	for _, id := range itemIds {
+		idMap[id] = true
+	}
+	for _, expected := range []string{"a", "b", "c"} {
+		if !idMap[expected] {
+			t.Fatalf("missing itemId: %s", expected)
+		}
+	}
+}

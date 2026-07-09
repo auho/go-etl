@@ -1,6 +1,7 @@
 package source
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -43,5 +44,31 @@ func TestExpandItemsCrossEmptyValues(t *testing.T) {
 	})
 	if len(_items) != 0 {
 		t.Fatalf("expect[0] != actual[%d]", len(_items))
+	}
+}
+
+func TestExpandItemsCrossContent(t *testing.T) {
+	bc := &baseCross{}
+	items := map[string][]any{
+		"one": {"a", "b"},
+		"two": {"x", "y"},
+	}
+
+	result := bc.expandItemsCross(items)
+	if len(result) != 4 {
+		t.Fatalf("expect[4] != actual[%d]", len(result))
+	}
+
+	// verify all 4 combinations exist
+	combos := make(map[string]bool)
+	for _, item := range result {
+		key := fmt.Sprintf("%v_%v", item["one"], item["two"])
+		combos[key] = true
+	}
+
+	for _, expected := range []string{"a_x", "a_y", "b_x", "b_y"} {
+		if !combos[expected] {
+			t.Fatalf("missing combination: %s", expected)
+		}
 	}
 }
