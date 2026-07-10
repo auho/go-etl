@@ -11,29 +11,29 @@ var _ Source = (*RowsStackSource)(nil)
 // RowsStackSource
 // general stack queries
 type RowsStackSource struct {
-	name string
-	rss  []*RowsSource
+	name        string
+	rowsSources []*RowsSource
 }
 
-func NewRowsStack(name string, ss ...Base) *RowsStackSource {
+func NewRowsStack(name string, bases ...Base) *RowsStackSource {
 	rs := &RowsStackSource{}
 	rs.name = name
 
-	for _, _s := range ss {
-		rs.rss = append(rs.rss, NewRows(_s))
+	for _, _b := range bases {
+		rs.rowsSources = append(rs.rowsSources, NewRows(_b))
 	}
 
 	return rs
 }
 
 func (rs *RowsStackSource) Dataset() (*dataset.Dataset, error) {
-	if len(rs.rss) <= 0 {
-		return nil, fmt.Errorf("source[%s] rss length is invalid", rs.name)
+	if len(rs.rowsSources) <= 0 {
+		return nil, fmt.Errorf("source[%s] rowsSources length is invalid", rs.name)
 	}
 
 	var _sets []dataset.Set
 
-	for _, _rs := range rs.rss {
+	for _, _rs := range rs.rowsSources {
 		ds, err := _rs.Dataset()
 		if err != nil {
 			return nil, fmt.Errorf("dataset: %w", err)
@@ -44,7 +44,7 @@ func (rs *RowsStackSource) Dataset() (*dataset.Dataset, error) {
 
 	return &dataset.Dataset{
 		Name:   rs.name,
-		Titles: rs.rss[0].Table.GetSelectFields(),
+		Titles: rs.rowsSources[0].Table.GetSelectFields(),
 		Sets:   _sets,
 	}, nil
 }

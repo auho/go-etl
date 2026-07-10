@@ -11,20 +11,17 @@ import (
 var _ Source = (*RawSource)(nil)
 
 type RawSource struct {
-	Name string
-	Raw  assistant.Raw
-
-	source Base
+	Base
+	Raw assistant.Raw
 }
 
 func NewRaw(name string, raw assistant.Raw) *RawSource {
 	return &RawSource{
-		Name: name,
-		Raw:  raw,
-		source: Base{
+		Base: Base{
 			Name: name,
 			DB:   raw.DB(),
 		},
+		Raw: raw,
 	}
 }
 
@@ -37,7 +34,7 @@ func (rs *RawSource) Dataset() (*dataset.Dataset, error) {
 	itemsId := []string{rs.Name}
 	itemsSql := map[string]string{rs.Name: rs.Raw.DMLTable().Select([]string{"*"}).SQL()}
 
-	sets, err := rs.source.queryItemsSet(
+	sets, err := rs.queryItemsSet(
 		fields,
 		itemsId,
 		itemsSql,

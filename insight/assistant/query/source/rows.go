@@ -14,16 +14,16 @@ type RowsSource struct {
 	Base
 }
 
-func NewRows(s Base) *RowsSource {
-	return &RowsSource{Base: s}
+func NewRows(b Base) *RowsSource {
+	return &RowsSource{Base: b}
 }
 
-func (ts *RowsSource) Dataset() (*dataset.Dataset, error) {
-	fields := ts.Table.GetSelectFields()
-	itemsId := []string{ts.Name}
-	itemsSql := map[string]string{ts.Name: ts.Table.SQL()}
+func (rs *RowsSource) Dataset() (*dataset.Dataset, error) {
+	fields := rs.Table.GetSelectFields()
+	itemsId := []string{rs.Name}
+	itemsSql := map[string]string{rs.Name: rs.Table.SQL()}
 
-	sets, err := ts.queryItemsSet(
+	sets, err := rs.queryItemsSet(
 		fields,
 		itemsId,
 		itemsSql,
@@ -33,7 +33,7 @@ func (ts *RowsSource) Dataset() (*dataset.Dataset, error) {
 	}
 
 	return &dataset.Dataset{
-		Name:   ts.Name,
+		Name:   rs.Name,
 		Titles: fields,
 		Sets:   sets,
 	}, nil

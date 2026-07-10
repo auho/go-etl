@@ -15,9 +15,9 @@ type PlaceholderSource struct {
 	items []map[string]any // []map[field][field value]
 }
 
-func NewPlaceholder(s Base) *PlaceholderSource {
+func NewPlaceholder(b Base) *PlaceholderSource {
 	return &PlaceholderSource{
-		Base: s,
+		Base: b,
 	}
 }
 
