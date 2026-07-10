@@ -6,6 +6,25 @@ import (
 	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
 )
 
+// --- error path tests ---
+
+func TestRowsDatasetTableNotFound(t *testing.T) {
+	skipIfNoDB(t)
+
+	s := NewRows(Base{
+		Name:  "rows_err",
+		Table: dml.NewTable("nonexistent_table").Select([]string{"name"}),
+		DB:    _simpleDB,
+	})
+
+	_, err := s.Dataset()
+	if err == nil {
+		t.Fatal("expect error for non-existent table")
+	}
+}
+
+// --- integration tests ---
+
 func TestRowsDataset(t *testing.T) {
 	skipIfNoDB(t)
 

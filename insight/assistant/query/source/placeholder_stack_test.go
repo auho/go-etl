@@ -97,6 +97,34 @@ func TestPlaceholderStackDatasetEmptyCategories(t *testing.T) {
 	}
 }
 
+func TestPlaceholderStackSetCategories(t *testing.T) {
+	ps := NewPlaceholderStack(Base{}).
+		AppendCategories([]map[string]any{
+			{"three": "1"},
+		})
+
+	ps.SetCategories([]map[string]any{
+		{"three": "2"},
+		{"three": "3"},
+	})
+
+	if len(ps.categories) != 2 {
+		t.Fatalf("expect[2] != actual[%d]", len(ps.categories))
+	}
+}
+
+func TestPlaceholderStackDatasetEmptyStacks(t *testing.T) {
+	pss := NewPlaceholderStack(Base{}).
+		AppendCategories([]map[string]any{
+			{"category": "cat1"},
+		})
+
+	_, err := pss.Dataset()
+	if err == nil {
+		t.Fatal("expect error for empty stacks")
+	}
+}
+
 func TestCategoryToID(t *testing.T) {
 	pss := &PlaceholderStack{Base: Base{Name: "test"}}
 	keys := []string{"one", "two"}
@@ -195,5 +223,29 @@ func TestPlaceholderStackCategoryDedup(t *testing.T) {
 	// duplicate category removed, only 2 sets
 	if len(ds.Sets) != 2 {
 		t.Fatalf("expect[2] != actual[%d]", len(ds.Sets))
+	}
+}
+
+func TestPlaceholderStackDatasetSubQueryError(t *testing.T) {
+	skipIfNoDB(t)
+
+	s := NewPlaceholderStack(Base{
+		Name: "stack_err",
+		Table: dml.NewTable("nonexistent_table").
+			Select([]string{"name"}).
+			Where("category = '##category##'"),
+		DB: _simpleDB,
+	})
+
+	s.AppendCategories([]map[string]any{
+		{"category": "cat1"},
+	})
+	s.AppendStacks([]map[string]any{
+		{"value": 10},
+	})
+
+	_, err := s.Dataset()
+	if err == nil {
+		t.Fatal("expect error for sub-query on non-existent table")
 	}
 }

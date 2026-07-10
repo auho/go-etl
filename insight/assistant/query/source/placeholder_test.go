@@ -79,6 +79,27 @@ func TestPlaceholderDatasetEmptyItems(t *testing.T) {
 	}
 }
 
+func TestPlaceholderDatasetTableNotFound(t *testing.T) {
+	skipIfNoDB(t)
+
+	s := NewPlaceholder(Base{
+		Name:  "placeholder_err",
+		Table: dml.NewTable("nonexistent_table").
+			Select([]string{"name"}).
+			Where("category = '##category##'"),
+		DB: _simpleDB,
+	})
+
+	s.AppendItems([]map[string]any{
+		{"category": "cat1"},
+	})
+
+	_, err := s.Dataset()
+	if err == nil {
+		t.Fatal("expect error for non-existent table")
+	}
+}
+
 // --- integration tests ---
 
 func TestPlaceholderDataset(t *testing.T) {
