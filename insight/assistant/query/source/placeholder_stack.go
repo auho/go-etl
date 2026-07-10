@@ -7,7 +7,7 @@ import (
 	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 )
 
-var _ Source = (*PlaceholderStackSource)(nil)
+var _ Source = (*PlaceholderStack)(nil)
 
 /*
  c: 5, 6
@@ -28,7 +28,7 @@ c: 6
  a: 2 b: 4
 */
 
-type PlaceholderStackSource struct {
+type PlaceholderStack struct {
 	Base
 	baseCross
 	basePlaceholder
@@ -36,8 +36,8 @@ type PlaceholderStackSource struct {
 	stacks     []map[string]any // []map[field][field value]
 }
 
-func NewPlaceholderStack(b Base) *PlaceholderStackSource {
-	return &PlaceholderStackSource{
+func NewPlaceholderStack(b Base) *PlaceholderStack {
+	return &PlaceholderStack{
 		Base: b,
 	}
 }
@@ -51,14 +51,14 @@ func NewPlaceholderStack(b Base) *PlaceholderStackSource {
 //		{"one": "b", "two": "c"},
 //		{"one": "b", "two": "d"},
 //	}
-func (pss *PlaceholderStackSource) AppendCategories(categories []map[string]any) *PlaceholderStackSource {
+func (pss *PlaceholderStack) AppendCategories(categories []map[string]any) *PlaceholderStack {
 	pss.categories = append(pss.categories, categories...)
 
 	return pss
 }
 
 // SetCategories replaces all categories with the given categories.
-func (pss *PlaceholderStackSource) SetCategories(categories []map[string]any) *PlaceholderStackSource {
+func (pss *PlaceholderStack) SetCategories(categories []map[string]any) *PlaceholderStack {
 	pss.categories = nil
 	return pss.AppendCategories(categories)
 }
@@ -72,14 +72,14 @@ func (pss *PlaceholderStackSource) SetCategories(categories []map[string]any) *P
 //		{"one": "b", "two": "c"},
 //		{"one": "b", "two": "d"},
 //	}
-func (pss *PlaceholderStackSource) AppendStacks(stacks []map[string]any) *PlaceholderStackSource {
+func (pss *PlaceholderStack) AppendStacks(stacks []map[string]any) *PlaceholderStack {
 	pss.stacks = append(pss.stacks, stacks...)
 
 	return pss
 }
 
 // SetStacks replaces all stacks with the given stacks.
-func (pss *PlaceholderStackSource) SetStacks(stacks []map[string]any) *PlaceholderStackSource {
+func (pss *PlaceholderStack) SetStacks(stacks []map[string]any) *PlaceholderStack {
 	pss.stacks = nil
 	return pss.AppendStacks(stacks)
 }
@@ -100,12 +100,12 @@ func (pss *PlaceholderStackSource) SetStacks(stacks []map[string]any) *Placehold
 //		{"one": "b", "two": "c"},
 //		{"one": "b", "two": "d"},
 //	}
-func (pss *PlaceholderStackSource) AppendCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
+func (pss *PlaceholderStack) AppendCategoriesCross(categories map[string][]any) *PlaceholderStack {
 	return pss.AppendCategories(pss.expandItemsCross(categories))
 }
 
 // SetCategoriesCross replaces all categories with the cross-expanded categories.
-func (pss *PlaceholderStackSource) SetCategoriesCross(categories map[string][]any) *PlaceholderStackSource {
+func (pss *PlaceholderStack) SetCategoriesCross(categories map[string][]any) *PlaceholderStack {
 	pss.categories = nil
 	return pss.AppendCategoriesCross(categories)
 }
@@ -126,17 +126,17 @@ func (pss *PlaceholderStackSource) SetCategoriesCross(categories map[string][]an
 //		{"one": "b", "two": "c"},
 //		{"one": "b", "two": "d"},
 //	}
-func (pss *PlaceholderStackSource) AppendStacksCross(stacks map[string][]any) *PlaceholderStackSource {
+func (pss *PlaceholderStack) AppendStacksCross(stacks map[string][]any) *PlaceholderStack {
 	return pss.AppendStacks(pss.expandItemsCross(stacks))
 }
 
 // SetStacksCross replaces all stacks with the cross-expanded stacks.
-func (pss *PlaceholderStackSource) SetStacksCross(stacks map[string][]any) *PlaceholderStackSource {
+func (pss *PlaceholderStack) SetStacksCross(stacks map[string][]any) *PlaceholderStack {
 	pss.stacks = nil
 	return pss.AppendStacksCross(stacks)
 }
 
-func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
+func (pss *PlaceholderStack) Dataset() (*dataset.Dataset, error) {
 	if len(pss.categories) <= 0 {
 		return nil, fmt.Errorf("source[%s] categories length is invalid", pss.Name)
 	}
@@ -191,7 +191,7 @@ func (pss *PlaceholderStackSource) Dataset() (*dataset.Dataset, error) {
 	}, nil
 }
 
-func (pss *PlaceholderStackSource) categoryToID(category map[string]any, keys []string) string {
+func (pss *PlaceholderStack) categoryToID(category map[string]any, keys []string) string {
 	var values []string
 
 	for _, _k := range keys {

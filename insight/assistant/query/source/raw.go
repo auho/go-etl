@@ -8,15 +8,15 @@ import (
 	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 )
 
-var _ Source = (*RawSource)(nil)
+var _ Source = (*Raw)(nil)
 
-type RawSource struct {
+type Raw struct {
 	Base
 	Raw assistant.Raw
 }
 
-func NewRaw(name string, raw assistant.Raw) *RawSource {
-	return &RawSource{
+func NewRaw(name string, raw assistant.Raw) *Raw {
+	return &Raw{
 		Base: Base{
 			Name: name,
 			DB:   raw.DB(),
@@ -25,7 +25,7 @@ func NewRaw(name string, raw assistant.Raw) *RawSource {
 	}
 }
 
-func (rs *RawSource) Dataset() (*dataset.Dataset, error) {
+func (rs *Raw) Dataset() (*dataset.Dataset, error) {
 	fields, err := rs.Raw.DB().GetTableColumns(context.TODO(), rs.Raw.TableName())
 	if err != nil {
 		return nil, fmt.Errorf("getTableColumns: %w", err)

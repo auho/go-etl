@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
 )
 
-func TestRowsStackSourceDataset(t *testing.T) {
+func TestRowsStackDataset(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewRowsStack("stack",

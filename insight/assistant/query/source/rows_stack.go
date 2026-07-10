@@ -6,17 +6,17 @@ import (
 	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 )
 
-var _ Source = (*RowsStackSource)(nil)
+var _ Source = (*RowsStack)(nil)
 
-// RowsStackSource
+// RowsStack
 // general stack queries
-type RowsStackSource struct {
+type RowsStack struct {
 	name        string
-	rowsSources []*RowsSource
+	rowsSources []*Rows
 }
 
-func NewRowsStack(name string, bases ...Base) *RowsStackSource {
-	rs := &RowsStackSource{}
+func NewRowsStack(name string, bases ...Base) *RowsStack {
+	rs := &RowsStack{}
 	rs.name = name
 
 	for _, _b := range bases {
@@ -26,7 +26,7 @@ func NewRowsStack(name string, bases ...Base) *RowsStackSource {
 	return rs
 }
 
-func (rs *RowsStackSource) Dataset() (*dataset.Dataset, error) {
+func (rs *RowsStack) Dataset() (*dataset.Dataset, error) {
 	if len(rs.rowsSources) <= 0 {
 		return nil, fmt.Errorf("source[%s] rowsSources length is invalid", rs.name)
 	}

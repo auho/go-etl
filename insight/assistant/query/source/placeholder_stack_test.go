@@ -98,7 +98,7 @@ func TestPlaceholderStackDatasetEmptyCategories(t *testing.T) {
 }
 
 func TestCategoryToID(t *testing.T) {
-	pss := &PlaceholderStackSource{Base: Base{Name: "test"}}
+	pss := &PlaceholderStack{Base: Base{Name: "test"}}
 	keys := []string{"one", "two"}
 	category := map[string]any{"one": "a", "two": "b"}
 	id := pss.categoryToID(category, keys)
@@ -109,7 +109,7 @@ func TestCategoryToID(t *testing.T) {
 }
 
 func TestCategoryToIDCrossValues(t *testing.T) {
-	pss := &PlaceholderStackSource{Base: Base{Name: "test"}}
+	pss := &PlaceholderStack{Base: Base{Name: "test"}}
 	keys := []string{"one", "two"}
 	category := map[string]any{"one": "b", "two": "a"}
 	id := pss.categoryToID(category, keys)
@@ -120,7 +120,7 @@ func TestCategoryToIDCrossValues(t *testing.T) {
 }
 
 func TestCategoryToIDPartialKeys(t *testing.T) {
-	pss := &PlaceholderStackSource{Base: Base{Name: "test"}}
+	pss := &PlaceholderStack{Base: Base{Name: "test"}}
 	keys := []string{"one", "two", "three"}
 	category := map[string]any{"three": 1}
 	id := pss.categoryToID(category, keys)
@@ -132,7 +132,7 @@ func TestCategoryToIDPartialKeys(t *testing.T) {
 
 // --- integration tests ---
 
-func TestPlaceholderStackSourceDataset(t *testing.T) {
+func TestPlaceholderStackDataset(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewPlaceholderStack(Base{
@@ -166,7 +166,7 @@ func TestPlaceholderStackSourceDataset(t *testing.T) {
 	}
 }
 
-func TestPlaceholderStackSourceCategoryDedup(t *testing.T) {
+func TestPlaceholderStackCategoryDedup(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewPlaceholderStack(Base{

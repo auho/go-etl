@@ -6,7 +6,7 @@ import (
 	"github.com/auho/go-etl/v3/insight/assistant/sqlbuilder/dml"
 )
 
-func TestRowsSourceDataset(t *testing.T) {
+func TestRowsDataset(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewRows(Base{
@@ -34,7 +34,7 @@ func TestRowsSourceDataset(t *testing.T) {
 	}
 }
 
-func TestRowsSourceDatasetWithWhere(t *testing.T) {
+func TestRowsDatasetWithWhere(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewRows(Base{
@@ -56,7 +56,7 @@ func TestRowsSourceDatasetWithWhere(t *testing.T) {
 	}
 }
 
-func TestRowsSourceDatasetEmptyResult(t *testing.T) {
+func TestRowsDatasetEmptyResult(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewRows(Base{

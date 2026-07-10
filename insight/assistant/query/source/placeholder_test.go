@@ -81,7 +81,7 @@ func TestPlaceholderDatasetEmptyItems(t *testing.T) {
 
 // --- integration tests ---
 
-func TestPlaceholderSourceDataset(t *testing.T) {
+func TestPlaceholderDataset(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewPlaceholder(Base{
@@ -116,7 +116,7 @@ func TestPlaceholderSourceDataset(t *testing.T) {
 	}
 }
 
-func TestPlaceholderSourceMultiPlaceholder(t *testing.T) {
+func TestPlaceholderMultiPlaceholder(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewPlaceholder(Base{
@@ -153,7 +153,7 @@ func TestPlaceholderSourceMultiPlaceholder(t *testing.T) {
 	}
 }
 
-func TestPlaceholderSourceHasNamePrefix(t *testing.T) {
+func TestPlaceholderHasNamePrefix(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewPlaceholder(Base{
@@ -183,7 +183,7 @@ func TestPlaceholderSourceHasNamePrefix(t *testing.T) {
 	}
 }
 
-func TestPlaceholderSourceEmptyResult(t *testing.T) {
+func TestPlaceholderEmptyResult(t *testing.T) {
 	skipIfNoDB(t)
 
 	s := NewPlaceholder(Base{
