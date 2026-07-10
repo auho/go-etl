@@ -29,9 +29,9 @@ c: 6
 */
 
 type PlaceholderStackSource struct {
+	Base
 	baseCross
 	basePlaceholder
-	Base
 	categories []map[string]any // []map[field][field value]
 	stacks     []map[string]any // []map[field][field value]
 }

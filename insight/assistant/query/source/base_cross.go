@@ -32,16 +32,16 @@ func (bc *baseCross) expandItemsCross(items map[string][]any) []map[string]any {
 	var _tItems []map[string]any
 	_isStart := true
 	for key, values := range items {
-		newItems = nil // 清空，为了之后生成最新的组合
+		newItems = nil // clear to generate new combinations
 
-		if _isStart { // 第一个 key
+		if _isStart { // first key
 			_isStart = false
 			for _, value := range values {
 				newItems = append(newItems, map[string]any{key: value})
 			}
-		} else { // 之后的 key 追加
+		} else { // subsequent keys append
 			for _, value := range values {
-				for _, tItem := range _tItems { // 上一次大循环的所有组合
+				for _, tItem := range _tItems { // all combinations from previous iteration
 					_tItem := maps.Clone(tItem)
 					_tItem[key] = value
 					newItems = append(newItems, _tItem)
@@ -49,7 +49,7 @@ func (bc *baseCross) expandItemsCross(items map[string][]any) []map[string]any {
 			}
 		}
 
-		_tItems = newItems // 保留当前的组合，为了后面进行追加新的组合
+		_tItems = newItems // keep current combinations for next iteration
 	}
 
 	return newItems

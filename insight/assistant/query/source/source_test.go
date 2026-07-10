@@ -20,9 +20,9 @@ func TestItemValuesToIdentificationWithPrefix(t *testing.T) {
 	}
 }
 
-func TestKeysToIdentification(t *testing.T) {
+func TestValuesToIdentification(t *testing.T) {
 	b := &Base{}
-	id := b.keysToIdentification([]string{"x", "y", "z"})
+	id := b.valuesToIdentification([]string{"x", "y", "z"})
 	if id != "x_y_z" {
 		t.Fatalf("expect[x_y_z] != actual[%s]", id)
 	}

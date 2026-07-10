@@ -27,6 +27,10 @@ func NewRowsStack(name string, ss ...Base) *RowsStackSource {
 }
 
 func (rs *RowsStackSource) Dataset() (*dataset.Dataset, error) {
+	if len(rs.rss) <= 0 {
+		return nil, fmt.Errorf("source[%s] rss length is invalid", rs.name)
+	}
+
 	var _sets []dataset.Set
 
 	for _, _rs := range rs.rss {

@@ -8,6 +8,8 @@ import (
 	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 )
 
+var _ Source = (*RawSource)(nil)
+
 type RawSource struct {
 	Name string
 	Raw  assistant.Raw

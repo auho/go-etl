@@ -26,7 +26,7 @@ type Base struct {
 }
 
 func (b *Base) itemValuesToIdentification(itemValues []string) string {
-	id := b.keysToIdentification(itemValues)
+	id := b.valuesToIdentification(itemValues)
 	if b.HasNamePrefix {
 		id = fmt.Sprintf("%s_%s", b.Name, id)
 	}
@@ -34,8 +34,8 @@ func (b *Base) itemValuesToIdentification(itemValues []string) string {
 	return id
 }
 
-func (b *Base) keysToIdentification(keys []string) string {
-	return strings.Join(keys, "_")
+func (b *Base) valuesToIdentification(values []string) string {
+	return strings.Join(values, "_")
 }
 
 func (b *Base) queryItemsSet(fields, itemsId []string, itemsSql map[string]string) ([]dataset.Set, error) {
