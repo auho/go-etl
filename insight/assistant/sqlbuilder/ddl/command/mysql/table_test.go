@@ -8,7 +8,7 @@ import (
 var _tableName = "table_001"
 
 func TestAll(t *testing.T) {
-	t1 := &Table{}
+	t1 := NewTable()
 
 	t1.setTable(_tableName, engineMyISAM, "", "")
 	t1.AddPKBigInt("id", 20)

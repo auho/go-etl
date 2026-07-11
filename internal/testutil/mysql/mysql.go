@@ -68,10 +68,10 @@ func NewDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 	return simpleDB, gormDB, nil
 }
 
-func LoadDSN() (string, error) {
+func loadDSN() (string, error) {
 	baseDSN := os.Getenv("TEST_MYSQL_DSN")
 	if baseDSN == "" {
-		panic("TEST_MYSQL_DSN environment variable is not set")
+		return "", errors.New("TEST_MYSQL_DSN environment variable is not set")
 	}
 
 	// Ensure baseDSN ends with "/" for MySQL driver compatibility.
@@ -83,7 +83,7 @@ func LoadDSN() (string, error) {
 }
 
 func SetupDSN() (string, error) {
-	dsn, err := LoadDSN()
+	dsn, err := loadDSN()
 	if err != nil {
 		return "", fmt.Errorf("LoadDSN: %w", err)
 	}
