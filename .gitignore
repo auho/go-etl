@@ -3,7 +3,7 @@
 .vscode
 .trae
 
-.worktree
+.worktrees
 /vendor
 /office/
 
