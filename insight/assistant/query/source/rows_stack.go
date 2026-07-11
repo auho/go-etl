@@ -31,7 +31,7 @@ func (rs *RowsStack) Dataset() (*dataset.Dataset, error) {
 		return nil, fmt.Errorf("source[%s] rowsSources length is invalid", rs.name)
 	}
 
-	var _sets []dataset.Set
+	var _sets []dataset.Subset
 
 	for _, _rs := range rs.rowsSources {
 		ds, err := _rs.Dataset()

@@ -1,50 +1,39 @@
 package dataset
 
-// Dataset
-// data set
-// 处理前的
+// Dataset represents the raw data set before processing.
 type Dataset struct {
 	Name   string   // dataset name
 	Keys   []string // item key name
 	Titles []string // dataset item data title
-	Sets   []Set
+	Sets   []Subset
 }
 
-// Data
-// 处理后的
-type Data struct {
-	Names      []string           // data name 保存 name 的顺序
+// Result represents the processed data after merging.
+type Result struct {
+	Names      []string           // data names, preserves name order
 	Rows       map[string][][]any // map[name]rows
-	RowsAmount map[string]int     // rows num (不包含 title)
-	Amount     int                // rows total num (不包含 title)
+	RowsAmount map[string]int     // rows count (excluding title)
+	Amount     int                // total rows count (excluding title)
 }
 
-func (d *Data) addRows(name string, rows [][]any) {
-	if len(d.Rows) <= 0 {
-		d.Rows = make(map[string][][]any)
+// NewResult creates a Result with initialized maps.
+func NewResult() *Result {
+	return &Result{
+		Rows:       make(map[string][][]any),
+		RowsAmount: make(map[string]int),
 	}
-
-	if len(d.RowsAmount) <= 0 {
-		d.RowsAmount = make(map[string]int)
-	}
-
-	d.Names = append(d.Names, name)
-	d.RowsAmount[name] = len(rows)
-	d.Amount += d.RowsAmount[name]
-	d.Rows[name] = rows
 }
 
-func (d *Data) addRowsWithTitles(name string, titles []any, rows [][]any) {
-	if len(d.Rows) <= 0 {
-		d.Rows = make(map[string][][]any)
-	}
+func (r *Result) addRows(name string, rows [][]any) {
+	r.Names = append(r.Names, name)
+	r.RowsAmount[name] = len(rows)
+	r.Amount += r.RowsAmount[name]
+	r.Rows[name] = rows
+}
 
-	if len(d.RowsAmount) <= 0 {
-		d.RowsAmount = make(map[string]int)
-	}
-
-	d.Names = append(d.Names, name)
-	d.RowsAmount[name] = len(rows)
-	d.Amount += d.RowsAmount[name]
-	d.Rows[name] = append([][]any{titles}, rows...)
+func (r *Result) addRowsWithTitles(name string, titles []any, rows [][]any) {
+	r.Names = append(r.Names, name)
+	r.RowsAmount[name] = len(rows)
+	r.Amount += r.RowsAmount[name]
+	r.Rows[name] = append([][]any{titles}, rows...)
 }

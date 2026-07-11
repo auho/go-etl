@@ -77,13 +77,13 @@ func NewQuery(xlsxName, xlsxPath string) (*Query, error) {
 // AddAppend
 // add append dataset
 func (q *Query) AddAppend(source source.Source) {
-	q.add(dataset.ModeAppend, source)
+	q.add(dataset.MergeModeAppend, source)
 }
 
 // AddSpread
 // add spread dataset
 func (q *Query) AddSpread(source source.Source) {
-	q.add(dataset.ModeSpread, source)
+	q.add(dataset.MergeModeSpread, source)
 }
 
 func (q *Query) add(dm dataset.MergeMode, s source.Source) {
@@ -119,9 +119,9 @@ func (q *Query) doQuery(sq *subQuery) error {
 	}
 
 	_d.Begin()
-	_datasetMode, err := dataset.NewMode(sq.datasetMode, _dataset)
+	_datasetMode, err := dataset.NewMerger(sq.datasetMode, _dataset)
 	if err != nil {
-		return fmt.Errorf("NewMode: %w", err)
+		return fmt.Errorf("NewMerger: %w", err)
 	}
 
 	_data, err := _datasetMode.Data()

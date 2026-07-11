@@ -1,13 +1,14 @@
 package dataset
 
 import (
+	"fmt"
+
 	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
-var _ Mode = (*AppendMode)(nil)
+var _ Merger = (*AppendMode)(nil)
 
-// AppendMode
-// append dataset
+// AppendMode merges datasets by appending all rows under a single title.
 type AppendMode struct {
 	dataset *Dataset
 }
@@ -16,23 +17,27 @@ func NewAppendMode(ds *Dataset) *AppendMode {
 	return &AppendMode{dataset: ds}
 }
 
-func (am *AppendMode) Data() (*Data, error) {
+func (am *AppendMode) Data() (*Result, error) {
+	if am.dataset == nil {
+		return nil, fmt.Errorf("dataset is nil")
+	}
+
 	var rows [][]any
 
 	for _, set := range am.dataset.Sets {
 		rows = append(rows, set.Rows...)
 	}
 
-	data := &Data{}
-	data.addRowsWithTitles(am.dataset.Name, slicex.SliceToAny(am.dataset.Titles), rows)
+	result := NewResult()
+	result.addRowsWithTitles(am.dataset.Name, slicex.SliceToAny(am.dataset.Titles), rows)
 
-	return data, nil
+	return result, nil
 }
 
 func (am *AppendMode) Name() string {
 	return am.dataset.Name
 }
 
-func (am *AppendMode) Sets() []Set {
+func (am *AppendMode) Sets() []Subset {
 	return am.dataset.Sets
 }

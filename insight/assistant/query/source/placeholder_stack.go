@@ -150,7 +150,7 @@ func (pss *PlaceholderStack) Dataset() (*dataset.Dataset, error) {
 
 	// remove duplicates
 	_categoryIdMap := make(map[string]struct{})
-	var _sets []dataset.Set
+	var _sets []dataset.Subset
 
 	for _, _category := range pss.categories {
 		var _items []map[string]any
@@ -181,7 +181,7 @@ func (pss *PlaceholderStack) Dataset() (*dataset.Dataset, error) {
 			return nil, fmt.Errorf("dataset: %w", err)
 		}
 
-		_sets = append(_sets, dataset.NewSetWithSets(pss.categoryToID(_category, _categoryDataset.Keys), _categoryDataset.Sets))
+		_sets = append(_sets, dataset.NewSubsetFromSubsets(pss.categoryToID(_category, _categoryDataset.Keys), _categoryDataset.Sets))
 	}
 
 	return &dataset.Dataset{

@@ -38,8 +38,8 @@ func (b *Base) valuesToIdentification(values []string) string {
 	return strings.Join(values, "_")
 }
 
-func (b *Base) queryItemsSet(fields, itemsId []string, itemsSql map[string]string) ([]dataset.Set, error) {
-	var sets []dataset.Set
+func (b *Base) queryItemsSet(fields, itemsId []string, itemsSql map[string]string) ([]dataset.Subset, error) {
+	var sets []dataset.Subset
 
 	for _, itemId := range itemsId {
 		rows, _d, err := b.querySql(itemsSql[itemId], fields)
@@ -47,7 +47,7 @@ func (b *Base) queryItemsSet(fields, itemsId []string, itemsSql map[string]strin
 			return nil, fmt.Errorf("querySql: %w", err)
 		}
 
-		sets = append(sets, dataset.NewSetWithQuery(itemId, itemsSql[itemId], _d, rows))
+		sets = append(sets, dataset.NewSubsetWithQuery(itemId, itemsSql[itemId], _d, rows))
 	}
 
 	return sets, nil

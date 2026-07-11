@@ -4,59 +4,63 @@ import (
 	"time"
 )
 
-type Query struct {
+// QueryResult represents the execution result of a single SQL query.
+type QueryResult struct {
 	Amount   int
 	Duration time.Duration
 	Name     string
 	SQL      string
 }
 
-type Set struct {
+// Subset represents a subset of data within a Dataset.
+type Subset struct {
 	Amount   int
 	Duration time.Duration
 	Name     string
 	Rows     [][]any
-	Queries  []Query
+	Queries  []QueryResult
 }
 
-func NewSetWithQuery(name string, sql string, d time.Duration, rows [][]any) Set {
-	q := Query{
+// NewSubsetWithQuery creates a Subset from a single query result.
+func NewSubsetWithQuery(name string, sql string, d time.Duration, rows [][]any) Subset {
+	q := QueryResult{
 		Amount:   len(rows),
 		Duration: d,
 		Name:     name,
 		SQL:      sql,
 	}
 
-	s := Set{Name: name}
+	s := Subset{Name: name}
 	s.AddQuery(q)
 	s.Rows = rows
 
 	return s
 }
 
-func NewSetWithSets(name string, ss []Set) Set {
-	s := Set{Name: name}
+// NewSubsetFromSubsets creates a Subset by merging multiple Subsets.
+func NewSubsetFromSubsets(name string, ss []Subset) Subset {
+	s := Subset{Name: name}
 
-	for _, _s := range ss {
-		s.AddSet(_s)
+	for _, sub := range ss {
+		s.AddSubset(sub)
 	}
 
 	return s
 }
 
-func (s *Set) AddSet(_s Set) {
-	s.Rows = append(s.Rows, _s.Rows...)
+func (s *Subset) AddSubset(sub Subset) {
+	s.Rows = append(s.Rows, sub.Rows...)
 
-	s.AddQueries(_s.Queries)
+	s.AddQueries(sub.Queries)
 }
 
-func (s *Set) AddQueries(qs []Query) {
+func (s *Subset) AddQueries(qs []QueryResult) {
 	for _, q := range qs {
 		s.AddQuery(q)
 	}
 }
 
-func (s *Set) AddQuery(q Query) {
+func (s *Subset) AddQuery(q QueryResult) {
 	s.Amount += q.Amount
 	s.Duration += q.Duration
 	s.Queries = append(s.Queries, q)
