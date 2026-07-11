@@ -8,7 +8,7 @@ import (
 var _ assistant.Raw = (*Raw)(nil)
 
 type Raw struct {
-	model
+	base
 	extra
 	name string
 }
@@ -18,7 +18,7 @@ func NewRaw(name string, db *simpledb.SimpleDB) *Raw {
 	r.name = name
 	r.db = db
 	r.extra = extra{
-		model: r,
+		base: r,
 	}
 
 	return r

@@ -72,7 +72,7 @@ func TestExport_KeywordAll(t *testing.T) {
 // (toLine)
 func TestExport_KeywordLine(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherKey(rule, keywordLineToMaps, keywordLineKeys(rule), keywordLineDefaults(rule))
+	s := newMatcherKey(rule, keywordToRowsLine, keywordLineKeys(rule), keywordLineDefaults(rule))
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -103,7 +103,7 @@ func TestExport_KeywordLine(t *testing.T) {
 // (toFlag)
 func TestExport_KeywordFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherKey(rule, keywordFlagToMaps, keywordFlagKeys(rule), keywordFlagDefaults(rule))
+	s := newMatcherKey(rule, keywordToRowsFlag, keywordFlagKeys(rule), keywordFlagDefaults(rule))
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -193,7 +193,7 @@ func TestExport_LabelLine(t *testing.T) {
 // (labelResults.toFlag / mergeLabelsToWhole)
 func TestExport_LabelFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherLabels(rule, labelFlagToMaps, labelFlagKeys(rule), labelFlagDefaults(rule))
+	s := newMatcherLabels(rule, labelToRowsFlag, labelFlagKeys(rule), labelFlagDefaults(rule))
 	defer s.Close()
 
 	if err := s.Prepare(); err != nil {
@@ -348,7 +348,7 @@ func TestExport_ExtraMatcherFunctions(t *testing.T) {
 	rule := &ruleTest{}
 
 	t.Run("newMatcherLastText", func(t *testing.T) {
-		s := newMatcherLastText(rule, keywordAllToMaps, keywordAllKeys(rule), keywordAllDefaults(rule))
+		s := newMatcherLastText(rule, keywordToRowsAll, keywordAllKeys(rule), keywordAllDefaults(rule))
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {
@@ -361,7 +361,7 @@ func TestExport_ExtraMatcherFunctions(t *testing.T) {
 	})
 
 	t.Run("newMatcherLastKey", func(t *testing.T) {
-		s := newMatcherLastKey(rule, keywordAllToMaps, keywordAllKeys(rule), keywordAllDefaults(rule))
+		s := newMatcherLastKey(rule, keywordToRowsAll, keywordAllKeys(rule), keywordAllDefaults(rule))
 		defer s.Close()
 
 		if err := s.Prepare(); err != nil {

@@ -11,7 +11,7 @@ import (
 var _ assistant.Entity = (*TagDataRule)(nil)
 
 type TagDataRule struct {
-	model
+	base
 	extra
 	data assistant.Entity
 	rule assistant.Rule
@@ -23,7 +23,7 @@ func NewTagDataRule(data assistant.Entity, rule assistant.Rule, db *simpledb.Sim
 	t.rule = rule
 	t.db = db
 	t.extra = extra{
-		model: t,
+		base: t,
 	}
 
 	return t

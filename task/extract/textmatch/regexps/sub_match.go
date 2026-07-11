@@ -22,19 +22,19 @@ type SubMatch struct {
 	expressions []string
 	rule        extract.Rule
 	subMode     func([]*regexp.Regexp, []string) results
-	toMaps      func(results, extract.Rule) []map[string]any
+	toRows      func(results, extract.Rule) []map[string]any
 	keys        []string
 	defaults    map[string]any
 
 	regexps []*regexp.Regexp
 }
 
-func NewSubMatch(exs []string, rule extract.Rule, subMode func([]*regexp.Regexp, []string) results, toMaps func(results, extract.Rule) []map[string]any, keys []string, defaults map[string]any) *SubMatch {
+func NewSubMatch(exs []string, rule extract.Rule, subMode func([]*regexp.Regexp, []string) results, toRows func(results, extract.Rule) []map[string]any, keys []string, defaults map[string]any) *SubMatch {
 	return &SubMatch{
 		expressions: exs,
 		rule:        rule,
 		subMode:     subMode,
-		toMaps:      toMaps,
+		toRows:      toRows,
 		keys:        keys,
 		defaults:    defaults,
 	}
@@ -71,7 +71,7 @@ func (r *SubMatch) Extract(contents []string) extract.Result {
 	if len(rets) == 0 {
 		return extract.Result{}
 	}
-	return extract.NewResult(true, r.toMaps(rets, r.rule))
+	return extract.NewResult(true, r.toRows(rets, r.rule))
 }
 
 func (r *SubMatch) Close() error { return nil }

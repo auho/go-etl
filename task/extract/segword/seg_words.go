@@ -16,7 +16,7 @@ var _ extract.Extractor = (*SegWords)(nil)
 type SegWords struct {
 	seg        *Seg
 	format     format
-	toMaps     func(results, format) []map[string]any
+	toRows     func(results, format) []map[string]any
 	filterFunc func(result) bool
 	keys       []string
 	defaults   map[string]any
@@ -26,7 +26,7 @@ func NewSegWordsAll() *SegWords {
 	fm := defaultFormat
 	return &SegWords{
 		format:     fm,
-		toMaps:     func(r results, f format) []map[string]any { return r.toAll(f) },
+		toRows:     func(r results, f format) []map[string]any { return r.toAll(f) },
 		filterFunc: DefaultFilterFunc,
 		keys:       []string{fm.tokenName, fm.flagName},
 		defaults:   map[string]any{fm.tokenName: "", fm.flagName: ""},
@@ -37,7 +37,7 @@ func NewSegWordsLine() *SegWords {
 	fm := defaultFormat
 	return &SegWords{
 		format:     fm,
-		toMaps:     func(r results, f format) []map[string]any { return r.toLine(f) },
+		toRows:     func(r results, f format) []map[string]any { return r.toLine(f) },
 		filterFunc: DefaultFilterFunc,
 		keys:       []string{fm.tokenName},
 		defaults:   map[string]any{fm.tokenName: ""},
@@ -75,7 +75,7 @@ func (sg *SegWords) Extract(contents []string) extract.Result {
 	if len(filtered) == 0 {
 		return extract.Result{}
 	}
-	return extract.NewResult(true, sg.toMaps(filtered, sg.format))
+	return extract.NewResult(true, sg.toRows(filtered, sg.format))
 }
 
 func (sg *SegWords) Close() error {

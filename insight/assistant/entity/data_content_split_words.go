@@ -11,7 +11,7 @@ import (
 var _ assistant.Entity = (*DataContentSplitWords)(nil)
 
 type DataContentSplitWords struct {
-	model
+	base
 	extra
 	data        assistant.Entity
 	contentName string
@@ -23,7 +23,7 @@ func NewDataContentSplitWords(data assistant.Entity, contentName string, db *sim
 	dc.contentName = contentName
 	dc.db = db
 	dc.extra = extra{
-		model: dc,
+		base: dc,
 	}
 
 	return dc

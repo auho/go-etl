@@ -11,7 +11,7 @@ import (
 var _ assistant.Entity = (*DataContentSegWords)(nil)
 
 type DataContentSegWords struct {
-	model
+	base
 	extra
 	data        assistant.Entity
 	contentName string
@@ -23,7 +23,7 @@ func NewDataContentSegWords(data assistant.Entity, contentName string, db *simpl
 	dc.contentName = contentName
 	dc.db = db
 	dc.extra = extra{
-		model: dc,
+		base: dc,
 	}
 
 	return dc

@@ -14,17 +14,17 @@ type Contains struct {
 	subs     []string
 	rule     extract.Rule
 	subMode  func([]string) results
-	toMaps   func(results, extract.Rule) []map[string]any
+	toRows   func(results, extract.Rule) []map[string]any
 	keys     []string
 	defaults map[string]any
 }
 
-func newContains(subs []string, rule extract.Rule, subMode func([]string) results, toMaps func(results, extract.Rule) []map[string]any, keys []string, defaults map[string]any) *Contains {
+func newContains(subs []string, rule extract.Rule, subMode func([]string) results, toRows func(results, extract.Rule) []map[string]any, keys []string, defaults map[string]any) *Contains {
 	return &Contains{
 		subs:     subs,
 		rule:     rule,
 		subMode:  subMode,
-		toMaps:   toMaps,
+		toRows:   toRows,
 		keys:     keys,
 		defaults: defaults,
 	}
@@ -49,7 +49,7 @@ func (c *Contains) Extract(contents []string) extract.Result {
 	if len(rets) == 0 {
 		return extract.Result{}
 	}
-	return extract.NewResult(true, c.toMaps(rets, c.rule))
+	return extract.NewResult(true, c.toRows(rets, c.rule))
 }
 
 func (c *Contains) Close() error { return nil }

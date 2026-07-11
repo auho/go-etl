@@ -2,21 +2,21 @@ package match
 
 import "github.com/auho/go-etl/v3/task/extract"
 
-// keyword toMaps functions
+// keyword rowsFunc functions
 
-func keywordToMapsAll(r results, rule extract.Rule, f Format) []map[string]any {
+func keywordToRowsAll(r results, rule extract.Rule, f Format) []map[string]any {
 	return r.toAll(rule)
 }
 
-func keywordToMapsLine(r results, rule extract.Rule, f Format) []map[string]any {
+func keywordToRowsLine(r results, rule extract.Rule, f Format) []map[string]any {
 	return r.toLine(rule, f)
 }
 
-func keywordToMapsFlag(r results, rule extract.Rule, f Format) []map[string]any {
+func keywordToRowsFlag(r results, rule extract.Rule, f Format) []map[string]any {
 	return r.toFlag(rule, f)
 }
 
-// keyword keysFun functions
+// keyword keysFunc functions
 
 func keywordKeysAll(rule extract.Rule) ([]string, map[string]any) {
 	keys := append(rule.TagsAlias(), rule.KeywordNameAlias(), rule.KeywordAmountNameAlias())

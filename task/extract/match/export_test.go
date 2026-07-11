@@ -73,7 +73,7 @@ func TestExport_KeywordAll(t *testing.T) {
 // (toLine)
 func TestExport_KeywordLine(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherKey(rule, keywordToMapsLine, keywordKeysLine)
+	s := newMatcherKey(rule, keywordToRowsLine, keywordKeysLine)
 	s.scanner = _scanner
 	defer s.Close()
 
@@ -105,7 +105,7 @@ func TestExport_KeywordLine(t *testing.T) {
 // (toFlag)
 func TestExport_KeywordFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherKey(rule, keywordToMapsFlag, keywordKeysFlag)
+	s := newMatcherKey(rule, keywordToRowsFlag, keywordKeysFlag)
 	s.scanner = _scanner
 	defer s.Close()
 
@@ -198,7 +198,7 @@ func TestExport_LabelLine(t *testing.T) {
 // (labelResults.toFlag / mergeLabelsToWhole)
 func TestExport_LabelFlag(t *testing.T) {
 	rule := &ruleTest{}
-	s := newMatcherLabels(rule, labelToMapsFlag, labelKeysFlag)
+	s := newMatcherLabels(rule, labelToRowsFlag, labelKeysFlag)
 	s.scanner = _scanner
 	defer s.Close()
 
@@ -277,7 +277,7 @@ func TestExport_Pluck(t *testing.T) {
 func TestExport_WithFormat(t *testing.T) {
 	rule := &ruleTest{}
 	customFormat := Format{withKeywordAmount: false, sep: "|"}
-	s := newMatcherKey(rule, keywordToMapsLine, keywordKeysLine).
+	s := newMatcherKey(rule, keywordToRowsLine, keywordKeysLine).
 		WithFormat(customFormat)
 	s.scanner = _scanner
 	defer s.Close()
@@ -393,7 +393,7 @@ func TestExport_ExtraMatcherFunctions(t *testing.T) {
 	rule := &ruleTest{}
 
 	t.Run("newMatcherLastText", func(t *testing.T) {
-		s := newMatcherLastText(rule, keywordToMapsAll, keywordKeysAll)
+		s := newMatcherLastText(rule, keywordToRowsAll, keywordKeysAll)
 		s.scanner = _scanner
 		defer s.Close()
 
@@ -407,7 +407,7 @@ func TestExport_ExtraMatcherFunctions(t *testing.T) {
 	})
 
 	t.Run("newMatcherLastKey", func(t *testing.T) {
-		s := newMatcherLastKey(rule, keywordToMapsAll, keywordKeysAll)
+		s := newMatcherLastKey(rule, keywordToRowsAll, keywordKeysAll)
 		s.scanner = _scanner
 		defer s.Close()
 

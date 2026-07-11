@@ -12,7 +12,7 @@ import (
 var _ assistant.Entity = (*Rows)(nil)
 
 type Rows struct {
-	model
+	base
 	extra
 	name      string
 	idName    string
@@ -26,7 +26,7 @@ func NewRowsCustomTable(name, tableName, idName string, db *simpledb.SimpleDB) *
 	r.tableName = tableName
 	r.db = db
 	r.extra = extra{
-		model: r,
+		base: r,
 	}
 
 	return r

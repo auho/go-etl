@@ -8,7 +8,7 @@ import (
 var _ etl.CleanResource = (*CleanRows)(nil)
 
 type CleanRows struct {
-	model
+	base
 
 	raw     assistant.Entity
 	rows    *Rows

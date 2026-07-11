@@ -20,7 +20,7 @@ func (rc RuleConfig) AllowKeywordDuplicate() bool {
 }
 
 type baseRule struct {
-	model
+	base
 	config        RuleConfig
 	name          string // origin name
 	length        int    // origin name length

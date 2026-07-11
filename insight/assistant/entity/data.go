@@ -11,7 +11,7 @@ import (
 var _ assistant.Entity = (*Data)(nil)
 
 type Data struct {
-	model
+	base
 	extra
 	name   string
 	idName string
@@ -23,7 +23,7 @@ func NewData(name string, idName string, db *simpledb.SimpleDB) *Data {
 	d.idName = idName
 	d.db = db
 	d.extra = extra{
-		model: d,
+		base: d,
 	}
 
 	return d

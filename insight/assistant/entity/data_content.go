@@ -10,7 +10,7 @@ import (
 var _ assistant.Entity = (*DataContent)(nil)
 
 type DataContent struct {
-	model
+	base
 	extra
 	data        *Data
 	contentName string
@@ -21,7 +21,7 @@ func NewDataContent(data *Data, contentName string) *DataContent {
 	d.data = data
 	d.contentName = contentName
 	d.extra = extra{
-		model: d,
+		base: d,
 	}
 
 	return d

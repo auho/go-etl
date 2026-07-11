@@ -22,7 +22,7 @@ func NewDataRule(data assistant.Entity, rule *Rule) *DataRule {
 	dr.baseRule = rule.baseRule
 	dr.rule = rule
 	dr.extra = extra{
-		model: dr,
+		base: dr,
 	}
 
 	return dr

@@ -2,17 +2,17 @@ package tag
 
 import "github.com/auho/go-etl/v3/task/extract"
 
-// label export configurations (toMaps / keys / defaults)
+// label export configurations (rowsFunc / keys / defaults)
 
-func labelAllToMaps(r labelResults, rule extract.Rule, f Format) []map[string]any {
+func labelToRowsAll(r labelResults, rule extract.Rule, f Format) []map[string]any {
 	return r.toAll(rule, f)
 }
 
-func labelLineToMaps(r labelResults, rule extract.Rule, f Format) []map[string]any {
+func labelToRowsLine(r labelResults, rule extract.Rule, f Format) []map[string]any {
 	return r.toLine(rule, f)
 }
 
-func labelFlagToMaps(r labelResults, rule extract.Rule, f Format) []map[string]any {
+func labelToRowsFlag(r labelResults, rule extract.Rule, f Format) []map[string]any {
 	return r.toFlag(rule, f)
 }
 

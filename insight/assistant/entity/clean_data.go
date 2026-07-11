@@ -7,7 +7,7 @@ import (
 var _ etl.CleanResource = (*CleanData)(nil)
 
 type CleanData struct {
-	model
+	base
 
 	rows    *Rows
 	data    *Data

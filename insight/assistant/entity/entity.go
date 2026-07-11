@@ -5,18 +5,18 @@ import (
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
-type model struct {
+type base struct {
 	commandFunc func(command *schema.Command)
 	db          *simpledb.SimpleDB
 }
 
-func (m *model) withCommand(fn func(command *schema.Command)) {
+func (m *base) withCommand(fn func(command *schema.Command)) {
 	m.commandFunc = fn
 }
 
 // ExecCommand
-// exec model table command
-func (m *model) ExecCommand(command *schema.Command) {
+// exec base table command
+func (m *base) ExecCommand(command *schema.Command) {
 	if m.commandFunc != nil {
 		m.commandFunc(command)
 	}

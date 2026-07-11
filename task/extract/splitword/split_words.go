@@ -13,7 +13,7 @@ var _ extract.Extractor = (*SplitWords)(nil)
 type SplitWords struct {
 	sep      string
 	format   format
-	toMaps   func(results, format) []map[string]any
+	toRows   func(results, format) []map[string]any
 	keys     []string
 	defaults map[string]any
 }
@@ -22,7 +22,7 @@ func NewSplitWordsAll(sep string) *SplitWords {
 	return &SplitWords{
 		sep:    sep,
 		format: defaultFormat,
-		toMaps: func(r results, f format) []map[string]any { return r.toAll(f) },
+		toRows: func(r results, f format) []map[string]any { return r.toAll(f) },
 	}
 }
 
@@ -30,7 +30,7 @@ func NewSplitWordsLine(sep string) *SplitWords {
 	return &SplitWords{
 		sep:    sep,
 		format: defaultFormat,
-		toMaps: func(r results, f format) []map[string]any { return r.toLine(f) },
+		toRows: func(r results, f format) []map[string]any { return r.toLine(f) },
 	}
 }
 
@@ -61,7 +61,7 @@ func (s *SplitWords) Extract(contents []string) extract.Result {
 	if len(rets) == 0 {
 		return extract.Result{}
 	}
-	return extract.NewResult(true, s.toMaps(rets, s.format))
+	return extract.NewResult(true, s.toRows(rets, s.format))
 }
 
 func (s *SplitWords) Close() error { return nil }
