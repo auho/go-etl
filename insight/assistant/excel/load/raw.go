@@ -9,36 +9,36 @@ import (
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
-var _ Resource = (*RawResource)(nil)
+var _ Resource = (*Raw)(nil)
 
-type RawResource struct {
+type Raw struct {
 	baseResource
 
 	Rows      assistant.Entity
 	sheetData *reader.SheetDataWithTitle
 }
 
-func (r *RawResource) DB() *simpledb.SimpleDB {
+func (r *Raw) DB() *simpledb.SimpleDB {
 	return r.Rows.DB()
 }
 
-func (r *RawResource) Prepare() error {
+func (r *Raw) Prepare() error {
 	return nil
 }
 
-func (r *RawResource) Name() string {
+func (r *Raw) Name() string {
 	return r.Rows.Name()
 }
 
-func (r *RawResource) Tabler() create.Tabler {
+func (r *Raw) Tabler() create.Tabler {
 	return create.NewRowsTable(r.Rows)
 }
 
-func (r *RawResource) TitlesName() []string {
+func (r *Raw) TitlesName() []string {
 	return r.sheetData.GetTitles()
 }
 
-func (r *RawResource) TitlesIndex() []int {
+func (r *Raw) TitlesIndex() []int {
 	var indexes []int
 	for i := range r.TitlesName() {
 		indexes = append(indexes, i)
@@ -47,14 +47,14 @@ func (r *RawResource) TitlesIndex() []int {
 	return indexes
 }
 
-func (r *RawResource) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
+func (r *Raw) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	var err error
 	r.sheetData, err = r.readSheetData(excel, r.buildSheetConfig())
 
 	return r.sheetData, err
 }
 
-func (r *RawResource) readSheetData(excel *reader.Excel, sheetConfig reader.Config) (*reader.SheetDataWithTitle, error) {
+func (r *Raw) readSheetData(excel *reader.Excel, sheetConfig reader.Config) (*reader.SheetDataWithTitle, error) {
 	sheetData, err := reader.NewSheetDataWithTitle(excel, sheetConfig, nil)
 	if err != nil {
 		return nil, fmt.Errorf("NewSheetDataWithTitle: %w", err)

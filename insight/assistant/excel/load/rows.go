@@ -7,31 +7,31 @@ import (
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
-var _ Resource = (*RowsResource)(nil)
+var _ Resource = (*Rows)(nil)
 
-type RowsResource struct {
+type Rows struct {
 	baseResource
 	Titles // column title of save to db
 
 	Rows assistant.Entity
 }
 
-func (r *RowsResource) Prepare() error {
+func (r *Rows) Prepare() error {
 	return r.Titles.prepare()
 }
 
-func (r *RowsResource) Name() string {
+func (r *Rows) Name() string {
 	return r.Rows.Name()
 }
 
-func (r *RowsResource) Tabler() create.Tabler {
+func (r *Rows) Tabler() create.Tabler {
 	return create.NewRowsTable(r.Rows)
 }
 
-func (r *RowsResource) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
+func (r *Rows) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	return r.readSheetData(excel, r.buildSheetConfig())
 }
 
-func (r *RowsResource) DB() *simpledb.SimpleDB {
+func (r *Rows) DB() *simpledb.SimpleDB {
 	return r.Rows.DB()
 }

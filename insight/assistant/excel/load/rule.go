@@ -12,28 +12,28 @@ import (
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
-var _ Resource = (*RuleResource)(nil)
+var _ Resource = (*Rule)(nil)
 
-type RuleResource struct {
+type Rule struct {
 	baseResource
 	Titles // column title of save to db
 
 	Rule assistant.Rule
 }
 
-func (r *RuleResource) Prepare() error {
+func (r *Rule) Prepare() error {
 	return r.Titles.prepare()
 }
 
-func (r *RuleResource) Name() string {
+func (r *Rule) Name() string {
 	return r.Rule.Name()
 }
 
-func (r *RuleResource) Tabler() create.Tabler {
+func (r *Rule) Tabler() create.Tabler {
 	return create.NewRuleTable(r.Rule)
 }
 
-func (r *RuleResource) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
+func (r *Rule) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	sheetData, err := r.readSheetData(excel, r.buildSheetConfig())
 	if err != nil {
 		return nil, fmt.Errorf("readSheetData: %w", err)
@@ -90,6 +90,6 @@ func (r *RuleResource) SheetData(excel *reader.Excel) (reader.SheetDataReader, e
 	return sheetData, nil
 }
 
-func (r *RuleResource) DB() *simpledb.SimpleDB {
+func (r *Rule) DB() *simpledb.SimpleDB {
 	return r.Rule.DB()
 }

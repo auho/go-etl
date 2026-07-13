@@ -12,7 +12,7 @@ func ExampleRunLoad() {
 	// RunLoad
 	err := RunLoad("one.xlsx",
 		// rule
-		&RuleResource{
+		&Rule{
 			baseResource: baseResource{
 				SheetName:       "Sheet1",
 				StartRow:        2,
@@ -24,7 +24,7 @@ func ExampleRunLoad() {
 			Rule: entity.NewRuleSimple("rule_name", nil, nil),
 		},
 		// rows
-		&RowsResource{
+		&Rows{
 			baseResource: baseResource{
 				SheetName:       "Sheet2",
 				StartRow:        2,
