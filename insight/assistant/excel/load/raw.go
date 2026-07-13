@@ -11,6 +11,8 @@ import (
 
 var _ Resource = (*Raw)(nil)
 
+// Raw reads sheet data with a title row from Excel.
+// Column names are derived from the first row of the sheet.
 type Raw struct {
 	baseResource
 

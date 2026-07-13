@@ -9,9 +9,11 @@ import (
 
 var _ Resource = (*Rows)(nil)
 
+// Rows reads sheet data without a title row from Excel.
+// Column mapping is defined by the embedded Titles.
 type Rows struct {
 	baseResource
-	Titles // column title of save to db
+	Titles // column titles to save to db
 
 	Rows assistant.Entity
 }

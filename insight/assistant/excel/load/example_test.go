@@ -19,7 +19,7 @@ func ExampleRunLoad() {
 				IsRecreateTable: true,
 			},
 			Titles: Titles{
-				Titles: []string{"column1_name"}, // save to db 的 columns; 从第一个 column 开始，连续不间断；此选择优
+				Titles: []string{"column1_name"}, // db columns; consecutive from first column; preferred option
 			},
 			Rule: entity.NewRuleSimple("rule_name", nil, nil),
 		},
@@ -45,7 +45,7 @@ func ExampleRunLoad() {
 				},
 			},
 			Titles: Titles{
-				Titles: []string{"two_1", "two_2"}, // columns name to db
+				Titles: []string{"two_1", "two_2"}, // db column names
 			},
 			Rows: entity.NewRows("two", "id", nil),
 		},

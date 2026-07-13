@@ -7,6 +7,9 @@ import (
 	simpledb "github.com/auho/go-simple-db/v3"
 )
 
+// Resource defines the contract for loading Excel sheet data into a database table.
+// Each implementation wraps an entity (Raw, Rows, or Rule) and provides
+// sheet reading, table creation, and data insertion behavior.
 type Resource interface {
 	GetIsRecreateTable() bool
 	GetIsAppendData() bool
@@ -26,18 +29,20 @@ type Resource interface {
 	AfterDo(Resource) error
 }
 
+// baseResource holds the shared configuration and hooks embedded by all
+// concrete Resource implementations (Raw, Rows, Rule).
 type baseResource struct {
 	SheetName            string
-	SheetIndex           int                   // sheet index，从 1 开始
-	StartRow             int                   // 数据开始的行数，从 1 开始
-	EndRow               int                   // 数据结束的行数，从 1 开始
-	BatchInsertSize      int                   // 数据批量插入 size
-	IsRecreateTable      bool                  // true: recreate table; false: not recreate table;
-	IsAppendData         bool                  // true: append data; false truncate table
-	IsShowSql            bool                  // 是否显示 sql
-	columnDropDuplicates []int                 // [column index] drop duplicates for column
-	CommandFun           func(*schema.Command) // recreate table 时执行的 func
-	AfterFun             func(Resource) error  // 导入后的执行的 func
+	SheetIndex           int                   // sheet index, starting from 1
+	StartRow             int                   // data start row, starting from 1
+	EndRow               int                   // data end row, starting from 1
+	BatchInsertSize      int                   // batch insert size; defaults to 2000 if <= 0
+	IsRecreateTable      bool                  // true: recreate table; false: not recreate table
+	IsAppendData         bool                  // true: append data; false: truncate table
+	IsShowSql            bool                  // whether to print SQL
+	columnDropDuplicates []int                 // column indexes to drop duplicates on
+	CommandFun           func(*schema.Command) // function executed when recreating table
+	AfterFun             func(Resource) error  // function executed after import
 }
 
 func (b *baseResource) buildSheetConfig() reader.Config {

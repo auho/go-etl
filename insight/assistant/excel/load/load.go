@@ -9,6 +9,7 @@ import (
 	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
+// RunLoad loads one or more resources from an xlsx file into the database.
 func RunLoad(xlsxPath string, r ...Resource) error {
 	l := &Loader{
 		xlsxPath:  xlsxPath,
@@ -84,7 +85,7 @@ func (l *Loader) buildResourceTable(resource Resource, table create.Tabler) erro
 		fmt.Println(table.SQL())
 	}
 
-	// TODO Optimize 合并 recreate 至 table
+	// TODO Optimize: merge recreate logic into table
 	isRecreateTable := resource.GetIsRecreateTable()
 	_, err := resource.DB().GetTableColumns(context.TODO(), table.GetTableName())
 	if err != nil {

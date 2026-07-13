@@ -14,9 +14,11 @@ import (
 
 var _ Resource = (*Rule)(nil)
 
+// Rule reads sheet data for a rule entity, enriching each row with keyword length.
+// Column mapping is defined by the embedded Titles.
 type Rule struct {
 	baseResource
-	Titles // column title of save to db
+	Titles // column titles to save to db
 
 	Rule assistant.Rule
 }
@@ -40,7 +42,7 @@ func (r *Rule) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	}
 
 	keywordIndex := -1
-	// drop duplicates TODO add if
+	// find keyword column index; enable duplicate dropping if configured
 	for i, title := range r.titlesKey {
 		if title == r.Rule.KeywordName() {
 			keywordIndex = r.titlesIndex[i]
@@ -57,7 +59,7 @@ func (r *Rule) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	//	return nil, fmt.Errorf("keyword index error")
 	//}
 
-	// keyword len of string
+	// compute keyword length (rune count) for each row and append as a new column
 	err = sheetData.HandleRows(func(rows [][]string) ([][]string, error) {
 		r.titlesKey = append(r.titlesKey, r.Rule.KeywordLenName())
 
