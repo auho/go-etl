@@ -13,6 +13,11 @@ type base struct {
 	db          *simpledb.SimpleDB            // shared database connection
 }
 
+// DB returns the database connection.
+func (b *base) DB() *simpledb.SimpleDB {
+	return b.db
+}
+
 // withCommand sets the command hook that will be called before ExecCommand.
 func (b *base) withCommand(fn func(command *schema.Command)) {
 	b.commandFunc = fn

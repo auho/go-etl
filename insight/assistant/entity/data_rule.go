@@ -13,8 +13,8 @@ var _ assistant.Rule = (*DataRule)(nil)
 // on a particular data table. The table name follows the pattern "rule_<data_name>_<rule_name>".
 // DataRule supports alias mapping and keyword duplicate configuration.
 type DataRule struct {
-	baseRule // embedded rule base with name, labels, aliases, and keyword config
-	extra    // embedded extra for DDL/DML operations
+	baseRule                  // embedded rule base with name, labels, aliases, and keyword config
+	extra                     // embedded extra for DDL/DML operations
 	data     assistant.Entity // the data entity this rule is bound to
 	rule     *Rule            // the underlying rule definition
 }
@@ -26,7 +26,7 @@ func NewDataRule(data assistant.Entity, rule *Rule) *DataRule {
 	dr.baseRule = rule.baseRule
 	dr.rule = rule
 	dr.extra = extra{
-		base: dr,
+		raw: dr,
 	}
 
 	return dr

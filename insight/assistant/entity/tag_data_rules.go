@@ -14,45 +14,41 @@ var _ assistant.Entity = (*TagDataRules)(nil)
 // Unlike TagDataRule (single rule), TagDataRules groups multiple rules under one name.
 // The table name follows the pattern "tag_<data_name>_<name>".
 type TagDataRules struct {
-	base  // embedded base for command hook and DB connection
-	extra // embedded extra for DDL/DML operations
-	name  string             // name of this tag group
-	data  assistant.Entity   // the data entity being tagged
-	rules []assistant.Rule   // the rules applied to the data
+	base                   // embedded base for command hook and DB connection
+	extra                  // embedded extra for DDL/DML operations
+	name  string           // name of this tag group
+	data  assistant.Entity // the data entity being tagged
+	rules []assistant.Rule // the rules applied to the data
 }
 
 // NewTagDataRules creates a new TagDataRules for the given data, rules, and database connection.
 func NewTagDataRules(name string, data assistant.Entity, rules []assistant.Rule, db *simpledb.SimpleDB) *TagDataRules {
-	t := &TagDataRules{}
-	t.name = name
-	t.data = data
-	t.rules = rules
-	t.db = db
+	t := &TagDataRules{
+		base:  base{db: db},
+		name:  name,
+		data:  data,
+		rules: rules,
+	}
 	t.extra = extra{
-		base: t,
+		raw: t,
 	}
 
 	return t
 }
 
-// GetData returns the data entity being tagged.
-func (t *TagDataRules) GetData() assistant.Entity {
+// Data returns the data entity being tagged.
+func (t *TagDataRules) Data() assistant.Entity {
 	return t.data
 }
 
-// GetRules returns the list of rules applied to the data.
-func (t *TagDataRules) GetRules() []assistant.Rule {
+// Rules returns the list of rules applied to the data.
+func (t *TagDataRules) Rules() []assistant.Rule {
 	return t.rules
 }
 
 // Name returns the combined name of the data and the tag group name.
 func (t *TagDataRules) Name() string {
 	return fmt.Sprintf("%s_%s", t.data.Name(), t.name)
-}
-
-// DB returns the database connection.
-func (t *TagDataRules) DB() *simpledb.SimpleDB {
-	return t.db
 }
 
 // IDName returns the primary key column name, which is always "id".

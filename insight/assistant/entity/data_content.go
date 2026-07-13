@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/auho/go-etl/v3/insight/assistant"
-	simpledb "github.com/auho/go-simple-db/v3"
 )
 
 var _ assistant.Entity = (*DataContent)(nil)
@@ -13,27 +12,24 @@ var _ assistant.Entity = (*DataContent)(nil)
 // For example, a Data entity "articles" might have DataContent "articles_body" for the body content.
 // The table name follows the pattern "data_<data_name>_<content_name>".
 type DataContent struct {
-	base        // embedded base for command hook and DB connection
-	extra       // embedded extra for DDL/DML operations
+	base               // embedded base for command hook and DB connection
+	extra              // embedded extra for DDL/DML operations
 	data        *Data  // parent Data entity
 	contentName string // name of the content field (e.g., "body", "title")
 }
 
 // NewDataContent creates a new DataContent entity associated with the given Data and content field name.
 func NewDataContent(data *Data, contentName string) *DataContent {
-	d := &DataContent{}
-	d.data = data
-	d.contentName = contentName
+	d := &DataContent{
+		base:        base{db: data.DB()},
+		data:        data,
+		contentName: contentName,
+	}
 	d.extra = extra{
-		base: d,
+		raw: d,
 	}
 
 	return d
-}
-
-// DB returns the database connection from the parent Data entity.
-func (d *DataContent) DB() *simpledb.SimpleDB {
-	return d.data.DB()
 }
 
 // Name returns the combined name of the parent Data and the content field.

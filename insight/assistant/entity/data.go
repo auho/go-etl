@@ -15,28 +15,24 @@ var _ assistant.Entity = (*Data)(nil)
 // Data is the output of the row-level processing stage and serves as input
 // for rule-based analysis and tagging.
 type Data struct {
-	base   // embedded base for command hook and DB connection
-	extra  // embedded extra for DDL/DML operations
+	base          // embedded base for command hook and DB connection
+	extra         // embedded extra for DDL/DML operations
 	name   string // entity name (used to derive the table name)
 	idName string // name of the primary key column
 }
 
 // NewData creates a new Data entity with the given name, id column, and database connection.
 func NewData(name string, idName string, db *simpledb.SimpleDB) *Data {
-	d := &Data{}
-	d.name = name
-	d.idName = idName
-	d.db = db
+	d := &Data{
+		base:   base{db: db},
+		name:   name,
+		idName: idName,
+	}
 	d.extra = extra{
-		base: d,
+		raw: d,
 	}
 
 	return d
-}
-
-// DB returns the database connection.
-func (d *Data) DB() *simpledb.SimpleDB {
-	return d.db
 }
 
 // Name returns the entity name.

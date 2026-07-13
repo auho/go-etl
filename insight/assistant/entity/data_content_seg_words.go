@@ -14,28 +14,24 @@ var _ assistant.Entity = (*DataContentSegWords)(nil)
 // Segmentation is typically performed by NLP tools (e.g., jieba) that split text into meaningful terms.
 // The table name follows the pattern "tag_<data_name>_<content_name>_seg_words".
 type DataContentSegWords struct {
-	base        // embedded base for command hook and DB connection
-	extra       // embedded extra for DDL/DML operations
+	base                         // embedded base for command hook and DB connection
+	extra                        // embedded extra for DDL/DML operations
 	data        assistant.Entity // parent data entity
 	contentName string           // name of the content field being segmented
 }
 
 // NewDataContentSegWords creates a new DataContentSegWords entity.
 func NewDataContentSegWords(data assistant.Entity, contentName string, db *simpledb.SimpleDB) *DataContentSegWords {
-	dc := &DataContentSegWords{}
-	dc.data = data
-	dc.contentName = contentName
-	dc.db = db
+	dc := &DataContentSegWords{
+		base:        base{db: db},
+		data:        data,
+		contentName: contentName,
+	}
 	dc.extra = extra{
-		base: dc,
+		raw: dc,
 	}
 
 	return dc
-}
-
-// DB returns the database connection.
-func (dc *DataContentSegWords) DB() *simpledb.SimpleDB {
-	return dc.db
 }
 
 // Name returns the combined name of the parent data and the content field.

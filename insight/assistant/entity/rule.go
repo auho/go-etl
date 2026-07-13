@@ -38,7 +38,7 @@ func NewRule(name string, length, keywordLength int, labels map[string]int, db *
 	r := &Rule{}
 	r.baseRule = newBaseRule(name, length, keywordLength, labels, db)
 	r.extra = extra{
-		base: r,
+		raw: r,
 	}
 
 	return r

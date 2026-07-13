@@ -25,8 +25,8 @@ func (t *TagDataRulesTable) build() {
 	t.initCommand(t.tag.TableName())
 	t.Command.AddPKInt(t.tag.IDName())
 
-	NewDataTable(t.tag.GetData()).BuildForTag(t.Command)
-	for _, rule := range t.tag.GetRules() {
+	NewDataTable(t.tag.Data()).BuildForTag(t.Command)
+	for _, rule := range t.tag.Rules() {
 		NewRuleTable(rule).BuildForTag(t.Command)
 	}
 

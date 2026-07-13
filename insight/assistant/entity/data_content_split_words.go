@@ -15,28 +15,24 @@ var _ assistant.Entity = (*DataContentSplitWords)(nil)
 // splitting text on delimiters (e.g., whitespace, punctuation).
 // The table name follows the pattern "tag_<data_name>_<content_name>_split_words".
 type DataContentSplitWords struct {
-	base        // embedded base for command hook and DB connection
-	extra       // embedded extra for DDL/DML operations
+	base                         // embedded base for command hook and DB connection
+	extra                        // embedded extra for DDL/DML operations
 	data        assistant.Entity // parent data entity
 	contentName string           // name of the content field being split
 }
 
 // NewDataContentSplitWords creates a new DataContentSplitWords entity.
 func NewDataContentSplitWords(data assistant.Entity, contentName string, db *simpledb.SimpleDB) *DataContentSplitWords {
-	dc := &DataContentSplitWords{}
-	dc.data = data
-	dc.contentName = contentName
-	dc.db = db
+	dc := &DataContentSplitWords{
+		base:        base{db: db},
+		data:        data,
+		contentName: contentName,
+	}
 	dc.extra = extra{
-		base: dc,
+		raw: dc,
 	}
 
 	return dc
-}
-
-// DB returns the database connection.
-func (dc *DataContentSplitWords) DB() *simpledb.SimpleDB {
-	return dc.db
 }
 
 // Name returns the combined name of the parent data and the content field.

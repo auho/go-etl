@@ -28,10 +28,10 @@ func (rc RuleConfig) AllowKeywordDuplicate() bool {
 type baseRule struct {
 	base
 	config        RuleConfig
-	name          string          // origin name of the rule
-	length        int             // origin name string length (for database column size)
-	keywordLength int             // keyword string length (for database column size)
-	labels        map[string]int  // map[label]label length (for database column sizes)
+	name          string         // origin name of the rule
+	length        int            // origin name string length (for database column size)
+	keywordLength int            // keyword string length (for database column size)
+	labels        map[string]int // map[label]label length (for database column sizes)
 
 	alias             map[string]string // map[origin name][alias name]
 	nameAlias         string            // alias of the rule name (used as the effective name)
@@ -62,11 +62,6 @@ func newBaseRule(name string, length, keywordLength int, labels map[string]int, 
 	}
 
 	return br
-}
-
-// DB returns the database connection.
-func (br *baseRule) DB() *simpledb.SimpleDB {
-	return br.db
 }
 
 // Name returns the effective name (alias if set, otherwise the original name).

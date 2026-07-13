@@ -14,43 +14,39 @@ var _ assistant.Entity = (*TagDataRule)(nil)
 // Each TagDataRule corresponds to one rule applied to one data entity.
 // The table name follows the pattern "tag_<data_name>_<rule_name>".
 type TagDataRule struct {
-	base // embedded base for command hook and DB connection
-	extra // embedded extra for DDL/DML operations
-	data assistant.Entity // the data entity being tagged
-	rule assistant.Rule   // the rule applied to the data
+	base                   // embedded base for command hook and DB connection
+	extra                  // embedded extra for DDL/DML operations
+	data  assistant.Entity // the data entity being tagged
+	rule  assistant.Rule   // the rule applied to the data
 }
 
 // NewTagDataRule creates a new TagDataRule for the given data, rule, and database connection.
 func NewTagDataRule(data assistant.Entity, rule assistant.Rule, db *simpledb.SimpleDB) *TagDataRule {
-	t := &TagDataRule{}
-	t.data = data
-	t.rule = rule
-	t.db = db
+	t := &TagDataRule{
+		base: base{db: db},
+		data: data,
+		rule: rule,
+	}
 	t.extra = extra{
-		base: t,
+		raw: t,
 	}
 
 	return t
 }
 
-// GetData returns the data entity being tagged.
-func (t *TagDataRule) GetData() assistant.Entity {
+// Data returns the data entity being tagged.
+func (t *TagDataRule) Data() assistant.Entity {
 	return t.data
 }
 
-// GetRule returns the rule applied to the data.
-func (t *TagDataRule) GetRule() assistant.Rule {
+// Rule returns the rule applied to the data.
+func (t *TagDataRule) Rule() assistant.Rule {
 	return t.rule
 }
 
 // Name returns the combined name of the data and the rule.
 func (t *TagDataRule) Name() string {
 	return fmt.Sprintf("%s_%s", t.data.Name(), t.rule.Name())
-}
-
-// DB returns the database connection.
-func (t *TagDataRule) DB() *simpledb.SimpleDB {
-	return t.db
 }
 
 // IDName returns the primary key column name, which is always "id".

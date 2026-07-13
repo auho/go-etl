@@ -15,8 +15,8 @@ var _ assistant.Entity = (*Rows)(nil)
 // It is a named table with an id column, used for storing and processing row data
 // between the raw source stage and the final data stage.
 type Rows struct {
-	base      // embedded base for command hook and DB connection
-	extra     // embedded extra for DDL/DML operations
+	base             // embedded base for command hook and DB connection
+	extra            // embedded extra for DDL/DML operations
 	name      string // entity name
 	idName    string // name of the primary key column
 	tableName string // actual database table name
@@ -24,13 +24,14 @@ type Rows struct {
 
 // NewRowsCustomTable creates a new Rows entity with a custom table name.
 func NewRowsCustomTable(name, tableName, idName string, db *simpledb.SimpleDB) *Rows {
-	r := &Rows{}
-	r.name = name
-	r.idName = idName
-	r.tableName = tableName
-	r.db = db
+	r := &Rows{
+		base:      base{db: db},
+		name:      name,
+		idName:    idName,
+		tableName: tableName,
+	}
 	r.extra = extra{
-		base: r,
+		raw: r,
 	}
 
 	return r
@@ -39,11 +40,6 @@ func NewRowsCustomTable(name, tableName, idName string, db *simpledb.SimpleDB) *
 // NewRows creates a new Rows entity where the table name equals the entity name.
 func NewRows(name, idName string, db *simpledb.SimpleDB) *Rows {
 	return NewRowsCustomTable(name, name, idName, db)
-}
-
-// DB returns the database connection.
-func (r *Rows) DB() *simpledb.SimpleDB {
-	return r.db
 }
 
 // Name returns the entity name.
