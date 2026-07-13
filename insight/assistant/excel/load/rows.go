@@ -10,27 +10,28 @@ import (
 var _ Resource = (*RowsResource)(nil)
 
 type RowsResource struct {
-	ResourceBase
+	baseResource
 	Titles // column title of save to db
-	Rows   assistant.Entity
+
+	Rows assistant.Entity
 }
 
-func (rs *RowsResource) Prepare() error {
-	return rs.Titles.prepare()
+func (r *RowsResource) Prepare() error {
+	return r.Titles.prepare()
 }
 
-func (rs *RowsResource) GetName() string {
-	return rs.Rows.Name()
+func (r *RowsResource) Name() string {
+	return r.Rows.Name()
 }
 
-func (rs *RowsResource) GetTable() create.Tabler {
-	return create.NewRowsTable(rs.Rows)
+func (r *RowsResource) Tabler() create.Tabler {
+	return create.NewRowsTable(r.Rows)
 }
 
-func (rs *RowsResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
-	return rs.readSheetData(excel, rs.buildSheetConfig())
+func (r *RowsResource) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
+	return r.readSheetData(excel, r.buildSheetConfig())
 }
 
-func (rs *RowsResource) GetDB() *simpledb.SimpleDB {
-	return rs.Rows.DB()
+func (r *RowsResource) DB() *simpledb.SimpleDB {
+	return r.Rows.DB()
 }

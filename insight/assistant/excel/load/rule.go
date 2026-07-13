@@ -15,37 +15,38 @@ import (
 var _ Resource = (*RuleResource)(nil)
 
 type RuleResource struct {
-	ResourceBase
+	baseResource
 	Titles // column title of save to db
-	Rule   assistant.Rule
+
+	Rule assistant.Rule
 }
 
-func (rs *RuleResource) Prepare() error {
-	return rs.Titles.prepare()
+func (r *RuleResource) Prepare() error {
+	return r.Titles.prepare()
 }
 
-func (rs *RuleResource) GetName() string {
-	return rs.Rule.Name()
+func (r *RuleResource) Name() string {
+	return r.Rule.Name()
 }
 
-func (rs *RuleResource) GetTable() create.Tabler {
-	return create.NewRuleTable(rs.Rule)
+func (r *RuleResource) Tabler() create.Tabler {
+	return create.NewRuleTable(r.Rule)
 }
 
-func (rs *RuleResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
-	sheetData, err := rs.readSheetData(excel, rs.buildSheetConfig())
+func (r *RuleResource) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
+	sheetData, err := r.readSheetData(excel, r.buildSheetConfig())
 	if err != nil {
 		return nil, fmt.Errorf("readSheetData: %w", err)
 	}
 
 	keywordIndex := -1
 	// drop duplicates TODO add if
-	for i, title := range rs.titlesKey {
-		if title == rs.Rule.KeywordName() {
-			keywordIndex = rs.titlesIndex[i]
+	for i, title := range r.titlesKey {
+		if title == r.Rule.KeywordName() {
+			keywordIndex = r.titlesIndex[i]
 
-			if !rs.Rule.Config().AllowKeywordDuplicate() {
-				rs.ColumnDropDuplicates = append(rs.ColumnDropDuplicates, i)
+			if !r.Rule.Config().AllowKeywordDuplicate() {
+				r.columnDropDuplicates = append(r.columnDropDuplicates, i)
 			}
 
 			break
@@ -58,7 +59,7 @@ func (rs *RuleResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReade
 
 	// keyword len of string
 	err = sheetData.HandleRows(func(rows [][]string) ([][]string, error) {
-		rs.titlesKey = append(rs.titlesKey, rs.Rule.KeywordLenName())
+		r.titlesKey = append(r.titlesKey, r.Rule.KeywordLenName())
 
 		var _newRows [][]string
 		for _, row := range rows {
@@ -89,6 +90,6 @@ func (rs *RuleResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReade
 	return sheetData, nil
 }
 
-func (rs *RuleResource) GetDB() *simpledb.SimpleDB {
-	return rs.Rule.DB()
+func (r *RuleResource) DB() *simpledb.SimpleDB {
+	return r.Rule.DB()
 }

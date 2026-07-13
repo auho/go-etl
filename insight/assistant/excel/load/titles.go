@@ -22,11 +22,11 @@ func (t *Titles) prepare() error {
 	return t.check()
 }
 
-func (t *Titles) GetTitlesName() []string {
+func (t *Titles) TitlesName() []string {
 	return t.titlesKey
 }
 
-func (t *Titles) GetTitlesIndex() []int {
+func (t *Titles) TitlesIndex() []int {
 	return t.titlesIndex
 }
 
@@ -46,7 +46,7 @@ func (t *Titles) readSheetData(excel *reader.Excel, sheetConfig reader.Config) (
 }
 
 // buildTitlesKey
-// []string titles
+// []string Titles
 // []int columns index of title
 func (t *Titles) buildTitlesKey() {
 	_titlesWithIndex := make(map[int]string)

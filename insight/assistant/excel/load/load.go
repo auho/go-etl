@@ -9,69 +9,69 @@ import (
 	"github.com/auho/go-etl/v3/tool/slicex"
 )
 
-type Loader struct {
-	xlsxPath string
-	resource []Resource
-	excel    *reader.Excel
-}
-
-func RunLoad(xlsxPath string, sr ...Resource) error {
-	e := &Loader{
-		xlsxPath: xlsxPath,
-		resource: sr,
+func RunLoad(xlsxPath string, r ...Resource) error {
+	l := &Loader{
+		xlsxPath:  xlsxPath,
+		resources: r,
 	}
 
-	return e.Import()
+	return l.Import()
 }
 
-func (it *Loader) Import() (err error) {
-	fmt.Printf("import start[%s]\n", it.xlsxPath)
+type Loader struct {
+	excel     *reader.Excel
+	xlsxPath  string
+	resources []Resource
+}
 
-	it.excel, err = reader.NewExcel(it.xlsxPath)
+func (l *Loader) Import() (err error) {
+	fmt.Printf("import start[%s]\n", l.xlsxPath)
+
+	l.excel, err = reader.NewExcel(l.xlsxPath)
 	if err != nil {
 		return fmt.Errorf("NewExcel: %w", err)
 	}
 	defer func() {
-		if closeErr := it.excel.Close(); closeErr != nil && err == nil {
+		if closeErr := l.excel.Close(); closeErr != nil && err == nil {
 			err = fmt.Errorf("excel.Close: %w", closeErr)
 		}
 	}()
 
-	for _, resource := range it.resource {
-		fmt.Printf("import resource[%s]\n", resource.GetName())
-		err = it.importResource(resource)
+	for _, resource := range l.resources {
+		fmt.Printf("import resource[%s]\n", resource.Name())
+		err = l.importResource(resource)
 		if err != nil {
-			return fmt.Errorf("importResource[%s]: %w", resource.GetName(), err)
+			return fmt.Errorf("importResource[%s]: %w", resource.Name(), err)
 		}
 
 		err = resource.AfterDo(resource)
 		if err != nil {
-			return fmt.Errorf("AfterDo[%s]: %w", resource.GetName(), err)
+			return fmt.Errorf("AfterDo[%s]: %w", resource.Name(), err)
 		}
 	}
 
 	return nil
 }
 
-func (it *Loader) importResource(resource Resource) error {
+func (l *Loader) importResource(resource Resource) error {
 	err := resource.Prepare()
 	if err != nil {
 		return fmt.Errorf("prepare: %w", err)
 	}
 
-	_table := resource.GetTable()
+	_table := resource.Tabler()
 
-	err = it.buildResourceTable(resource, _table)
+	err = l.buildResourceTable(resource, _table)
 	if err != nil {
 		return fmt.Errorf("buildResourceTable: %w", err)
 	}
 
-	sheetData, err := resource.GetSheetData(it.excel)
+	sheetData, err := resource.SheetData(l.excel)
 	if err != nil {
 		return fmt.Errorf("GetSheetData: %w", err)
 	}
 
-	err = it.importResourceToTable(resource, _table, sheetData)
+	err = l.importResourceToTable(resource, _table, sheetData)
 	if err != nil {
 		return fmt.Errorf("importResourceToTable: %w", err)
 	}
@@ -79,19 +79,19 @@ func (it *Loader) importResource(resource Resource) error {
 	return nil
 }
 
-func (it *Loader) buildResourceTable(resource Resource, table create.Tabler) error {
+func (l *Loader) buildResourceTable(resource Resource, table create.Tabler) error {
 	if resource.GetIsShowSql() {
 		fmt.Println(table.SQL())
 	}
 
 	// TODO Optimize 合并 recreate 至 table
 	isRecreateTable := resource.GetIsRecreateTable()
-	_, err := resource.GetDB().GetTableColumns(context.TODO(), table.GetTableName())
+	_, err := resource.DB().GetTableColumns(context.TODO(), table.GetTableName())
 	if err != nil {
 		isRecreateTable = true
 	} else {
 		if isRecreateTable {
-			err = resource.GetDB().Drop(context.TODO(), table.GetTableName())
+			err = resource.DB().Drop(context.TODO(), table.GetTableName())
 			if err != nil {
 				return fmt.Errorf("drop: %w", err)
 			}
@@ -110,7 +110,7 @@ func (it *Loader) buildResourceTable(resource Resource, table create.Tabler) err
 	return nil
 }
 
-func (it *Loader) importResourceToTable(resource Resource, table create.Tabler, sheetData reader.SheetDataReader) error {
+func (l *Loader) importResourceToTable(resource Resource, table create.Tabler, sheetData reader.SheetDataReader) error {
 	var err error
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {
@@ -125,13 +125,13 @@ func (it *Loader) importResourceToTable(resource Resource, table create.Tabler, 
 	}
 
 	if !resource.GetIsAppendData() {
-		err = resource.GetDB().Truncate(context.TODO(), table.GetTableName())
+		err = resource.DB().Truncate(context.TODO(), table.GetTableName())
 		if err != nil {
 			return fmt.Errorf("truncate: %w", err)
 		}
 	}
 
-	err = resource.GetDB().BulkInsertFromSliceSlice(context.TODO(), table.GetTableName(), resource.GetTitlesName(), sheetData.GetRowsWithAny(), resource.GetBatchInsertSize())
+	err = resource.DB().BulkInsertFromSliceSlice(context.TODO(), table.GetTableName(), resource.TitlesName(), sheetData.GetRowsWithAny(), resource.GetBatchInsertSize())
 	if err != nil {
 		return err
 	}

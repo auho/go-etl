@@ -12,51 +12,49 @@ import (
 var _ Resource = (*RawResource)(nil)
 
 type RawResource struct {
-	ResourceBase
+	baseResource
 
-	Rows assistant.Entity
-
-	titlesName []string
-	sheetData  *reader.SheetDataWithTitle
+	Rows      assistant.Entity
+	sheetData *reader.SheetDataWithTitle
 }
 
-func (rs *RawResource) GetDB() *simpledb.SimpleDB {
-	return rs.Rows.DB()
+func (r *RawResource) DB() *simpledb.SimpleDB {
+	return r.Rows.DB()
 }
 
-func (rs *RawResource) Prepare() error {
+func (r *RawResource) Prepare() error {
 	return nil
 }
 
-func (rs *RawResource) GetName() string {
-	return rs.Rows.Name()
+func (r *RawResource) Name() string {
+	return r.Rows.Name()
 }
 
-func (rs *RawResource) GetTable() create.Tabler {
-	return create.NewRowsTable(rs.Rows)
+func (r *RawResource) Tabler() create.Tabler {
+	return create.NewRowsTable(r.Rows)
 }
 
-func (rs *RawResource) GetTitlesName() []string {
-	return rs.sheetData.GetTitles()
+func (r *RawResource) TitlesName() []string {
+	return r.sheetData.GetTitles()
 }
 
-func (rs *RawResource) GetTitlesIndex() []int {
+func (r *RawResource) TitlesIndex() []int {
 	var indexes []int
-	for i := range rs.GetTitlesName() {
+	for i := range r.TitlesName() {
 		indexes = append(indexes, i)
 	}
 
 	return indexes
 }
 
-func (rs *RawResource) GetSheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
+func (r *RawResource) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	var err error
-	rs.sheetData, err = rs.readSheetData(excel, rs.buildSheetConfig())
+	r.sheetData, err = r.readSheetData(excel, r.buildSheetConfig())
 
-	return rs.sheetData, err
+	return r.sheetData, err
 }
 
-func (rs *RawResource) readSheetData(excel *reader.Excel, sheetConfig reader.Config) (*reader.SheetDataWithTitle, error) {
+func (r *RawResource) readSheetData(excel *reader.Excel, sheetConfig reader.Config) (*reader.SheetDataWithTitle, error) {
 	sheetData, err := reader.NewSheetDataWithTitle(excel, sheetConfig, nil)
 	if err != nil {
 		return nil, fmt.Errorf("NewSheetDataWithTitle: %w", err)

@@ -13,7 +13,7 @@ func ExampleRunLoad() {
 	err := RunLoad("one.xlsx",
 		// rule
 		&RuleResource{
-			ResourceBase: ResourceBase{
+			baseResource: baseResource{
 				SheetName:       "Sheet1",
 				StartRow:        2,
 				IsRecreateTable: true,
@@ -25,7 +25,7 @@ func ExampleRunLoad() {
 		},
 		// rows
 		&RowsResource{
-			ResourceBase: ResourceBase{
+			baseResource: baseResource{
 				SheetName:       "Sheet2",
 				StartRow:        2,
 				IsRecreateTable: true,
@@ -33,9 +33,9 @@ func ExampleRunLoad() {
 					command.AddString("two_1")
 					command.AddString("two_2")
 				},
-				PostFun: func(resource Resource) error {
-					err1 := resource.GetDB().GormDB().
-						Table(resource.GetTable().GetTableName()).
+				AfterFun: func(resource Resource) error {
+					err1 := resource.DB().GormDB().
+						Table(resource.Tabler().GetTableName()).
 						Where(fmt.Sprintf("`%s` = ?", "two_1"), "value").
 						UpdateColumn("two_2", "").Error
 					if err1 != nil {
