@@ -7,11 +7,13 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+// Excel wraps an excelize.File for reading sheet data.
 type Excel struct {
 	path      string
 	excelFile *excelize.File
 }
 
+// NewExcel opens an xlsx file at path and returns an Excel ready for reading.
 func NewExcel(path string) (*Excel, error) {
 	e := &Excel{}
 	e.path = path
@@ -25,6 +27,8 @@ func NewExcel(path string) (*Excel, error) {
 	return e, nil
 }
 
+// readSheet reads rows from the sheet identified by config.
+// If ColumnIndexes is non-empty, only those columns are kept; missing columns default to "".
 func (e *Excel) readSheet(config Config) ([][]string, error) {
 	if config.SheetName == "" {
 		if config.SheetIndex <= 0 {
@@ -75,7 +79,7 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 		return nil, err
 	}
 
-	if len(config.ColsIndex) > 0 {
+	if len(config.ColumnIndexes) > 0 {
 		var newRows [][]string
 		for _, row := range rows {
 			rowLen := len(row)
@@ -84,7 +88,7 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 			}
 
 			var newRow []string
-			for _, index := range config.ColsIndex {
+			for _, index := range config.ColumnIndexes {
 				if index >= rowLen {
 					newRow = append(newRow, "")
 				} else {
@@ -101,6 +105,7 @@ func (e *Excel) readSheet(config Config) ([][]string, error) {
 	return rows, nil
 }
 
+// Close releases the underlying excelize file handle.
 func (e *Excel) Close() error {
 	if err := e.excelFile.Close(); err != nil {
 		return fmt.Errorf("excelFile.Close: %w", err)

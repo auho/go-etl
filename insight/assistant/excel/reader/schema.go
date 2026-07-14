@@ -16,8 +16,7 @@ var (
 	float64Re = regexp.MustCompile(`^\d+\.\d+$`)
 )
 
-// Schema
-// sheet to table schema
+// Schema reads an Excel sheet and builds a database table schema by inferring column types from data.
 type Schema struct {
 	excel  *Excel
 	table  create.Tabler
@@ -26,6 +25,7 @@ type Schema struct {
 	titleFunc []func(string) string
 }
 
+// NewSchemaWithPath creates a Schema by opening the xlsx file at xlsxPath.
 func NewSchemaWithPath(xlsxPath string, table create.Tabler, config Config) (*Schema, error) {
 	excel, err := NewExcel(xlsxPath)
 	if err != nil {
@@ -35,6 +35,7 @@ func NewSchemaWithPath(xlsxPath string, table create.Tabler, config Config) (*Sc
 	return NewSchema(excel, table, config)
 }
 
+// NewSchema creates a Schema from an existing Excel.
 func NewSchema(excel *Excel, table create.Tabler, config Config) (*Schema, error) {
 	return &Schema{
 		excel:  excel,
@@ -43,12 +44,16 @@ func NewSchema(excel *Excel, table create.Tabler, config Config) (*Schema, error
 	}, nil
 }
 
+// WithTitleFunc appends a title transformation function.
+// All registered functions are applied in order to each column title.
 func (s *Schema) WithTitleFunc(fn func(string) string) *Schema {
 	s.titleFunc = append(s.titleFunc, fn)
 
 	return s
 }
 
+// WithTitleAlias registers a title alias map as a transformation function.
+// Each title is replaced by its alias if one is defined.
 func (s *Schema) WithTitleAlias(alias map[string]string) *Schema {
 	s.WithTitleFunc(func(s string) string {
 		if _a, ok := alias[s]; ok {
@@ -61,11 +66,14 @@ func (s *Schema) WithTitleAlias(alias map[string]string) *Schema {
 	return s
 }
 
+// WithTitleAliasByIndex is not yet implemented.
 func (s *Schema) WithTitleAliasByIndex() {
 	// TODO implement me
 	panic("implement me")
 }
 
+// BuildTable reads the sheet, infers column types from the data, and adds columns to the table schema.
+// If EndRow is unset, defaults to 100 rows for type detection.
 func (s *Schema) BuildTable() (create.Tabler, error) {
 	if s.config.EndRow <= 0 {
 		s.config.EndRow = 100
@@ -81,6 +89,7 @@ func (s *Schema) BuildTable() (create.Tabler, error) {
 	return s.table, err
 }
 
+// buildTable processes the first row as titles and infers column types from remaining rows.
 func (s *Schema) buildTable(rows [][]string) {
 	titles := rows[0]
 	rows = rows[1:]
@@ -116,6 +125,8 @@ func (s *Schema) buildTable(rows [][]string) {
 	}
 }
 
+// detectColumnType infers the reflect.Kind, max integer length, and max decimal scale
+// for the column at index by scanning all rows.
 func (s *Schema) detectColumnType(index int, rows [][]string) (reflect.Kind, int, int) {
 	_types := make(map[reflect.Kind]int, len(rows))
 	_len1 := 0

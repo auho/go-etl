@@ -31,7 +31,7 @@ func (t *Titles) TitlesIndex() []int {
 }
 
 func (t *Titles) readSheetData(excel *reader.Excel, sheetConfig reader.Config) (*reader.SheetDataNoTitle, error) {
-	sheetConfig.ColsIndex = t.titlesIndex
+	sheetConfig.ColumnIndexes = t.titlesIndex
 	sheetData, err := reader.NewSheetDataNoTitle(excel, sheetConfig)
 	if err != nil {
 		return nil, fmt.Errorf("NewSheetDataNoTitle: %w", err)

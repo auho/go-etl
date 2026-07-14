@@ -10,11 +10,11 @@ var _raw *entity.Raw
 
 func ExampleNewSchema() {
 	s, _ := NewSchema(_excel, create.NewRawTable(_raw), Config{
-		SheetName:  "",
-		SheetIndex: 0,
-		StartRow:   0,
-		EndRow:     0,
-		ColsIndex:  nil,
+		SheetName:     "",
+		SheetIndex:    0,
+		StartRow:      0,
+		EndRow:        0,
+		ColumnIndexes: nil,
 	})
 
 	// handler title func
@@ -30,11 +30,11 @@ func ExampleNewSchema() {
 
 func ExampleNewSchemaWithPath() {
 	s, _ := NewSchemaWithPath("xlsxPath", create.NewRawTable(_raw), Config{
-		SheetName:  "",
-		SheetIndex: 0,
-		StartRow:   0,
-		EndRow:     0,
-		ColsIndex:  nil,
+		SheetName:     "",
+		SheetIndex:    0,
+		StartRow:      0,
+		EndRow:        0,
+		ColumnIndexes: nil,
 	})
 
 	// handler title func
@@ -52,63 +52,63 @@ func ExampleNewSheetDataNoTitle() {
 	s, _ := NewSheetDataNoTitle(
 		_excel,
 		Config{
-			SheetName:  "",
-			SheetIndex: 0,
-			StartRow:   0,
-			EndRow:     0,
-			ColsIndex:  nil,
+			SheetName:     "",
+			SheetIndex:    0,
+			StartRow:      0,
+			EndRow:        0,
+			ColumnIndexes: nil,
 		})
 
 	// read data
 	_ = s.ReadData()
 
-	// handler rows
-	_ = s.HandleRows(func(rows [][]string) ([][]string, error) {
+	// transform rows
+	_ = s.TransformRows(func(rows [][]string) ([][]string, error) {
 		return rows, nil
 	})
 
 	// get rows
 	_ = s.GetRows()
 
-	// get rows with any
-	_ = s.GetRowsWithAny()
+	// get rows as any
+	_ = s.GetRowsAsAny()
 }
 
 func ExampleNewSheetDataNoTitleWithPath() {
 	s, _ := NewSheetDataNoTitleWithPath(
 		"xlsxPath",
 		Config{
-			SheetName:  "",
-			SheetIndex: 0,
-			StartRow:   0,
-			EndRow:     0,
-			ColsIndex:  nil,
+			SheetName:     "",
+			SheetIndex:    0,
+			StartRow:      0,
+			EndRow:        0,
+			ColumnIndexes: nil,
 		})
 
 	// read data
 	_ = s.ReadData()
 
-	// handler rows
-	_ = s.HandleRows(func(rows [][]string) ([][]string, error) {
+	// transform rows
+	_ = s.TransformRows(func(rows [][]string) ([][]string, error) {
 		return rows, nil
 	})
 
 	// get rows
 	_ = s.GetRows()
 
-	// get rows with any
-	_ = s.GetRowsWithAny()
+	// get rows as any
+	_ = s.GetRowsAsAny()
 }
 
 func ExampleNewSheetDataWithTitle() {
 	s, _ := NewSheetDataWithTitle(
 		_excel,
 		Config{
-			SheetName:  "",
-			SheetIndex: 0,
-			StartRow:   0,
-			EndRow:     0,
-			ColsIndex:  nil,
+			SheetName:     "",
+			SheetIndex:    0,
+			StartRow:      0,
+			EndRow:        0,
+			ColumnIndexes: nil,
 		},
 		map[string]string{"title1": "title1_alias"},
 	)
@@ -116,8 +116,8 @@ func ExampleNewSheetDataWithTitle() {
 	// read data
 	_ = s.ReadData()
 
-	// handler rows
-	_ = s.HandleRows(func(rows [][]string) ([][]string, error) {
+	// transform rows
+	_ = s.TransformRows(func(rows [][]string) ([][]string, error) {
 		return rows, nil
 	})
 
@@ -130,19 +130,19 @@ func ExampleNewSheetDataWithTitle() {
 	// get rows
 	_ = s.GetRows()
 
-	// get rows with any
-	_ = s.GetRowsWithAny()
+	// get rows as any
+	_ = s.GetRowsAsAny()
 }
 
 func ExampleNewSheetDataWithTitleWithPath() {
 	s, _ := NewSheetDataWithTitleWithPath(
 		"xlsxPath",
 		Config{
-			SheetName:  "",
-			SheetIndex: 0,
-			StartRow:   0,
-			EndRow:     0,
-			ColsIndex:  nil,
+			SheetName:     "",
+			SheetIndex:    0,
+			StartRow:      0,
+			EndRow:        0,
+			ColumnIndexes: nil,
 		},
 		map[string]string{"title1": "title1_alias"},
 	)
@@ -150,8 +150,8 @@ func ExampleNewSheetDataWithTitleWithPath() {
 	// read data
 	_ = s.ReadData()
 
-	// handler rows
-	_ = s.HandleRows(func(rows [][]string) ([][]string, error) {
+	// transform rows
+	_ = s.TransformRows(func(rows [][]string) ([][]string, error) {
 		return rows, nil
 	})
 
@@ -164,6 +164,6 @@ func ExampleNewSheetDataWithTitleWithPath() {
 	// get rows
 	_ = s.GetRows()
 
-	// get rows with any
-	_ = s.GetRowsWithAny()
+	// get rows as any
+	_ = s.GetRowsAsAny()
 }

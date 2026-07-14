@@ -60,7 +60,7 @@ func (r *Rule) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	//}
 
 	// compute keyword length (rune count) for each row and append as a new column
-	err = sheetData.HandleRows(func(rows [][]string) ([][]string, error) {
+	err = sheetData.TransformRows(func(rows [][]string) ([][]string, error) {
 		r.titlesKey = append(r.titlesKey, r.Rule.KeywordLenName())
 
 		var _newRows [][]string
@@ -86,7 +86,7 @@ func (r *Rule) SheetData(excel *reader.Excel) (reader.SheetDataReader, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("HandleRows: %w", err)
+		return nil, fmt.Errorf("TransformRows: %w", err)
 	}
 
 	return sheetData, nil

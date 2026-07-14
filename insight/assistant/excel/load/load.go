@@ -115,13 +115,13 @@ func (l *Loader) importResourceToTable(resource Resource, table create.Tabler, s
 	var err error
 
 	if len(resource.GetColumnDropDuplicates()) > 0 {
-		err = sheetData.HandleRows(func(rows [][]string) ([][]string, error) {
+		err = sheetData.TransformRows(func(rows [][]string) ([][]string, error) {
 			rows = slicex.SliceSliceDropDuplicates(rows, resource.GetColumnDropDuplicates())
 
 			return rows, nil
 		})
 		if err != nil {
-			return fmt.Errorf("HandleRows: %w", err)
+			return fmt.Errorf("TransformRows: %w", err)
 		}
 	}
 
@@ -132,7 +132,7 @@ func (l *Loader) importResourceToTable(resource Resource, table create.Tabler, s
 		}
 	}
 
-	err = resource.DB().BulkInsertFromSliceSlice(context.TODO(), table.GetTableName(), resource.TitlesName(), sheetData.GetRowsWithAny(), resource.GetBatchInsertSize())
+	err = resource.DB().BulkInsertFromSliceSlice(context.TODO(), table.GetTableName(), resource.TitlesName(), sheetData.GetRowsAsAny(), resource.GetBatchInsertSize())
 	if err != nil {
 		return err
 	}
