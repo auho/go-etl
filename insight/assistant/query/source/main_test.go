@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/auho/go-etl/v3/internal/testutil"
 	"github.com/auho/go-etl/v3/internal/testutil/mysql"
 	simpledb "github.com/auho/go-simple-db/v3"
+	testutil "github.com/auho/go-toolkit-testutil"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +28,7 @@ func TestMain(m *testing.M) {
 // When MySQL is unavailable _gormDB stays nil and the setup is skipped
 // so that in-memory tests can still run.
 func setup() {
-	_, err := testutil.LoadEnv()
+	err := testutil.LoadEnv()
 	if err != nil {
 		fmt.Println(fmt.Errorf("LoadEnv: %w", err))
 		return

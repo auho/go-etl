@@ -2,18 +2,15 @@ package mysql
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"os"
 	"runtime"
-	"strings"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
-
 	simpledb "github.com/auho/go-simple-db/v3"
+	testmysql "github.com/auho/go-toolkit-testutil/mysql"
+	_ "github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -68,36 +65,6 @@ func NewDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 	return simpleDB, gormDB, nil
 }
 
-func loadDSN() (string, error) {
-	baseDSN := os.Getenv("TEST_MYSQL_DSN")
-	if baseDSN == "" {
-		return "", errors.New("TEST_MYSQL_DSN environment variable is not set")
-	}
-
-	// Ensure baseDSN ends with "/" for MySQL driver compatibility.
-	if !strings.HasSuffix(baseDSN, "/") {
-		baseDSN += "/"
-	}
-
-	return baseDSN, nil
-}
-
 func SetupDSN() (string, error) {
-	dsn, err := loadDSN()
-	if err != nil {
-		return "", fmt.Errorf("LoadDSN: %w", err)
-	}
-
-	if dsn == "" {
-		return "", errors.New("TEST_MYSQL_DSN not set; create .env.test with TEST_MYSQL_DSN")
-	}
-
-	cfg, err := mysql.ParseDSN(dsn)
-	if err != nil {
-		return "", fmt.Errorf("ParseDSN: %w", err)
-	}
-
-	cfg.DBName = dbName
-
-	return cfg.FormatDSN(), nil
+	return testmysql.LoadDSN(dbName)
 }

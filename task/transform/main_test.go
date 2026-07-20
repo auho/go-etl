@@ -5,11 +5,10 @@ import (
 	"os"
 	"testing"
 
-	simpledb "github.com/auho/go-simple-db/v3"
-	"gorm.io/gorm"
-
-	"github.com/auho/go-etl/v3/internal/testutil"
 	"github.com/auho/go-etl/v3/internal/testutil/mysql"
+	simpledb "github.com/auho/go-simple-db/v3"
+	testutil "github.com/auho/go-toolkit-testutil"
+	"gorm.io/gorm"
 )
 
 var _ruleName = "transform"
@@ -29,7 +28,7 @@ func TestMain(m *testing.M) {
 }
 
 func setUp() {
-	_, err := testutil.LoadEnv()
+	err := testutil.LoadEnv()
 	if err != nil {
 		panic(err)
 	}
