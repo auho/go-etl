@@ -7,7 +7,7 @@ import (
 	"github.com/auho/go-etl/v3/insight/assistant/excel/writer"
 	"github.com/auho/go-etl/v3/insight/assistant/query/dataset"
 	"github.com/auho/go-etl/v3/insight/assistant/query/source"
-	"github.com/auho/go-toolkit/v2/time/timing"
+	"github.com/auho/go-toolkit/v3/time/stopwatch"
 )
 
 type subQuery struct {
@@ -20,9 +20,9 @@ type Query struct {
 	xlsxPath string
 	excel    *writer.Excel
 
-	queries  []*subQuery
-	state    state
-	duration *timing.Duration
+	queries   []*subQuery
+	state     state
+	stopwatch *stopwatch.Stopwatch
 
 	summary []string
 }
@@ -56,8 +56,8 @@ func NewQueryWithPath(xlsxFilePath string) (*Query, error) {
 	q := &Query{}
 	q.xlsxPath = xlsxFilePath
 
-	q.duration = timing.NewDuration()
-	q.duration.Start()
+	q.stopwatch = stopwatch.NewStopwatch()
+	q.stopwatch.Start()
 
 	var err error
 	q.excel, err = writer.NewExcel(q.xlsxPath)
@@ -108,12 +108,12 @@ func (q *Query) doQueries() error {
 }
 
 func (q *Query) doQuery(sq *subQuery) error {
-	_d := timing.NewDuration()
+	_d := stopwatch.NewStopwatch()
 	_d.Start()
 
 	_d.Begin()
 	_dataset, err := sq.source.Dataset()
-	sq.state.sourceDuration = _d.SubBegin()
+	sq.state.sourceDuration = _d.SegmentDuration()
 	if err != nil {
 		return fmt.Errorf("source.Dataset: %w", err)
 	}
@@ -125,7 +125,7 @@ func (q *Query) doQuery(sq *subQuery) error {
 	}
 
 	_data, err := _datasetMode.Data()
-	sq.state.datasetDuration = _d.SubBegin()
+	sq.state.datasetDuration = _d.SegmentDuration()
 	if err != nil {
 		return fmt.Errorf("data: %w", err)
 	}
@@ -133,7 +133,7 @@ func (q *Query) doQuery(sq *subQuery) error {
 	_d.Begin()
 	for _, name := range _data.Names {
 		_, err = q.excel.NewSheetWithData(name, _data.Rows[name])
-		sq.state.toSheetDuration = _d.SubBegin()
+		sq.state.toSheetDuration = _d.SegmentDuration()
 		if err != nil {
 			return fmt.Errorf("excel.NewSheetWithData: %w", err)
 		}
@@ -142,7 +142,7 @@ func (q *Query) doQuery(sq *subQuery) error {
 	}
 
 	_d.Stop()
-	sq.state.totalDuration = _d.SubStart()
+	sq.state.totalDuration = _d.TotalDuration()
 	q.state.add(sq.state)
 
 	_querySummary := fmt.Sprintf("《%s》[%s]: %s", _datasetMode.Name(), sq.datasetMode, sq.state.overview())
@@ -150,12 +150,12 @@ func (q *Query) doQuery(sq *subQuery) error {
 	fmt.Println(_querySummary)
 
 	for _, _set := range _datasetMode.Sets() {
-		_setSummary := fmt.Sprintf("  <%s> => amount: %d, duration %s", _set.Name, _set.Amount, timing.PrettyDuration(_set.Duration))
+		_setSummary := fmt.Sprintf("  <%s> => amount: %d, duration %s", _set.Name, _set.Amount, stopwatch.PrettyDuration(_set.Duration))
 		q.summary = append(q.summary, _setSummary)
 		fmt.Println(_setSummary)
 
 		for _, _query := range _set.Queries {
-			fmt.Printf("    %s => amount: %d, duration %s:\n", _query.Name, _query.Amount, timing.PrettyDuration(_query.Duration))
+			fmt.Printf("    %s => amount: %d, duration %s:\n", _query.Name, _query.Amount, stopwatch.PrettyDuration(_query.Duration))
 			fmt.Printf("    %s\n", _query.SQL)
 		}
 
@@ -170,18 +170,18 @@ func (q *Query) Close() error {
 }
 
 func (q *Query) Save() error {
-	q.duration.Begin()
+	q.stopwatch.Begin()
 	err := q.doQueries()
-	q.state.queriesDuration = q.duration.SubBegin()
+	q.state.queriesDuration = q.stopwatch.SegmentDuration()
 	if err != nil {
 		return fmt.Errorf("doQueries: %w", err)
 	}
 
-	q.duration.Begin()
+	q.stopwatch.Begin()
 	err = q.excel.SaveAs()
-	q.state.saveDuration = q.duration.SubBegin()
-	q.duration.Stop()
-	q.state.totalDuration = q.duration.SubStart()
+	q.state.saveDuration = q.stopwatch.SegmentDuration()
+	q.stopwatch.Stop()
+	q.state.totalDuration = q.stopwatch.TotalDuration()
 
 	fmt.Println("SUMMARY =>")
 	for _, _s := range q.summary {

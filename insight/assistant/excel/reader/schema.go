@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v3/insight/assistant/schema/create"
-	"github.com/auho/go-toolkit/v2/farmtools/sort/maps"
+	"github.com/auho/go-toolkit/v3/lang/sortx/mapx"
 )
 
 var (
@@ -172,6 +172,6 @@ func (s *Schema) detectColumnType(index int, rows [][]string) (reflect.Kind, int
 		return reflect.String, 0, 0
 	}
 
-	_kt, _ := maps.SortValueDesc(_types)
+	_kt, _ := mapx.ByValueDesc(_types)
 	return _kt[0], _len1, _len2
 }

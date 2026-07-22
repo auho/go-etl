@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/auho/go-toolkit/v2/time/timing"
+	"github.com/auho/go-toolkit/v3/time/stopwatch"
 )
 
 type state struct {
@@ -27,12 +27,12 @@ func (s *state) add(ss sqlState) {
 
 func (s *state) overview() string {
 	return fmt.Sprintf("source: %s, dataset: %s, toSheet: %s <= queries: %s, save: %s, total: %s, amount: %d",
-		timing.PrettyDuration(s.sourceDuration),
-		timing.PrettyDuration(s.datasetDuration),
-		timing.PrettyDuration(s.toSheetDuration),
-		timing.PrettyDuration(s.queriesDuration),
-		timing.PrettyDuration(s.saveDuration),
-		timing.PrettyDuration(s.totalDuration),
+		stopwatch.PrettyDuration(s.sourceDuration),
+		stopwatch.PrettyDuration(s.datasetDuration),
+		stopwatch.PrettyDuration(s.toSheetDuration),
+		stopwatch.PrettyDuration(s.queriesDuration),
+		stopwatch.PrettyDuration(s.saveDuration),
+		stopwatch.PrettyDuration(s.totalDuration),
 		s.amount,
 	)
 }
@@ -47,10 +47,10 @@ type sqlState struct {
 
 func (ss *sqlState) overview() string {
 	return fmt.Sprintf("source: %s, dataset: %s, toSheet: %s, total: %s, amount: %d",
-		timing.PrettyDuration(ss.sourceDuration),
-		timing.PrettyDuration(ss.datasetDuration),
-		timing.PrettyDuration(ss.toSheetDuration),
-		timing.PrettyDuration(ss.totalDuration),
+		stopwatch.PrettyDuration(ss.sourceDuration),
+		stopwatch.PrettyDuration(ss.datasetDuration),
+		stopwatch.PrettyDuration(ss.toSheetDuration),
+		stopwatch.PrettyDuration(ss.totalDuration),
 		ss.amount,
 	)
 }

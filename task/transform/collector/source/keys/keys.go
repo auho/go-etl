@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/auho/go-etl/v3/task/transform/collector/source"
-	typesStrings "github.com/auho/go-toolkit/v2/farmtools/convert/types/strings"
+	"github.com/auho/go-toolkit/v3/lang/convert/stringx"
 )
 
 var _ source.Source = (*Keys)(nil)
@@ -45,7 +45,8 @@ func (k *Keys) Contents(item map[string]any) ([]string, map[string]string, error
 			keysValue[key] = ""
 			continue
 		}
-		v, err := typesStrings.FromAny(raw)
+
+		v, err := stringx.FromAny(raw)
 		if err != nil {
 			return nil, nil, fmt.Errorf("FromAny[%s]%T: %w", key, raw, err)
 		}

@@ -6,7 +6,7 @@ require (
 	github.com/auho/go-simple-db/v3 v3.0.1
 	github.com/auho/go-toolkit-flow/v3 v3.0.0
 	github.com/auho/go-toolkit-testutil v0.1.0
-	github.com/auho/go-toolkit/v2 v2.0.0
+	github.com/auho/go-toolkit/v3 v3.0.0
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/spf13/cobra v1.10.2
@@ -20,7 +20,6 @@ require (
 	github.com/ClickHouse/ch-go v0.71.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.44.0 // indirect
 	github.com/andybalholm/brotli v1.2.1 // indirect
-	github.com/auho/go-toolkit/v3 v3.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
