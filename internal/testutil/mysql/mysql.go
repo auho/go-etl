@@ -23,9 +23,9 @@ var dbName = "_test_etl"
 // automatically if it does not exist.
 func NewDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 	// Build the full DSN with the database name.
-	fullDSN, err := SetupDSN()
+	fullDSN, err := LoadDSN()
 	if err != nil {
-		return nil, nil, fmt.Errorf("SetupDSN: %w", err)
+		return nil, nil, fmt.Errorf("LoadDSN: %w", err)
 	}
 
 	// Ensure the test database exists.
@@ -65,6 +65,6 @@ func NewDB() (*simpledb.SimpleDB, *gorm.DB, error) {
 	return simpleDB, gormDB, nil
 }
 
-func SetupDSN() (string, error) {
+func LoadDSN() (string, error) {
 	return testmysql.LoadDSN(dbName)
 }

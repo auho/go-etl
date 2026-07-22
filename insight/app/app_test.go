@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	testutil "github.com/auho/go-toolkit-testutil"
+	"github.com/auho/go-etl/v3/internal/testutil"
 )
 
 func TestApp(t *testing.T) {

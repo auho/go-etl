@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/auho/go-etl/v3/internal/testutil"
 	"github.com/auho/go-etl/v3/internal/testutil/mysql"
 	simpledb "github.com/auho/go-simple-db/v3"
-	testutil "github.com/auho/go-toolkit-testutil"
 	"gorm.io/gorm"
 )
 

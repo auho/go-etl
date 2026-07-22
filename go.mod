@@ -3,11 +3,11 @@ module github.com/auho/go-etl/v3
 go 1.26
 
 require (
-	github.com/auho/go-simple-db/v3 v3.0.0
-	github.com/auho/go-toolkit-flow/v3 v3.0.0-20260624123031-cebae03f255c
+	github.com/auho/go-simple-db/v3 v3.0.1
+	github.com/auho/go-toolkit-flow/v3 v3.0.0
+	github.com/auho/go-toolkit-testutil v0.1.0
 	github.com/auho/go-toolkit/v2 v2.0.0
 	github.com/go-sql-driver/mysql v1.10.0
-	github.com/joho/godotenv v1.5.1
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/spf13/cobra v1.10.2
 	github.com/xuri/excelize/v2 v2.10.1
@@ -20,6 +20,7 @@ require (
 	github.com/ClickHouse/ch-go v0.71.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.44.0 // indirect
 	github.com/andybalholm/brotli v1.2.1 // indirect
+	github.com/auho/go-toolkit/v3 v3.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
@@ -28,8 +29,8 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/klauspost/compress v1.18.5 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
 	github.com/paulmach/orb v0.13.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.26 // indirect
 	github.com/richardlehane/mscfb v1.0.6 // indirect

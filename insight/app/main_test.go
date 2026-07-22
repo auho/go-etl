@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/auho/go-etl/v3/internal/testutil"
 	"github.com/auho/go-etl/v3/internal/testutil/mysql"
-	testutil "github.com/auho/go-toolkit-testutil"
 )
 
 var app *Application
@@ -26,7 +26,7 @@ func setup() {
 		panic(err)
 	}
 
-	dsn, err := mysql.SetupDSN()
+	dsn, err := mysql.LoadDSN()
 	if err != nil {
 		panic(err)
 	}
